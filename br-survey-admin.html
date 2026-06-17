@@ -244,6 +244,14 @@
   .adm .k-val, .adm .npsbig, .adm .hl-v{ font-weight:600; letter-spacing:-.01em; }
   .adm .grouphead, .adm .k-label, .adm .ctrl-label, .adm .mini-t, .adm .ftable th, .adm .hcell.head{ font-weight:500; letter-spacing:.04em; }
   .adm .tbtn, .adm .bgbtn, .adm .seg button, .adm .vbar .vc, .adm .hl .val, .adm .dlegend .val, .adm .ftable td.num, .adm .ftable th.num, .adm .hcell.val, .adm .stack span, .adm .facenum, .adm .qix{ font-weight:500; }
+
+  /* --- center-aligned admin & database --- */
+  .adm .adm-head{flex-direction:column; align-items:center; text-align:center;}
+  .adm .adm-head .tools{justify-content:center;}
+  .adm .grouphead{text-align:center;}
+  .adm .kpi{text-align:center;}
+  .adm .card>h3, .adm .card>.n{text-align:center;}
+  .gate{text-align:center;}
 </style>
 </head>
 <body>
@@ -962,52 +970,6 @@ function download(name,text){
     var a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click();
     setTimeout(function(){URL.revokeObjectURL(url); a.remove();},500);
   }catch(e){ alert("Download blocked here — open the file outside the preview to export."); }
-}
-
-/* ---------- demo data seeding ---------- */
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function wpick(pairs){ var t=pairs.reduce(function(s,p){return s+p[1];},0), x=Math.random()*t; for(var i=0;i<pairs.length;i++){ x-=pairs[i][1]; if(x<=0)return pairs[i][0]; } return pairs[0][0]; }
-function maybe(p){return Math.random()<p;}
-var FLAVORS=["Shooting Star","Mom is an Alien","Rainbow Sherbet","Pralines 'n Cream","Very Berry Strawberry","World Class Chocolate","New York Cheesecake","Green Tea","Love Struck Strawberry","Cotton Candy"];
-var EYE=["The pink interior wall","Monchhichi collab goods","The whole cake display","Shooting Star color","The photo zone","Korea-only flavors","The neon 31 sign","Mini tubs to take away"];
-function seedRecord(){
-  var r={}; r._id='r'+Math.random().toString(36).slice(2,9); 
-  r._submittedAt=new Date(Date.now()-Math.floor(Math.random()*14*864e5)).toISOString();
-  r.Q1=wpick([["Female",62],["Male",38]]);
-  r.Q2=wpick([["Under 20",10],["20–29",40],["30–39",26],["40–49",14],["50–59",7],["60 or above",3]]);
-  r.Q3=wpick([["China",18],["United States",14],["Japan",12],["Taiwan",9],["Thailand",8],["Hong Kong",7],["Singapore",6],["Vietnam",6],["Malaysia",5],["Indonesia",4],["Australia",4],["United Kingdom",3],["France",2],["Canada",2],["Philippines",2],["Germany",2]]);
-  r.Q4=wpick([["Traveling in Korea",70],["Living in Korea (less than 1 year)",18],["Living in Korea (1 year or longer)",12]]);
-  r.Q5=wpick([["Social media (Instagram, TikTok…)",38],["Map apps (Google Maps, Naver Map…)",16],["Travel websites or blogs",12],["Friends or family",12],["Saw it while passing by",10],["YouTube or influencer content",6],["Baskin-Robbins official channels",4],["Hotel or travel platform",2]]);
-  r.Q6=wpick([["To try Korea-only products",30],["To experience a unique Baskin-Robbins store",22],["To try products popular on social media",16],["To eat ice cream",14],["To enjoy desserts or beverages",8],["To buy merchandise (MD goods)",6],["Someone I was with wanted to visit",4]]);
-  r.Q7=wpick([["Interior design & atmosphere",26],["Korea-exclusive products",20],["Variety of flavors",18],["Photo zones & interactive experiences",12],["Merchandise (MD goods)",10],["Cakes & dessert menu",8],["Exterior design",6]]);
-  r.Q8=wpick([["Kiosk",50],["Ordered with a staff member",34],["Mobile order",8],["Someone else ordered for me",8]]);
-  if(r.Q8==="Kiosk"){
-    r["Q8-1"]=wpick([[0,8],[1,16],[2,22],[3,30],[4,24]]);
-    var diffs=Q["Q8-2"].options.slice(0,7), chosen=[];
-    if(maybe(.5))chosen.push("My language wasn’t available");
-    diffs.forEach(function(d){ if(d!=="My language wasn’t available"&&maybe(.22))chosen.push(d); });
-    if(chosen.length)r["Q8-2"]=chosen;
-  }
-  var buys=[]; ["Ice cream","Beverage","Other desserts (stick bar, mochi…)","Petit cake","Whole cake","Merchandise (MD goods)"].forEach(function(b,i){ if(maybe(i===0?.82:i===1?.4:.16))buys.push(b); });
-  if(!buys.length){ if(maybe(.5))buys.push("Ice cream"); else buys.push("Didn’t buy anything"); }
-  r.Q9=buys;
-  if(buys.some(function(x){return x!=="Didn’t buy anything";})){
-    if(maybe(.6))r["Q9-1"]=pick(FLAVORS);
-    r.Q10=wpick([["I was curious about the taste",24],["It’s only available in Korea",20],["It looked beautiful",16],["I saw it on social media",16],["It seemed popular",10],["It’s a collab with a character/IP I love",8],["Friends or family recommended it",6]]);
-  }
-  if(maybe(.5))r.Q11=pick(EYE);
-  r.Q12=wpick([[10,22],[9,24],[8,20],[7,12],[6,8],[5,5],[4,3],[3,2],[2,1],[1,1],[0,2]]);
-  return r;
-}
-async function seedDemo(count){
-  if(Store.mode()==='sheet'){
-    for(var i=0;i<count;i++){ await Store.addResponse(seedRecord()); }
-    return;
-  }
-  var arr=await Store.getResponses();
-  for(var j=0;j<count;j++) arr.push(seedRecord());
-  await Store.setResponses(arr);
-  var s=await Store.getStarts(); await Store.setStarts((s||0)+Math.round(count*1.28));
 }
 
 /* ============================ router + render ============================ */
