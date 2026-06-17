@@ -252,7 +252,7 @@
 
 <footer>
   <span>© Baskin-Robbins · Workshop Store</span>
-  <span style="display:flex; gap:18px;"><a href="index.html">All surveys</a><a href="#" id="adminLink">Admin</a></span>
+  <span style="display:flex; gap:18px;"><a href="index.html">All surveys</a><a href="br-survey-admin.html">Admin &amp; data</a></span>
 </footer>
 
 <script>
@@ -1088,9 +1088,6 @@ app.addEventListener('keydown', function(e){
 /* Admin / nav links live outside #app, so bind them directly (no URL hash) */
 function setChrome(){ var r=document.getElementById('navRight'); if(r) r.textContent=(lang==='en'?'한국어':'EN'); var hb=document.getElementById('hubBtn'); if(hb) hb.innerHTML='<span class="harr">←</span> '+tr('Survey Hub'); }
 function goHome(){ route="survey"; state.screen="landing"; render(); }
-document.getElementById('adminLink').addEventListener('click', function(e){
-  e.preventDefault(); route="admin"; render();
-});
 document.getElementById('navRight').addEventListener('click', function(e){
   e.preventDefault(); lang=(lang==='en'?'ko':'en'); try{document.documentElement.lang=lang;}catch(_){}
   setChrome();

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baskin-Robbins · Workshop Survey — Admin & Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3ECDF; --paper:#FFFFFF; --choco:#232A4A; --choco-soft:#6E769B;
+    --pink:#2B4CC4; --pink-deep:#1E3795; --pink-soft:#E5E9F9;
+    --blue:#C2974A; --blue-soft:#F4EAD6; --line:#E7DECF; --line-deep:#D6CBB6;
+    --mint:#2FA98E; --wood:#E0B87E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Hanken Grotesk',system-ui,sans-serif; color:var(--choco);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(35,42,74,.045) 1.5px, transparent 1.6px) 0 0 / 24px 24px,
+      radial-gradient(130% 60% at 8% -5%, var(--pink-soft) 0%, transparent 55%),
+      radial-gradient(120% 50% at 100% 0%, var(--blue-soft) 0%, transparent 45%),
+      var(--cream);
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,56px);
+    position:sticky; top:0; z-index:20; background:rgba(247,238,226,.82); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .wm{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; letter-spacing:.005em; color:var(--choco); line-height:1; display:flex; flex-direction:column;}
+  .brand .wm small{font-family:'Hanken Grotesk',sans-serif; font-weight:600; font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--choco-soft); margin-top:3px;}
+  .nav .lang{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; letter-spacing:.18em; color:var(--choco-soft); text-decoration:none;}
+  .navleft{display:flex; align-items:center; gap:14px; min-width:0;}
+  .hubbtn{display:inline-flex; align-items:center; gap:6px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:var(--choco); text-decoration:none; padding:8px 14px; border:1.5px solid var(--line-deep); border-radius:12px; background:var(--paper); transition:all .14s ease; white-space:nowrap;}
+  .hubbtn:hover{border-color:var(--pink); color:var(--pink); background:var(--pink-soft);}
+  .hubbtn .harr{font-weight:700; font-size:15px;}
+  @media (max-width:520px){ .brand .wm small{display:none;} }
+  main{flex:1; width:100%;}
+
+  /* hero */
+  .hero{max-width:1120px; margin:0 auto; padding:clamp(40px,7vw,88px) clamp(20px,5vw,56px);
+    display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center;}
+  .eyebrow{font-family:'Fredoka',sans-serif; font-weight:700; font-size:12px; letter-spacing:.18em; color:var(--pink); text-transform:uppercase; margin:0 0 18px;}
+  .hero h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(42px,6.2vw,68px); line-height:.96; letter-spacing:-.025em; margin:0; color:var(--choco);}
+  .hero h1 .pink{color:var(--pink);}
+  .hero .lead{font-size:clamp(16px,1.6vw,19px); line-height:1.55; color:var(--choco-soft); max-width:44ch; margin:24px 0 0;}
+  .hero .meta{margin-top:14px; font-size:14px; color:var(--choco-soft);} .hero .meta b{color:var(--choco);}
+  .start{margin-top:30px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; background:var(--pink); color:#fff; border:none;
+    border-radius:18px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:18px; padding:18px 30px; box-shadow:0 16px 30px -12px rgba(43,76,196,.7); transition:all .16s ease;}
+  .start:hover{background:var(--pink-deep); transform:translateY(-1px);} .start:hover svg{transform:translateX(3px);} .start svg{transition:transform .16s ease;}
+  .glass{position:relative; aspect-ratio:1; display:grid; place-items:center;}
+  .disc{width:min(420px,86%); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fff 0%, var(--pink-soft) 70%, #f6d3df 100%); display:grid; place-items:center; box-shadow:0 40px 70px -30px rgba(197,20,90,.35);}
+  .balloon{position:absolute; border-radius:50%;}
+  .bn1{width:54px; height:54px; background:var(--blue); top:4%; right:14%; opacity:.9;} .bn2{width:30px; height:30px; background:var(--pink); bottom:10%; right:6%;}
+  .bn3{width:22px; height:22px; background:var(--choco); top:22%; left:4%; opacity:.85;} .bn4{width:14px; height:14px; background:var(--pink); bottom:22%; left:12%;}
+
+  /* survey panel */
+  .wrap{max-width:660px; margin:0 auto; padding:clamp(28px,6vw,64px) clamp(18px,4vw,24px);}
+  .panel{background:var(--paper); border:1px solid var(--line); border-radius:28px; box-shadow:0 30px 70px -38px rgba(70,41,31,.45); overflow:hidden;}
+  .ptop{padding:26px clamp(22px,5vw,34px) 8px;}
+  .meter{display:flex; gap:5px;} .scoop{flex:1; height:6px; border-radius:6px; background:var(--line); transition:background .35s ease;}
+  .scoop.done{background:var(--pink);} .scoop.here{background:var(--choco);}
+  .crumbs{display:flex; justify-content:space-between; align-items:baseline; margin-top:14px;}
+  .section{font-family:'Fredoka',sans-serif; font-weight:700; font-size:12px; letter-spacing:.08em; color:var(--pink); text-transform:uppercase;}
+  .qix{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:var(--choco-soft);}
+  .pbody{padding:18px clamp(22px,5vw,34px) 8px;}
+  .qtitle{font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,27px); line-height:1.14; letter-spacing:-.015em; margin:6px 0 0;}
+  .qhint{font-size:14px; color:var(--choco-soft); margin:10px 0 0;} .qbody{margin-top:20px;}
+  .opts{display:flex; flex-direction:column; gap:10px;}
+  .opt{width:100%; display:flex; align-items:center; gap:13px; text-align:left; padding:15px 16px; border-radius:16px; cursor:pointer; background:var(--paper); border:1.5px solid var(--line); font:inherit; font-size:15.5px; color:var(--choco); transition:all .16s ease;}
+  .opt:hover{border-color:var(--line-deep);} .opt.on{border-color:var(--pink); background:var(--pink-soft);}
+  .dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line-deep); flex:none; transition:all .16s ease;}
+  .opt.on .dot{border-color:var(--pink); background:var(--pink); box-shadow:inset 0 0 0 3px var(--paper);}
+  .box{width:20px; height:20px; border-radius:7px; border:2px solid var(--line-deep); flex:none; display:grid; place-items:center; color:#fff; transition:all .16s ease;}
+  .opt.on .box{border-color:var(--pink); background:var(--pink);} .box svg{opacity:0;} .opt.on .box svg{opacity:1;}
+  .chips{display:flex; flex-wrap:wrap; gap:9px;}
+  .chip{padding:11px 15px; border-radius:13px; cursor:pointer; background:var(--paper); border:1.5px solid var(--line); font:inherit; font-size:14.5px; color:var(--choco); transition:all .16s ease;}
+  .chip:hover{border-color:var(--line-deep);} .chip.on{border-color:var(--pink); background:var(--pink-soft); color:var(--pink-deep); font-weight:600;} .chip.wide{flex:1 0 100%; text-align:center;}
+  .specify{width:100%; margin-top:9px; padding:13px 15px; border-radius:13px; border:1.5px solid var(--line-deep); background:var(--cream); font:inherit; font-size:15px; color:var(--choco);}
+  .specify:focus{outline:none; border-color:var(--pink);}
+  .bigtext{width:100%; padding:15px; border-radius:16px; resize:none; border:1.5px solid var(--line); background:var(--cream); font:inherit; font-size:16px; color:var(--choco); line-height:1.4;}
+  .bigtext:focus{outline:none; border-color:var(--pink); background:var(--paper);}
+  .scale{display:flex; flex-direction:column; gap:9px;}
+  .face{display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:15px; background:var(--paper); border:1.5px solid var(--line); cursor:pointer; font:inherit; transition:all .16s ease;}
+  .face.on{border-color:var(--pink); background:var(--pink-soft);}
+  .facenum{width:30px; height:30px; border-radius:50%; flex:none; display:grid; place-items:center; font-family:'Fredoka',sans-serif; font-weight:700; font-size:14px; color:var(--choco-soft); background:var(--cream); border:1.5px solid var(--line);}
+  .face.on .facenum{background:var(--pink); color:#fff; border-color:var(--pink);} .facelabel{font-size:15.5px; color:var(--choco);}
+  .nps{margin-top:4px;} .npsrow{display:grid; grid-template-columns:repeat(11,1fr); gap:5px;}
+  .npsbtn{aspect-ratio:1; border-radius:11px; border:1.5px solid var(--line); cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:var(--choco-soft); background:var(--paper); transition:all .16s ease; padding:0;}
+  .npsbtn.lo.on{background:var(--blue); color:#fff; border-color:var(--blue);} .npsbtn.mid.on{background:var(--choco); color:#fff; border-color:var(--choco);} .npsbtn.hi.on{background:var(--pink); color:#fff; border-color:var(--pink); transform:translateY(-2px);}
+  .npstrack{height:5px; border-radius:5px; margin:14px 2px 8px; background:linear-gradient(90deg,var(--blue),var(--line-deep) 52%,var(--pink));}
+  .npsends{display:flex; justify-content:space-between; font-size:12.5px; color:var(--choco-soft);}
+  .pnav{display:flex; gap:12px; padding:16px clamp(22px,5vw,34px) 26px; border-top:1px solid var(--line); margin-top:14px;}
+  .cta{background:var(--pink); color:#fff; border:none; cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px; padding:16px 22px; border-radius:16px; transition:all .16s ease; box-shadow:0 12px 24px -10px rgba(43,76,196,.7);}
+  .cta:hover{background:var(--pink-deep);} .cta.grow{flex:1;} .cta:disabled{background:var(--line-deep); color:var(--paper); box-shadow:none; cursor:not-allowed;}
+  .ghost{background:var(--paper); color:var(--choco-soft); border:1.5px solid var(--line); cursor:pointer; font:inherit; font-weight:600; font-size:15px; padding:16px 22px; border-radius:16px; transition:all .16s ease;}
+  .ghost:hover{border-color:var(--line-deep); color:var(--choco);}
+  .thanks{max-width:620px; margin:0 auto; padding:clamp(60px,12vw,120px) 24px; text-align:center;}
+  .seal{width:96px; height:96px; border-radius:50%; background:var(--pink-soft); display:grid; place-items:center; margin:0 auto 8px;}
+  .thanks h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(34px,6vw,48px); line-height:1; letter-spacing:-.02em; margin:22px 0 0;}
+  .thanks p{font-size:17px; line-height:1.55; color:var(--choco-soft); max-width:38ch; margin:18px auto 0;}
+  .restart{margin-top:30px;}
+  footer{padding:26px clamp(20px,5vw,56px); border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+  footer span,footer a{font-size:12.5px; color:var(--choco-soft); text-decoration:none;}
+  footer a:hover{color:var(--pink);}
+
+  /* ---------------- ADMIN ---------------- */
+  .adm{max-width:1140px; margin:0 auto; padding:clamp(24px,4vw,40px) clamp(18px,4vw,40px);}
+  .adm-head{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:8px;}
+  .adm-head h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(24px,3.4vw,32px); letter-spacing:-.02em; margin:0;}
+  .adm-head .sub{font-size:13.5px; color:var(--choco-soft); margin-top:4px;}
+  .tools{display:flex; gap:8px; flex-wrap:wrap;}
+  .tbtn{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; padding:10px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--paper); color:var(--choco); cursor:pointer; transition:all .14s ease;}
+  .tbtn:hover{border-color:var(--line-deep);} .tbtn.solid{background:var(--choco); color:#fff; border-color:var(--choco);} .tbtn.danger:hover{border-color:var(--pink); color:var(--pink-deep);}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:18px 0 8px;}
+  .kpi{background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:20px;}
+  .kpi .k-label{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; letter-spacing:.04em; color:var(--choco-soft); text-transform:uppercase;}
+  .kpi .k-val{font-family:'Fredoka',sans-serif; font-weight:800; font-size:38px; line-height:1; margin-top:10px; letter-spacing:-.02em;}
+  .kpi .k-sub{font-size:12.5px; color:var(--choco-soft); margin-top:8px;}
+  .k-pink{color:var(--pink);} .k-blue{color:var(--blue);} .k-choco{color:var(--choco);}
+  .grouphead{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--pink); margin:30px 0 6px; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
+  .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:14px;}
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:20px 22px;}
+  .card.full{grid-column:1 / -1;}
+  .card h3{font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px; margin:0 0 4px; letter-spacing:-.01em;}
+  .card .n{font-size:12px; color:var(--choco-soft); margin:0 0 14px;}
+  /* vertical bars */
+  .vbars{display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:18px;}
+  .vbar{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .vbar .col{width:100%; max-width:46px; background:var(--pink); border-radius:8px 8px 4px 4px; min-height:3px; position:relative; transition:height .5s cubic-bezier(.2,.7,.3,1);}
+  .vbar .vc{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; margin-bottom:6px; color:var(--choco);}
+  .vbar .vl{font-size:11.5px; color:var(--choco-soft); margin-top:9px; text-align:center; line-height:1.2;}
+  /* horizontal bars */
+  .hbar{display:flex; flex-direction:column; gap:11px;}
+  .hrow{display:grid; grid-template-columns:1fr; gap:5px;}
+  .hrow .hl{display:flex; justify-content:space-between; font-size:13.5px;}
+  .hrow .hl .lab{color:var(--choco); padding-right:10px;}
+  .hrow .hl .val{font-family:'Fredoka',sans-serif; font-weight:700; color:var(--choco); white-space:nowrap;}
+  .htrack{height:10px; border-radius:6px; background:var(--cream); overflow:hidden;}
+  .hfill{height:100%; border-radius:6px; background:var(--pink); transition:width .55s cubic-bezier(.2,.7,.3,1);}
+  /* nps */
+  .npswrap{display:flex; gap:22px; align-items:center; flex-wrap:wrap;}
+  .npsbig{font-family:'Fredoka',sans-serif; font-weight:800; font-size:54px; line-height:1; letter-spacing:-.02em;}
+  .npsstack{flex:1; min-width:220px;} .stack{display:flex; height:26px; border-radius:8px; overflow:hidden; border:1px solid var(--line);}
+  .stack span{display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fredoka',sans-serif; font-weight:700; font-size:12px;}
+  .leg{display:flex; gap:16px; margin-top:12px; flex-wrap:wrap; font-size:12.5px; color:var(--choco-soft);}
+  .leg i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle;}
+  /* text feed */
+  .feed{display:flex; flex-direction:column; gap:9px; max-height:280px; overflow-y:auto;}
+  .quote{background:var(--cream); border-radius:12px; padding:11px 14px; font-size:14px; color:var(--choco); line-height:1.4;}
+  .empty{padding:34px 0; text-align:center; color:var(--choco-soft); font-size:14px;}
+  /* view-mode switch */
+  .seg{display:inline-flex; border:1.5px solid var(--line); border-radius:12px; overflow:hidden;}
+  .seg button{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; padding:10px 14px; border:none; background:var(--paper); color:var(--choco-soft); cursor:pointer;}
+  .seg button.on{background:var(--choco); color:#fff;} .seg button+button{border-left:1.5px solid var(--line);}
+  /* donut */
+  .donut{display:flex; gap:18px; align-items:center; flex-wrap:wrap;}
+  .dlegend{display:flex; flex-direction:column; gap:7px; font-size:13px; min-width:170px; flex:1;}
+  .dlegend .row{display:flex; align-items:center; gap:8px;}
+  .dlegend i{width:11px; height:11px; border-radius:3px; flex:none;}
+  .dlegend .lab{color:var(--choco); flex:1;} .dlegend .val{font-family:'Fredoka',sans-serif; font-weight:700; color:var(--choco);}
+  /* frequency + raw tables */
+  .ftable{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .ftable th,.ftable td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line);}
+  .ftable th{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--choco-soft);}
+  .ftable td.num,.ftable th.num{text-align:right; font-family:'Fredoka',sans-serif; font-weight:700;}
+  .ftable tbody tr:last-child td{border-bottom:none;}
+  .rawscroll{max-height:380px; overflow:auto;}
+  /* explore controls */
+  .ctrlrow{display:flex; gap:14px; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap;}
+  .ctrl-label{font-family:'Fredoka',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--choco-soft); min-width:96px; padding-top:9px;}
+  .bgrp{display:flex; flex-wrap:wrap; gap:6px; flex:1;}
+  .bgbtn{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12.5px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--paper); color:var(--choco-soft); cursor:pointer; transition:all .14s ease;}
+  .bgbtn:hover{border-color:var(--line-deep);} .bgbtn.on{background:var(--pink); color:#fff; border-color:var(--pink);}
+  .filters{display:flex; gap:8px; flex-wrap:wrap; flex:1;}
+  .exsel{font:inherit; font-size:13px; padding:9px 11px; border-radius:10px; border:1.5px solid var(--line); background:var(--paper); color:var(--choco); cursor:pointer;}
+  .exresult{margin-top:18px; border-top:1px solid var(--line); padding-top:20px;}
+  .stackbar{display:flex; height:15px; border-radius:8px; overflow:hidden; background:var(--cream);}
+  .stackbar span{display:block; height:100%;}
+  .grouped{display:flex; gap:16px; align-items:flex-end; height:184px; overflow-x:auto; padding-top:10px;}
+  .ggroup{display:flex; flex-direction:column; align-items:center; min-width:50px;}
+  .gbars{display:flex; gap:3px; align-items:flex-end; height:140px;}
+  .gb{width:13px; border-radius:4px 4px 2px 2px; min-height:2px; transition:height .5s cubic-bezier(.2,.7,.3,1);}
+  .glab{font-size:11px; color:var(--choco-soft); margin-top:8px; text-align:center; max-width:70px; line-height:1.2;}
+  .heat{display:grid; gap:4px;}
+  .hcell{padding:9px 6px; border-radius:6px; font-size:12.5px; text-align:center;}
+  .hcell.head{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; color:var(--choco-soft);}
+  .hcell.rowlab{text-align:left; color:var(--choco); background:var(--cream); font-size:12px;}
+  .hcell.val{font-family:'Fredoka',sans-serif; font-weight:700;}
+  /* home button */
+  .brand{cursor:pointer;}
+  /* overview / snapshot */
+  .profile{font-size:17px; line-height:1.55; color:var(--choco); margin:0;}
+  .profile .hi{color:var(--pink); font-weight:700;}
+  .hl-tiles{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 4px;}
+  .hl-tile{background:var(--cream); border-radius:14px; padding:13px 16px; min-width:118px; flex:1;}
+  .hl-v{font-family:'Fredoka',sans-serif; font-weight:800; font-size:21px; line-height:1.1; color:var(--choco); letter-spacing:-.01em;}
+  .hl-l{font-size:12px; color:var(--choco-soft); margin-top:4px;}
+  .minirow{display:flex; gap:24px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--line); padding-top:20px;}
+  .mini{flex:1; min-width:180px;}
+  .mini-t{font-family:'Fredoka',sans-serif; font-weight:700; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--choco-soft); margin-bottom:9px;}
+  .minileg{display:flex; flex-wrap:wrap; gap:6px 13px; margin-top:9px; font-size:12px; color:var(--choco-soft);}
+  .minileg i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle;}
+  /* question graphics + legibility */
+  .qhead{display:flex; gap:15px; align-items:center; margin-top:6px; margin-bottom:2px;}
+  .qbadge{width:58px; height:58px; border-radius:50%; background:var(--pink-soft); border:1.5px solid #F6C9D9; display:grid; place-items:center; flex:none; box-shadow:0 6px 14px -8px rgba(197,20,90,.4);}
+  .qbadge svg{width:38px; height:38px;}
+  .qbadge.emoji{font-size:30px; line-height:1;}
+  .disc.photo{background:#fff; padding:0; overflow:hidden; box-shadow:0 40px 70px -30px rgba(35,42,74,.4);}
+  .disc.photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .thankbanner{width:100%; max-width:440px; margin:0 auto 12px; border-radius:20px; overflow:hidden; box-shadow:0 24px 48px -28px rgba(35,42,74,.5);}
+  .thankbanner img{width:100%; display:block;}
+  .pbody .qtitle{font-size:clamp(23px,3.7vw,30px); line-height:1.12; margin:0;}
+  .qbody .opt{padding:16px 18px; font-size:16px;}
+  .qbody .opt .optlabel{line-height:1.3;}
+  .qbody .chip{padding:12px 16px; font-size:15px;}
+  .qhint{font-size:14.5px;}
+  /* distinct log-out button */
+  .tbtn.out{margin-left:6px; border-color:var(--blue); color:#9A7430; font-weight:700; display:inline-flex; align-items:center; gap:7px; background:#fff;}
+  .tbtn.out:hover{background:var(--blue-soft); border-color:var(--blue); color:#9A7430;}
+  /* trend line */
+  .trend svg{width:100%; height:auto; display:block;}
+  .savetag{margin-top:20px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13.5px;}
+  .savetag.ok{color:var(--mint);} .savetag.warn{color:var(--pink-deep);}
+  /* gate */
+  .gate{max-width:380px; margin:0 auto; padding:clamp(60px,12vw,120px) 24px; text-align:center;}
+  .gate h2{font-family:'Fredoka',sans-serif; font-weight:800; font-size:26px; margin:18px 0 6px;}
+  .gate p{color:var(--choco-soft); font-size:14.5px; margin:0 0 20px;}
+  .gate input{width:100%; padding:14px 16px; border-radius:14px; border:1.5px solid var(--line-deep); background:var(--paper); font:inherit; font-size:18px; text-align:center; letter-spacing:.3em;}
+  .gate input:focus{outline:none; border-color:var(--pink);}
+  .gate .err{color:var(--pink-deep); font-size:13px; margin-top:10px; min-height:18px;}
+
+  .fade{animation:rise .34s cubic-bezier(.2,.7,.3,1);}
+  @keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+  button:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  @media (max-width:820px){ .hero{grid-template-columns:1fr; gap:14px;} .glass{order:-1; max-width:360px; margin:0 auto;} .kpis{grid-template-columns:repeat(2,1fr);} .cards{grid-template-columns:1fr;} }
+
+  /* --- Admin & Database: crisper, lighter type (Plus Jakarta Sans) --- */
+  .adm, .adm *, .gate, .gate *{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; }
+  .adm .adm-head h1, .gate h2{ font-weight:600; letter-spacing:-.015em; }
+  .adm .card h3{ font-weight:600; letter-spacing:-.005em; }
+  .adm .k-val, .adm .npsbig, .adm .hl-v{ font-weight:600; letter-spacing:-.01em; }
+  .adm .grouphead, .adm .k-label, .adm .ctrl-label, .adm .mini-t, .adm .ftable th, .adm .hcell.head{ font-weight:500; letter-spacing:.04em; }
+  .adm .tbtn, .adm .bgbtn, .adm .seg button, .adm .vbar .vc, .adm .hl .val, .adm .dlegend .val, .adm .ftable td.num, .adm .ftable th.num, .adm .hcell.val, .adm .stack span, .adm .facenum, .adm .qix{ font-weight:500; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="navleft">
+    <a class="hubbtn" id="hubBtn" href="index.html" title="Back to Survey Hub"><span class="harr">←</span> Survey Hub</a>
+    <div class="brand" id="markSmall"></div>
+  </div>
+  <a class="lang" id="navRight" href="#">ENGLISH</a>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <span>© Baskin-Robbins · Workshop Store · Admin & Database</span>
+  <span style="display:flex; gap:18px;"><a href="index.html">All surveys</a><a href="br-survey-system.html">Take the survey</a></span>
+</footer>
+
+<script>
+/* =====================================================================
+   BACKEND CONFIG
+   To send data to Google Sheets, paste your Apps Script Web App URL below
+   (the one ending in /exec). Leave it "" to use the built-in artifact
+   storage, which is what makes this work inside the Claude preview.
+   ===================================================================== */
+var CONFIG = { SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec" };
+
+var RKEY='survey:responses', SKEY='survey:starts';
+
+/* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
+function jsonp(url){
+  return new Promise(function(resolve,reject){
+    var cb='cb'+Date.now()+Math.floor(Math.random()*1e4);
+    var s=document.createElement('script');
+    var t=setTimeout(function(){ cleanup(); reject(new Error('timeout')); },12000);
+    function cleanup(){ try{delete window[cb];}catch(e){} if(s.parentNode)s.parentNode.removeChild(s); clearTimeout(t); }
+    window[cb]=function(data){ cleanup(); resolve(data); };
+    s.onerror=function(){ cleanup(); reject(new Error('network')); };
+    s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+cb;
+    document.body.appendChild(s);
+  });
+}
+/* POST write (no-cors + text/plain avoids the CORS preflight Apps Script can't answer) */
+function postSheet(payload){
+  return fetch(CONFIG.SHEET_ENDPOINT, { method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) });
+}
+
+var Store={
+  mode:function(){ return CONFIG.SHEET_ENDPOINT ? 'sheet' : 'local'; },
+  available:function(){ return CONFIG.SHEET_ENDPOINT ? true : (typeof window!=='undefined' && !!window.storage); },
+  _lGet:async function(){ try{ var r=await window.storage.get(RKEY); return r&&r.value?JSON.parse(r.value):[]; }catch(e){ return []; } },
+  _lSet:async function(arr){ try{ await window.storage.set(RKEY, JSON.stringify(arr), true); }catch(e){ console.error(e); } },
+  _lStarts:async function(){ try{ var r=await window.storage.get(SKEY); return r&&r.value?JSON.parse(r.value):0; }catch(e){ return 0; } },
+
+  /* one call returns everything the dashboard needs, from whichever backend is active */
+  snapshot:async function(){
+    if(Store.mode()==='sheet'){
+      try{ var d=await jsonp(CONFIG.SHEET_ENDPOINT+'?action=list'); return { responses:d.responses||[], starts:d.starts||0 }; }
+      catch(e){ console.error('sheet read failed',e); return { responses:[], starts:0, error:true }; }
+    }
+    return { responses: await Store._lGet(), starts: await Store._lStarts() };
+  },
+  getResponses:async function(){ return (await Store.snapshot()).responses; },
+  getStarts:async function(){ return (await Store.snapshot()).starts; },
+
+  addResponse:async function(rec){
+    if(Store.mode()==='sheet'){ try{ await postSheet({type:'response', data:rec}); return {ok:true, total:null}; }catch(e){ return {ok:false, total:null}; } }
+    var arr=await Store._lGet(); var before=arr.length; arr.push(rec); await Store._lSet(arr);
+    var check=await Store._lGet(); return { ok: check.length>before, total: check.length };
+  },
+  bumpStart:async function(){
+    if(Store.mode()==='sheet'){ try{ postSheet({type:'start'}); }catch(e){} return; }
+    var n=await Store._lStarts(); try{ await window.storage.set(SKEY, JSON.stringify(n+1), true); }catch(e){}
+  },
+  setResponses:async function(arr){ if(Store.mode()==='local') await Store._lSet(arr); },
+  setStarts:async function(n){ if(Store.mode()==='local'){ try{ await window.storage.set(SKEY, JSON.stringify(n), true); }catch(e){} } },
+  clearAll:async function(){ if(Store.mode()==='local'){ try{ await window.storage.delete(RKEY,true); }catch(e){} try{ await window.storage.delete(SKEY,true); }catch(e){} } }
+};
+
+/* ============================ brand mark ============================ */
+var PHOTOS = {cup:"",store:"",interior:""};
+function mark(size){
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 72 72" aria-hidden="true">'+
+    '<circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="2.5"/>'+
+    '<circle cx="36" cy="36" r="28" fill="none" stroke="#E5E9F9" stroke-width="1.5"/>'+
+    '<text x="36" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Fredoka, sans-serif" font-weight="700" font-size="30" fill="#2B4CC4" style="letter-spacing:-1px">31</text>'+
+    '<circle cx="16" cy="20" r="2.4" fill="#2B4CC4"/><circle cx="57" cy="22" r="2.4" fill="#C2974A"/><circle cx="52" cy="54" r="2.4" fill="#2B4CC4"/></svg>';
+}
+document.getElementById('markSmall').innerHTML = mark(30) + '<span class="wm">Workshop<small>by Baskin-Robbins</small></span>';
+document.getElementById('markSmall').setAttribute('title','Back to start');
+document.getElementById('markSmall').addEventListener('click', function(){ goHome(); });
+
+/* ===================== ICE-CREAM GRAPHICS ===================== */
+function ICON(name){
+  switch(name){
+    case "scoops": return '<svg viewBox="0 0 40 40" fill="none"><path d="M13 22 L20 36 L27 22 Z" fill="#E0B87E" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="17" r="6.5" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><circle cx="24" cy="17" r="6.5" fill="#C2974A" stroke="#232A4A" stroke-width="2"/><circle cx="20" cy="12" r="6.5" fill="#fff" stroke="#232A4A" stroke-width="2"/></svg>';
+    case "cup": return '<svg viewBox="0 0 40 40" fill="none"><path d="M12 18 L14 33 a2 2 0 0 0 2 2 h8 a2 2 0 0 0 2-2 L28 18 Z" fill="#2B4CC4" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><path d="M11 18 q9 -7 18 0" fill="#fff" stroke="#232A4A" stroke-width="2"/><path d="M16 26 q4 -3 8 0" fill="none" stroke="#8FA6E0" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    case "globe": return '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="13" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><path d="M7 20 H33 M20 7 V33 M11 14 Q20 19 29 14 M11 26 Q20 21 29 26" stroke="#fff" stroke-width="1.5" fill="none"/></svg>';
+    case "cone": return '<svg viewBox="0 0 40 40" fill="none"><path d="M13 20 L20 35 L27 20 Z" fill="#E0B87E" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><circle cx="20" cy="15" r="9" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><circle cx="20" cy="7.5" r="1.8" fill="#C2974A"/></svg>';
+    case "sundae": return '<svg viewBox="0 0 40 40" fill="none"><path d="M13 19 L16 33 h8 L27 19 Z" fill="#E5E9F9" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="15" r="5" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><circle cx="24" cy="15" r="5" fill="#C2974A" stroke="#232A4A" stroke-width="2"/><circle cx="20" cy="11" r="5" fill="#fff" stroke="#232A4A" stroke-width="2"/></svg>';
+    case "heart": return '<svg viewBox="0 0 40 40" fill="none"><path d="M20 32 C7 24 10 12 18 14 C20 14.4 20 16 20 16 C20 16 20 14.4 22 14 C30 12 33 24 20 32 Z" fill="#2B4CC4" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/></svg>';
+    case "star": return '<svg viewBox="0 0 40 40" fill="none"><path d="M20 6 L23 16 L33 19 L23 22 L20 34 L17 22 L7 19 L17 16 Z" fill="#C2974A" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/></svg>';
+    case "cake": return '<svg viewBox="0 0 40 40" fill="none"><path d="M9 30 L26 30 L26 16 Z" fill="#C2974A" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><path d="M9 30 L26 30 L26 25 L9 25 Z" fill="#fff" stroke="#232A4A" stroke-width="2" stroke-linejoin="round"/><circle cx="25" cy="15" r="2.4" fill="#2B4CC4" stroke="#232A4A" stroke-width="1.5"/></svg>';
+    case "cherry": return '<svg viewBox="0 0 40 40" fill="none"><circle cx="15" cy="29" r="6" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><circle cx="26" cy="29" r="6" fill="#C2974A" stroke="#232A4A" stroke-width="2"/><path d="M15 23 C17 13 24 10 28 10" fill="none" stroke="#2FA98E" stroke-width="2" stroke-linecap="round"/><path d="M26 23 C26 15 28 11 28 10" fill="none" stroke="#2FA98E" stroke-width="2" stroke-linecap="round"/></svg>';
+    case "popsicle": return '<svg viewBox="0 0 40 40" fill="none"><rect x="13" y="6" width="14" height="20" rx="7" fill="#2B4CC4" stroke="#232A4A" stroke-width="2"/><rect x="18" y="25" width="4" height="11" rx="2" fill="#E0B87E" stroke="#232A4A" stroke-width="1.5"/><circle cx="17" cy="13" r="1.4" fill="#fff"/><circle cx="23" cy="17" r="1.4" fill="#fff"/></svg>';
+    default: return ICON("scoops");
+  }
+}
+var QICON_MAP={ Q1:"scoops", Q2:"cup", Q3:"globe", Q4:"cone", Q5:"sundae", Q6:"heart", Q7:"star", Q8:"cup", "Q8-1":"popsicle", "Q8-2":"cone", Q9:"cake", "Q9-1":"cherry", Q10:"heart", Q11:"star", Q12:"heart" };
+function QICON(id){ return ICON(QICON_MAP[id]||"scoops"); }
+var QEMOJI={ Q1:"🧑", Q2:"🎂", Q3:"🌍", Q4:"✈️", Q5:"📱", Q6:"🎯", Q7:"✨", Q8:"🧾", "Q8-1":"🖥️", "Q8-2":"⚠️", Q9:"🍦", "Q9-1":"🍨", Q10:"💡", Q11:"👀", Q12:"❤️" };
+function heroArt(){
+  return '<svg width="230" height="230" viewBox="0 0 210 210" fill="none" aria-hidden="true">'+
+    // spoon (behind scoops)
+    '<rect x="139" y="34" width="10" height="64" rx="5" fill="#EDEFF4" stroke="#232A4A" stroke-width="3" transform="rotate(20 144 66)"/>'+
+    // cup body
+    '<path d="M68 104 L77 182 a7 7 0 0 0 7 6 h42 a7 7 0 0 0 7 -6 L142 104 Z" fill="#2B4CC4" stroke="#232A4A" stroke-width="4" stroke-linejoin="round"/>'+
+    // tonal swirl on cup
+    '<path d="M82 134 q12 -9 22 0 t22 0" fill="none" stroke="#5E78D6" stroke-width="4.5" stroke-linecap="round"/>'+
+    '<path d="M80 152 q12 -9 22 0 t22 0" fill="none" stroke="#5E78D6" stroke-width="4.5" stroke-linecap="round"/>'+
+    // gold Workshop tick
+    '<circle cx="105" cy="168" r="3.5" fill="#E0B87E"/>'+
+    // cup rim
+    '<path d="M64 104 q41 -17 82 0" fill="#3A4E9E" stroke="#232A4A" stroke-width="4" stroke-linejoin="round"/>'+
+    // scoops mound
+    '<circle cx="86" cy="92" r="26" fill="#E0B87E" stroke="#232A4A" stroke-width="4"/>'+
+    '<circle cx="124" cy="92" r="26" fill="#fff" stroke="#232A4A" stroke-width="4"/>'+
+    '<circle cx="105" cy="70" r="28" fill="#9A6E48" stroke="#232A4A" stroke-width="4"/>'+
+    // chocolate chips
+    '<circle cx="98" cy="66" r="3" fill="#232A4A"/><circle cx="116" cy="80" r="2.6" fill="#232A4A"/><circle cx="92" cy="86" r="2.4" fill="#232A4A"/>'+
+    '</svg>';
+}
+
+/* ============================ data ============================ */
+var COUNTRIES=["China","Japan","Taiwan","United States","Hong Kong","Thailand","Vietnam","Singapore","Malaysia","Philippines","Indonesia","Australia","Canada","United Kingdom","France","Germany"];
+var SCALE5=["Very difficult","Somewhat difficult","Neutral","Somewhat easy","Very easy"];
+var Q={
+  Q1:{section:"About you",index:"Q01",type:"single",title:"What is your gender?",options:["Male","Female"]},
+  Q2:{section:"About you",index:"Q02",type:"single",title:"Which age group do you belong to?",options:["Under 20","20–29","30–39","40–49","50–59","60 or above"]},
+  Q3:{section:"About you",index:"Q03",type:"country",title:"What is your nationality?",options:COUNTRIES},
+  Q4:{section:"About you",index:"Q04",type:"single",title:"What best describes your stay in Korea?",options:["Traveling in Korea","Living in Korea (less than 1 year)","Living in Korea (1 year or longer)"]},
+  Q5:{section:"Finding us",index:"Q05",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube or influencer content","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Friends or family","Hotel or travel platform","Baskin-Robbins official channels","Saw it while passing by","Other (Please specify)"]},
+  Q6:{section:"Finding us",index:"Q06",type:"single",title:"What mainly brought you in today?",options:["To try Korea-only products","To experience a unique Baskin-Robbins store","To try products popular on social media","To eat ice cream","To enjoy desserts or beverages","To buy merchandise (MD goods)","Someone I was with wanted to visit","Other (Please specify)"]},
+  Q7:{section:"Finding us",index:"Q07",type:"single",title:"What impressed you most walking in?",options:["Exterior design","Interior design & atmosphere","Variety of flavors","Korea-exclusive products","Cakes & dessert menu","Merchandise (MD goods)","Photo zones & interactive experiences","Other (Please specify)"]},
+  Q8:{section:"Ordering",index:"Q08",type:"single",title:"How did you order today?",options:["Kiosk","Ordered with a staff member","Mobile order","Someone else ordered for me","Other (Please specify)"]},
+  "Q8-1":{section:"Ordering",index:"Q08·1",type:"scale",title:"How was the kiosk experience?",options:SCALE5},
+  "Q8-2":{section:"Ordering",index:"Q08·2",type:"multi",title:"What made the kiosk difficult? Choose all that apply.",options:["My language wasn’t available","Hard to understand the menu","Hard to find items on the menu","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Ordering took too long","Other (Please specify)"]},
+  Q9:{section:"Your picks",index:"Q09",type:"multi",title:"What did you get today? Choose all that apply.",options:["Ice cream","Beverage","Other desserts (stick bar, mochi…)","Petit cake","Whole cake","Merchandise (MD goods)","Didn’t buy anything"],exclusive:"Didn’t buy anything"},
+  "Q9-1":{section:"Your picks",index:"Q09·1",type:"text",title:"Remember what you got?",hint:"Flavor, cake, or product name — optional."},
+  Q10:{section:"Your picks",index:"Q10",type:"single",title:"Why did you choose it?",options:["I was curious about the taste","It’s only available in Korea","It looked beautiful","I saw it on social media","Friends or family recommended it","It seemed popular","It’s a collab with a character/IP I love","Other (Please specify)"]},
+  Q11:{section:"Your picks",index:"Q11",type:"text",title:"What caught your eye the most?",hint:"Any menu item, flavor, or product here."},
+  Q12:{section:"One last thing",index:"Q12",type:"nps",title:"How likely are you to recommend us?",hint:"0 = not at all · 10 = absolutely"}
+};
+var BASE=["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q8-1","Q8-2","Q9","Q9-1","Q10","Q11","Q12"];
+
+/* ===================== i18n (English ⇄ Korean) ===================== */
+var lang = 'en';
+var KO = {
+"About you":"기본 정보","Finding us":"방문 경로","Ordering":"주문","Your picks":"구매 항목","One last thing":"마지막 질문",
+"What is your gender?":"성별을 알려주세요.",
+"Which age group do you belong to?":"연령대를 선택해 주세요.",
+"What is your nationality?":"국적을 알려주세요.",
+"What best describes your stay in Korea?":"현재 한국 체류 상태에 가장 가까운 것은?",
+"How did you first hear about the Workshop Store?":"Workshop 매장을 어떻게 처음 알게 되셨나요?",
+"What mainly brought you in today?":"오늘 방문하신 주된 이유는 무엇인가요?",
+"What impressed you most walking in?":"매장에 들어섰을 때 가장 인상적이었던 것은?",
+"How did you order today?":"오늘 어떻게 주문하셨나요?",
+"How was the kiosk experience?":"키오스크 주문 경험은 어떠셨나요?",
+"What made the kiosk difficult? Choose all that apply.":"키오스크 이용 시 불편했던 점은? (복수 선택)",
+"What did you get today? Choose all that apply.":"오늘 무엇을 구매하셨나요? (복수 선택)",
+"Remember what you got?":"구매하신 제품을 기억하시나요?",
+"Why did you choose it?":"선택하신 이유는 무엇인가요?",
+"What caught your eye the most?":"가장 눈길을 끌었던 것은 무엇인가요?",
+"How likely are you to recommend us?":"Workshop을 추천하실 의향은 어느 정도인가요?",
+"Flavor, cake, or product name — optional.":"맛, 케이크, 제품명 — 선택 입력.",
+"Any menu item, flavor, or product here.":"메뉴, 맛, 제품 무엇이든 좋아요.",
+"0 = not at all · 10 = absolutely":"0 = 전혀 아님 · 10 = 매우 그렇다",
+"Male":"남성","Female":"여성",
+"Under 20":"20세 미만","20–29":"20–29세","30–39":"30–39세","40–49":"40–49세","50–59":"50–59세","60 or above":"60세 이상",
+"China":"중국","Japan":"일본","Taiwan":"대만","United States":"미국","Hong Kong":"홍콩","Thailand":"태국","Vietnam":"베트남","Singapore":"싱가포르","Malaysia":"말레이시아","Philippines":"필리핀","Indonesia":"인도네시아","Australia":"호주","Canada":"캐나다","United Kingdom":"영국","France":"프랑스","Germany":"독일","Other":"기타",
+"Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 (1년 이상)",
+"Social media (Instagram, TikTok…)":"소셜 미디어 (인스타그램, 틱톡 등)","YouTube or influencer content":"유튜브·인플루언서 콘텐츠","Travel websites or blogs":"여행 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Friends or family":"친구·가족","Hotel or travel platform":"호텔·여행 플랫폼","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw it while passing by":"지나가다 우연히","Other (Please specify)":"기타 (직접 입력)",
+"To try Korea-only products":"한국 한정 제품을 맛보려고","To experience a unique Baskin-Robbins store":"특별한 배스킨라빈스 매장을 경험하려고","To try products popular on social media":"SNS에서 화제인 제품을 맛보려고","To eat ice cream":"아이스크림을 먹으려고","To enjoy desserts or beverages":"디저트·음료를 즐기려고","To buy merchandise (MD goods)":"MD 굿즈를 사려고","Someone I was with wanted to visit":"동행이 방문을 원해서",
+"Exterior design":"외관 디자인","Interior design & atmosphere":"인테리어·분위기","Variety of flavors":"다양한 맛","Korea-exclusive products":"한국 한정 제품","Cakes & dessert menu":"케이크·디저트 메뉴","Merchandise (MD goods)":"MD 굿즈","Photo zones & interactive experiences":"포토존·체험 요소",
+"Kiosk":"키오스크","Ordered with a staff member":"직원에게 주문","Mobile order":"모바일 주문","Someone else ordered for me":"다른 사람이 대신 주문",
+"Very difficult":"매우 불편","Somewhat difficult":"다소 불편","Neutral":"보통","Somewhat easy":"다소 편리","Very easy":"매우 편리",
+"My language wasn’t available":"내 언어가 지원되지 않음","Hard to understand the menu":"메뉴를 이해하기 어려움","Hard to find items on the menu":"메뉴에서 항목 찾기 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 부정확함","The screen layout was confusing":"화면 구성이 혼란스러움","Ordering took too long":"주문에 시간이 오래 걸림",
+"Ice cream":"아이스크림","Beverage":"음료","Other desserts (stick bar, mochi…)":"기타 디저트 (스틱바, 모찌 등)","Petit cake":"쁘띠 케이크","Whole cake":"홀케이크","Didn’t buy anything":"구매하지 않음",
+"I was curious about the taste":"맛이 궁금해서","It’s only available in Korea":"한국에서만 살 수 있어서","It looked beautiful":"비주얼이 예뻐서","I saw it on social media":"SNS에서 봐서","Friends or family recommended it":"친구·가족 추천","It seemed popular":"인기 있어 보여서","It’s a collab with a character/IP I love":"좋아하는 캐릭터·IP 콜라보라서",
+"Start the survey":"설문 시작하기","Continue":"다음","Back":"이전","Finish":"제출하기","Start over":"다시 시작",
+"Not at all":"전혀 아님","Absolutely":"매우 그렇다",
+"Tell us more…":"자세히 입력…","Your country…":"국가 입력…","Write here…":"여기에 입력…",
+"Survey Hub":"설문 허브",
+"31 flavors.":"31가지 맛,","One little favor.":"작은 부탁 하나.",
+"Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit.":"무엇이 당신을 이곳으로 이끌었고 무엇이 좋았는지 3분만 들려주세요. 여러분의 의견이 메뉴와 매장, 그리고 다음 방문을 만듭니다.",
+"Yay — that’s the scoop.":"감사합니다 — 여기까지예요.",
+"Thank you. Your feedback goes straight to the team behind the Workshop Store. Enjoy the rest of your visit.":"소중한 의견 감사합니다. 여러분의 피드백은 Workshop 팀에게 바로 전달됩니다. 남은 방문 시간도 즐겁게 보내세요.",
+"Saved to your Google Sheet.":"구글 시트에 저장되었습니다.","Saved.":"저장되었습니다.",
+"Your answers were captured, but the data store didn’t confirm the save.":"응답은 기록되었지만 저장이 확인되지 않았습니다.",
+/* admin */
+"Overview":"개요","Explore":"탐색","Advocacy":"추천 지표","Audience":"응답자","Discovery & first impression":"인지·첫인상","Purchases":"구매","Records":"기록",
+"Responses":"응답 수","Completion":"완료율","Avg recommend":"평균 추천","completed surveys":"완료된 설문","net promoter score":"순추천지수","out of 10":"10점 만점",
+"Refresh":"새로고침","Export CSV":"CSV 내보내기","Seed demo data":"샘플 데이터","Clear all":"전체 삭제","View survey":"설문 보기","Log out":"로그아웃",
+"Break down by":"기준","Split by":"분할","Measure":"측정값","View as":"보기","Filter":"필터","Count":"개수","Share %":"비율 %","Avg NPS":"평균 NPS","Bars":"막대","Grouped":"그룹","Pie":"파이","Heatmap":"히트맵","Table":"표","Reset filters":"필터 초기화","None":"없음","Donuts":"도넛",
+"Gender":"성별","Age":"연령","Nationality":"국적","Stay":"체류","Source":"경로","Visit reason":"방문 이유","First impression":"첫인상","Order method":"주문 방식","Kiosk ease":"키오스크 편의성","Bought":"구매 항목","Kiosk issues":"키오스크 문제","Choice reason":"선택 이유",
+"Age group":"연령대","Type of stay":"체류 유형","Top nationalities":"국적 상위","How they heard about us":"인지 경로","Reason for visiting":"방문 이유","Strongest first impression":"가장 강한 첫인상","Kiosk ease (kiosk users)":"키오스크 편의성 (이용자)","Kiosk difficulties":"키오스크 불편 사항","What they bought":"구매 항목","Why they chose it":"선택 이유","Products named":"제품 응답","Most eye-catching":"가장 눈에 띈 것",
+"Net Promoter Score":"순추천지수 (NPS)","Explore & cross-tab":"탐색 & 교차분석","Responses over time":"기간별 응답","Raw responses":"원본 응답","Survey insights":"설문 인사이트","Overview · who’s responding":"개요 · 응답자 프로필",
+"Admin access":"관리자 접근","Enter the passcode to view survey insights.":"설문 인사이트를 보려면 비밀번호를 입력하세요.","Unlock dashboard":"대시보드 열기","Back to survey":"설문으로 돌아가기",
+"No responses yet.":"아직 응답이 없습니다."
+};
+function tr(s){ if(lang==='ko' && KO[s]!==undefined) return KO[s]; return s; }
+
+/* ============================ survey state + logic ============================ */
+var state={screen:"landing", answers:{}};
+function usedKiosk(a){return (a||state.answers).Q8==="Kiosk";}
+function bought(a){var v=(a||state.answers).Q9; return Array.isArray(v)&&v.some(function(x){return x!=="Didn’t buy anything";});}
+function visible(id){ if(id==="Q8-1"||id==="Q8-2")return usedKiosk(); if(id==="Q9-1"||id==="Q10")return bought(); return true; }
+function flow(){return BASE.filter(visible);}
+function answered(id){ var def=Q[id], a=state.answers[id]; if(!def)return true; if(def.type==="text")return true; if(def.type==="multi")return Array.isArray(a)&&a.length>0; if(def.type==="nps"||def.type==="scale")return a!==undefined&&a!==null; return !!a; }
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function isOther(o){return o.indexOf("Other")===0;}
+var CHECK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17.5 L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* ---------- survey views ---------- */
+function viewLanding(){
+  return '<section class="hero fade" style="background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;border-radius:26px;margin-top:18px;box-shadow:0 30px 70px -42px rgba(35,42,74,.4);"><div>'+
+    '<p class="eyebrow">Workshop · by Baskin-Robbins</p>'+
+    '<h1>'+esc(tr("31 flavors."))+'<br><span class="pink">'+esc(tr("One little favor."))+'</span></h1>'+
+    '<p class="lead">'+esc(tr("Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit."))+'</p>'+
+    '<p class="meta"><b>'+(lang==='ko'?'약 3분':'About 3 minutes')+'</b> · '+(lang==='ko'?'12문항':'12 questions')+' · '+(lang==='ko'?'한국어':'English')+'</p>'+
+    '<button class="start" data-act="start">'+esc(tr("Start the survey"))+' <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+    '</div><div class="glass"><span class="balloon bn1"></span><span class="balloon bn2"></span><span class="balloon bn3"></span><span class="balloon bn4"></span><div class="disc photo">'+(PHOTOS.cup?'<img src="'+PHOTOS.cup+'" alt="Workshop ice cream">':heroArt())+'</div></div></section>';
+}
+function specifyHTML(id,ph){ var v=state.answers[id+"_other"]||""; return '<input class="specify" data-act="other" data-q="'+id+'" placeholder="'+esc(tr(ph))+'" value="'+esc(v)+'">'; }
+function optionsHTML(id){
+  var def=Q[id], a=state.answers[id];
+  if(def.type==="single"){ return '<div class="opts">'+def.options.map(function(opt){ var on=a===opt; var spec=(on&&isOther(opt))?specifyHTML(id,"Tell us more…"):""; return '<div><button class="opt'+(on?' on':'')+'" data-act="select" data-q="'+id+'" data-val="'+esc(opt)+'"><span class="dot"></span><span class="optlabel">'+esc(tr(opt))+'</span></button>'+spec+'</div>'; }).join("")+'</div>'; }
+  if(def.type==="multi"){ var cur=a||[]; return '<div class="opts">'+def.options.map(function(opt){ var on=cur.indexOf(opt)>-1; var spec=(on&&isOther(opt))?specifyHTML(id,"Tell us more…"):""; return '<div><button class="opt'+(on?' on':'')+'" data-act="toggle" data-q="'+id+'" data-val="'+esc(opt)+'"><span class="box">'+CHECK+'</span><span class="optlabel">'+esc(tr(opt))+'</span></button>'+spec+'</div>'; }).join("")+'</div>'; }
+  if(def.type==="country"){ var otherOn=a==="__other"; var chips=def.options.map(function(opt){ return '<button class="chip'+(a===opt?' on':'')+'" data-act="select" data-q="'+id+'" data-val="'+esc(opt)+'">'+esc(tr(opt))+'</button>'; }).join(""); chips+='<button class="chip wide'+(otherOn?' on':'')+'" data-act="select" data-q="'+id+'" data-val="__other">'+esc(tr("Other"))+'</button>'; return '<div class="chips">'+chips+'</div>'+(otherOn?specifyHTML(id,"Your country…"):""); }
+  if(def.type==="scale"){ return '<div class="scale">'+def.options.map(function(label,i){ return '<button class="face'+(a===i?' on':'')+'" data-act="scale" data-q="'+id+'" data-val="'+i+'"><span class="facenum">'+(i+1)+'</span><span class="facelabel">'+esc(tr(label))+'</span></button>'; }).join("")+'</div>'; }
+  if(def.type==="text"){ return '<textarea class="bigtext" rows="4" placeholder="'+esc(tr("Write here…"))+'" data-act="text" data-q="'+id+'">'+esc(a||"")+'</textarea>'; }
+  if(def.type==="nps"){ var btns=""; for(var n=0;n<=10;n++){ var tone=n<=6?"lo":n<=8?"mid":"hi"; btns+='<button class="npsbtn '+tone+(a===n?' on':'')+'" data-act="nps" data-q="'+id+'" data-val="'+n+'">'+n+'</button>'; } return '<div class="nps"><div class="npsrow">'+btns+'</div><div class="npstrack"></div><div class="npsends"><span>'+esc(tr("Not at all"))+'</span><span>'+esc(tr("Absolutely"))+'</span></div></div>'; }
+  return "";
+}
+function viewQuestion(id){
+  var def=Q[id], f=flow(), pos=f.indexOf(id);
+  var meter=f.map(function(_,i){ return '<span class="'+(i<pos?"scoop done":i===pos?"scoop here":"scoop")+'"></span>'; }).join("");
+  var hint=def.hint?'<p class="qhint">'+esc(tr(def.hint))+'</p>':"";
+  var last=pos===f.length-1;
+  return '<div class="wrap fade"><div class="panel"><div class="ptop"><div class="meter">'+meter+'</div><div class="crumbs"><span class="section">'+esc(tr(def.section))+'</span><span class="qix">'+def.index+' / 12</span></div></div><div class="pbody"><div class="qhead"><div class="qbadge emoji">'+(QEMOJI[id]||"🍦")+'</div><h2 class="qtitle">'+esc(tr(def.title))+'</h2></div>'+hint+'<div class="qbody">'+optionsHTML(id)+'</div></div><div class="pnav"><button class="ghost" data-act="back">'+esc(tr("Back"))+'</button><button class="cta grow" data-act="next"'+(answered(id)?"":" disabled")+'>'+esc(tr(last?"Finish":"Continue"))+'</button></div></div></div>';
+}
+function viewThanks(){
+  var tag="";
+  if(lastSaved){
+    if(lastSaved.sheet && lastSaved.ok) tag='<div class="savetag ok">'+esc(tr("Saved to your Google Sheet."))+'</div>';
+    else if(lastSaved.ok && lastSaved.total!=null) tag='<div class="savetag ok">'+(lang==='ko'?('저장 완료 — '+lastSaved.total+'번째 응답 기록'):('Saved — response #'+lastSaved.total+' recorded.'))+'</div>';
+    else if(lastSaved.ok) tag='<div class="savetag ok">'+esc(tr("Saved."))+'</div>';
+    else tag='<div class="savetag warn">'+esc(tr("Your answers were captured, but the data store didn’t confirm the save."))+'</div>';
+  }
+  return '<div class="thanks fade">'+(PHOTOS.store?'<div class="thankbanner"><img src="'+PHOTOS.store+'" alt="Workshop storefront"></div>':'')+'<div class="seal">'+mark(56)+'</div><h1>'+esc(tr("Yay — that’s the scoop."))+'</h1><p>'+esc(tr("Thank you. Your feedback goes straight to the team behind the Workshop Store. Enjoy the rest of your visit."))+'</p>'+tag+'<button class="ghost restart" data-act="restart">'+esc(tr("Start over"))+'</button></div>';
+}
+
+async function finishSurvey(){
+  var rec=Object.assign({}, state.answers);
+  rec._id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  rec._submittedAt=new Date().toISOString();
+  var res=await Store.addResponse(rec);
+  lastSaved={ ok:res.ok, total:res.total, sheet: Store.mode()==='sheet' };
+}
+
+/* ============================ ADMIN ============================ */
+var unlocked=false, ADMIN_CODE="3131"; /* demo gate only — replace with real auth in production */
+var viewMode="bars"; /* "bars" | "donuts" | "table" */
+var lastSaved=null;  /* set on each submit so the thank-you screen can confirm accumulation */
+var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
+var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{} };
+var adminCache={ responses:[], starts:0 };
+function pct(n,d){ return d>0?Math.round(n/d*100):0; }
+
+function countSingle(resps,id){
+  var def=Q[id], map={}; def.options.forEach(function(o){map[o]=0;});
+  var other=0;
+  resps.forEach(function(r){ var v=r[id]; if(v===undefined||v===null||v==="")return;
+    if(id==="Q3"&&v==="__other"){ other++; return; }
+    if(map[v]===undefined) map[v]=0; map[v]++; });
+  var rows=Object.keys(map).map(function(k){return {label:k,count:map[k]};});
+  if(id==="Q3"&&other) rows.push({label:"Other",count:other});
+  return rows;
+}
+function countMulti(resps,id){
+  var def=Q[id], map={}; def.options.forEach(function(o){map[o]=0;});
+  resps.forEach(function(r){ var arr=r[id]; if(!Array.isArray(arr))return; arr.forEach(function(v){ if(map[v]===undefined)map[v]=0; map[v]++; }); });
+  return Object.keys(map).map(function(k){return {label:k,count:map[k]};});
+}
+function countScale(resps,id){
+  var map=[0,0,0,0,0];
+  resps.forEach(function(r){ var v=r[id]; if(typeof v==="number"&&v>=0&&v<5) map[v]++; });
+  return SCALE5.map(function(l,i){return {label:l,count:map[i]};});
+}
+function textValues(resps,id){
+  var out=[]; resps.forEach(function(r){ var v=r[id]; if(typeof v==="string"&&v.trim()) out.push(v.trim()); }); return out;
+}
+
+function vbars(rows){
+  var max=Math.max(1, Math.max.apply(null, rows.map(function(r){return r.count;})));
+  return '<div class="vbars">'+rows.map(function(r){
+    var h=Math.round(r.count/max*100);
+    return '<div class="vbar"><div class="vc">'+r.count+'</div><div class="col" style="height:'+h+'%"></div><div class="vl">'+esc(r.label)+'</div></div>';
+  }).join("")+'</div>';
+}
+function hbars(rows,opts){
+  opts=opts||{}; rows=rows.slice();
+  if(opts.sort!==false) rows.sort(function(a,b){return b.count-a.count;});
+  if(opts.top) rows=rows.slice(0,opts.top);
+  var total=rows.reduce(function(s,r){return s+r.count;},0);
+  var max=Math.max(1, Math.max.apply(null, rows.map(function(r){return r.count;})));
+  if(total===0) return '<div class="empty">No responses yet.</div>';
+  return '<div class="hbar">'+rows.map(function(r){
+    var w=Math.round(r.count/max*100);
+    var p=total>0?Math.round(r.count/ (opts.pctOf||total) *100):0;
+    var color=opts.color||'var(--pink)';
+    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(r.label)+'</span><span class="val">'+r.count+(opts.showPct?'  ·  '+p+'%':'')+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
+  }).join("")+'</div>';
+}
+function card(title,note,inner,full){ return '<div class="card'+(full?' full':'')+'"><h3>'+tr(title)+'</h3>'+(note?'<p class="n">'+note+'</p>':'')+inner+'</div>'; }
+
+function npsCard(resps){
+  var vals=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  if(!vals.length) return card("Net Promoter Score","Likelihood to recommend (Q12)",'<div class="empty">No responses yet.</div>',true);
+  var det=vals.filter(function(v){return v<=6;}).length, pas=vals.filter(function(v){return v>=7&&v<=8;}).length, pro=vals.filter(function(v){return v>=9;}).length;
+  var n=vals.length, nps=Math.round((pro/n - det/n)*100);
+  var avg=(vals.reduce(function(s,v){return s+v;},0)/n).toFixed(1);
+  var dP=pct(det,n),paP=pct(pas,n),prP=pct(pro,n);
+  var color=nps>=50?'var(--mint)':nps>=0?'var(--pink)':'var(--blue)';
+  var stack='<div class="stack">'+
+    (dP?'<span style="width:'+dP+'%;background:var(--blue)">'+dP+'%</span>':'')+
+    (paP?'<span style="width:'+paP+'%;background:var(--choco)">'+paP+'%</span>':'')+
+    (prP?'<span style="width:'+prP+'%;background:var(--pink)">'+prP+'%</span>':'')+'</div>';
+  var leg='<div class="leg"><span><i style="background:var(--blue)"></i>Detractors (0–6) · '+det+'</span><span><i style="background:var(--choco)"></i>Passives (7–8) · '+pas+'</span><span><i style="background:var(--pink)"></i>Promoters (9–10) · '+pro+'</span></div>';
+  var inner='<div class="npswrap"><div><div class="npsbig" style="color:'+color+'">'+(nps>0?'+':'')+nps+'</div><div class="n" style="margin:4px 0 0">avg '+avg+' / 10</div></div><div class="npsstack">'+stack+leg+'</div></div>';
+  return card("Net Promoter Score","Likelihood to recommend (Q12) · n="+n,inner,true);
+}
+
+/* ===================== EXPLORE / CROSS-TAB ENGINE ===================== */
+var DIMS={
+  Q1:{label:"Gender"}, Q2:{label:"Age"}, Q3:{label:"Nationality",top:10}, Q4:{label:"Stay"},
+  Q5:{label:"Source"}, Q6:{label:"Visit reason"}, Q7:{label:"First impression"},
+  Q8:{label:"Order method"}, "Q8-1":{label:"Kiosk ease",scale:true},
+  Q9:{label:"Bought",multi:true}, "Q8-2":{label:"Kiosk issues",multi:true}, Q10:{label:"Choice reason"}
+};
+function valForDim(r,dim){
+  var v=r[dim];
+  if(dim==="Q8-1") return (typeof v==="number"&&SCALE5[v]!==undefined)?[SCALE5[v]]:[];
+  if(Q[dim]&&Q[dim].multi) return Array.isArray(v)?v.slice():[];
+  if(dim==="Q3"){ if(v===undefined||v===null||v==="")return []; return [v==="__other"?"Other":v]; }
+  if(v===undefined||v===null||v==="") return [];
+  return [v];
+}
+function dimCats(resps,dim){
+  var counts={}; resps.forEach(function(r){ valForDim(r,dim).forEach(function(c){ counts[c]=(counts[c]||0)+1; }); });
+  var order=[]; var def=Q[dim];
+  if(dim==="Q8-1") order=SCALE5.slice();
+  else if(def&&def.options){ order=def.options.slice(); if(dim==="Q3") order.push("Other"); }
+  var present=order.filter(function(o){ return counts[o]; });
+  Object.keys(counts).forEach(function(c){ if(present.indexOf(c)<0) present.push(c); });
+  if(DIMS[dim]&&DIMS[dim].top){ present.sort(function(a,b){return counts[b]-counts[a];}); present=present.slice(0,DIMS[dim].top); }
+  return present;
+}
+function passFilters(r){
+  var f=explore.filters;
+  for(var k in f){ if(f[k]){ if(valForDim(r,k).indexOf(f[k])<0) return false; } }
+  return true;
+}
+function aggregate(resps){
+  var rs=resps.filter(passFilters);
+  var xCats=dimCats(rs,explore.x);
+  var sCats=explore.split==="none"?["All"]:dimCats(rs,explore.split);
+  var cnt={},nsum={},nn={};
+  xCats.forEach(function(x){ cnt[x]={};nsum[x]={};nn[x]={}; sCats.forEach(function(s){ cnt[x][s]=0;nsum[x][s]=0;nn[x][s]=0; }); });
+  rs.forEach(function(r){
+    var xs=valForDim(r,explore.x); if(!xs.length)return;
+    var ss=explore.split==="none"?["All"]:valForDim(r,explore.split); if(!ss.length)return;
+    var nps=(typeof r.Q12==="number")?r.Q12:null;
+    xs.forEach(function(x){ if(!cnt[x])return; ss.forEach(function(s){ if(cnt[x][s]===undefined)return; cnt[x][s]++; if(nps!=null){nsum[x][s]+=nps;nn[x][s]++;} }); });
+  });
+  return {rs:rs,xCats:xCats,sCats:sCats,cnt:cnt,nsum:nsum,nn:nn};
+}
+function cellVal(a,x,s){
+  if(explore.measure==="avgnps"){ var n=a.nn[x][s]; return n?a.nsum[x][s]/n:null; }
+  var c=a.cnt[x][s];
+  if(explore.measure==="share"){
+    if(explore.split==="none"){ var tot=a.rs.length; return tot?c/tot*100:0; }
+    var rowTot=a.sCats.reduce(function(t,ss){return t+a.cnt[x][ss];},0); return rowTot?c/rowTot*100:0;
+  }
+  return c;
+}
+function fmtVal(v){ if(v==null)return "–"; if(explore.measure==="share")return Math.round(v)+"%"; if(explore.measure==="avgnps")return v.toFixed(1); return ""+v; }
+function legend(a,on){ if(!on)return ""; return '<div class="leg" style="margin-top:14px">'+a.sCats.map(function(s,i){return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(s)+'</span>';}).join("")+'</div>'; }
+
+function exBars(a){
+  if(explore.split!=="none"&&explore.measure==="avgnps") return exGrouped(a);
+  if(explore.split==="none"){
+    var max=0; a.xCats.forEach(function(x){ var v=cellVal(a,x,"All"); if(v!=null&&v>max)max=v; }); max=max||1;
+    return '<div class="hbar">'+a.xCats.map(function(x){
+      var v=cellVal(a,x,"All"), w=v==null?0:Math.round(v/max*100);
+      return '<div class="hrow"><div class="hl"><span class="lab">'+esc(x)+'</span><span class="val">'+fmtVal(v)+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%"></div></div></div>';
+    }).join("")+'</div>';
+  }
+  var maxRow=0; a.xCats.forEach(function(x){ var t=a.sCats.reduce(function(s,sc){return s+a.cnt[x][sc];},0); if(t>maxRow)maxRow=t; }); maxRow=maxRow||1;
+  var share=explore.measure==="share";
+  var rows=a.xCats.map(function(x){
+    var rowTot=a.sCats.reduce(function(s,sc){return s+a.cnt[x][sc];},0);
+    var segs=a.sCats.map(function(s,i){
+      var c=a.cnt[x][s]; var w=share?(rowTot?c/rowTot*100:0):(c/maxRow*100);
+      return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(s)+': '+c+'"></span>';
+    }).join("");
+    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(x)+'</span><span class="val">'+(share?"100%":rowTot)+'</span></div><div class="stackbar">'+segs+'</div></div>';
+  }).join("");
+  return '<div class="hbar">'+rows+'</div>'+legend(a,true);
+}
+function exGrouped(a){
+  var max=0; a.xCats.forEach(function(x){ a.sCats.forEach(function(s){ var v=cellVal(a,x,s); if(v!=null&&v>max)max=v; }); }); max=max||1;
+  var groups=a.xCats.map(function(x){
+    var bars=a.sCats.map(function(s,i){ var v=cellVal(a,x,s),h=v==null?0:Math.round(v/max*100); return '<div class="gb" title="'+esc(s)+': '+fmtVal(v)+'" style="height:'+h+'%;background:'+PAL[i%PAL.length]+'"></div>'; }).join("");
+    return '<div class="ggroup"><div class="gbars">'+bars+'</div><div class="glab">'+esc(x)+'</div></div>';
+  }).join("");
+  return '<div class="grouped">'+groups+'</div>'+legend(a,true);
+}
+function exHeat(a){
+  var max=0; a.xCats.forEach(function(x){ a.sCats.forEach(function(s){ var v=cellVal(a,x,s); if(v!=null&&v>max)max=v; }); }); max=max||1;
+  var cols="120px "+a.sCats.map(function(){return "minmax(54px,1fr)";}).join(" ");
+  var html='<div style="overflow-x:auto"><div class="heat" style="grid-template-columns:'+cols+'">';
+  html+='<div class="hcell head"></div>'+a.sCats.map(function(s){return '<div class="hcell head">'+esc(s)+'</div>';}).join("");
+  a.xCats.forEach(function(x){
+    html+='<div class="hcell rowlab">'+esc(x)+'</div>';
+    a.sCats.forEach(function(s){ var v=cellVal(a,x,s),al=v==null?0:Math.max(.06,v/max),txt=al>0.5?"#fff":"var(--choco)";
+      html+='<div class="hcell val" style="background:rgba(43,76,196,'+al.toFixed(3)+');color:'+txt+'">'+fmtVal(v)+'</div>'; });
+  });
+  return html+'</div></div>';
+}
+function exTable(a){
+  var showTot=explore.measure==="count";
+  var head='<tr><th>'+esc(DIMS[explore.x].label)+'</th>'+a.sCats.map(function(s){return '<th class="num">'+esc(s)+'</th>';}).join("")+(showTot?'<th class="num">Total</th>':'')+'</tr>';
+  var rows=a.xCats.map(function(x){
+    var tds=a.sCats.map(function(s){return '<td class="num">'+fmtVal(cellVal(a,x,s))+'</td>';}).join("");
+    var tot=showTot?'<td class="num">'+a.sCats.reduce(function(t,s){return t+a.cnt[x][s];},0)+'</td>':"";
+    return '<tr><td>'+esc(x)+'</td>'+tds+tot+'</tr>';
+  }).join("");
+  return '<div class="rawscroll"><table class="ftable"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
+}
+function exPie(a){
+  var rows=a.xCats.map(function(x){ return {label:x, count:a.sCats.reduce(function(s,sc){return s+a.cnt[x][sc];},0)}; });
+  return pieOrDonut(rows.filter(function(r){return r.count>0;}), true);
+}
+function trendCard(resps){
+  var dated=resps.filter(function(r){return r._submittedAt;});
+  if(dated.length<2) return card("Responses over time","Daily completed surveys",'<div class="empty">Not enough dated responses yet to plot a trend.</div>',true);
+  var byDay={};
+  dated.forEach(function(r){ var d=new Date(r._submittedAt); var k=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); byDay[k]=(byDay[k]||0)+1; });
+  var keys=Object.keys(byDay).sort(); if(keys.length>14) keys=keys.slice(keys.length-14);
+  var vals=keys.map(function(k){return byDay[k];}), n=keys.length, max=Math.max.apply(null,vals)||1;
+  var W=640,H=170,pad=26;
+  var xAt=function(i){ return n===1?W/2:pad+(W-2*pad)*i/(n-1); };
+  var yAt=function(v){ return H-pad-(H-2*pad)*v/max; };
+  var pts=vals.map(function(v,i){return xAt(i).toFixed(1)+','+yAt(v).toFixed(1);});
+  var area='M'+pad+','+(H-pad)+' L'+pts.join(' L')+' L'+xAt(n-1).toFixed(1)+','+(H-pad)+' Z';
+  var line='M'+pts.join(' L');
+  var dots=vals.map(function(v,i){return '<circle cx="'+xAt(i).toFixed(1)+'" cy="'+yAt(v).toFixed(1)+'" r="3.6" fill="#2B4CC4" stroke="#fff" stroke-width="1.5"/>';}).join('');
+  var labs=keys.map(function(k,i){ if(n>8 && i%2) return ''; return '<text x="'+xAt(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="#917163">'+esc(k.slice(5))+'</text>'; }).join('');
+  var svg='<div class="trend"><svg viewBox="0 0 '+W+' '+H+'"><path d="'+area+'" fill="rgba(43,76,196,0.12)"/><path d="'+line+'" fill="none" stroke="#2B4CC4" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>'+dots+labs+'</svg></div>';
+  return card("Responses over time","Daily completed surveys · last "+n+" active days",svg,true);
+}
+function exploreResult(resps){
+  var a=aggregate(resps);
+  if(!a.rs.length) return '<div class="empty">No data matches these filters.</div>';
+  if(!a.xCats.length) return '<div class="empty">No answers yet for this breakdown.</div>';
+  if(explore.view==="table") return exTable(a);
+  if(explore.view==="heat") return exHeat(a);
+  if(explore.view==="grouped") return exGrouped(a);
+  if(explore.view==="pie") return exPie(a);
+  return exBars(a);
+}
+function bg(key,current,opts){
+  return '<div class="bgrp">'+opts.map(function(o){return '<button class="bgbtn'+(current===o.v?' on':'')+'" data-act="ex" data-k="'+key+'" data-v="'+esc(o.v)+'">'+esc(tr(o.label))+'</button>';}).join("")+'</div>';
+}
+function viewExplore(resps){
+  var dimOpts=Object.keys(DIMS).map(function(k){return {v:k,label:DIMS[k].label};});
+  var splitOpts=[{v:"none",label:"None"}].concat(dimOpts);
+  var measOpts=[{v:"count",label:"Count"},{v:"share",label:"Share %"},{v:"avgnps",label:"Avg NPS"}];
+  var viewOpts=[{v:"bars",label:"Bars"},{v:"grouped",label:"Grouped"},{v:"pie",label:"Pie"},{v:"heat",label:"Heatmap"},{v:"table",label:"Table"}];
+  function sel(field){
+    var opts=field==="Q3"?COUNTRIES:Q[field].options, cur=explore.filters[field]||"__all";
+    return '<select class="exsel" data-act="exf" data-k="'+field+'"><option value="__all"'+(cur==="__all"?" selected":"")+'>'+(lang==='ko'?'전체':'All '+esc(DIMS[field].label.toLowerCase()))+'</option>'+
+      opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(tr(o))+'</option>';}).join("")+'</select>';
+  }
+  var inner=
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Break down by")+'</span>'+bg("x",explore.x,dimOpts)+'</div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Split by")+'</span>'+bg("split",explore.split,splitOpts)+'</div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Measure")+'</span>'+bg("measure",explore.measure,measOpts)+'</div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("View as")+'</span>'+bg("view",explore.view,viewOpts)+'</div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Filter")+'</span><div class="filters">'+sel("Q4")+sel("Q8")+sel("Q2")+sel("Q3")+'<button class="tbtn" data-act="exreset">'+tr("Reset filters")+'</button></div></div>'+
+    '<div class="exresult">'+exploreResult(resps)+'</div>';
+  return card("Explore & cross-tab","Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses",inner,true);
+}
+
+/* ===================== OVERVIEW / SNAPSHOT ===================== */
+function topCat(resps,dim){
+  var counts={}; resps.forEach(function(r){ valForDim(r,dim).forEach(function(c){ counts[c]=(counts[c]||0)+1; }); });
+  var best=null,bc=-1; Object.keys(counts).forEach(function(k){ if(counts[k]>bc){ bc=counts[k]; best=k; } });
+  return best?{ label:best, count:bc, pct:Math.round(bc/(resps.length||1)*100) }:null;
+}
+function pctWhere(resps,dim,val){ if(!resps.length)return 0; var n=resps.filter(function(r){return valForDim(r,dim).indexOf(val)>-1;}).length; return Math.round(n/resps.length*100); }
+function stayPhrase(label){ if(/Traveling/.test(label))return "mostly travelers"; if(/1 year or longer/.test(label))return "many longer-term residents"; if(/less than 1 year/.test(label))return "many recent arrivals"; return label; }
+function hiSpan(x){ return '<span class="hi">'+esc(x)+'</span>'; }
+function miniDist(resps,dim,topn){
+  var cats=dimCats(resps,dim), counts={};
+  resps.forEach(function(r){ valForDim(r,dim).forEach(function(c){ counts[c]=(counts[c]||0)+1; }); });
+  var tot=cats.reduce(function(s,c){return s+(counts[c]||0);},0)||1;
+  if(topn) cats=cats.slice(0,topn);
+  var bar='<div class="stackbar" style="height:13px">'+cats.map(function(c,i){ var w=(counts[c]||0)/tot*100; return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(c)+'"></span>'; }).join("")+'</div>';
+  var leg='<div class="minileg">'+cats.map(function(c,i){ return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(c)+' '+Math.round((counts[c]||0)/tot*100)+'%</span>'; }).join("")+'</div>';
+  return '<div class="mini"><div class="mini-t">'+esc(DIMS[dim]?DIMS[dim].label:dim)+'</div>'+bar+leg+'</div>';
+}
+function viewOverview(resps){
+  if(!resps.length) return card("Overview","A snapshot of all accumulated responses",'<div class="empty">No responses yet. Submit the survey or seed demo data to see the overall picture.</div>',true);
+  var g=topCat(resps,"Q1"), ag=topCat(resps,"Q2"), na=topCat(resps,"Q3"), st=topCat(resps,"Q4"), chan=topCat(resps,"Q5"), buy=topCat(resps,"Q9");
+  var npsv=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  var promoters=npsv.length?Math.round(npsv.filter(function(v){return v>=9;}).length/npsv.length*100):0;
+  var travelers=pctWhere(resps,"Q4","Traveling in Korea");
+  var kiosk=pctWhere(resps,"Q8","Kiosk");
+
+  var sentence='Most respondents are '+hiSpan(g?g.label.toLowerCase():"—")+', aged '+hiSpan(ag?ag.label:"—")+
+    ', visiting from '+hiSpan(na?na.label:"—")+(st?' \u2014 '+esc(stayPhrase(st.label)):"")+'. '+
+    'They tend to discover the store through '+hiSpan(chan?chan.label:"—")+
+    (buy?' and most often leave with '+hiSpan(buy.label.toLowerCase()):"")+'.';
+
+  var tiles=[
+    {v:travelers+"%", l:"are tourists"},
+    {v:na?na.label:"—", l:"top nationality"+(na?" ("+na.pct+"%)":"")},
+    {v:chan?chan.label:"—", l:"top discovery channel"},
+    {v:kiosk+"%", l:"ordered at the kiosk"},
+    {v:promoters+"%", l:"are promoters (NPS 9–10)"}
+  ];
+  var tilesHTML='<div class="hl-tiles">'+tiles.map(function(t){ return '<div class="hl-tile"><div class="hl-v">'+esc(t.v)+'</div><div class="hl-l">'+esc(t.l)+'</div></div>'; }).join("")+'</div>';
+  var minis='<div class="minirow">'+miniDist(resps,"Q1")+miniDist(resps,"Q2")+miniDist(resps,"Q4")+miniDist(resps,"Q3",5)+'</div>';
+
+  return card("Overview \u00b7 who\u2019s responding","A plain-language read of all "+resps.length+" responses",'<p class="profile">'+sentence+'</p>'+tilesHTML+minis,true);
+}
+
+var GROUPS=[
+  {head:"Audience", items:[
+    {id:"Q1",title:"Gender",kind:"vbar"},
+    {id:"Q2",title:"Age group",kind:"vbar"},
+    {id:"Q4",title:"Type of stay",kind:"vbar"},
+    {id:"Q3",title:"Top nationalities",kind:"hbar",top:12}
+  ]},
+  {head:"Discovery & first impression", items:[
+    {id:"Q5",title:"How they heard about us",kind:"hbar"},
+    {id:"Q6",title:"Reason for visiting",kind:"hbar"},
+    {id:"Q7",title:"Strongest first impression",kind:"hbar"}
+  ]},
+  {head:"Ordering", items:[
+    {id:"Q8",title:"Order method",kind:"vbar"},
+    {id:"Q8-1",title:"Kiosk ease (kiosk users)",kind:"vbar",scale:true},
+    {id:"Q8-2",title:"Kiosk difficulties",kind:"hbar",multi:true,color:"var(--blue)"}
+  ]},
+  {head:"Purchases", items:[
+    {id:"Q9",title:"What they bought",kind:"hbar",multi:true},
+    {id:"Q10",title:"Why they chose it",kind:"hbar"},
+    {id:"Q9-1",title:"Products named",kind:"text"},
+    {id:"Q11",title:"Most eye-catching",kind:"text"}
+  ]}
+];
+
+function prep(rows,cfg){
+  var r=rows.slice();
+  if(!cfg.scale) r.sort(function(a,b){return b.count-a.count;});
+  if(cfg.top && r.length>cfg.top){
+    var head=r.slice(0,cfg.top), rest=r.slice(cfg.top).reduce(function(s,x){return s+x.count;},0);
+    if(rest>0) head.push({label:"Other",count:rest});
+    r=head;
+  }
+  return r.filter(function(x){return x.count>0;});
+}
+function pieOrDonut(rows, solid){
+  rows=rows.filter(function(r){return r.count>0;});
+  var total=rows.reduce(function(s,r){return s+r.count;},0);
+  if(!total) return '<div class="empty">No responses yet.</div>';
+  var R = solid?30:54, SW = solid?60:20, CIRC=2*Math.PI*R, off=0;
+  var segs=rows.map(function(r,i){
+    var len=r.count/total*CIRC;
+    var c='<circle cx="64" cy="64" r="'+R+'" fill="none" stroke="'+PAL[i%PAL.length]+'" stroke-width="'+SW+'" stroke-dasharray="'+len.toFixed(2)+' '+(CIRC-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 64 64)"/>';
+    off+=len; return c;
+  }).join("");
+  var center = solid ? '' :
+    '<text x="64" y="60" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="800" font-size="26" fill="#232A4A">'+total+'</text>'+
+    '<text x="64" y="79" text-anchor="middle" font-family="Hanken Grotesk,sans-serif" font-size="11" fill="#6E769B">total</text>';
+  var svg='<svg width="128" height="128" viewBox="0 0 128 128">'+segs+center+'</svg>';
+  var leg='<div class="dlegend">'+rows.map(function(r,i){
+    return '<div class="row"><i style="background:'+PAL[i%PAL.length]+'"></i><span class="lab">'+esc(r.label)+'</span><span class="val">'+Math.round(r.count/total*100)+'%</span></div>';
+  }).join("")+'</div>';
+  return '<div class="donut">'+svg+leg+'</div>';
+}
+function donut(rows,cfg){ return pieOrDonut(prep(rows,cfg), false); }
+function pie(rows,cfg){ return pieOrDonut(prep(rows,cfg), true); }
+function freqTable(rows,cfg){
+  rows=prep(rows,cfg); var total=rows.reduce(function(s,r){return s+r.count;},0);
+  if(!total) return '<div class="empty">No responses yet.</div>';
+  return '<table class="ftable"><thead><tr><th>Answer</th><th class="num">Count</th><th class="num">%</th></tr></thead><tbody>'+
+    rows.map(function(r){ return '<tr><td>'+esc(r.label)+'</td><td class="num">'+r.count+'</td><td class="num">'+Math.round(r.count/total*100)+'%</td></tr>'; }).join("")+
+    '</tbody></table>';
+}
+function rawTable(resps){
+  if(!resps.length) return card("Raw responses","Individual submissions",'<div class="empty">No responses yet. Submit the survey or seed demo data to watch records accumulate here.</div>',true);
+  var rows=resps.slice().reverse().slice(0,25);
+  var body=rows.map(function(r,idx){
+    var d=r._submittedAt?new Date(r._submittedAt):null;
+    var dt=d?((d.getMonth()+1)+"/"+d.getDate()+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)):"—";
+    var nat=r.Q3==="__other"?"Other":(r.Q3||"—");
+    return '<tr><td>'+(resps.length-idx)+'</td><td>'+dt+'</td><td>'+esc(r.Q2||"—")+'</td><td>'+esc(nat)+'</td><td>'+esc(r.Q8||"—")+'</td><td class="num">'+(typeof r.Q12==="number"?r.Q12:"—")+'</td></tr>';
+  }).join("");
+  var tbl='<div class="rawscroll"><table class="ftable"><thead><tr><th>#</th><th>Time</th><th>Age</th><th>Nationality</th><th>Order</th><th class="num">NPS</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  return card("Raw responses","Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV",tbl,true);
+}
+
+function renderChart(cfg,resps){
+  if(cfg.kind==="text"){
+    var vals=textValues(resps,cfg.id);
+    if(!vals.length) return card(cfg.title,"0 responses",'<div class="empty">No responses yet.</div>');
+    var list='<div class="feed">'+vals.slice(-40).reverse().map(function(v){return '<div class="quote">'+esc(v)+'</div>';}).join("")+'</div>';
+    return card(cfg.title,vals.length+" written in",list);
+  }
+  var rows = cfg.multi?countMulti(resps,cfg.id) : cfg.scale?countScale(resps,cfg.id) : countSingle(resps,cfg.id);
+  var n = rows.reduce(function(s,r){return s+r.count;},0);
+  var note = cfg.multi?("counts across "+resps.length+" responses") : ("n="+n);
+  if(!n) return card(cfg.title,note,'<div class="empty">No responses yet.</div>');
+  var inner;
+  if(viewMode==="table") inner=freqTable(rows,cfg);
+  else if(viewMode==="donuts") inner=donut(rows,cfg);
+  else if(viewMode==="pie") inner=pie(rows,cfg);
+  else inner = (cfg.kind==="vbar")? vbars(rows) : hbars(rows,{top:cfg.top,color:cfg.color});
+  return card(cfg.title,note,inner);
+}
+
+function viewAdminLoading(){ return '<div class="adm fade"><div class="empty" style="padding:80px 0">Loading insights…</div></div>'; }
+
+function viewAdmin(resps,starts){
+  var n=resps.length;
+  var comp = starts>0? Math.min(100,pct(n,starts)) : null;
+  var npsVals=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  var npsScore = npsVals.length? Math.round((npsVals.filter(function(v){return v>=9;}).length/npsVals.length - npsVals.filter(function(v){return v<=6;}).length/npsVals.length)*100) : null;
+  var avgRec = npsVals.length? (npsVals.reduce(function(s,v){return s+v;},0)/npsVals.length).toFixed(1) : "—";
+
+  var kpis='<div class="kpis">'+
+    '<div class="kpi"><div class="k-label">'+tr("Responses")+'</div><div class="k-val k-pink">'+n+'</div><div class="k-sub">'+tr("completed surveys")+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+tr("Completion")+'</div><div class="k-val k-choco">'+(comp===null?"—":comp+"%")+'</div><div class="k-sub">'+(starts||0)+' '+(lang==='ko'?'명 시작':'started')+'</div></div>'+
+    '<div class="kpi"><div class="k-label">NPS</div><div class="k-val k-pink">'+(npsScore===null?"—":(npsScore>0?'+':'')+npsScore)+'</div><div class="k-sub">'+tr("net promoter score")+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+tr("Avg recommend")+'</div><div class="k-val k-blue">'+avgRec+'</div><div class="k-sub">'+tr("out of 10")+'</div></div>'+
+    '</div>';
+
+  var body='';
+  body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(resps)+trendCard(resps)+'</div>';
+  body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
+  body+='<div class="grouphead">'+tr("Advocacy")+'</div><div class="cards">'+npsCard(resps)+'</div>';
+  GROUPS.forEach(function(g){
+    body+='<div class="grouphead">'+tr(g.head)+'</div><div class="cards">';
+    g.items.forEach(function(cfg){ body+=renderChart(cfg,resps); });
+    body+='</div>';
+  });
+  body+='<div class="grouphead">'+tr("Records")+'</div><div class="cards">'+rawTable(resps)+'</div>';
+
+  var warn = Store.available()? '' : '<div class="card full" style="border-color:var(--pink)"><h3>Storage unavailable</h3><p class="n">This build expects the artifact runtime\'s storage. Wire the Store module to your backend to run elsewhere.</p></div>';
+
+  var seg='<div class="seg">'+["bars","donuts","pie","table"].map(function(m){
+    var labels={bars:"Bars",donuts:"Donuts",pie:"Pie",table:"Table"};
+    return '<button data-act="mode" data-val="'+m+'"'+(viewMode===m?' class="on"':'')+'>'+tr(labels[m])+'</button>';
+  }).join("")+'</div>';
+
+  return '<div class="adm fade"><div class="adm-head"><div><h1>'+tr("Survey insights")+'</h1><div class="sub">Live data from the Workshop Store visitor survey · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div>'+
+    '<div class="tools">'+seg+'<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button><button class="tbtn" data-act="export">'+tr("Export CSV")+'</button><button class="tbtn danger" data-act="clear">'+tr("Clear all")+'</button><button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button><button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button></div></div>'+
+    kpis+warn+body+'</div>';
+}
+
+function viewGate(err){
+  return '<div class="gate fade">'+mark(64)+'<h2>'+tr("Admin access")+'</h2><p>'+tr("Enter the passcode to view survey insights.")+'</p>'+
+    '<input id="codeInput" type="password" inputmode="numeric" placeholder="••••" maxlength="8" autocomplete="off">'+
+    '<div class="err">'+(err||"")+'</div>'+
+    '<button class="cta" style="width:100%;margin-top:6px" data-act="unlock">'+tr("Unlock dashboard")+'</button>'+
+    '<button class="ghost" style="width:100%;margin-top:10px" data-act="goSurvey">'+tr("Back to survey")+'</button></div>';
+}
+
+/* ---------- CSV export ---------- */
+function toCSV(resps){
+  var cols=["_submittedAt"].concat(BASE);
+  var head=["submitted"].concat(BASE);
+  var lines=[head.join(",")];
+  resps.forEach(function(r){
+    var row=cols.map(function(c){
+      var v=r[c];
+      if(Array.isArray(v)) v=v.join(" ; ");
+      if(v===undefined||v===null) v="";
+      if(c==="Q8-1"&&typeof v==="number") v=SCALE5[v]||v;
+      v=String(v).replace(/"/g,'""');
+      return '"'+v+'"';
+    });
+    lines.push(row.join(","));
+  });
+  return lines.join("\n");
+}
+function download(name,text){
+  try{
+    var blob=new Blob([text],{type:"text/csv;charset=utf-8;"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(url); a.remove();},500);
+  }catch(e){ alert("Download blocked here — open the file outside the preview to export."); }
+}
+
+/* ---------- demo data seeding ---------- */
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function wpick(pairs){ var t=pairs.reduce(function(s,p){return s+p[1];},0), x=Math.random()*t; for(var i=0;i<pairs.length;i++){ x-=pairs[i][1]; if(x<=0)return pairs[i][0]; } return pairs[0][0]; }
+function maybe(p){return Math.random()<p;}
+var FLAVORS=["Shooting Star","Mom is an Alien","Rainbow Sherbet","Pralines 'n Cream","Very Berry Strawberry","World Class Chocolate","New York Cheesecake","Green Tea","Love Struck Strawberry","Cotton Candy"];
+var EYE=["The pink interior wall","Monchhichi collab goods","The whole cake display","Shooting Star color","The photo zone","Korea-only flavors","The neon 31 sign","Mini tubs to take away"];
+function seedRecord(){
+  var r={}; r._id='r'+Math.random().toString(36).slice(2,9); 
+  r._submittedAt=new Date(Date.now()-Math.floor(Math.random()*14*864e5)).toISOString();
+  r.Q1=wpick([["Female",62],["Male",38]]);
+  r.Q2=wpick([["Under 20",10],["20–29",40],["30–39",26],["40–49",14],["50–59",7],["60 or above",3]]);
+  r.Q3=wpick([["China",18],["United States",14],["Japan",12],["Taiwan",9],["Thailand",8],["Hong Kong",7],["Singapore",6],["Vietnam",6],["Malaysia",5],["Indonesia",4],["Australia",4],["United Kingdom",3],["France",2],["Canada",2],["Philippines",2],["Germany",2]]);
+  r.Q4=wpick([["Traveling in Korea",70],["Living in Korea (less than 1 year)",18],["Living in Korea (1 year or longer)",12]]);
+  r.Q5=wpick([["Social media (Instagram, TikTok…)",38],["Map apps (Google Maps, Naver Map…)",16],["Travel websites or blogs",12],["Friends or family",12],["Saw it while passing by",10],["YouTube or influencer content",6],["Baskin-Robbins official channels",4],["Hotel or travel platform",2]]);
+  r.Q6=wpick([["To try Korea-only products",30],["To experience a unique Baskin-Robbins store",22],["To try products popular on social media",16],["To eat ice cream",14],["To enjoy desserts or beverages",8],["To buy merchandise (MD goods)",6],["Someone I was with wanted to visit",4]]);
+  r.Q7=wpick([["Interior design & atmosphere",26],["Korea-exclusive products",20],["Variety of flavors",18],["Photo zones & interactive experiences",12],["Merchandise (MD goods)",10],["Cakes & dessert menu",8],["Exterior design",6]]);
+  r.Q8=wpick([["Kiosk",50],["Ordered with a staff member",34],["Mobile order",8],["Someone else ordered for me",8]]);
+  if(r.Q8==="Kiosk"){
+    r["Q8-1"]=wpick([[0,8],[1,16],[2,22],[3,30],[4,24]]);
+    var diffs=Q["Q8-2"].options.slice(0,7), chosen=[];
+    if(maybe(.5))chosen.push("My language wasn’t available");
+    diffs.forEach(function(d){ if(d!=="My language wasn’t available"&&maybe(.22))chosen.push(d); });
+    if(chosen.length)r["Q8-2"]=chosen;
+  }
+  var buys=[]; ["Ice cream","Beverage","Other desserts (stick bar, mochi…)","Petit cake","Whole cake","Merchandise (MD goods)"].forEach(function(b,i){ if(maybe(i===0?.82:i===1?.4:.16))buys.push(b); });
+  if(!buys.length){ if(maybe(.5))buys.push("Ice cream"); else buys.push("Didn’t buy anything"); }
+  r.Q9=buys;
+  if(buys.some(function(x){return x!=="Didn’t buy anything";})){
+    if(maybe(.6))r["Q9-1"]=pick(FLAVORS);
+    r.Q10=wpick([["I was curious about the taste",24],["It’s only available in Korea",20],["It looked beautiful",16],["I saw it on social media",16],["It seemed popular",10],["It’s a collab with a character/IP I love",8],["Friends or family recommended it",6]]);
+  }
+  if(maybe(.5))r.Q11=pick(EYE);
+  r.Q12=wpick([[10,22],[9,24],[8,20],[7,12],[6,8],[5,5],[4,3],[3,2],[2,1],[1,1],[0,2]]);
+  return r;
+}
+async function seedDemo(count){
+  if(Store.mode()==='sheet'){
+    for(var i=0;i<count;i++){ await Store.addResponse(seedRecord()); }
+    return;
+  }
+  var arr=await Store.getResponses();
+  for(var j=0;j<count;j++) arr.push(seedRecord());
+  await Store.setResponses(arr);
+  var s=await Store.getStarts(); await Store.setStarts((s||0)+Math.round(count*1.28));
+}
+
+/* ============================ router + render ============================ */
+var route="admin"; /* this file is admin-only — driven by JS, not the URL (sandbox-safe) */
+function isAdmin(){ return route==="admin"; }
+async function render(){
+  var app=document.getElementById('app');
+  var right=document.getElementById('navRight');
+  if(isAdmin()){
+    setChrome();
+    if(!unlocked){ app.innerHTML=viewGate(); var ci=document.getElementById('codeInput'); if(ci)ci.focus(); return; }
+    loadAdmin();
+    return;
+  }
+  setChrome();
+  if(state.screen==="landing") app.innerHTML=viewLanding();
+  else if(state.screen==="thanks") app.innerHTML=viewThanks();
+  else app.innerHTML=viewQuestion(state.screen);
+  try{ window.scrollTo({top:0,behavior:'auto'}); }catch(e){}
+}
+
+async function loadAdmin(){
+  var app=document.getElementById('app');
+  app.innerHTML=viewAdminLoading();
+  var snap=await Store.snapshot();
+  adminCache={ responses:snap.responses||[], starts:snap.starts||0 };
+  paintAdmin();
+}
+function paintAdmin(){ document.getElementById('app').innerHTML=viewAdmin(adminCache.responses, adminCache.starts); }
+
+/* ============================ events ============================ */
+var app=document.getElementById('app');
+app.addEventListener('click', async function(e){
+  var el=e.target.closest('[data-act]'); if(!el)return;
+  var act=el.getAttribute('data-act'), id=el.getAttribute('data-q'), val=el.getAttribute('data-val');
+  if(act==="start"){ Store.bumpStart(); state.screen=flow()[0]; render(); }
+  else if(act==="select"){ state.answers[id]=val; render(); }
+  else if(act==="toggle"){
+    var def=Q[id], cur=state.answers[id]||[], ex=def.exclusive;
+    if(val===ex){ cur=cur.indexOf(val)>-1?[]:[val]; }
+    else{ cur=cur.filter(function(x){return x!==ex;}); cur=cur.indexOf(val)>-1?cur.filter(function(x){return x!==val;}):cur.concat([val]); }
+    state.answers[id]=cur; render();
+  }
+  else if(act==="scale"){ state.answers[id]=parseInt(val,10); render(); }
+  else if(act==="nps"){ state.answers[id]=parseInt(val,10); render(); }
+  else if(act==="next"){
+    var f=flow(), pos=f.indexOf(state.screen);
+    if(pos===f.length-1){ el.disabled=true; el.textContent=(lang==='ko'?'저장 중…':'Saving…'); await finishSurvey(); state.screen="thanks"; }
+    else state.screen=f[pos+1];
+    render();
+  }
+  else if(act==="back"){ var f2=flow(), p2=f2.indexOf(state.screen); state.screen=(p2<=0)?"landing":f2[p2-1]; render(); }
+  else if(act==="restart"){ state.answers={}; state.screen="landing"; render(); }
+  /* admin */
+  else if(act==="unlock"){
+    var v=(document.getElementById('codeInput')||{}).value||"";
+    if(v===ADMIN_CODE){ unlocked=true; render(); } else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); }
+  }
+  else if(act==="goSurvey"){ window.location.href="br-survey-system.html"; }
+  else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
+  else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
+  else if(act==="ex"){ explore[el.getAttribute('data-k')]=el.getAttribute('data-v'); paintAdmin(); }
+  else if(act==="exreset"){ explore.filters={}; paintAdmin(); }
+  else if(act==="refresh"){ loadAdmin(); }
+  else if(act==="export"){ var rr=await Store.getResponses(); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses.csv", toCSV(rr)); }
+  
+  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("This data lives in your Google Sheet. To clear it, delete the rows there directly (keep the header row)."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
+});
+app.addEventListener('change', function(e){
+  var el=e.target.closest('[data-act]'); if(!el)return;
+  if(el.getAttribute('data-act')==="exf"){
+    var k=el.getAttribute('data-k'), v=el.value;
+    if(v==="__all") delete explore.filters[k]; else explore.filters[k]=v;
+    paintAdmin();
+  }
+});
+app.addEventListener('input', function(e){
+  var el=e.target.closest('[data-act]'); if(!el)return;
+  var act=el.getAttribute('data-act'), id=el.getAttribute('data-q');
+  if(act==="text") state.answers[id]=el.value;
+  else if(act==="other") state.answers[id+"_other"]=el.value;
+});
+app.addEventListener('keydown', function(e){
+  if(e.key==="Enter" && e.target && e.target.id==="codeInput"){ var v=e.target.value||""; if(v===ADMIN_CODE){unlocked=true; render();} else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); } }
+});
+/* Admin / nav links live outside #app, so bind them directly (no URL hash) */
+function setChrome(){ var r=document.getElementById('navRight'); if(r) r.textContent=(lang==='en'?'한국어':'EN'); var hb=document.getElementById('hubBtn'); if(hb) hb.innerHTML='<span class="harr">←</span> '+tr('Survey Hub'); }
+function goHome(){ route="admin"; render(); }
+document.getElementById('navRight').addEventListener('click', function(e){
+  e.preventDefault(); lang=(lang==='en'?'ko':'en'); try{document.documentElement.lang=lang;}catch(_){}
+  setChrome();
+  if(route==="admin"){ if(unlocked) paintAdmin(); else render(); } else { render(); }
+});
+render();
+</script>
+</body>
+</html>
