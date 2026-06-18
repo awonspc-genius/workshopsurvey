@@ -252,6 +252,8 @@
   .adm .kpi{text-align:center;}
   .adm .card>h3, .adm .card>.n{text-align:center;}
   .gate{text-align:center;}
+  .adm .resetbar{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; background:var(--cream); border:1.5px solid var(--line); border-radius:14px; padding:12px 18px; margin:6px 0 16px; font-size:13.5px; color:var(--choco);}
+  .adm .resetbar b{color:var(--choco);}
 </style>
 </head>
 <body>
@@ -456,7 +458,7 @@ var KO = {
 /* admin */
 "Overview":"개요","Explore":"탐색","Advocacy":"추천 지표","Audience":"응답자","Discovery & first impression":"인지·첫인상","Purchases":"구매","Records":"기록",
 "Responses":"응답 수","Completion":"완료율","Avg recommend":"평균 추천","completed surveys":"완료된 설문","net promoter score":"순추천지수","out of 10":"10점 만점",
-"Refresh":"새로고침","Export CSV":"CSV 내보내기","Seed demo data":"샘플 데이터","Clear all":"전체 삭제","View survey":"설문 보기","Log out":"로그아웃",
+"Refresh":"새로고침","Export CSV":"CSV 내보내기","Seed demo data":"샘플 데이터","Clear all":"전체 삭제","Reset":"초기화","Show all":"전체 보기","Accumulated data":"누적 데이터","View survey":"설문 보기","Log out":"로그아웃",
 "Break down by":"기준","Split by":"분할","Measure":"측정값","View as":"보기","Filter":"필터","Count":"개수","Share %":"비율 %","Avg NPS":"평균 NPS","Bars":"막대","Grouped":"그룹","Pie":"파이","Heatmap":"히트맵","Table":"표","Reset filters":"필터 초기화","None":"없음","Donuts":"도넛",
 "Gender":"성별","Age":"연령","Nationality":"국적","Stay":"체류","Source":"경로","Visit reason":"방문 이유","First impression":"첫인상","Order method":"주문 방식","Kiosk ease":"키오스크 편의성","Bought":"구매 항목","Kiosk issues":"키오스크 문제","Choice reason":"선택 이유",
 "Age group":"연령대","Type of stay":"체류 유형","Top nationalities":"국적 상위","How they heard about us":"인지 경로","Reason for visiting":"방문 이유","Strongest first impression":"가장 강한 첫인상","Kiosk ease (kiosk users)":"키오스크 편의성 (이용자)","Kiosk difficulties":"키오스크 불편 사항","What they bought":"구매 항목","Why they chose it":"선택 이유","Products named":"제품 응답","Most eye-catching":"가장 눈에 띈 것",
@@ -531,6 +533,10 @@ var lastSaved=null;  /* set on each submit so the thank-you screen can confirm a
 var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
 var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{} };
 var adminCache={ responses:[], starts:0 };
+var RESET_KEY="brk_workshop_reset_baseline";
+function loadReset(){ try{ var v=localStorage.getItem(RESET_KEY); return v?JSON.parse(v):{n:0,s:0}; }catch(e){ return {n:0,s:0}; } }
+function saveReset(o){ try{ localStorage.setItem(RESET_KEY, JSON.stringify(o)); }catch(e){} }
+var resetBase=loadReset();
 function pct(n,d){ return d>0?Math.round(n/d*100):0; }
 
 function countSingle(resps,id){
@@ -901,29 +907,44 @@ function renderChart(cfg,resps){
 function viewAdminLoading(){ return '<div class="adm fade"><div class="empty" style="padding:80px 0">Loading insights…</div></div>'; }
 
 function viewAdmin(resps,starts){
-  var n=resps.length;
-  var comp = starts>0? Math.min(100,pct(n,starts)) : null;
-  var npsVals=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  var all = resps;
+  var baseN = Math.min(resetBase.n||0, all.length);
+  var baseS = Math.min(resetBase.s||0, starts||0);
+  var active = baseN>0 ? all.slice(baseN) : all;
+  var activeStarts = Math.max(0,(starts||0)-baseS);
+
+  var n=active.length;
+  var comp = activeStarts>0? Math.min(100,pct(n,activeStarts)) : null;
+  var npsVals=active.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
   var npsScore = npsVals.length? Math.round((npsVals.filter(function(v){return v>=9;}).length/npsVals.length - npsVals.filter(function(v){return v<=6;}).length/npsVals.length)*100) : null;
-  var avgRec = npsVals.length? (npsVals.reduce(function(s,v){return s+v;},0)/npsVals.length).toFixed(1) : "—";
+  var avgRec = npsVals.length? (npsVals.reduce(function(s,v){return s+v;},0)/npsVals.length).toFixed(1) : "\u2014";
 
   var kpis='<div class="kpis">'+
     '<div class="kpi"><div class="k-label">'+tr("Responses")+'</div><div class="k-val k-pink">'+n+'</div><div class="k-sub">'+tr("completed surveys")+'</div></div>'+
-    '<div class="kpi"><div class="k-label">'+tr("Completion")+'</div><div class="k-val k-choco">'+(comp===null?"—":comp+"%")+'</div><div class="k-sub">'+(starts||0)+' '+(lang==='ko'?'명 시작':'started')+'</div></div>'+
-    '<div class="kpi"><div class="k-label">NPS</div><div class="k-val k-pink">'+(npsScore===null?"—":(npsScore>0?'+':'')+npsScore)+'</div><div class="k-sub">'+tr("net promoter score")+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+tr("Completion")+'</div><div class="k-val k-choco">'+(comp===null?"\u2014":comp+"%")+'</div><div class="k-sub">'+activeStarts+' '+(lang==='ko'?'\uba85 \uc2dc\uc791':'started')+'</div></div>'+
+    '<div class="kpi"><div class="k-label">NPS</div><div class="k-val k-pink">'+(npsScore===null?"\u2014":(npsScore>0?'+':'')+npsScore)+'</div><div class="k-sub">'+tr("net promoter score")+'</div></div>'+
     '<div class="kpi"><div class="k-label">'+tr("Avg recommend")+'</div><div class="k-val k-blue">'+avgRec+'</div><div class="k-sub">'+tr("out of 10")+'</div></div>'+
     '</div>';
 
+  var banner = baseN>0
+    ? '<div class="resetbar"><span>'+(lang==='ko'
+        ? ('\ucd08\uae30\ud654 \uc774\ud6c4 \ub370\uc774\ud130\ub97c \ubcf4\uace0 \uc788\uc5b4\uc694 \u00b7 \uc774\uc804 '+baseN+'\uac74\uc740 \uc544\ub798 <b>\ub204\uc801 \ub370\uc774\ud130</b>\uc5d0 \ubcf4\uad00\ub428')
+        : ('Showing data since reset \u00b7 '+baseN+' earlier '+(baseN===1?'response':'responses')+' archived below in <b>Accumulated data</b>'))
+      +'</span><button class="tbtn" data-act="resetUndo">'+tr("Show all")+'</button></div>'
+    : '';
+
   var body='';
-  body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(resps)+trendCard(resps)+'</div>';
-  body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
-  body+='<div class="grouphead">'+tr("Advocacy")+'</div><div class="cards">'+npsCard(resps)+'</div>';
+  body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(active)+trendCard(active)+'</div>';
+  body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(active)+'</div>';
+  body+='<div class="grouphead">'+tr("Advocacy")+'</div><div class="cards">'+npsCard(active)+'</div>';
   GROUPS.forEach(function(g){
     body+='<div class="grouphead">'+tr(g.head)+'</div><div class="cards">';
-    g.items.forEach(function(cfg){ body+=renderChart(cfg,resps); });
+    g.items.forEach(function(cfg){ body+=renderChart(cfg,active); });
     body+='</div>';
   });
-  body+='<div class="grouphead">'+tr("Records")+'</div><div class="cards">'+rawTable(resps)+'</div>';
+  body+='<div class="grouphead">'+tr("Accumulated data")+'</div>'+
+    (baseN>0?'<p class="n" style="text-align:center;margin:-2px 0 12px;color:var(--choco-soft)">'+(lang==='ko'?('\uc804\uccb4 '+all.length+'\uac74 \u00b7 \ubcf4\uad00 '+baseN+'\uac74 \ud3ec\ud568'):('All '+all.length+' responses \u00b7 includes '+baseN+' archived'))+'</p>':'')+
+    '<div class="cards">'+rawTable(all)+'</div>';
 
   var warn = Store.available()? '' : '<div class="card full" style="border-color:var(--pink)"><h3>Storage unavailable</h3><p class="n">This build expects the artifact runtime\'s storage. Wire the Store module to your backend to run elsewhere.</p></div>';
 
@@ -932,9 +953,9 @@ function viewAdmin(resps,starts){
     return '<button data-act="mode" data-val="'+m+'"'+(viewMode===m?' class="on"':'')+'>'+tr(labels[m])+'</button>';
   }).join("")+'</div>';
 
-  return '<div class="adm fade"><div class="adm-head"><div><h1>'+tr("Survey insights")+'</h1><div class="sub">Live data from the Workshop Store visitor survey · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div>'+
-    '<div class="tools">'+seg+'<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button><button class="tbtn" data-act="export">'+tr("Export CSV")+'</button><button class="tbtn danger" data-act="clear">'+tr("Clear all")+'</button><button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button><button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button></div></div>'+
-    kpis+warn+body+'</div>';
+  return '<div class="adm fade"><div class="adm-head"><div><h1>'+tr("Survey insights")+'</h1><div class="sub">Live data from the Workshop Store visitor survey \u00b7 source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div>'+
+    '<div class="tools">'+seg+'<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button><button class="tbtn" data-act="export">'+tr("Export CSV")+'</button><button class="tbtn danger" data-act="reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:5px"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Reset")+'</button><button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button><button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button></div></div>'+
+    banner+kpis+warn+body+'</div>';
 }
 
 function viewGate(err){
@@ -1037,6 +1058,8 @@ app.addEventListener('click', async function(e){
   else if(act==="export"){ var rr=await Store.getResponses(); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses.csv", toCSV(rr)); }
   
   else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("This data lives in your Google Sheet. To clear it, delete the rows there directly (keep the header row)."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
+  else if(act==="reset"){ var c=adminCache.responses.length; if(c===0 && (resetBase.n||0)===0){ alert(lang==='ko'?"\ucd08\uae30\ud654\ud560 \ub370\uc774\ud130\uac00 \uc544\uc9c1 \uc5c6\uc5b4\uc694.":"Nothing to reset yet."); return; } if(confirm(lang==='ko'?("\ub300\uc2dc\ubcf4\ub4dc \uc218\uce58\ub97c 0\uc73c\ub85c \ucd08\uae30\ud654\ud560\uae4c\uc694?\n\n\ud604\uc7ac "+c+"\uac74\uc740 \ubcf4\uad00\ub418\uc5b4 \ub9e8 \uc544\ub798 \u2018\ub204\uc801 \ub370\uc774\ud130\u2019\uc5d0 \uadf8\ub300\ub85c \ub0a8\uace0, \ucc28\ud2b8\ub294 \uc0c8\ub85c \uc9d1\uacc4\ub429\ub2c8\ub2e4. \uc5b8\uc81c\ub4e0 \u2018\uc804\uccb4 \ubcf4\uae30\u2019\ub85c \ub418\ub3cc\ub9b4 \uc218 \uc788\uc5b4\uc694."):("Reset the dashboard numbers to zero?\n\nThe current "+c+" responses are archived \u2014 they stay visible at the bottom under Accumulated data, and the charts start counting fresh. You can undo anytime with Show all."))){ saveReset({n:c, s:adminCache.starts||0}); resetBase=loadReset(); paintAdmin(); } }
+  else if(act==="resetUndo"){ saveReset({n:0,s:0}); resetBase=loadReset(); paintAdmin(); }
 });
 app.addEventListener('change', function(e){
   var el=e.target.closest('[data-act]'); if(!el)return;
