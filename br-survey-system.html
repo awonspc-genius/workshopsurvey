@@ -39,7 +39,7 @@
   main{flex:1; width:100%;}
 
   /* hero */
-  .hero{max-width:1120px; margin:0 auto; padding:clamp(40px,7vw,88px) clamp(20px,5vw,56px);
+  .hero{max-width:none; margin:0; padding:clamp(40px,7vw,88px) clamp(20px,5vw,56px);
     display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center;}
   .eyebrow{font-family:'Fredoka',sans-serif; font-weight:700; font-size:12px; letter-spacing:.18em; color:var(--pink); text-transform:uppercase; margin:0 0 18px;}
   .hero h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(42px,6.2vw,68px); line-height:.96; letter-spacing:-.025em; margin:0; color:var(--choco);}
@@ -56,8 +56,9 @@
   .bn3{width:22px; height:22px; background:var(--choco); top:22%; left:4%; opacity:.85;} .bn4{width:14px; height:14px; background:var(--pink); bottom:22%; left:12%;}
 
   /* survey panel */
-  .wrap{max-width:660px; margin:0 auto; padding:clamp(28px,6vw,64px) clamp(18px,4vw,24px);}
-  .panel{background:var(--paper); border:1px solid var(--line); border-radius:28px; box-shadow:0 30px 70px -38px rgba(70,41,31,.45); overflow:hidden;}
+  .wrap{max-width:none; margin:0; padding:0;}
+  .panel{background:var(--paper); border:none; border-radius:0; box-shadow:none; overflow:hidden; min-height:calc(100vh - 150px);}
+  .panel .ptop, .panel .pbody, .panel .pnav{max-width:760px; margin-left:auto; margin-right:auto; width:100%;}
   .ptop{padding:26px clamp(22px,5vw,34px) 8px;}
   .meter{display:flex; gap:5px;} .scoop{flex:1; height:6px; border-radius:6px; background:var(--line); transition:background .35s ease;}
   .scoop.done{background:var(--pink);} .scoop.here{background:var(--choco);}
@@ -242,7 +243,6 @@
 
 <header class="nav">
   <div class="navleft">
-    <a class="hubbtn" id="hubBtn" href="index.html" title="Back to Survey Hub"><span class="harr">←</span> Survey Hub</a>
     <div class="brand" id="markSmall"></div>
   </div>
   <a class="lang" id="navRight" href="#">ENGLISH</a>
@@ -252,7 +252,7 @@
 
 <footer>
   <span>© Baskin-Robbins · Workshop Store</span>
-  <span style="display:flex; gap:18px;"><a href="index.html">All surveys</a><a href="br-survey-admin.html">Admin &amp; data</a></span>
+  <span style="display:flex; gap:18px;"><a href="index.html" id="allSurveysLink">All surveys</a><a href="br-survey-admin.html">Admin &amp; data</a></span>
 </footer>
 
 <script>
@@ -463,7 +463,7 @@ var CHECK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="
 
 /* ---------- survey views ---------- */
 function viewLanding(){
-  return '<section class="hero fade" style="background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;border-radius:26px;margin-top:18px;box-shadow:0 30px 70px -42px rgba(35,42,74,.4);"><div>'+
+  return '<section class="hero fade" style="background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;min-height:calc(100vh - 70px);"><div>'+
     '<p class="eyebrow">Workshop · by Baskin-Robbins</p>'+
     '<h1>'+esc(tr("31 flavors."))+'<br><span class="pink">'+esc(tr("One little favor."))+'</span></h1>'+
     '<p class="lead">'+esc(tr("Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit."))+'</p>'+
@@ -1093,6 +1093,16 @@ document.getElementById('navRight').addEventListener('click', function(e){
   setChrome();
   if(route==="admin"){ if(unlocked) paintAdmin(); else render(); } else { render(); }
 });
+/* Passcode gate for returning to the Survey Hub */
+var __asl=document.getElementById('allSurveysLink');
+if(__asl) __asl.addEventListener('click', function(e){
+  e.preventDefault();
+  var v=window.prompt(lang==='ko'?'설문 허브로 이동하려면 비밀번호를 입력하세요':'Enter the passcode to open the Survey Hub');
+  if(v===null) return;
+  if(v===ADMIN_CODE){ window.location.href='index.html'; }
+  else { window.alert(lang==='ko'?'비밀번호가 올바르지 않습니다.':'Incorrect passcode.'); }
+});
+
 render();
 </script>
 </body>
