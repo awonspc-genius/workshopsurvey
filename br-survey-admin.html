@@ -68,6 +68,8 @@
   .qtitle{font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(22px,3.4vw,27px); line-height:1.14; letter-spacing:-.015em; margin:6px 0 0;}
   .qhint{font-size:14px; color:var(--choco-soft); margin:10px 0 0;} .qbody{margin-top:20px;}
   .opts{display:flex; flex-direction:column; gap:10px;}
+  .opts.two{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:640px){ .opts.two{display:flex; flex-direction:column;} }
   .opt{width:100%; display:flex; align-items:center; gap:13px; text-align:left; padding:15px 16px; border-radius:16px; cursor:pointer; background:var(--paper); border:1.5px solid var(--line); font:inherit; font-size:15.5px; color:var(--choco); transition:all .16s ease;}
   .opt:hover{border-color:var(--line-deep);} .opt.on{border-color:var(--pink); background:var(--pink-soft);}
   .dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line-deep); flex:none; transition:all .16s ease;}
@@ -118,6 +120,12 @@
   .kpi .k-label{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; letter-spacing:.04em; color:var(--choco-soft); text-transform:uppercase;}
   .kpi .k-val{font-family:'Fredoka',sans-serif; font-weight:800; font-size:38px; line-height:1; margin-top:10px; letter-spacing:-.02em;}
   .kpi .k-sub{font-size:12.5px; color:var(--choco-soft); margin-top:8px;}
+  .storetabs{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 4px;}
+  .stab{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; padding:9px 15px; border-radius:999px;
+    border:1.5px solid var(--line); background:var(--paper); color:var(--choco-soft); cursor:pointer; transition:all .15s ease;}
+  .stab:hover{border-color:var(--blue,#2B4CC4); color:var(--blue,#2B4CC4);}
+  .stab.on{background:#2B4CC4; border-color:#2B4CC4; color:#fff;}
+  .store-photo{width:62px; height:62px; border-radius:16px; object-fit:cover; border:1px solid var(--line); flex:none;}
   .k-pink{color:var(--pink);} .k-blue{color:var(--blue);} .k-choco{color:var(--choco);}
   .grouphead{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--pink); margin:30px 0 6px; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
   .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:14px;}
@@ -280,6 +288,41 @@
    ===================================================================== */
 var CONFIG = { SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec" };
 
+/* =====================================================================
+   RESET EPOCH — every response submitted BEFORE this timestamp is hidden
+   from all 결과분석 dashboards (a "soft reset"). To wipe the dashboards
+   again later, just bump this date. To hard-delete, clear the rows in
+   the Google Sheet itself (keep the header row).
+   ===================================================================== */
+var RESET_EPOCH = "2026-07-09T00:00:00Z";
+
+/* =====================================================================
+   STORES — per-store result views. Responses are tagged with _store by
+   br-survey-system.html (?store=slug). Untagged legacy rows count as
+   'workshop'. Drop a photo at img/<slug>.jpg to show it in the header.
+   ===================================================================== */
+var STORES=[
+  {id:"all",             en:"All stores",     ko:"전체 매장"},
+  {id:"workshop",        en:"Workshop",       ko:"워크샵"},
+  {id:"cheongdam",       en:"Cheongdam",      ko:"청담점"},
+  {id:"parnas",          en:"Parnas",         ko:"파르나스점"},
+  {id:"gangnam",         en:"Gangnam",        ko:"강남점"},
+  {id:"square",          en:"Square",         ko:"스퀘어점"},
+  {id:"busan-seomyeon",  en:"Busan Seomyeon", ko:"부산서면점"},
+  {id:"paradise",        en:"Paradise",       ko:"파라다이스점"}
+];
+var currentStore=(function(){
+  try{ var m=window.location.search.match(/[?&]store=([^&]+)/);
+    if(m){ var s=decodeURIComponent(m[1]); if(STORES.some(function(x){return x.id===s;})) return s; }
+  }catch(e){}
+  return "all";
+})();
+function storeLabel(id){ var s=STORES.filter(function(x){return x.id===id;})[0]; return s?(lang==='ko'?s.ko:s.en):id; }
+function filterByStore(resps){
+  if(currentStore==="all") return resps;
+  return resps.filter(function(r){ return (r._store||"workshop")===currentStore; });
+}
+
 var RKEY='survey:responses', SKEY='survey:starts';
 
 /* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
@@ -362,9 +405,9 @@ function ICON(name){
     default: return ICON("scoops");
   }
 }
-var QICON_MAP={ Q1:"scoops", Q2:"cup", Q3:"globe", Q4:"cone", Q5:"sundae", Q6:"heart", Q7:"star", Q8:"cup", "Q8-1":"popsicle", "Q8-2":"cone", Q9:"cake", "Q9-1":"cherry", Q10:"heart", Q11:"star", Q12:"heart" };
+var QICON_MAP={ Q1:"cone", Q2:"globe", Q3:"sundae", Q4:"heart", Q5:"cup", Q6:"cake", Q7:"cherry", Q8:"star", Q9:"scoops", Q10:"heart" };
 function QICON(id){ return ICON(QICON_MAP[id]||"scoops"); }
-var QEMOJI={ Q1:"🧑", Q2:"🎂", Q3:"🌍", Q4:"✈️", Q5:"📱", Q6:"🎯", Q7:"✨", Q8:"🧾", "Q8-1":"🖥️", "Q8-2":"⚠️", Q9:"🍦", "Q9-1":"🍨", Q10:"💡", Q11:"👀", Q12:"❤️" };
+var QEMOJI={ Q1:"✈️", Q2:"🌍", Q3:"📱", Q4:"🎯", Q5:"🖥️", Q6:"🍦", Q7:"🍨", Q8:"💡", Q9:"🎁", Q10:"❤️" };
 function heroArt(){
   return '<svg width="230" height="230" viewBox="0 0 210 210" fill="none" aria-hidden="true">'+
     // spoon (behind scoops)
@@ -391,75 +434,61 @@ function heroArt(){
 var COUNTRIES=["China","Japan","Taiwan","United States","Hong Kong","Thailand","Vietnam","Singapore","Malaysia","Philippines","Indonesia","Australia","Canada","United Kingdom","France","Germany"];
 var SCALE5=["Very difficult","Somewhat difficult","Neutral","Somewhat easy","Very easy"];
 var Q={
-  Q1:{section:"About you",index:"Q01",type:"single",title:"What is your gender?",options:["Male","Female"]},
-  Q2:{section:"About you",index:"Q02",type:"single",title:"Which age group do you belong to?",options:["Under 20","20–29","30–39","40–49","50–59","60 or above"]},
-  Q3:{section:"About you",index:"Q03",type:"country",title:"What is your nationality?",options:COUNTRIES},
-  Q4:{section:"About you",index:"Q04",type:"single",title:"What best describes your stay in Korea?",options:["Traveling in Korea","Living in Korea (less than 1 year)","Living in Korea (1 year or longer)"]},
-  Q5:{section:"Finding us",index:"Q05",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube or influencer content","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Friends or family","Hotel or travel platform","Baskin-Robbins official channels","Saw it while passing by","Other (Please specify)"]},
-  Q6:{section:"Finding us",index:"Q06",type:"single",title:"What mainly brought you in today?",options:["To try Korea-only products","To experience a unique Baskin-Robbins store","To try products popular on social media","To eat ice cream","To enjoy desserts or beverages","To buy merchandise (MD goods)","Someone I was with wanted to visit","Other (Please specify)"]},
-  Q7:{section:"Finding us",index:"Q07",type:"single",title:"What impressed you most walking in?",options:["Exterior design","Interior design & atmosphere","Variety of flavors","Korea-exclusive products","Cakes & dessert menu","Merchandise (MD goods)","Photo zones & interactive experiences","Other (Please specify)"]},
-  Q8:{section:"Ordering",index:"Q08",type:"single",title:"How did you order today?",options:["Kiosk","Ordered with a staff member","Mobile order","Someone else ordered for me","Other (Please specify)"]},
-  "Q8-1":{section:"Ordering",index:"Q08·1",type:"scale",title:"How was the kiosk experience?",options:SCALE5},
-  "Q8-2":{section:"Ordering",index:"Q08·2",type:"multi",title:"What made the kiosk difficult? Choose all that apply.",options:["My language wasn’t available","Hard to understand the menu","Hard to find items on the menu","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Ordering took too long","Other (Please specify)"]},
-  Q9:{section:"Your picks",index:"Q09",type:"multi",title:"What did you get today? Choose all that apply.",options:["Ice cream","Beverage","Other desserts (stick bar, mochi…)","Petit cake","Whole cake","Merchandise (MD goods)","Didn’t buy anything"],exclusive:"Didn’t buy anything"},
-  "Q9-1":{section:"Your picks",index:"Q09·1",type:"text",title:"Remember what you got?",hint:"Flavor, cake, or product name — optional."},
-  Q10:{section:"Your picks",index:"Q10",type:"single",title:"Why did you choose it?",options:["I was curious about the taste","It’s only available in Korea","It looked beautiful","I saw it on social media","Friends or family recommended it","It seemed popular","It’s a collab with a character/IP I love","Other (Please specify)"]},
-  Q11:{section:"Your picks",index:"Q11",type:"text",title:"What caught your eye the most?",hint:"Any menu item, flavor, or product here."},
-  Q12:{section:"One last thing",index:"Q12",type:"nps",title:"How likely are you to recommend us?",hint:"0 = not at all · 10 = absolutely"}
+  Q1:{section:"About you",index:"Q01",type:"single",title:"What best describes your current stay in Korea?",options:["Traveling in Korea","Living in Korea (less than 1 year)","Living in Korea (1 year or longer)"]},
+  Q2:{section:"About you",index:"Q02",type:"country",title:"What is your nationality?",options:COUNTRIES},
+  Q3:{section:"Your visit",index:"Q03",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Recommendation from friends or family","Recommendation from a hotel or travel platform","Baskin-Robbins official channels","Saw the store while passing by","Other (Please specify)"]},
+  Q4:{section:"Your visit",index:"Q04",type:"single",title:"What was the main reason you visited the Workshop Store?",options:["To try special menu items only available in Korea","To experience a unique store different from regular stores","To try popular menu items I saw on social media","To eat ice cream","To enjoy desserts or drinks","To buy merchandise","Because someone I was with wanted to visit","Other (Please specify)"]},
+  Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Ordering took too long","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
+  Q6:{section:"Your picks",index:"Q06",type:"multi",cols:2,title:"What did you purchase today? Choose all that apply.",options:["Ice cream cone / cup","Workshop Sampler (4 flavors)","Gelato","Drink","Petit ice cream cake","Whole ice cream cake","Ice cream bar","Ice mochi","Parfait","Crepe","Bingsu (Korean shaved ice)","Cookies / Baked goods","Merchandise","Other (Please specify)"]},
+  Q7:{section:"Your picks",index:"Q07",type:"text",title:"If you remember, please write the name or flavor of what you purchased.",hint:"Flavor, cake, or product name — optional."},
+  Q8:{section:"Your picks",index:"Q08",type:"single",title:"What was the main reason you chose the product(s) you purchased?",options:["I was curious about the taste","It was only available in Korea","It looked visually appealing","I saw it on social media","It was recommended by friends or family","It seemed popular","It’s a collab with a character or IP that I like","Other (Please specify)"]},
+  Q9:{section:"Your picks",index:"Q09",type:"multi",max:3,title:"If special souvenir merchandise were available, what would you be interested in buying?",hint:"Select up to 3.",options:["Keychain","Magnet","Sticker","Postcard / Photo card","Mug","Tumbler","Eco bag / Tote bag","Pouch","Ice cream scoop / Spoon","T-shirt / Hat / Apparel","Plush toy / Character merchandise","Other (Please specify)","I would not be interested in souvenir merchandise"],exclusive:["I would not be interested in souvenir merchandise"]},
+  Q10:{section:"One last thing",index:"Q10",type:"nps",title:"How likely are you to recommend the Workshop Store to your friends or family?",hint:"0 = not at all · 10 = extremely likely"}
 };
-var BASE=["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q8-1","Q8-2","Q9","Q9-1","Q10","Q11","Q12"];
+var BASE=["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10"];
 
 /* ===================== i18n (English ⇄ Korean) ===================== */
 var lang = 'en';
 var KO = {
-"About you":"기본 정보","Finding us":"방문 경로","Ordering":"주문","Your picks":"구매 항목","One last thing":"마지막 질문",
-"What is your gender?":"성별을 알려주세요.",
-"Which age group do you belong to?":"연령대를 선택해 주세요.",
+"About you":"기본 정보","Your visit":"방문 경험","Your picks":"구매 항목","One last thing":"마지막 질문",
+"What best describes your current stay in Korea?":"현재 한국에 어떤 형태로 체류 중이신가요?",
 "What is your nationality?":"국적을 알려주세요.",
-"What best describes your stay in Korea?":"현재 한국 체류 상태에 가장 가까운 것은?",
 "How did you first hear about the Workshop Store?":"Workshop 매장을 어떻게 처음 알게 되셨나요?",
-"What mainly brought you in today?":"오늘 방문하신 주된 이유는 무엇인가요?",
-"What impressed you most walking in?":"매장에 들어섰을 때 가장 인상적이었던 것은?",
-"How did you order today?":"오늘 어떻게 주문하셨나요?",
-"How was the kiosk experience?":"키오스크 주문 경험은 어떠셨나요?",
-"What made the kiosk difficult? Choose all that apply.":"키오스크 이용 시 불편했던 점은? (복수 선택)",
-"What did you get today? Choose all that apply.":"오늘 무엇을 구매하셨나요? (복수 선택)",
-"Remember what you got?":"구매하신 제품을 기억하시나요?",
-"Why did you choose it?":"선택하신 이유는 무엇인가요?",
-"What caught your eye the most?":"가장 눈길을 끌었던 것은 무엇인가요?",
-"How likely are you to recommend us?":"Workshop을 추천하실 의향은 어느 정도인가요?",
+"What was the main reason you visited the Workshop Store?":"Workshop 매장을 방문하신 가장 큰 이유는 무엇인가요?",
+"Did you experience any difficulties while using the kiosk? Choose all that apply.":"키오스크 이용 시 불편했던 점이 있었나요? (모두 선택)",
+"What did you purchase today? Choose all that apply.":"오늘 구매하신 제품은 무엇인가요? (복수 선택)",
+"If you remember, please write the name or flavor of what you purchased.":"구매하신 제품의 맛이나 이름을 기억나는 대로 적어주세요.",
+"What was the main reason you chose the product(s) you purchased?":"구매하신 제품을 선택한 가장 큰 이유는 무엇인가요?",
+"If special souvenir merchandise were available, what would you be interested in buying?":"Workshop 방문을 기념할 수 있는 상품이 나온다면, 어떤 상품을 구매하고 싶으신가요?",
+"How likely are you to recommend the Workshop Store to your friends or family?":"주변에 Workshop 매장을 추천할 의향이 얼마나 있으신가요?",
 "Flavor, cake, or product name — optional.":"맛, 케이크, 제품명 — 선택 입력.",
-"Any menu item, flavor, or product here.":"메뉴, 맛, 제품 무엇이든 좋아요.",
-"0 = not at all · 10 = absolutely":"0 = 전혀 아님 · 10 = 매우 그렇다",
-"Male":"남성","Female":"여성",
-"Under 20":"20세 미만","20–29":"20–29세","30–39":"30–39세","40–49":"40–49세","50–59":"50–59세","60 or above":"60세 이상",
+"Select up to 3.":"최대 3개까지 선택할 수 있어요.",
+"0 = not at all · 10 = extremely likely":"0 = 전혀 아님 · 10 = 매우 그렇다",
 "China":"중국","Japan":"일본","Taiwan":"대만","United States":"미국","Hong Kong":"홍콩","Thailand":"태국","Vietnam":"베트남","Singapore":"싱가포르","Malaysia":"말레이시아","Philippines":"필리핀","Indonesia":"인도네시아","Australia":"호주","Canada":"캐나다","United Kingdom":"영국","France":"프랑스","Germany":"독일","Other":"기타",
-"Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 (1년 이상)",
-"Social media (Instagram, TikTok…)":"소셜 미디어 (인스타그램, 틱톡 등)","YouTube or influencer content":"유튜브·인플루언서 콘텐츠","Travel websites or blogs":"여행 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Friends or family":"친구·가족","Hotel or travel platform":"호텔·여행 플랫폼","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw it while passing by":"지나가다 우연히","Other (Please specify)":"기타 (직접 입력)",
-"To try Korea-only products":"한국 한정 제품을 맛보려고","To experience a unique Baskin-Robbins store":"특별한 배스킨라빈스 매장을 경험하려고","To try products popular on social media":"SNS에서 화제인 제품을 맛보려고","To eat ice cream":"아이스크림을 먹으려고","To enjoy desserts or beverages":"디저트·음료를 즐기려고","To buy merchandise (MD goods)":"MD 굿즈를 사려고","Someone I was with wanted to visit":"동행이 방문을 원해서",
-"Exterior design":"외관 디자인","Interior design & atmosphere":"인테리어·분위기","Variety of flavors":"다양한 맛","Korea-exclusive products":"한국 한정 제품","Cakes & dessert menu":"케이크·디저트 메뉴","Merchandise (MD goods)":"MD 굿즈","Photo zones & interactive experiences":"포토존·체험 요소",
-"Kiosk":"키오스크","Ordered with a staff member":"직원에게 주문","Mobile order":"모바일 주문","Someone else ordered for me":"다른 사람이 대신 주문",
-"Very difficult":"매우 불편","Somewhat difficult":"다소 불편","Neutral":"보통","Somewhat easy":"다소 편리","Very easy":"매우 편리",
-"My language wasn’t available":"내 언어가 지원되지 않음","Hard to understand the menu":"메뉴를 이해하기 어려움","Hard to find items on the menu":"메뉴에서 항목 찾기 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 부정확함","The screen layout was confusing":"화면 구성이 혼란스러움","Ordering took too long":"주문에 시간이 오래 걸림",
-"Ice cream":"아이스크림","Beverage":"음료","Other desserts (stick bar, mochi…)":"기타 디저트 (스틱바, 모찌 등)","Petit cake":"쁘띠 케이크","Whole cake":"홀케이크","Didn’t buy anything":"구매하지 않음",
-"I was curious about the taste":"맛이 궁금해서","It’s only available in Korea":"한국에서만 살 수 있어서","It looked beautiful":"비주얼이 예뻐서","I saw it on social media":"SNS에서 봐서","Friends or family recommended it":"친구·가족 추천","It seemed popular":"인기 있어 보여서","It’s a collab with a character/IP I love":"좋아하는 캐릭터·IP 콜라보라서",
+"Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 중 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 중 (1년 이상)",
+"Social media (Instagram, TikTok…)":"SNS (인스타그램, 틱톡 등)","YouTube":"유튜브","Travel websites or blogs":"여행 정보 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Recommendation from friends or family":"친구·가족 추천","Recommendation from a hotel or travel platform":"호텔·여행 플랫폼 추천","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw the store while passing by":"매장을 지나가다 발견","Other (Please specify)":"기타 (직접 입력)",
+"To try special menu items only available in Korea":"한국에서만 경험할 수 있는 특별한 메뉴를 먹기 위해","To experience a unique store different from regular stores":"일반 매장과 다른 특별한 공간을 경험하기 위해","To try popular menu items I saw on social media":"SNS에서 본 인기 메뉴를 직접 경험하기 위해","To eat ice cream":"아이스크림을 먹기 위해","To enjoy desserts or drinks":"디저트·음료를 먹기 위해","To buy merchandise":"굯즈(MD)를 구매하기 위해","Because someone I was with wanted to visit":"동행인이 방문을 원해서",
+"My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","Ordering took too long":"주문 시간이 오래 걸림","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
+"Ice cream cone / cup":"아이스크림 콘/컵","Workshop Sampler (4 flavors)":"워크샵 샘플러 (4가지 맛)","Gelato":"젤라또","Drink":"음료","Petit ice cream cake":"아이스크림 즁띠 케이크","Whole ice cream cake":"아이스크림 홀 케이크","Ice cream bar":"아이스크림 스틱바","Ice mochi":"아이스 모찌","Parfait":"파르페","Crepe":"크레페","Bingsu (Korean shaved ice)":"빙수","Cookies / Baked goods":"쿠키·제과류","Merchandise":"굯즈(MD)",
+"I was curious about the taste":"맛이 궁금해서","It was only available in Korea":"한국에서만 먹을 수 있어서","It looked visually appealing":"제품 비주얼이 좋아서","I saw it on social media":"SNS에서 봤던 거라서","It was recommended by friends or family":"친구·가족 추천","It seemed popular":"가장 인기 있어 보여서","It’s a collab with a character or IP that I like":"좋아하는 캠릭터·IP 콜라보 제품이라서",
+"Keychain":"키링","Magnet":"마그넷","Sticker":"스티커","Postcard / Photo card":"엽서/포토카드","Mug":"머그컵","Tumbler":"텀블러","Eco bag / Tote bag":"에코백/토트백","Pouch":"파우치","Ice cream scoop / Spoon":"아이스크림 스쿱/스푼","T-shirt / Hat / Apparel":"티셔츠/모자/의류","Plush toy / Character merchandise":"인형/캠릭터 굯즈","I would not be interested in souvenir merchandise":"기념품을 구매하고 싶지 않음",
 "Start the survey":"설문 시작하기","Continue":"다음","Back":"이전","Finish":"제출하기","Start over":"다시 시작",
 "Not at all":"전혀 아님","Absolutely":"매우 그렇다",
 "Tell us more…":"자세히 입력…","Your country…":"국가 입력…","Write here…":"여기에 입력…",
 "Survey Hub":"설문 허브",
 "31 flavors.":"31가지 맛,","One little favor.":"작은 부탁 하나.",
-"Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit.":"무엇이 당신을 이곳으로 이끌었고 무엇이 좋았는지 3분만 들려주세요. 여러분의 의견이 메뉴와 매장, 그리고 다음 방문을 만듭니다.",
+"Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit.":"무엇이 당신을 이곳으로 이끕었고 무엇이 좋았는지 3분만 들려주세요. 여러분의 의견이 메뉴와 매장, 그리고 다음 방문을 만듭니다.",
 "Yay — that’s the scoop.":"감사합니다 — 여기까지예요.",
 "Thank you. Your feedback goes straight to the team behind the Workshop Store. Enjoy the rest of your visit.":"소중한 의견 감사합니다. 여러분의 피드백은 Workshop 팀에게 바로 전달됩니다. 남은 방문 시간도 즐겁게 보내세요.",
 "Saved to your Google Sheet.":"구글 시트에 저장되었습니다.","Saved.":"저장되었습니다.",
 "Your answers were captured, but the data store didn’t confirm the save.":"응답은 기록되었지만 저장이 확인되지 않았습니다.",
 /* admin */
-"Overview":"개요","Explore":"탐색","Advocacy":"추천 지표","Audience":"응답자","Discovery & first impression":"인지·첫인상","Purchases":"구매","Records":"기록",
+"Overview":"개요","Explore":"탐색","Advocacy":"추천 지표","Audience":"응답자","Discovery & visit":"인지·방문","Kiosk":"키오스크","Purchases & souvenirs":"구매·기념품","Records":"기록",
 "Responses":"응답 수","Completion":"완료율","Avg recommend":"평균 추천","completed surveys":"완료된 설문","net promoter score":"순추천지수","out of 10":"10점 만점",
 "Refresh":"새로고침","Export CSV":"CSV 내보내기","Seed demo data":"샘플 데이터","Clear all":"전체 삭제","View survey":"설문 보기","Log out":"로그아웃",
 "Break down by":"기준","Split by":"분할","Measure":"측정값","View as":"보기","Filter":"필터","Count":"개수","Share %":"비율 %","Avg NPS":"평균 NPS","Bars":"막대","Grouped":"그룹","Pie":"파이","Heatmap":"히트맵","Table":"표","Reset filters":"필터 초기화","None":"없음","Donuts":"도넛",
-"Gender":"성별","Age":"연령","Nationality":"국적","Stay":"체류","Source":"경로","Visit reason":"방문 이유","First impression":"첫인상","Order method":"주문 방식","Kiosk ease":"키오스크 편의성","Bought":"구매 항목","Kiosk issues":"키오스크 문제","Choice reason":"선택 이유",
-"Age group":"연령대","Type of stay":"체류 유형","Top nationalities":"국적 상위","How they heard about us":"인지 경로","Reason for visiting":"방문 이유","Strongest first impression":"가장 강한 첫인상","Kiosk ease (kiosk users)":"키오스크 편의성 (이용자)","Kiosk difficulties":"키오스크 불편 사항","What they bought":"구매 항목","Why they chose it":"선택 이유","Products named":"제품 응답","Most eye-catching":"가장 눈에 띈 것",
+"Nationality":"국적","Stay":"체류","Source":"경로","Visit reason":"방문 이유","Bought":"구매 항목","Kiosk issues":"키오스크 불편","Choice reason":"선택 이유","Souvenir picks":"기념품 선호",
+"Type of stay":"체류 유형","Top nationalities":"국적 상위","How they heard about us":"인지 경로","Reason for visiting":"방문 이유","Kiosk difficulties":"키오스크 불편 사항","What they bought":"구매 항목","Why they chose it":"선택 이유","Souvenirs they’d buy":"구매 희망 기념품","Products named":"제품 응답",
 "Net Promoter Score":"순추천지수 (NPS)","Explore & cross-tab":"탐색 & 교차분석","Responses over time":"기간별 응답","Raw responses":"원본 응답","Survey insights":"설문 인사이트","Overview · who’s responding":"개요 · 응답자 프로필",
 "Admin access":"관리자 접근","Enter the passcode to view survey insights.":"설문 인사이트를 보려면 비밀번호를 입력하세요.","Unlock dashboard":"대시보드 열기","Back to survey":"설문으로 돌아가기",
 "No responses yet.":"아직 응답이 없습니다."
@@ -468,10 +497,8 @@ function tr(s){ if(lang==='ko' && KO[s]!==undefined) return KO[s]; return s; }
 
 /* ============================ survey state + logic ============================ */
 var state={screen:"landing", answers:{}};
-function usedKiosk(a){return (a||state.answers).Q8==="Kiosk";}
-function bought(a){var v=(a||state.answers).Q9; return Array.isArray(v)&&v.some(function(x){return x!=="Didn’t buy anything";});}
-function visible(id){ if(id==="Q8-1"||id==="Q8-2")return usedKiosk(); if(id==="Q9-1"||id==="Q10")return bought(); return true; }
-function flow(){return BASE.filter(visible);}
+function visible(id){ return true; }
+function flow(){return BASE.slice();}
 function answered(id){ var def=Q[id], a=state.answers[id]; if(!def)return true; if(def.type==="text")return true; if(def.type==="multi")return Array.isArray(a)&&a.length>0; if(def.type==="nps"||def.type==="scale")return a!==undefined&&a!==null; return !!a; }
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function isOther(o){return o.indexOf("Other")===0;}
@@ -483,7 +510,7 @@ function viewLanding(){
     '<p class="eyebrow">Workshop · by Baskin-Robbins</p>'+
     '<h1>'+esc(tr("31 flavors."))+'<br><span class="pink">'+esc(tr("One little favor."))+'</span></h1>'+
     '<p class="lead">'+esc(tr("Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit."))+'</p>'+
-    '<p class="meta"><b>'+(lang==='ko'?'약 3분':'About 3 minutes')+'</b> · '+(lang==='ko'?'12문항':'12 questions')+' · '+(lang==='ko'?'한국어':'English')+'</p>'+
+    '<p class="meta"><b>'+(lang==='ko'?'약 3분':'About 3 minutes')+'</b> · '+(lang==='ko'?'10문항':'10 questions')+' · '+(lang==='ko'?'한국어':'English')+'</p>'+
     '<button class="start" data-act="start">'+esc(tr("Start the survey"))+' <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
     '</div><div class="glass"><span class="balloon bn1"></span><span class="balloon bn2"></span><span class="balloon bn3"></span><span class="balloon bn4"></span><div class="disc photo">'+(PHOTOS.cup?'<img src="'+PHOTOS.cup+'" alt="Workshop ice cream">':heroArt())+'</div></div></section>';
 }
@@ -491,7 +518,7 @@ function specifyHTML(id,ph){ var v=state.answers[id+"_other"]||""; return '<inpu
 function optionsHTML(id){
   var def=Q[id], a=state.answers[id];
   if(def.type==="single"){ return '<div class="opts">'+def.options.map(function(opt){ var on=a===opt; var spec=(on&&isOther(opt))?specifyHTML(id,"Tell us more…"):""; return '<div><button class="opt'+(on?' on':'')+'" data-act="select" data-q="'+id+'" data-val="'+esc(opt)+'"><span class="dot"></span><span class="optlabel">'+esc(tr(opt))+'</span></button>'+spec+'</div>'; }).join("")+'</div>'; }
-  if(def.type==="multi"){ var cur=a||[]; return '<div class="opts">'+def.options.map(function(opt){ var on=cur.indexOf(opt)>-1; var spec=(on&&isOther(opt))?specifyHTML(id,"Tell us more…"):""; return '<div><button class="opt'+(on?' on':'')+'" data-act="toggle" data-q="'+id+'" data-val="'+esc(opt)+'"><span class="box">'+CHECK+'</span><span class="optlabel">'+esc(tr(opt))+'</span></button>'+spec+'</div>'; }).join("")+'</div>'; }
+  if(def.type==="multi"){ var cur=a||[]; return '<div class="opts'+(def.cols===2?' two':'')+'">'+def.options.map(function(opt){ var on=cur.indexOf(opt)>-1; var spec=(on&&isOther(opt))?specifyHTML(id,"Tell us more…"):""; return '<div><button class="opt'+(on?' on':'')+'" data-act="toggle" data-q="'+id+'" data-val="'+esc(opt)+'"><span class="box">'+CHECK+'</span><span class="optlabel">'+esc(tr(opt))+'</span></button>'+spec+'</div>'; }).join("")+'</div>'; }
   if(def.type==="country"){ var otherOn=a==="__other"; var chips=def.options.map(function(opt){ return '<button class="chip'+(a===opt?' on':'')+'" data-act="select" data-q="'+id+'" data-val="'+esc(opt)+'">'+esc(tr(opt))+'</button>'; }).join(""); chips+='<button class="chip wide'+(otherOn?' on':'')+'" data-act="select" data-q="'+id+'" data-val="__other">'+esc(tr("Other"))+'</button>'; return '<div class="chips">'+chips+'</div>'+(otherOn?specifyHTML(id,"Your country…"):""); }
   if(def.type==="scale"){ return '<div class="scale">'+def.options.map(function(label,i){ return '<button class="face'+(a===i?' on':'')+'" data-act="scale" data-q="'+id+'" data-val="'+i+'"><span class="facenum">'+(i+1)+'</span><span class="facelabel">'+esc(tr(label))+'</span></button>'; }).join("")+'</div>'; }
   if(def.type==="text"){ return '<textarea class="bigtext" rows="4" placeholder="'+esc(tr("Write here…"))+'" data-act="text" data-q="'+id+'">'+esc(a||"")+'</textarea>'; }
@@ -503,7 +530,7 @@ function viewQuestion(id){
   var meter=f.map(function(_,i){ return '<span class="'+(i<pos?"scoop done":i===pos?"scoop here":"scoop")+'"></span>'; }).join("");
   var hint=def.hint?'<p class="qhint">'+esc(tr(def.hint))+'</p>':"";
   var last=pos===f.length-1;
-  return '<div class="wrap fade"><div class="panel"><div class="ptop"><div class="meter">'+meter+'</div><div class="crumbs"><span class="section">'+esc(tr(def.section))+'</span><span class="qix">'+def.index+' / 12</span></div></div><div class="pbody"><div class="qhead"><div class="qbadge emoji">'+(QEMOJI[id]||"🍦")+'</div><h2 class="qtitle">'+esc(tr(def.title))+'</h2></div>'+hint+'<div class="qbody">'+optionsHTML(id)+'</div></div><div class="pnav"><button class="ghost" data-act="back">'+esc(tr("Back"))+'</button><button class="cta grow" data-act="next"'+(answered(id)?"":" disabled")+'>'+esc(tr(last?"Finish":"Continue"))+'</button></div></div></div>';
+  return '<div class="wrap fade"><div class="panel"><div class="ptop"><div class="meter">'+meter+'</div><div class="crumbs"><span class="section">'+esc(tr(def.section))+'</span><span class="qix">'+def.index+' / 10</span></div></div><div class="pbody"><div class="qhead"><div class="qbadge emoji">'+(QEMOJI[id]||"🍦")+'</div><h2 class="qtitle">'+esc(tr(def.title))+'</h2></div>'+hint+'<div class="qbody">'+optionsHTML(id)+'</div></div><div class="pnav"><button class="ghost" data-act="back">'+esc(tr("Back"))+'</button><button class="cta grow" data-act="next"'+(answered(id)?"":" disabled")+'>'+esc(tr(last?"Finish":"Continue"))+'</button></div></div></div>';
 }
 function viewThanks(){
   var tag="";
@@ -537,10 +564,10 @@ function countSingle(resps,id){
   var def=Q[id], map={}; def.options.forEach(function(o){map[o]=0;});
   var other=0;
   resps.forEach(function(r){ var v=r[id]; if(v===undefined||v===null||v==="")return;
-    if(id==="Q3"&&v==="__other"){ other++; return; }
+    if(id==="Q2"&&v==="__other"){ other++; return; }
     if(map[v]===undefined) map[v]=0; map[v]++; });
   var rows=Object.keys(map).map(function(k){return {label:k,count:map[k]};});
-  if(id==="Q3"&&other) rows.push({label:"Other",count:other});
+  if(id==="Q2"&&other) rows.push({label:"Other",count:other});
   return rows;
 }
 function countMulti(resps,id){
@@ -581,8 +608,8 @@ function hbars(rows,opts){
 function card(title,note,inner,full){ return '<div class="card'+(full?' full':'')+'"><h3>'+tr(title)+'</h3>'+(note?'<p class="n">'+note+'</p>':'')+inner+'</div>'; }
 
 function npsCard(resps){
-  var vals=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
-  if(!vals.length) return card("Net Promoter Score","Likelihood to recommend (Q12)",'<div class="empty">No responses yet.</div>',true);
+  var vals=resps.map(function(r){return r.Q10;}).filter(function(v){return typeof v==="number";});
+  if(!vals.length) return card("Net Promoter Score","Likelihood to recommend (Q10)",'<div class="empty">No responses yet.</div>',true);
   var det=vals.filter(function(v){return v<=6;}).length, pas=vals.filter(function(v){return v>=7&&v<=8;}).length, pro=vals.filter(function(v){return v>=9;}).length;
   var n=vals.length, nps=Math.round((pro/n - det/n)*100);
   var avg=(vals.reduce(function(s,v){return s+v;},0)/n).toFixed(1);
@@ -594,29 +621,26 @@ function npsCard(resps){
     (prP?'<span style="width:'+prP+'%;background:var(--pink)">'+prP+'%</span>':'')+'</div>';
   var leg='<div class="leg"><span><i style="background:var(--blue)"></i>Detractors (0–6) · '+det+'</span><span><i style="background:var(--choco)"></i>Passives (7–8) · '+pas+'</span><span><i style="background:var(--pink)"></i>Promoters (9–10) · '+pro+'</span></div>';
   var inner='<div class="npswrap"><div><div class="npsbig" style="color:'+color+'">'+(nps>0?'+':'')+nps+'</div><div class="n" style="margin:4px 0 0">avg '+avg+' / 10</div></div><div class="npsstack">'+stack+leg+'</div></div>';
-  return card("Net Promoter Score","Likelihood to recommend (Q12) · n="+n,inner,true);
+  return card("Net Promoter Score","Likelihood to recommend (Q10) · n="+n,inner,true);
 }
 
 /* ===================== EXPLORE / CROSS-TAB ENGINE ===================== */
 var DIMS={
-  Q1:{label:"Gender"}, Q2:{label:"Age"}, Q3:{label:"Nationality",top:10}, Q4:{label:"Stay"},
-  Q5:{label:"Source"}, Q6:{label:"Visit reason"}, Q7:{label:"First impression"},
-  Q8:{label:"Order method"}, "Q8-1":{label:"Kiosk ease",scale:true},
-  Q9:{label:"Bought",multi:true}, "Q8-2":{label:"Kiosk issues",multi:true}, Q10:{label:"Choice reason"}
+  Q1:{label:"Stay"}, Q2:{label:"Nationality",top:10}, Q3:{label:"Source"}, Q4:{label:"Visit reason"},
+  Q5:{label:"Kiosk issues",multi:true}, Q6:{label:"Bought",multi:true},
+  Q8:{label:"Choice reason"}, Q9:{label:"Souvenir picks",multi:true}
 };
 function valForDim(r,dim){
   var v=r[dim];
-  if(dim==="Q8-1") return (typeof v==="number"&&SCALE5[v]!==undefined)?[SCALE5[v]]:[];
-  if(Q[dim]&&Q[dim].multi) return Array.isArray(v)?v.slice():[];
-  if(dim==="Q3"){ if(v===undefined||v===null||v==="")return []; return [v==="__other"?"Other":v]; }
+  if(Q[dim]&&Q[dim].type==="multi") return Array.isArray(v)?v.slice():[];
+  if(dim==="Q2"){ if(v===undefined||v===null||v==="")return []; return [v==="__other"?"Other":v]; }
   if(v===undefined||v===null||v==="") return [];
   return [v];
 }
 function dimCats(resps,dim){
   var counts={}; resps.forEach(function(r){ valForDim(r,dim).forEach(function(c){ counts[c]=(counts[c]||0)+1; }); });
   var order=[]; var def=Q[dim];
-  if(dim==="Q8-1") order=SCALE5.slice();
-  else if(def&&def.options){ order=def.options.slice(); if(dim==="Q3") order.push("Other"); }
+  if(def&&def.options){ order=def.options.slice(); if(dim==="Q2") order.push("Other"); }
   var present=order.filter(function(o){ return counts[o]; });
   Object.keys(counts).forEach(function(c){ if(present.indexOf(c)<0) present.push(c); });
   if(DIMS[dim]&&DIMS[dim].top){ present.sort(function(a,b){return counts[b]-counts[a];}); present=present.slice(0,DIMS[dim].top); }
@@ -636,7 +660,7 @@ function aggregate(resps){
   rs.forEach(function(r){
     var xs=valForDim(r,explore.x); if(!xs.length)return;
     var ss=explore.split==="none"?["All"]:valForDim(r,explore.split); if(!ss.length)return;
-    var nps=(typeof r.Q12==="number")?r.Q12:null;
+    var nps=(typeof r.Q10==="number")?r.Q10:null;
     xs.forEach(function(x){ if(!cnt[x])return; ss.forEach(function(s){ if(cnt[x][s]===undefined)return; cnt[x][s]++; if(nps!=null){nsum[x][s]+=nps;nn[x][s]++;} }); });
   });
   return {rs:rs,xCats:xCats,sCats:sCats,cnt:cnt,nsum:nsum,nn:nn};
@@ -745,7 +769,7 @@ function viewExplore(resps){
   var measOpts=[{v:"count",label:"Count"},{v:"share",label:"Share %"},{v:"avgnps",label:"Avg NPS"}];
   var viewOpts=[{v:"bars",label:"Bars"},{v:"grouped",label:"Grouped"},{v:"pie",label:"Pie"},{v:"heat",label:"Heatmap"},{v:"table",label:"Table"}];
   function sel(field){
-    var opts=field==="Q3"?COUNTRIES:Q[field].options, cur=explore.filters[field]||"__all";
+    var opts=field==="Q2"?COUNTRIES:Q[field].options, cur=explore.filters[field]||"__all";
     return '<select class="exsel" data-act="exf" data-k="'+field+'"><option value="__all"'+(cur==="__all"?" selected":"")+'>'+(lang==='ko'?'전체':'All '+esc(DIMS[field].label.toLowerCase()))+'</option>'+
       opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(tr(o))+'</option>';}).join("")+'</select>';
   }
@@ -754,7 +778,7 @@ function viewExplore(resps){
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Split by")+'</span>'+bg("split",explore.split,splitOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Measure")+'</span>'+bg("measure",explore.measure,measOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("View as")+'</span>'+bg("view",explore.view,viewOpts)+'</div>'+
-    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Filter")+'</span><div class="filters">'+sel("Q4")+sel("Q8")+sel("Q2")+sel("Q3")+'<button class="tbtn" data-act="exreset">'+tr("Reset filters")+'</button></div></div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Filter")+'</span><div class="filters">'+sel("Q1")+sel("Q3")+sel("Q4")+sel("Q2")+'<button class="tbtn" data-act="exreset">'+tr("Reset filters")+'</button></div></div>'+
     '<div class="exresult">'+exploreResult(resps)+'</div>';
   return card("Explore & cross-tab","Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses",inner,true);
 }
@@ -779,14 +803,13 @@ function miniDist(resps,dim,topn){
 }
 function viewOverview(resps){
   if(!resps.length) return card("Overview","A snapshot of all accumulated responses",'<div class="empty">No responses yet. Submit the survey or seed demo data to see the overall picture.</div>',true);
-  var g=topCat(resps,"Q1"), ag=topCat(resps,"Q2"), na=topCat(resps,"Q3"), st=topCat(resps,"Q4"), chan=topCat(resps,"Q5"), buy=topCat(resps,"Q9");
-  var npsv=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  var st=topCat(resps,"Q1"), na=topCat(resps,"Q2"), chan=topCat(resps,"Q3"), buy=topCat(resps,"Q6");
+  var npsv=resps.map(function(r){return r.Q10;}).filter(function(v){return typeof v==="number";});
   var promoters=npsv.length?Math.round(npsv.filter(function(v){return v>=9;}).length/npsv.length*100):0;
-  var travelers=pctWhere(resps,"Q4","Traveling in Korea");
-  var kiosk=pctWhere(resps,"Q8","Kiosk");
+  var travelers=pctWhere(resps,"Q1","Traveling in Korea");
+  var smoothKiosk=pctWhere(resps,"Q5","I had no difficulties using the kiosk");
 
-  var sentence='Most respondents are '+hiSpan(g?g.label.toLowerCase():"—")+', aged '+hiSpan(ag?ag.label:"—")+
-    ', visiting from '+hiSpan(na?na.label:"—")+(st?' \u2014 '+esc(stayPhrase(st.label)):"")+'. '+
+  var sentence='Most respondents are visiting from '+hiSpan(na?na.label:"—")+(st?' \u2014 '+esc(stayPhrase(st.label)):"")+'. '+
     'They tend to discover the store through '+hiSpan(chan?chan.label:"—")+
     (buy?' and most often leave with '+hiSpan(buy.label.toLowerCase()):"")+'.';
 
@@ -794,37 +817,32 @@ function viewOverview(resps){
     {v:travelers+"%", l:"are tourists"},
     {v:na?na.label:"—", l:"top nationality"+(na?" ("+na.pct+"%)":"")},
     {v:chan?chan.label:"—", l:"top discovery channel"},
-    {v:kiosk+"%", l:"ordered at the kiosk"},
+    {v:smoothKiosk+"%", l:"had no kiosk difficulties"},
     {v:promoters+"%", l:"are promoters (NPS 9–10)"}
   ];
   var tilesHTML='<div class="hl-tiles">'+tiles.map(function(t){ return '<div class="hl-tile"><div class="hl-v">'+esc(t.v)+'</div><div class="hl-l">'+esc(t.l)+'</div></div>'; }).join("")+'</div>';
-  var minis='<div class="minirow">'+miniDist(resps,"Q1")+miniDist(resps,"Q2")+miniDist(resps,"Q4")+miniDist(resps,"Q3",5)+'</div>';
+  var minis='<div class="minirow">'+miniDist(resps,"Q1")+miniDist(resps,"Q3")+miniDist(resps,"Q4")+miniDist(resps,"Q2",5)+'</div>';
 
   return card("Overview \u00b7 who\u2019s responding","A plain-language read of all "+resps.length+" responses",'<p class="profile">'+sentence+'</p>'+tilesHTML+minis,true);
 }
 
 var GROUPS=[
   {head:"Audience", items:[
-    {id:"Q1",title:"Gender",kind:"vbar"},
-    {id:"Q2",title:"Age group",kind:"vbar"},
-    {id:"Q4",title:"Type of stay",kind:"vbar"},
-    {id:"Q3",title:"Top nationalities",kind:"hbar",top:12}
+    {id:"Q1",title:"Type of stay",kind:"vbar"},
+    {id:"Q2",title:"Top nationalities",kind:"hbar",top:12}
   ]},
-  {head:"Discovery & first impression", items:[
-    {id:"Q5",title:"How they heard about us",kind:"hbar"},
-    {id:"Q6",title:"Reason for visiting",kind:"hbar"},
-    {id:"Q7",title:"Strongest first impression",kind:"hbar"}
+  {head:"Discovery & visit", items:[
+    {id:"Q3",title:"How they heard about us",kind:"hbar"},
+    {id:"Q4",title:"Reason for visiting",kind:"hbar"}
   ]},
-  {head:"Ordering", items:[
-    {id:"Q8",title:"Order method",kind:"vbar"},
-    {id:"Q8-1",title:"Kiosk ease (kiosk users)",kind:"vbar",scale:true},
-    {id:"Q8-2",title:"Kiosk difficulties",kind:"hbar",multi:true,color:"var(--blue)"}
+  {head:"Kiosk", items:[
+    {id:"Q5",title:"Kiosk difficulties",kind:"hbar",multi:true,color:"var(--blue)"}
   ]},
-  {head:"Purchases", items:[
-    {id:"Q9",title:"What they bought",kind:"hbar",multi:true},
-    {id:"Q10",title:"Why they chose it",kind:"hbar"},
-    {id:"Q9-1",title:"Products named",kind:"text"},
-    {id:"Q11",title:"Most eye-catching",kind:"text"}
+  {head:"Purchases & souvenirs", items:[
+    {id:"Q6",title:"What they bought",kind:"hbar",multi:true},
+    {id:"Q8",title:"Why they chose it",kind:"hbar"},
+    {id:"Q9",title:"Souvenirs they’d buy",kind:"hbar",multi:true},
+    {id:"Q7",title:"Products named",kind:"text"}
   ]}
 ];
 
@@ -872,10 +890,10 @@ function rawTable(resps){
   var body=rows.map(function(r,idx){
     var d=r._submittedAt?new Date(r._submittedAt):null;
     var dt=d?((d.getMonth()+1)+"/"+d.getDate()+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)):"—";
-    var nat=r.Q3==="__other"?"Other":(r.Q3||"—");
-    return '<tr><td>'+(resps.length-idx)+'</td><td>'+dt+'</td><td>'+esc(r.Q2||"—")+'</td><td>'+esc(nat)+'</td><td>'+esc(r.Q8||"—")+'</td><td class="num">'+(typeof r.Q12==="number"?r.Q12:"—")+'</td></tr>';
+    var nat=r.Q2==="__other"?"Other":(r.Q2||"—");
+    return '<tr><td>'+(resps.length-idx)+'</td><td>'+dt+'</td><td>'+esc(nat)+'</td><td>'+esc(r.Q1||"—")+'</td><td class="num">'+(typeof r.Q10==="number"?r.Q10:"—")+'</td></tr>';
   }).join("");
-  var tbl='<div class="rawscroll"><table class="ftable"><thead><tr><th>#</th><th>Time</th><th>Age</th><th>Nationality</th><th>Order</th><th class="num">NPS</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  var tbl='<div class="rawscroll"><table class="ftable"><thead><tr><th>#</th><th>Time</th><th>Nationality</th><th>Stay</th><th class="num">NPS</th></tr></thead><tbody>'+body+'</tbody></table></div>';
   return card("Raw responses","Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV",tbl,true);
 }
 
@@ -903,7 +921,7 @@ function viewAdminLoading(){ return '<div class="adm fade"><div class="empty" st
 function viewAdmin(resps,starts){
   var n=resps.length;
   var comp = starts>0? Math.min(100,pct(n,starts)) : null;
-  var npsVals=resps.map(function(r){return r.Q12;}).filter(function(v){return typeof v==="number";});
+  var npsVals=resps.map(function(r){return r.Q10;}).filter(function(v){return typeof v==="number";});
   var npsScore = npsVals.length? Math.round((npsVals.filter(function(v){return v>=9;}).length/npsVals.length - npsVals.filter(function(v){return v<=6;}).length/npsVals.length)*100) : null;
   var avgRec = npsVals.length? (npsVals.reduce(function(s,v){return s+v;},0)/npsVals.length).toFixed(1) : "—";
 
@@ -932,9 +950,22 @@ function viewAdmin(resps,starts){
     return '<button data-act="mode" data-val="'+m+'"'+(viewMode===m?' class="on"':'')+'>'+tr(labels[m])+'</button>';
   }).join("")+'</div>';
 
-  return '<div class="adm fade"><div class="adm-head"><div><h1>'+tr("Survey insights")+'</h1><div class="sub">Live data from the Workshop Store visitor survey · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div>'+
+  /* per-store tab bar */
+  var storeTabs='<div class="storetabs">'+STORES.map(function(s){
+    return '<button class="stab'+(currentStore===s.id?' on':'')+'" data-act="store" data-val="'+s.id+'">'+esc(lang==='ko'?s.ko:s.en)+'</button>';
+  }).join('')+'</div>';
+
+  var storePhoto = currentStore!=='all'
+    ? '<img class="store-photo" src="img/'+esc(currentStore)+'.jpg" alt="" onerror="this.style.display=\'none\'">'
+    : '';
+
+  var subLabel = currentStore==='all'
+    ? (lang==='ko'?'전체 매장 방문객 설문 통합 데이터':'Live data across all store visitor surveys')
+    : (lang==='ko'? storeLabel(currentStore)+' 방문객 설문 데이터' : 'Live data from the '+storeLabel(currentStore)+' visitor survey');
+
+  return '<div class="adm fade"><div class="adm-head"><div style="display:flex; align-items:center; gap:14px;">'+storePhoto+'<div><h1>'+tr("Survey insights")+'</h1><div class="sub">'+subLabel+' · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div></div>'+
     '<div class="tools">'+seg+'<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button><button class="tbtn" data-act="export">'+tr("Export CSV")+'</button><button class="tbtn danger" data-act="clear">'+tr("Clear all")+'</button><button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button><button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button></div></div>'+
-    kpis+warn+body+'</div>';
+    storeTabs+kpis+warn+body+'</div>';
 }
 
 function viewGate(err){
@@ -947,15 +978,14 @@ function viewGate(err){
 
 /* ---------- CSV export ---------- */
 function toCSV(resps){
-  var cols=["_submittedAt"].concat(BASE);
-  var head=["submitted"].concat(BASE);
+  var cols=["_submittedAt","_store"].concat(BASE);
+  var head=["submitted","store"].concat(BASE);
   var lines=[head.join(",")];
   resps.forEach(function(r){
     var row=cols.map(function(c){
       var v=r[c];
       if(Array.isArray(v)) v=v.join(" ; ");
       if(v===undefined||v===null) v="";
-      if(c==="Q8-1"&&typeof v==="number") v=SCALE5[v]||v;
       v=String(v).replace(/"/g,'""');
       return '"'+v+'"';
     });
@@ -995,10 +1025,12 @@ async function loadAdmin(){
   var app=document.getElementById('app');
   app.innerHTML=viewAdminLoading();
   var snap=await Store.snapshot();
-  adminCache={ responses:snap.responses||[], starts:snap.starts||0 };
+  /* soft reset: drop everything submitted before RESET_EPOCH */
+  var fresh=(snap.responses||[]).filter(function(r){ return r._submittedAt && r._submittedAt >= RESET_EPOCH; });
+  adminCache={ responses:fresh, starts:snap.starts||0 };
   paintAdmin();
 }
-function paintAdmin(){ document.getElementById('app').innerHTML=viewAdmin(adminCache.responses, adminCache.starts); }
+function paintAdmin(){ document.getElementById('app').innerHTML=viewAdmin(filterByStore(adminCache.responses), adminCache.starts); }
 
 /* ============================ events ============================ */
 var app=document.getElementById('app');
@@ -1008,9 +1040,14 @@ app.addEventListener('click', async function(e){
   if(act==="start"){ Store.bumpStart(); state.screen=flow()[0]; render(); }
   else if(act==="select"){ state.answers[id]=val; render(); }
   else if(act==="toggle"){
-    var def=Q[id], cur=state.answers[id]||[], ex=def.exclusive;
-    if(val===ex){ cur=cur.indexOf(val)>-1?[]:[val]; }
-    else{ cur=cur.filter(function(x){return x!==ex;}); cur=cur.indexOf(val)>-1?cur.filter(function(x){return x!==val;}):cur.concat([val]); }
+    var def=Q[id], cur=state.answers[id]||[], ex=def.exclusive||[];
+    if(typeof ex==="string") ex=[ex];
+    if(ex.indexOf(val)>-1){ cur=cur.indexOf(val)>-1?[]:[val]; }
+    else{
+      cur=cur.filter(function(x){return ex.indexOf(x)<0;});
+      if(cur.indexOf(val)>-1) cur=cur.filter(function(x){return x!==val;});
+      else if(!def.max||cur.length<def.max) cur=cur.concat([val]);
+    }
     state.answers[id]=cur; render();
   }
   else if(act==="scale"){ state.answers[id]=parseInt(val,10); render(); }
@@ -1028,15 +1065,20 @@ app.addEventListener('click', async function(e){
     var v=(document.getElementById('codeInput')||{}).value||"";
     if(v===ADMIN_CODE){ unlocked=true; render(); } else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); }
   }
-  else if(act==="goSurvey"){ window.location.href="br-survey-system.html"; }
+  else if(act==="goSurvey"){ window.location.href="br-survey-system.html"+((currentStore!=='all'&&currentStore!=='workshop')?('?store='+encodeURIComponent(currentStore)):''); }
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
   else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
   else if(act==="ex"){ explore[el.getAttribute('data-k')]=el.getAttribute('data-v'); paintAdmin(); }
   else if(act==="exreset"){ explore.filters={}; paintAdmin(); }
   else if(act==="refresh"){ loadAdmin(); }
-  else if(act==="export"){ var rr=await Store.getResponses(); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses.csv", toCSV(rr)); }
+  else if(act==="store"){
+    currentStore=el.getAttribute('data-val');
+    try{ var u=new URL(window.location.href); if(currentStore==='all') u.searchParams.delete('store'); else u.searchParams.set('store',currentStore); history.replaceState(null,'',u); }catch(e){}
+    paintAdmin();
+  }
+  else if(act==="export"){ var rr=filterByStore(adminCache.responses); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses-"+currentStore+".csv", toCSV(rr)); }
   
-  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("This data lives in your Google Sheet. To clear it, delete the rows there directly (keep the header row)."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
+  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("The dashboards were already reset on "+RESET_EPOCH.slice(0,10)+" (older responses are hidden). To permanently delete the raw data, clear the rows in your Google Sheet (keep the header row). To hide newer data too, bump RESET_EPOCH at the top of this file."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
 });
 app.addEventListener('change', function(e){
   var el=e.target.closest('[data-act]'); if(!el)return;
