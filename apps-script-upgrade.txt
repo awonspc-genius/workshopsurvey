@@ -1,0 +1,107 @@
+/* ============================================================
+   BRK Genius Survey — Google Apps Script (업그레이드 버전)
+   
+   ▶ 왜 필요한가요?
+   설문 응답에 새로 추가된 "_store" (매장 구분) 필드가
+   구글 시트에 저장되려면 Apps Script가 이 필드를 컬럼으로
+   기록해줘야 합니다. 아래 스크립트는 어떤 필드가 와도
+   자동으로 컬럼을 만들어 저장합니다.
+
+   ▶ 적용 방법 (5분)
+   1. 구글 시트 열기 → 확장 프로그램 → Apps Script
+   2. 기존 코드를 전부 지우고 아래 코드를 붙여넣기
+   3. 저장 → 배포 → 배포 관리 → 편집(연필) → 새 버전 → 배포
+      ("새 배포"가 아니라 기존 배포의 버전 업데이트!
+       새 배포를 하면 URL이 바뀌어서 HTML도 수정해야 합니다)
+   ============================================================ */
+
+var SHEET_NAME = 'Responses';   // 응답이 저장되는 시트 탭 이름
+var STARTS_KEY = 'starts';
+
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(SHEET_NAME);
+  return sh;
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  try {
+    var body = JSON.parse(e.postData.contents);
+    if (body.type === 'start') {
+      var p = PropertiesService.getScriptProperties();
+      p.setProperty(STARTS_KEY, String((parseInt(p.getProperty(STARTS_KEY) || '0', 10)) + 1));
+      return ContentService.createTextOutput('ok');
+    }
+    if (body.type === 'response') {
+      var sh = getSheet_();
+      var data = body.data || {};
+      // 현재 헤더 읽기 (없으면 생성)
+      var lastCol = sh.getLastColumn();
+      var headers = lastCol > 0 ? sh.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+      // 새 필드가 있으면 헤더에 자동 추가
+      Object.keys(data).forEach(function(k) {
+        if (headers.indexOf(k) === -1) {
+          headers.push(k);
+          sh.getRange(1, headers.length).setValue(k);
+        }
+      });
+      // 행 작성
+      var row = headers.map(function(hd) {
+        var v = data[hd];
+        if (Array.isArray(v)) v = v.join(' ; ');
+        return v === undefined || v === null ? '' : v;
+      });
+      sh.appendRow(row);
+      return ContentService.createTextOutput('ok');
+    }
+    return ContentService.createTextOutput('ignored');
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function doGet(e) {
+  var action = (e.parameter && e.parameter.action) || '';
+  var cb = (e.parameter && e.parameter.callback) || 'cb';
+  var out;
+  if (action === 'list') {
+    var sh = getSheet_();
+    var values = sh.getDataRange().getValues();
+    var responses = [];
+    if (values.length > 1) {
+      var headers = values[0];
+      for (var i = 1; i < values.length; i++) {
+        var rec = {};
+        headers.forEach(function(hd, j) {
+          var v = values[i][j];
+          if (v === '' || v === null) return;
+          // 복수응답 복원
+          if (typeof v === 'string' && v.indexOf(' ; ') > -1) v = v.split(' ; ');
+          rec[hd] = v;
+        });
+        responses.push(rec);
+      }
+    }
+    var starts = parseInt(PropertiesService.getScriptProperties().getProperty(STARTS_KEY) || '0', 10);
+    out = { responses: responses, starts: starts };
+  } else {
+    out = { ok: true };
+  }
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(out) + ')')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+/* ============================================================
+   ▶ 결과 전체 초기화 방법 (지금 바로!)
+   1. 구글 시트에서 'Responses' 탭 열기
+   2. 2번째 행부터 끝까지 전부 선택 → 행 삭제 (1행 헤더는 유지)
+   3. 시작 카운트도 초기화하려면: Apps Script 편집기에서
+      아래 함수를 실행 (실행 → resetStarts 선택)
+   ============================================================ */
+function resetStarts() {
+  PropertiesService.getScriptProperties().setProperty(STARTS_KEY, '0');
+}
