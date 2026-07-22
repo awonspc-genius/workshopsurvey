@@ -305,6 +305,25 @@ var STORE_THEME = {
   }catch(e){}
 })();
 
+/* SVG 일러스트/아이콘도 매장 색으로 리컬러 (히어로, 로고, 문항 아이콘) */
+(function recolorSvgFns(){
+  var t = STORE_THEME[CUR_STORE];
+  if(!t || CUR_STORE==="workshop") return;
+  function recolor(s){
+    if(typeof s!=="string") return s;
+    return s.split("#2B4CC4").join(t.accent)
+            .split("#1E3795").join(t.deep)
+            .split("#E5E9F9").join(t.soft)
+            .split("#8FA6E0").join(t.accent+"99");
+  }
+  function wrap(fn){ return function(){ return recolor(fn.apply(this, arguments)); }; }
+  try{ mark = wrap(mark); }catch(e){}
+  try{ ICON = wrap(ICON); }catch(e){}
+  try{ QICON = wrap(QICON); }catch(e){}
+  try{ heroArt = wrap(heroArt); }catch(e){}
+  try{ trendCard = wrap(trendCard); }catch(e){}
+})();
+
 /* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
 function jsonp(url){
   return new Promise(function(resolve,reject){
@@ -518,7 +537,7 @@ function viewQuestion(id){
 function viewThanks(){
   var tag="";
   if(lastSaved){
-    if(lastSaved.sheet && lastSaved.ok) tag='<div class="savetag ok">'+esc(tr("Saved to your Google Sheet."))+'</div>';
+    if(lastSaved.sheet && lastSaved.ok) tag='';
     else if(lastSaved.ok && lastSaved.total!=null) tag='<div class="savetag ok">'+(lang==='ko'?('저장 완료 — '+lastSaved.total+'번째 응답 기록'):('Saved — response #'+lastSaved.total+' recorded.'))+'</div>';
     else if(lastSaved.ok) tag='<div class="savetag ok">'+esc(tr("Saved."))+'</div>';
     else tag='<div class="savetag warn">'+esc(tr("Your answers were captured, but the data store didn’t confirm the save."))+'</div>';
