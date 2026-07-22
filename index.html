@@ -406,7 +406,7 @@ function photoBanner(s, pillHtml){
   var tint = STORE_TINT[slug] || ['#2B4CC4','#1E3795'];
   return '<div class="ac-photo" style="background:linear-gradient(135deg,'+tint[0]+','+tint[1]+')">'+
     '<span class="ph-emoji">'+esc(s.emoji||'📋')+'</span>'+
-    '<img src="img/'+esc(slug)+'.jpg" alt="" loading="lazy" onerror="this.style.display=\'none\'">'+
+    '<img src="'+esc(slug)+'.jpg" alt="" loading="lazy" onerror="this.style.display=\'none\'">'+
     '<span class="ph-scrim"></span>'+
     '<span class="ph-pill">'+pillHtml+'</span>'+
   '</div>';
