@@ -285,6 +285,26 @@ var CUR_STORE = (function(){
   }catch(e){ return "workshop"; }
 })();
 
+/* ============== 매장별 대표 색상 테마 ============== */
+var STORE_THEME = {
+  workshop:    { accent:"#2B4CC4", deep:"#1E3795", soft:"#E5E9F9" },
+  parnas:      { accent:"#2C7DA0", deep:"#184E6B", soft:"#DDEFF6" },
+  gangnam:     { accent:"#D94F9C", deep:"#7A2A66", soft:"#FBE3F1" },
+  cheongdam:   { accent:"#3A5BD9", deep:"#1E2A6B", soft:"#E6EAFB" },
+  gwanghwamun: { accent:"#B08430", deep:"#6E5313", soft:"#F4EAD6" },
+  sicheong:    { accent:"#1E9E9E", deep:"#12666A", soft:"#DFF2F1" }
+};
+(function applyStoreTheme(){
+  var t = STORE_THEME[CUR_STORE];
+  if(!t || CUR_STORE==="workshop") return; /* 워크샵은 기본 블루 유지 */
+  try{
+    var r = document.documentElement.style;
+    r.setProperty("--pink", t.accent);
+    r.setProperty("--pink-deep", t.deep);
+    r.setProperty("--pink-soft", t.soft);
+  }catch(e){}
+})();
+
 /* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
 function jsonp(url){
   return new Promise(function(resolve,reject){
