@@ -113,6 +113,15 @@
   .adm-head h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(24px,3.4vw,32px); letter-spacing:-.02em; margin:0;}
   .adm-head .sub{font-size:13.5px; color:var(--choco-soft); margin-top:4px;}
   .tools{display:flex; gap:8px; flex-wrap:wrap;}
+  .toolbar{background:var(--paper,#fff); border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; flex-direction:column; gap:11px; margin:16px 0 6px;}
+  .toolrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .toolrow .tlabel{font-family:'Fredoka',sans-serif; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--choco-soft); min-width:88px; flex:none;}
+  .toolrow .tsep{width:1px; height:22px; background:var(--line); margin:0 4px; flex:none;}
+  .tbtn.excel{background:#1E7E45; border-color:#1E7E45; color:#fff;}
+  .tbtn.excel:hover{background:#166437; border-color:#166437;}
+  .tbtn.sheet{color:#1E7E45; border-color:#A7CFB6;}
+  .tbtn.sheet:hover{border-color:#1E7E45;}
+  @media (max-width:640px){ .toolrow .tlabel{min-width:100%;} }
   .tbtn{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; padding:10px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--paper); color:var(--choco); cursor:pointer; transition:all .14s ease;}
   .tbtn:hover{border-color:var(--line-deep);} .tbtn.solid{background:var(--choco); color:#fff; border-color:var(--choco);} .tbtn.danger:hover{border-color:var(--pink); color:var(--pink-deep);}
   .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:18px 0 8px;}
@@ -120,12 +129,6 @@
   .kpi .k-label{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; letter-spacing:.04em; color:var(--choco-soft); text-transform:uppercase;}
   .kpi .k-val{font-family:'Fredoka',sans-serif; font-weight:800; font-size:38px; line-height:1; margin-top:10px; letter-spacing:-.02em;}
   .kpi .k-sub{font-size:12.5px; color:var(--choco-soft); margin-top:8px;}
-  .storetabs{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 4px;}
-  .stab{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; padding:9px 15px; border-radius:999px;
-    border:1.5px solid var(--line); background:var(--paper); color:var(--choco-soft); cursor:pointer; transition:all .15s ease;}
-  .stab:hover{border-color:var(--blue,#2B4CC4); color:var(--blue,#2B4CC4);}
-  .stab.on{background:#2B4CC4; border-color:#2B4CC4; color:#fff;}
-  .store-photo{width:62px; height:62px; border-radius:16px; object-fit:cover; border:1px solid var(--line); flex:none;}
   .k-pink{color:var(--pink);} .k-blue{color:var(--blue);} .k-choco{color:var(--choco);}
   .grouphead{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--pink); margin:30px 0 6px; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
   .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:14px;}
@@ -286,44 +289,47 @@
    (the one ending in /exec). Leave it "" to use the built-in artifact
    storage, which is what makes this work inside the Claude preview.
    ===================================================================== */
-var CONFIG = { SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec" };
-
-/* =====================================================================
-   RESET EPOCH — every response submitted BEFORE this timestamp is hidden
-   from all 결과분석 dashboards (a "soft reset"). To wipe the dashboards
-   again later, just bump this date. To hard-delete, clear the rows in
-   the Google Sheet itself (keep the header row).
-   ===================================================================== */
-var RESET_EPOCH = "2026-07-09T00:00:00Z";
-
-/* =====================================================================
-   STORES — per-store result views. Responses are tagged with _store by
-   br-survey-system.html (?store=slug). Untagged legacy rows count as
-   'workshop'. Drop a photo at img/<slug>.jpg to show it in the header.
-   ===================================================================== */
-var STORES=[
-  {id:"all",             en:"All stores",     ko:"전체 매장"},
-  {id:"workshop",        en:"Workshop",       ko:"워크샵"},
-  {id:"cheongdam",       en:"Cheongdam",      ko:"청담점"},
-  {id:"parnas",          en:"Parnas",         ko:"파르나스점"},
-  {id:"gangnam",         en:"Gangnam",        ko:"강남점"},
-  {id:"square",          en:"Square",         ko:"스퀘어점"},
-  {id:"busan-seomyeon",  en:"Busan Seomyeon", ko:"부산서면점"},
-  {id:"paradise",        en:"Paradise",       ko:"파라다이스점"}
-];
-var currentStore=(function(){
-  try{ var m=window.location.search.match(/[?&]store=([^&]+)/);
-    if(m){ var s=decodeURIComponent(m[1]); if(STORES.some(function(x){return x.id===s;})) return s; }
-  }catch(e){}
-  return "all";
-})();
-function storeLabel(id){ var s=STORES.filter(function(x){return x.id===id;})[0]; return s?(lang==='ko'?s.ko:s.en):id; }
-function filterByStore(resps){
-  if(currentStore==="all") return resps;
-  return resps.filter(function(r){ return (r._store||"workshop")===currentStore; });
-}
+var CONFIG = {
+  SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec",
+  /* ▼ 응답이 쌓이는 구글 시트 주소를 붙여넣으세요 (브라우저 주소창 URL 그대로) */
+  SHEET_URL: ""
+};
+/* 시트 ID 추출 + Excel export 링크 생성 */
+function sheetId(){ var m=(CONFIG.SHEET_URL||"").match(/\/d\/([a-zA-Z0-9_-]+)/); return m?m[1]:null; }
+function sheetXlsxUrl(){ var id=sheetId(); return id? ("https://docs.google.com/spreadsheets/d/"+id+"/export?format=xlsx") : null; }
 
 var RKEY='survey:responses', SKEY='survey:starts';
+
+/* ======================= STORE FILTER ======================= */
+var STORES = {
+  "workshop":    {en:"Workshop",       ko:"워크샵"},
+  "parnas":      {en:"Parnas Mall",    ko:"파르나스몰점"},
+  "gangnam":     {en:"Gangnam-daero",  ko:"강남대로점"},
+  "cheongdam":   {en:"Cheongdam",      ko:"청담점"},
+  "gwanghwamun": {en:"Gwanghwamun",    ko:"광화문점"},
+  "sicheong":    {en:"City Hall",      ko:"시청점"}
+};
+var STORE_ORDER = ["workshop","parnas","gangnam","cheongdam","gwanghwamun","sicheong"];
+var storeFilter = (function(){
+  try{
+    var m = location.search.match(/[?&]store=([^&]+)/);
+    var s = m ? decodeURIComponent(m[1]) : "all";
+    return (s==="all" || STORES[s]) ? s : "all";
+  }catch(e){ return "all"; }
+})();
+function storeName(slug){ var s=STORES[slug]; if(!s) return slug; return (lang==='ko'? s.ko : s.en); }
+function recStore(r){ return r._store || "workshop"; }
+function filterByStore(resps){
+  if(storeFilter==="all") return resps;
+  return resps.filter(function(r){ return recStore(r)===storeFilter; });
+}
+function storeSelectHtml(){
+  var opts = '<option value="all"'+(storeFilter==='all'?' selected':'')+'>'+(lang==='ko'?'전체 매장':'All stores')+'</option>';
+  STORE_ORDER.forEach(function(s){
+    opts += '<option value="'+s+'"'+(storeFilter===s?' selected':'')+'>'+esc(storeName(s))+'</option>';
+  });
+  return '<select class="tbtn" data-act="storefilter" style="appearance:auto;-webkit-appearance:menulist;padding:9px 10px;">'+opts+'</select>';
+}
 
 /* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
 function jsonp(url){
@@ -438,7 +444,7 @@ var Q={
   Q2:{section:"About you",index:"Q02",type:"country",title:"What is your nationality?",options:COUNTRIES},
   Q3:{section:"Your visit",index:"Q03",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Recommendation from friends or family","Recommendation from a hotel or travel platform","Baskin-Robbins official channels","Saw the store while passing by","Other (Please specify)"]},
   Q4:{section:"Your visit",index:"Q04",type:"single",title:"What was the main reason you visited the Workshop Store?",options:["To try special menu items only available in Korea","To experience a unique store different from regular stores","To try popular menu items I saw on social media","To eat ice cream","To enjoy desserts or drinks","To buy merchandise","Because someone I was with wanted to visit","Other (Please specify)"]},
-  Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Ordering took too long","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
+  Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
   Q6:{section:"Your picks",index:"Q06",type:"multi",cols:2,title:"What did you purchase today? Choose all that apply.",options:["Ice cream cone / cup","Workshop Sampler (4 flavors)","Gelato","Drink","Petit ice cream cake","Whole ice cream cake","Ice cream bar","Ice mochi","Parfait","Crepe","Bingsu (Korean shaved ice)","Cookies / Baked goods","Merchandise","Other (Please specify)"]},
   Q7:{section:"Your picks",index:"Q07",type:"text",title:"If you remember, please write the name or flavor of what you purchased.",hint:"Flavor, cake, or product name — optional."},
   Q8:{section:"Your picks",index:"Q08",type:"single",title:"What was the main reason you chose the product(s) you purchased?",options:["I was curious about the taste","It was only available in Korea","It looked visually appealing","I saw it on social media","It was recommended by friends or family","It seemed popular","It’s a collab with a character or IP that I like","Other (Please specify)"]},
@@ -468,7 +474,7 @@ var KO = {
 "Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 중 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 중 (1년 이상)",
 "Social media (Instagram, TikTok…)":"SNS (인스타그램, 틱톡 등)","YouTube":"유튜브","Travel websites or blogs":"여행 정보 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Recommendation from friends or family":"친구·가족 추천","Recommendation from a hotel or travel platform":"호텔·여행 플랫폼 추천","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw the store while passing by":"매장을 지나가다 발견","Other (Please specify)":"기타 (직접 입력)",
 "To try special menu items only available in Korea":"한국에서만 경험할 수 있는 특별한 메뉴를 먹기 위해","To experience a unique store different from regular stores":"일반 매장과 다른 특별한 공간을 경험하기 위해","To try popular menu items I saw on social media":"SNS에서 본 인기 메뉴를 직접 경험하기 위해","To eat ice cream":"아이스크림을 먹기 위해","To enjoy desserts or drinks":"디저트·음료를 먹기 위해","To buy merchandise":"굯즈(MD)를 구매하기 위해","Because someone I was with wanted to visit":"동행인이 방문을 원해서",
-"My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","Ordering took too long":"주문 시간이 오래 걸림","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
+"My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
 "Ice cream cone / cup":"아이스크림 콘/컵","Workshop Sampler (4 flavors)":"워크샵 샘플러 (4가지 맛)","Gelato":"젤라또","Drink":"음료","Petit ice cream cake":"아이스크림 즁띠 케이크","Whole ice cream cake":"아이스크림 홀 케이크","Ice cream bar":"아이스크림 스틱바","Ice mochi":"아이스 모찌","Parfait":"파르페","Crepe":"크레페","Bingsu (Korean shaved ice)":"빙수","Cookies / Baked goods":"쿠키·제과류","Merchandise":"굯즈(MD)",
 "I was curious about the taste":"맛이 궁금해서","It was only available in Korea":"한국에서만 먹을 수 있어서","It looked visually appealing":"제품 비주얼이 좋아서","I saw it on social media":"SNS에서 봤던 거라서","It was recommended by friends or family":"친구·가족 추천","It seemed popular":"가장 인기 있어 보여서","It’s a collab with a character or IP that I like":"좋아하는 캠릭터·IP 콜라보 제품이라서",
 "Keychain":"키링","Magnet":"마그넷","Sticker":"스티커","Postcard / Photo card":"엽서/포토카드","Mug":"머그컵","Tumbler":"텀블러","Eco bag / Tote bag":"에코백/토트백","Pouch":"파우치","Ice cream scoop / Spoon":"아이스크림 스쿱/스푼","T-shirt / Hat / Apparel":"티셔츠/모자/의류","Plush toy / Character merchandise":"인형/캠릭터 굯즈","I would not be interested in souvenir merchandise":"기념품을 구매하고 싶지 않음",
@@ -950,22 +956,24 @@ function viewAdmin(resps,starts){
     return '<button data-act="mode" data-val="'+m+'"'+(viewMode===m?' class="on"':'')+'>'+tr(labels[m])+'</button>';
   }).join("")+'</div>';
 
-  /* per-store tab bar */
-  var storeTabs='<div class="storetabs">'+STORES.map(function(s){
-    return '<button class="stab'+(currentStore===s.id?' on':'')+'" data-act="store" data-val="'+s.id+'">'+esc(lang==='ko'?s.ko:s.en)+'</button>';
-  }).join('')+'</div>';
-
-  var storePhoto = currentStore!=='all'
-    ? '<img class="store-photo" src="img/'+esc(currentStore)+'.jpg" alt="" onerror="this.style.display=\'none\'">'
-    : '';
-
-  var subLabel = currentStore==='all'
-    ? (lang==='ko'?'전체 매장 방문객 설문 통합 데이터':'Live data across all store visitor surveys')
-    : (lang==='ko'? storeLabel(currentStore)+' 방문객 설문 데이터' : 'Live data from the '+storeLabel(currentStore)+' visitor survey');
-
-  return '<div class="adm fade"><div class="adm-head"><div style="display:flex; align-items:center; gap:14px;">'+storePhoto+'<div><h1>'+tr("Survey insights")+'</h1><div class="sub">'+subLabel+' · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div></div>'+
-    '<div class="tools">'+seg+'<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button><button class="tbtn" data-act="export">'+tr("Export CSV")+'</button><button class="tbtn danger" data-act="clear">'+tr("Clear all")+'</button><button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button><button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button></div></div>'+
-    storeTabs+kpis+warn+body+'</div>';
+  return '<div class="adm fade"><div class="adm-head"><div><h1>'+tr("Survey insights")+'</h1><div class="sub">'+(storeFilter==='all'?(lang==='ko'?'전체 매장 통합 결과':'All stores combined'):(lang==='ko'?storeName(storeFilter)+' 설문 결과':storeName(storeFilter)+' store results'))+' · source: '+(Store.mode()==='sheet'?'Google Sheets':'preview storage')+'</div></div>'+
+    '<div class="tools">'+
+      '<button class="tbtn solid" data-act="goSurvey">'+tr("View survey")+'</button>'+
+      '<button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button>'+
+    '</div></div>'+
+    '<div class="toolbar">'+
+      '<div class="toolrow"><span class="tlabel">'+(lang==='ko'?'보기 · View':'View')+'</span>'+storeSelectHtml()+'<span class="tsep"></span>'+seg+'</div>'+
+      '<div class="toolrow"><span class="tlabel">'+(lang==='ko'?'기능 · Actions':'Actions')+'</span>'+
+        '<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button>'+
+        '<button class="tbtn" data-act="export">'+tr("Export CSV")+'</button>'+
+        '<span class="tsep"></span>'+
+        '<button class="tbtn sheet" data-act="openSheet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:5px"><rect x="3" y="3" width="18" height="18" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M9 9v12" stroke="currentColor" stroke-width="2"/></svg>'+(lang==='ko'?'구글 시트 열기':'Open Google Sheet')+'</button>'+
+        '<button class="tbtn excel" data-act="exportXlsx"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+(lang==='ko'?'Excel 다운로드':'Download Excel')+'</button>'+
+        '<span class="tsep"></span>'+
+        '<button class="tbtn danger" data-act="clear">'+tr("Clear all")+'</button>'+
+      '</div>'+
+    '</div>'+
+    kpis+warn+body+'</div>';
 }
 
 function viewGate(err){
@@ -1025,12 +1033,14 @@ async function loadAdmin(){
   var app=document.getElementById('app');
   app.innerHTML=viewAdminLoading();
   var snap=await Store.snapshot();
-  /* soft reset: drop everything submitted before RESET_EPOCH */
-  var fresh=(snap.responses||[]).filter(function(r){ return r._submittedAt && r._submittedAt >= RESET_EPOCH; });
-  adminCache={ responses:fresh, starts:snap.starts||0 };
+  adminCache={ responses:snap.responses||[], starts:snap.starts||0 };
   paintAdmin();
 }
-function paintAdmin(){ document.getElementById('app').innerHTML=viewAdmin(filterByStore(adminCache.responses), adminCache.starts); }
+function paintAdmin(){
+  var filtered = filterByStore(adminCache.responses||[]);
+  var starts = (storeFilter==='all') ? adminCache.starts : null; /* per-store start counts aren't tracked */
+  document.getElementById('app').innerHTML=viewAdmin(filtered, starts);
+}
 
 /* ============================ events ============================ */
 var app=document.getElementById('app');
@@ -1065,23 +1075,37 @@ app.addEventListener('click', async function(e){
     var v=(document.getElementById('codeInput')||{}).value||"";
     if(v===ADMIN_CODE){ unlocked=true; render(); } else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); }
   }
-  else if(act==="goSurvey"){ window.location.href="br-survey-system.html"+((currentStore!=='all'&&currentStore!=='workshop')?('?store='+encodeURIComponent(currentStore)):''); }
+  else if(act==="goSurvey"){ window.location.href="br-survey-system.html"; }
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
   else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
   else if(act==="ex"){ explore[el.getAttribute('data-k')]=el.getAttribute('data-v'); paintAdmin(); }
   else if(act==="exreset"){ explore.filters={}; paintAdmin(); }
   else if(act==="refresh"){ loadAdmin(); }
-  else if(act==="store"){
-    currentStore=el.getAttribute('data-val');
-    try{ var u=new URL(window.location.href); if(currentStore==='all') u.searchParams.delete('store'); else u.searchParams.set('store',currentStore); history.replaceState(null,'',u); }catch(e){}
-    paintAdmin();
-  }
-  else if(act==="export"){ var rr=filterByStore(adminCache.responses); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses-"+currentStore+".csv", toCSV(rr)); }
+  else if(act==="export"){ var rr=filterByStore(await Store.getResponses()); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses"+(storeFilter==='all'?'':'-'+storeFilter)+".csv", toCSV(rr)); }
   
-  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("The dashboards were already reset on "+RESET_EPOCH.slice(0,10)+" (older responses are hidden). To permanently delete the raw data, clear the rows in your Google Sheet (keep the header row). To hide newer data too, bump RESET_EPOCH at the top of this file."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
+  else if(act==="openSheet"){
+    if(CONFIG.SHEET_URL){ window.open(CONFIG.SHEET_URL, "_blank"); }
+    else{ alert(lang==="ko"?"br-survey-admin.html 상단 CONFIG.SHEET_URL 에 구글 시트 주소를 붙여넣어 주세요.":"Paste your Google Sheet URL into CONFIG.SHEET_URL at the top of br-survey-admin.html."); }
+  }
+  else if(act==="exportXlsx"){
+    var xu=sheetXlsxUrl();
+    if(xu){ window.open(xu, "_blank"); }
+    else{ alert(lang==="ko"?"CONFIG.SHEET_URL 이 설정되어 있지 않습니다. 구글 시트 주소를 먼저 붙여넣어 주세요.":"CONFIG.SHEET_URL is not set. Paste your Google Sheet URL first."); }
+  }
+  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("This data lives in your Google Sheet. To clear it, delete the rows there directly (keep the header row)."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
 });
 app.addEventListener('change', function(e){
   var el=e.target.closest('[data-act]'); if(!el)return;
+  if(el.getAttribute('data-act')==="storefilter"){
+    storeFilter = el.value;
+    try{
+      var u=new URL(location.href);
+      if(storeFilter==='all') u.searchParams.delete('store'); else u.searchParams.set('store',storeFilter);
+      history.replaceState(null,'',u.toString());
+    }catch(_){}
+    paintAdmin();
+    return;
+  }
   if(el.getAttribute('data-act')==="exf"){
     var k=el.getAttribute('data-k'), v=el.value;
     if(v==="__all") delete explore.filters[k]; else explore.filters[k]=v;

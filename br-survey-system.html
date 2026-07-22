@@ -254,7 +254,7 @@
 
 <footer>
   <span>© Baskin-Robbins · Workshop Store</span>
-  <span style="display:flex; gap:18px;"><a href="index.html" id="allSurveysLink">All surveys</a><a href="br-survey-admin.html">Admin &amp; data</a></span>
+  <span style="display:flex; gap:18px;"><a href="index.html" id="allSurveysLink">All surveys</a><a href="br-survey-admin.html" id="adminLink">Admin &amp; data</a></span>
 </footer>
 
 <script>
@@ -266,14 +266,24 @@
    ===================================================================== */
 var CONFIG = { SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec" };
 
-/* Which store is this survey for? Set by the hub link: br-survey-system.html?store=<slug>
-   Every response is tagged with this so the admin can show per-store results. */
-var STORE_ID=(function(){
-  try{ var m=window.location.search.match(/[?&]store=([^&]+)/); if(m) return decodeURIComponent(m[1]); }catch(e){}
-  return "workshop";
-})();
-
 var RKEY='survey:responses', SKEY='survey:starts';
+
+/* ======================= STORE ROUTING ======================= */
+var STORES = {
+  "workshop":    {en:"Workshop",       ko:"워크샵"},
+  "parnas":      {en:"Parnas Mall",    ko:"파르나스몰점"},
+  "gangnam":     {en:"Gangnam-daero",  ko:"강남대로점"},
+  "cheongdam":   {en:"Cheongdam",      ko:"청담점"},
+  "gwanghwamun": {en:"Gwanghwamun",    ko:"광화문점"},
+  "sicheong":    {en:"City Hall",      ko:"시청점"}
+};
+var CUR_STORE = (function(){
+  try{
+    var m = location.search.match(/[?&]store=([^&]+)/);
+    var s = m ? decodeURIComponent(m[1]) : "workshop";
+    return STORES[s] ? s : "workshop";
+  }catch(e){ return "workshop"; }
+})();
 
 /* JSONP read (cross-origin friendly — used to load data from Google Sheets) */
 function jsonp(url){
@@ -318,7 +328,7 @@ var Store={
     var check=await Store._lGet(); return { ok: check.length>before, total: check.length };
   },
   bumpStart:async function(){
-    if(Store.mode()==='sheet'){ try{ postSheet({type:'start', store:STORE_ID}); }catch(e){} return; }
+    if(Store.mode()==='sheet'){ try{ postSheet({type:'start'}); }catch(e){} return; }
     var n=await Store._lStarts(); try{ await window.storage.set(SKEY, JSON.stringify(n+1), true); }catch(e){}
   },
   setResponses:async function(arr){ if(Store.mode()==='local') await Store._lSet(arr); },
@@ -335,9 +345,12 @@ function mark(size){
     '<text x="36" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Fredoka, sans-serif" font-weight="700" font-size="30" fill="#2B4CC4" style="letter-spacing:-1px">31</text>'+
     '<circle cx="16" cy="20" r="2.4" fill="#2B4CC4"/><circle cx="57" cy="22" r="2.4" fill="#C2974A"/><circle cx="52" cy="54" r="2.4" fill="#2B4CC4"/></svg>';
 }
-document.getElementById('markSmall').innerHTML = mark(30) + '<span class="wm">Workshop<small>by Baskin-Robbins</small></span>';
+var __wmName = (CUR_STORE==='workshop') ? 'Workshop' : (STORES[CUR_STORE].en);
+var __wmSub  = (CUR_STORE==='workshop') ? 'by Baskin-Robbins' : ('Baskin-Robbins · '+STORES[CUR_STORE].ko);
+document.getElementById('markSmall').innerHTML = mark(30) + '<span class="wm">'+__wmName+'<small>'+__wmSub+'</small></span>';
 document.getElementById('markSmall').setAttribute('title','Back to start');
 document.getElementById('markSmall').addEventListener('click', function(){ goHome(); });
+try{ var __al=document.getElementById('adminLink'); if(__al && CUR_STORE!=='workshop') __al.href='br-survey-admin.html?store='+encodeURIComponent(CUR_STORE); }catch(e){}
 
 /* ===================== ICE-CREAM GRAPHICS ===================== */
 function ICON(name){
@@ -388,7 +401,7 @@ var Q={
   Q2:{section:"About you",index:"Q02",type:"country",title:"What is your nationality?",options:COUNTRIES},
   Q3:{section:"Your visit",index:"Q03",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Recommendation from friends or family","Recommendation from a hotel or travel platform","Baskin-Robbins official channels","Saw the store while passing by","Other (Please specify)"]},
   Q4:{section:"Your visit",index:"Q04",type:"single",title:"What was the main reason you visited the Workshop Store?",options:["To try special menu items only available in Korea","To experience a unique store different from regular stores","To try popular menu items I saw on social media","To eat ice cream","To enjoy desserts or drinks","To buy merchandise","Because someone I was with wanted to visit","Other (Please specify)"]},
-  Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Ordering took too long","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
+  Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
   Q6:{section:"Your picks",index:"Q06",type:"multi",cols:2,title:"What did you purchase today? Choose all that apply.",options:["Ice cream cone / cup","Workshop Sampler (4 flavors)","Gelato","Drink","Petit ice cream cake","Whole ice cream cake","Ice cream bar","Ice mochi","Parfait","Crepe","Bingsu (Korean shaved ice)","Cookies / Baked goods","Merchandise","Other (Please specify)"]},
   Q7:{section:"Your picks",index:"Q07",type:"text",title:"If you remember, please write the name or flavor of what you purchased.",hint:"Flavor, cake, or product name — optional."},
   Q8:{section:"Your picks",index:"Q08",type:"single",title:"What was the main reason you chose the product(s) you purchased?",options:["I was curious about the taste","It was only available in Korea","It looked visually appealing","I saw it on social media","It was recommended by friends or family","It seemed popular","It’s a collab with a character or IP that I like","Other (Please specify)"]},
@@ -418,7 +431,7 @@ var KO = {
 "Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 중 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 중 (1년 이상)",
 "Social media (Instagram, TikTok…)":"SNS (인스타그램, 틱톡 등)","YouTube":"유튜브","Travel websites or blogs":"여행 정보 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Recommendation from friends or family":"친구·가족 추천","Recommendation from a hotel or travel platform":"호텔·여행 플랫폼 추천","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw the store while passing by":"매장을 지나가다 발견","Other (Please specify)":"기타 (직접 입력)",
 "To try special menu items only available in Korea":"한국에서만 경험할 수 있는 특별한 메뉴를 먹기 위해","To experience a unique store different from regular stores":"일반 매장과 다른 특별한 공간을 경험하기 위해","To try popular menu items I saw on social media":"SNS에서 본 인기 메뉴를 직접 경험하기 위해","To eat ice cream":"아이스크림을 먹기 위해","To enjoy desserts or drinks":"디저트·음료를 먹기 위해","To buy merchandise":"굯즈(MD)를 구매하기 위해","Because someone I was with wanted to visit":"동행인이 방문을 원해서",
-"My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","Ordering took too long":"주문 시간이 오래 걸림","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
+"My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
 "Ice cream cone / cup":"아이스크림 콘/컵","Workshop Sampler (4 flavors)":"워크샵 샘플러 (4가지 맛)","Gelato":"젤라또","Drink":"음료","Petit ice cream cake":"아이스크림 즁띠 케이크","Whole ice cream cake":"아이스크림 홀 케이크","Ice cream bar":"아이스크림 스틱바","Ice mochi":"아이스 모찌","Parfait":"파르페","Crepe":"크레페","Bingsu (Korean shaved ice)":"빙수","Cookies / Baked goods":"쿠키·제과류","Merchandise":"굯즈(MD)",
 "I was curious about the taste":"맛이 궁금해서","It was only available in Korea":"한국에서만 먹을 수 있어서","It looked visually appealing":"제품 비주얼이 좋아서","I saw it on social media":"SNS에서 봤던 거라서","It was recommended by friends or family":"친구·가족 추천","It seemed popular":"가장 인기 있어 보여서","It’s a collab with a character or IP that I like":"좋아하는 캠릭터·IP 콜라보 제품이라서",
 "Keychain":"키링","Magnet":"마그넷","Sticker":"스티커","Postcard / Photo card":"엽서/포토카드","Mug":"머그컵","Tumbler":"텀블러","Eco bag / Tote bag":"에코백/토트백","Pouch":"파우치","Ice cream scoop / Spoon":"아이스크림 스쿱/스푼","T-shirt / Hat / Apparel":"티셔츠/모자/의류","Plush toy / Character merchandise":"인형/캠릭터 굯즈","I would not be interested in souvenir merchandise":"기념품을 구매하고 싶지 않음",
@@ -497,7 +510,7 @@ async function finishSurvey(){
   var rec=Object.assign({}, state.answers);
   rec._id='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   rec._submittedAt=new Date().toISOString();
-  rec._store=STORE_ID;
+  rec._store=CUR_STORE;
   var res=await Store.addResponse(rec);
   lastSaved={ ok:res.ok, total:res.total, sheet: Store.mode()==='sheet' };
 }
@@ -916,8 +929,8 @@ function viewGate(err){
 
 /* ---------- CSV export ---------- */
 function toCSV(resps){
-  var cols=["_submittedAt"].concat(BASE);
-  var head=["submitted"].concat(BASE);
+  var cols=["_submittedAt","_store"].concat(BASE);
+  var head=["submitted","store"].concat(BASE);
   var lines=[head.join(",")];
   resps.forEach(function(r){
     var row=cols.map(function(c){

@@ -155,32 +155,37 @@
   @keyframes introIn{from{opacity:0; transform:translateY(16px) scale(.97);} to{opacity:1; transform:none;}}
   @keyframes introPop{from{opacity:0; transform:scale(.55);} to{opacity:1; transform:scale(1);}}
 
-  /* ===== password lock screen ===== */
-  .lock{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:24px;
-    background:
-      radial-gradient(58% 48% at 50% 18%, rgba(255,78,51,.24), transparent 62%),
-      radial-gradient(125% 120% at 50% 0%, #2A36D8 0%, #1B238F 48%, #11143A 100%);}
-  .lock-card{width:100%; max-width:380px; background:var(--card); border-radius:20px; padding:34px 30px 30px; text-align:center;
-    box-shadow:0 40px 90px -30px rgba(0,0,0,.55); animation:introIn .6s cubic-bezier(.2,.8,.25,1) both;}
-  .lock-card h2{font-weight:800; font-size:21px; letter-spacing:-.02em; margin:16px 0 6px; color:var(--ink);}
-  .lock-card p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
-  .lock-card input{width:100%; box-sizing:border-box; font-family:var(--font); font-size:17px; text-align:center; letter-spacing:.2em;
-    padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; outline:none; transition:border-color .15s ease; margin-bottom:12px;}
-  .lock-card input:focus{border-color:var(--blue);}
-  .lock-card input.email-input{letter-spacing:normal; text-align:left; font-size:15px;}
-  .lock-btn{width:100%; font-family:var(--font); font-weight:700; font-size:15px; background:var(--blue); color:#fff;
-    border:none; border-radius:12px; padding:13px; cursor:pointer; transition:background .15s ease;}
-  .lock-btn:hover{background:var(--blue-deep);}
-  .lock-link{display:inline-block; margin-top:16px; font-size:13px; font-weight:600; color:var(--blue); background:none; border:none; cursor:pointer; font-family:var(--font);}
-  .lock-link:hover{text-decoration:underline;}
-  .lock-err{min-height:18px; font-size:12.5px; color:var(--coral-deep); font-weight:600; margin:2px 0 8px;}
-  .lock-note{font-size:12px; color:var(--muted); margin-top:14px; line-height:1.5;}
+  /* ---------------- PASSWORD GATE ---------------- */
+  #gate{position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(160deg,#ECEEF3 0%,#DDE3F5 100%); padding:20px;}
+  #gate .gcard{background:#fff; border:1px solid var(--line); border-radius:20px; padding:36px 32px 30px;
+    width:min(400px,100%); box-shadow:0 30px 60px -30px rgba(20,30,80,.35); text-align:center;}
+  #gate h2{font-family:'Fredoka',sans-serif; font-weight:800; font-size:22px; margin:14px 0 6px; color:var(--ink);}
+  #gate p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
+  #gate input{width:100%; box-sizing:border-box; font-family:var(--font); font-size:18px; letter-spacing:.25em; text-align:center;
+    padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; outline:none; margin-bottom:12px;}
+  #gate input:focus{border-color:var(--blue);}
+  #gate .gbtn{width:100%; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; padding:13px; border:none; border-radius:12px;
+    background:var(--blue); color:#fff; cursor:pointer;}
+  #gate .gbtn:hover{background:var(--blue-deep,#1E3795);}
+  #gate .gerr{color:#D2465A; font-size:12.5px; min-height:16px; margin:8px 0 0;}
+  #gate .greset{display:inline-block; margin-top:16px; font-size:12.5px; color:var(--muted); cursor:pointer; text-decoration:underline; background:none; border:none;}
+  #gate .greset:hover{color:var(--blue);}
+  body.gated>*:not(#gate){filter:blur(6px); pointer-events:none; user-select:none;}
+
 </style>
 </head>
 <body>
-
-<div class="lock" id="lock" style="display:none">
-  <div class="lock-card" id="lockCard"></div>
+<div id="gate" style="display:none">
+  <div class="gcard">
+    <div id="gateMark"></div>
+    <h2 id="gTitle">BRK Genius 서베이 시스템</h2>
+    <p id="gDesc">비밀번호를 입력해 주세요.<br><span style="font-size:12px">Enter the password to continue.</span></p>
+    <input id="gInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••">
+    <button class="gbtn" id="gBtn">입장하기 · Enter</button>
+    <div class="gerr" id="gErr"></div>
+    <button class="greset" id="gReset">비밀번호를 잊으셨나요? (재설정)</button>
+  </div>
 </div>
 
 <div class="intro" id="intro">
@@ -245,97 +250,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===================== PASSWORD GATE =====================
-   Default password: 2607. A password changed via "reset" is stored in
-   this browser's localStorage (per-device). The reset code is emailed
-   through the Google Apps Script endpoint below — the script must
-   handle {type:'password_reset', email, code} (see deployment notes).
-   NOTE: this is a static-site gate (deterrent, not bank-grade security).
-   ========================================================= */
-var LOCK = {
-  ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec",
-  DEFAULT_PW: "2607",
-  /* Master recovery code — works even if the reset email never arrives
-     (e.g. before the Apps Script mail handler is deployed). Keep private. */
-  MASTER_CODE: "GENIUS2607"
-};
-function lockPw(){ try{ return localStorage.getItem('brkgs_pw') || LOCK.DEFAULT_PW; }catch(e){ return LOCK.DEFAULT_PW; } }
-function lockAuthed(){ try{ return sessionStorage.getItem('brkgs_auth')==='1'; }catch(e){ return false; } }
-function setAuthed(){ try{ sessionStorage.setItem('brkgs_auth','1'); }catch(e){} }
-
-var lockStep='pw', lockResetCode=null, lockResetEmail='';
-
-function lockRender(err){
-  var card=document.getElementById('lockCard');
-  var mk='<svg width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="#fff" stroke="#14161D" stroke-width="2.5"/><circle cx="36" cy="36" r="28" fill="none" stroke="#C8CEF6" stroke-width="1.5"/><text x="36" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Pretendard Variable, sans-serif" font-weight="800" font-size="29" fill="#2A36D8" style="letter-spacing:-1px">31</text><circle cx="16" cy="20" r="2.4" fill="#2A36D8"/><circle cx="57" cy="22" r="2.6" fill="#FF4E33"/><circle cx="52" cy="54" r="2.4" fill="#2A36D8"/></svg>';
-  var e='<div class="lock-err">'+(err||'')+'</div>';
-  if(lockStep==='pw'){
-    card.innerHTML=mk+'<h2>BRK Genius 서베이 시스템</h2><p>계속하려면 비밀번호를 입력해 주세요.</p>'+
-      '<input id="lockInput" type="password" inputmode="numeric" placeholder="••••" maxlength="20" autocomplete="off">'+e+
-      '<button class="lock-btn" id="lockGo">입장하기</button>'+
-      '<br><button class="lock-link" id="lockReset">비밀번호 재설정</button>';
-    bind('lockGo', tryUnlock); enterKey('lockInput', tryUnlock);
-    bind('lockReset', function(){ lockStep='email'; lockRender(); });
-  } else if(lockStep==='email'){
-    card.innerHTML=mk+'<h2>비밀번호 재설정</h2><p>등록된 이메일 주소를 입력하면<br>6자리 인증 코드를 보내드립니다.</p>'+
-      '<input id="lockInput" class="email-input" type="email" placeholder="name@company.com" autocomplete="email">'+e+
-      '<button class="lock-btn" id="lockGo">인증 코드 보내기</button>'+
-      '<br><button class="lock-link" id="lockBack">← 로그인으로 돌아가기</button>'+
-      '<div class="lock-note">메일이 오지 않으면 스팸함을 확인하거나<br>지니어스팀 관리자에게 문의해 주세요.</div>';
-    bind('lockGo', sendResetCode); enterKey('lockInput', sendResetCode);
-    bind('lockBack', function(){ lockStep='pw'; lockRender(); });
-  } else if(lockStep==='code'){
-    card.innerHTML=mk+'<h2>인증 코드 입력</h2><p><b>'+escLock(lockResetEmail)+'</b> 으로 전송된<br>6자리 코드를 입력해 주세요.</p>'+
-      '<input id="lockInput" type="text" placeholder="123456" maxlength="12" autocomplete="one-time-code">'+e+
-      '<button class="lock-btn" id="lockGo">코드 확인</button>'+
-      '<br><button class="lock-link" id="lockBack">← 다시 보내기</button>';
-    bind('lockGo', verifyCode); enterKey('lockInput', verifyCode);
-    bind('lockBack', function(){ lockStep='email'; lockRender(); });
-  } else if(lockStep==='newpw'){
-    card.innerHTML=mk+'<h2>새 비밀번호 설정</h2><p>이 브라우저에서 사용할 새 비밀번호를 입력해 주세요.</p>'+
-      '<input id="lockInput" type="password" placeholder="새 비밀번호" maxlength="20" autocomplete="new-password">'+e+
-      '<button class="lock-btn" id="lockGo">저장하고 입장</button>';
-    bind('lockGo', saveNewPw); enterKey('lockInput', saveNewPw);
-  }
-  var i=document.getElementById('lockInput'); if(i) i.focus();
-}
-function escLock(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function bind(id,fn){ var b=document.getElementById(id); if(b) b.addEventListener('click',fn); }
-function enterKey(id,fn){ var i=document.getElementById(id); if(i) i.addEventListener('keydown',function(ev){ if(ev.key==='Enter') fn(); }); }
-function val(){ var i=document.getElementById('lockInput'); return i?(i.value||'').trim():''; }
-
-function tryUnlock(){
-  if(val()===lockPw()){ setAuthed(); openSite(); }
-  else lockRender('비밀번호가 올바르지 않습니다.');
-}
-function sendResetCode(){
-  var em=val();
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ lockRender('올바른 이메일 주소를 입력해 주세요.'); return; }
-  lockResetEmail=em;
-  lockResetCode=String(Math.floor(100000+Math.random()*900000));
-  try{
-    fetch(LOCK.ENDPOINT,{ method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({ type:'password_reset', email:em, code:lockResetCode, site:'brkgsurvey.com', at:new Date().toISOString() }) });
-  }catch(e){}
-  lockStep='code'; lockRender();
-}
-function verifyCode(){
-  var v=val();
-  if((lockResetCode && v===lockResetCode) || v===LOCK.MASTER_CODE){ lockStep='newpw'; lockRender(); }
-  else lockRender('코드가 일치하지 않습니다.');
-}
-function saveNewPw(){
-  var p=val();
-  if(p.length<4){ lockRender('4자 이상 입력해 주세요.'); return; }
-  try{ localStorage.setItem('brkgs_pw', p); }catch(e){}
-  setAuthed(); openSite();
-}
-function openSite(){
-  var l=document.getElementById('lock'); if(l) l.style.display='none';
-  var intro=document.getElementById('intro'); if(intro) intro.style.display='';
-  if(window.__startIntro) window.__startIntro();
-}
-
 /* ===================== i18n ===================== */
 var lang = 'ko';
 var UI = {
@@ -381,6 +295,26 @@ var SURVEYS = [
     url:"br-survey-system.html"
   },
   {
+    title:{en:"Parnas Mall Store — Visitor Survey", ko:"파르나스몰점 — 방문객 설문"},
+    desc:{en:"Visitor experience feedback at the Parnas Mall store — discovery, ordering, and what they loved.",
+          ko:"파르나스몰점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
+    status:"active", emoji:"🏢",
+    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
+    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
+    responses:{en:"Live", ko:"진행 중"},
+    url:"br-survey-system.html?store=parnas"
+  },
+  {
+    title:{en:"Gangnam-daero Store — Visitor Survey", ko:"강남대로점 — 방문객 설문"},
+    desc:{en:"Visitor experience feedback at the Gangnam-daero store — discovery, ordering, and what they loved.",
+          ko:"강남대로점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
+    status:"active", emoji:"✨",
+    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
+    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
+    responses:{en:"Live", ko:"진행 중"},
+    url:"br-survey-system.html?store=gangnam"
+  },
+  {
     title:{en:"Cheongdam Store — Visitor Survey", ko:"청담점 — 방문객 설문"},
     desc:{en:"Visitor experience feedback at the Cheongdam store — discovery, ordering, and what they loved.",
           ko:"청담점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
@@ -391,54 +325,24 @@ var SURVEYS = [
     url:"br-survey-system.html?store=cheongdam"
   },
   {
-    title:{en:"Parnas Store — Visitor Survey", ko:"파르나스점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Parnas store — discovery, ordering, and what they loved.",
-          ko:"파르나스점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🏢",
+    title:{en:"Gwanghwamun Store — Visitor Survey", ko:"광화문점 — 방문객 설문"},
+    desc:{en:"Visitor experience feedback at the Gwanghwamun store — discovery, ordering, and what they loved.",
+          ko:"광화문점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
+    status:"active", emoji:"🏛️",
     period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
     meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
     responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=parnas"
+    url:"br-survey-system.html?store=gwanghwamun"
   },
   {
-    title:{en:"Gangnam Store — Visitor Survey", ko:"강남점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Gangnam store — discovery, ordering, and what they loved.",
-          ko:"강남점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"✨",
+    title:{en:"City Hall Store — Visitor Survey", ko:"시청점 — 방문객 설문"},
+    desc:{en:"Visitor experience feedback at the City Hall store — discovery, ordering, and what they loved.",
+          ko:"시청점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
+    status:"active", emoji:"⛲",
     period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
     meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
     responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=gangnam"
-  },
-  {
-    title:{en:"Square Store — Visitor Survey", ko:"스퀘어점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Square store — discovery, ordering, and what they loved.",
-          ko:"스퀘어점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🟦",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=square"
-  },
-  {
-    title:{en:"Busan Seomyeon Store — Visitor Survey", ko:"부산서면점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Busan Seomyeon store — discovery, ordering, and what they loved.",
-          ko:"부산서면점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🌊",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=busan-seomyeon"
-  },
-  {
-    title:{en:"Paradise Store — Visitor Survey", ko:"파라다이스점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Paradise store — discovery, ordering, and what they loved.",
-          ko:"파라다이스점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🌴",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=paradise"
+    url:"br-survey-system.html?store=sicheong"
   },
   {
     title:{en:"Sept FOM IMC Concept Pre-test", ko:"9월 FOM IMC 컨셉 사전 반응 조사"},
@@ -483,12 +387,11 @@ function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").rep
    Until then, a branded gradient placeholder is used. */
 var STORE_TINT = {
   workshop:['#2B4CC4','#1E3795'],
-  cheongdam:['#3A5BD9','#1E2A6B'],
   parnas:['#2C7DA0','#184E6B'],
   gangnam:['#D94F9C','#7A2A66'],
-  square:['#2B4CC4','#16307F'],
-  'busan-seomyeon':['#1E9E9E','#125E66'],
-  paradise:['#1E9E7E','#C2974A']
+  cheongdam:['#3A5BD9','#1E2A6B'],
+  gwanghwamun:['#C2974A','#7A5A1E'],
+  sicheong:['#1E9E9E','#125E66']
 };
 function storeSlug(s){
   if(!s.url) return null;
@@ -584,25 +487,63 @@ document.addEventListener('keydown', function(e){ if((e.key==="Enter"||e.key==="
 
 render();
 
-/* welcome intro → dissolve into the hub (only after the password gate) */
+/* welcome intro → dissolve into the hub */
 (function(){
   var intro=document.getElementById('intro');
   if(!intro) return;
   var done=false;
   function dismiss(){ if(done) return; done=true; intro.classList.add('out'); setTimeout(function(){ if(intro && intro.parentNode) intro.parentNode.removeChild(intro); }, 900); }
-  window.__startIntro=function(){
-    var tm=setTimeout(dismiss, 2100);
-    intro.addEventListener('click', function(){ clearTimeout(tm); dismiss(); });
-  };
-  if(lockAuthed()){
-    /* already unlocked this session — run straight through */
-    document.getElementById('lock').style.display='none';
-    window.__startIntro();
-  } else {
-    intro.style.display='none';
-    document.getElementById('lock').style.display='flex';
-    lockRender();
+  var tm=setTimeout(dismiss, 2100);
+  intro.addEventListener('click', function(){ clearTimeout(tm); dismiss(); });
+})();
+</script>
+
+<script>
+/* ================= PASSWORD GATE ================= */
+(function(){
+  var DEFAULT_PW='2607';
+  var RECOVERY_CODE='GENIUS-2607';   /* 마스터 복구 코드 — 이 코드로 비밀번호 재설정 가능 */
+  function pw(){ try{return localStorage.getItem('brkg_gate_pw')||DEFAULT_PW;}catch(e){return DEFAULT_PW;} }
+  function ok(){ try{return sessionStorage.getItem('brkg_gate_ok')==='1';}catch(e){return false;} }
+  function pass(){ try{sessionStorage.setItem('brkg_gate_ok','1');}catch(e){} }
+
+  var gate=document.getElementById('gate');
+  if(ok()){ gate.remove(); return; }
+  gate.style.display='flex';
+  document.body.classList.add('gated');
+  document.getElementById('gateMark').innerHTML = "<svg width=\"56\" height=\"56\" viewBox=\"0 0 72 72\" aria-hidden=\"true\"><circle cx=\"36\" cy=\"36\" r=\"34\" fill=\"#fff\" stroke=\"#232A4A\" stroke-width=\"2.5\"/><circle cx=\"36\" cy=\"36\" r=\"28\" fill=\"none\" stroke=\"#E5E9F9\" stroke-width=\"1.5\"/><text x=\"36\" y=\"37.5\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"Pretendard Variable, sans-serif\" font-weight=\"800\" font-size=\"29\" fill=\"#2A36D8\" style=\"letter-spacing:-1px\">31</text></svg>";
+
+  var input=document.getElementById('gInput'), err=document.getElementById('gErr');
+  var mode='enter'; /* 'enter' | 'recover' | 'newpw' */
+
+  function setMode(m){
+    mode=m; err.textContent=''; input.value='';
+    var t=document.getElementById('gTitle'), d=document.getElementById('gDesc'),
+        b=document.getElementById('gBtn'), r=document.getElementById('gReset');
+    if(m==='enter'){ t.textContent='BRK Genius 서베이 시스템'; d.innerHTML='비밀번호를 입력해 주세요.<br><span style="font-size:12px">Enter the password to continue.</span>'; b.textContent='입장하기 · Enter'; r.style.display='inline-block'; input.type='password'; input.placeholder='••••'; }
+    if(m==='recover'){ t.textContent='비밀번호 재설정'; d.innerHTML='복구 코드를 입력하세요.<br><span style="font-size:12px">Enter the recovery code to reset.</span>'; b.textContent='확인 · Verify'; r.style.display='inline-block'; r.textContent='← 돌아가기'; input.type='text'; input.placeholder='RECOVERY CODE'; }
+    if(m==='newpw'){ t.textContent='새 비밀번호 설정'; d.innerHTML='새 비밀번호를 입력하세요.<br><span style="font-size:12px">Set a new password (this device).</span>'; b.textContent='저장 · Save'; r.style.display='none'; input.type='password'; input.placeholder='••••'; }
+    input.focus();
   }
+  function submit(){
+    var v=(input.value||'').trim();
+    if(mode==='enter'){
+      if(v===pw()){ pass(); document.body.classList.remove('gated'); gate.remove(); }
+      else{ err.textContent='비밀번호가 올바르지 않습니다. Incorrect password.'; input.value=''; input.focus(); }
+    }else if(mode==='recover'){
+      if(v===RECOVERY_CODE){ setMode('newpw'); }
+      else{ err.textContent='복구 코드가 올바르지 않습니다. Incorrect recovery code.'; input.value=''; input.focus(); }
+    }else if(mode==='newpw'){
+      if(v.length<4){ err.textContent='4자 이상 입력해 주세요. Use at least 4 characters.'; return; }
+      try{ localStorage.setItem('brkg_gate_pw', v); }catch(e){}
+      pass(); document.body.classList.remove('gated'); gate.remove();
+      alert('비밀번호가 변경되었습니다. (이 기기 기준)');
+    }
+  }
+  document.getElementById('gBtn').addEventListener('click', submit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); });
+  document.getElementById('gReset').addEventListener('click', function(){ setMode(mode==='enter'?'recover':'enter'); });
+  setTimeout(function(){ input.focus(); }, 120);
 })();
 </script>
 </body>
