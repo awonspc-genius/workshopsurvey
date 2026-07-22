@@ -292,7 +292,7 @@
 var CONFIG = {
   SHEET_ENDPOINT: "https://script.google.com/macros/s/AKfycbyRAN7Nxsr2k2u4fCuO_Z7I5jBP0dxPzrnu-MP09d9Ho6KQ6W2e0Ouy6JjrnmyGkSt8/exec",
   /* ▼ 응답이 쌓이는 구글 시트 주소를 붙여넣으세요 (브라우저 주소창 URL 그대로) */
-  SHEET_URL: ""
+  SHEET_URL: "https://docs.google.com/spreadsheets/d/1HhB0KkAgMqWUaAkU4WpwWTXELb7KT8KdcLb6OyOJDik/edit?usp=sharing"
 };
 /* 시트 ID 추출 + Excel export 링크 생성 */
 function sheetId(){ var m=(CONFIG.SHEET_URL||"").match(/\/d\/([a-zA-Z0-9_-]+)/); return m?m[1]:null; }
