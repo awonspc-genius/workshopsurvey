@@ -1092,7 +1092,24 @@ app.addEventListener('click', async function(e){
     if(xu){ window.open(xu, "_blank"); }
     else{ alert(lang==="ko"?"CONFIG.SHEET_URL 이 설정되어 있지 않습니다. 구글 시트 주소를 먼저 붙여넣어 주세요.":"CONFIG.SHEET_URL is not set. Paste your Google Sheet URL first."); }
   }
-  else if(act==="clear"){ if(Store.mode()==='sheet'){ alert("This data lives in your Google Sheet. To clear it, delete the rows there directly (keep the header row)."); return; } if(confirm("Delete all collected responses? This cannot be undone.")){ await Store.clearAll(); loadAdmin(); } }
+  else if(act==="clear"){
+    var msg = (lang==='ko') ? "모든 응답을 삭제할까요? 구글 시트의 데이터까지 전부 지워지며 되돌릴 수 없습니다." : "Delete ALL responses? This wipes the Google Sheet data too and cannot be undone.";
+    if(!confirm(msg)) return;
+    var msg2 = (lang==='ko') ? "정말로 전체 삭제합니다. 계속할까요?" : "Really delete everything. Continue?";
+    if(!confirm(msg2)) return;
+    if(Store.mode()==='sheet'){
+      el.textContent = (lang==='ko') ? "삭제 중..." : "Clearing...";
+      el.disabled = true;
+      try{
+        await postSheet({ type:'clear', key: CONFIG.ADMIN_CODE || '3131' });
+        await new Promise(function(r){ setTimeout(r, 3000); });
+      }catch(err){ console.error(err); }
+      try{ await Store.clearAll(); }catch(err){}
+      loadAdmin();
+    } else {
+      await Store.clearAll(); loadAdmin();
+    }
+  }
 });
 app.addEventListener('change', function(e){
   var el=e.target.closest('[data-act]'); if(!el)return;
