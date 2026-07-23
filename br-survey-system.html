@@ -407,9 +407,9 @@ function ICON(name){
     default: return ICON("scoops");
   }
 }
-var QICON_MAP={ Q1:"cone", Q2:"globe", Q3:"sundae", Q4:"heart", Q5:"cup", Q6:"cake", Q7:"cherry", Q8:"star", Q9:"scoops", Q10:"heart" };
+var QICON_MAP={ Q1:"cone", Q2:"globe", Q3:"sundae", Q4:"heart", Q5:"cup", Q6:"cake", Q7:"cherry", Q8:"star", Q9:"scoops", Q10:"heart", Q11:"star", Q12:"cherry" };
 function QICON(id){ return ICON(QICON_MAP[id]||"scoops"); }
-var QEMOJI={ Q1:"✈️", Q2:"🌍", Q3:"📱", Q4:"🎯", Q5:"🖥️", Q6:"🍦", Q7:"🍨", Q8:"💡", Q9:"🎁", Q10:"❤️" };
+var QEMOJI={ Q1:"✈️", Q2:"🌍", Q3:"📱", Q4:"🎯", Q5:"🖥️", Q6:"🍦", Q7:"🍨", Q8:"💡", Q9:"🎁", Q10:"❤️", Q11:"🙋", Q12:"🎂" };
 function heroArt(){
   return '<svg width="230" height="230" viewBox="0 0 210 210" fill="none" aria-hidden="true">'+
     // spoon (behind scoops)
@@ -438,16 +438,29 @@ var SCALE5=["Very difficult","Somewhat difficult","Neutral","Somewhat easy","Ver
 var Q={
   Q1:{section:"About you",index:"Q01",type:"single",title:"What best describes your current stay in Korea?",options:["Traveling in Korea","Living in Korea (less than 1 year)","Living in Korea (1 year or longer)"]},
   Q2:{section:"About you",index:"Q02",type:"country",title:"What is your nationality?",options:COUNTRIES},
-  Q3:{section:"Your visit",index:"Q03",type:"single",title:"How did you first hear about the Workshop Store?",options:["Social media (Instagram, TikTok…)","YouTube","Travel websites or blogs","Map apps (Google Maps, Naver Map…)","Recommendation from friends or family","Recommendation from a hotel or travel platform","Baskin-Robbins official channels","Saw the store while passing by","Other (Please specify)"]},
-  Q4:{section:"Your visit",index:"Q04",type:"single",title:"What was the main reason you visited the Workshop Store?",options:["To try special menu items only available in Korea","To experience a unique store different from regular stores","To try popular menu items I saw on social media","To eat ice cream","To enjoy desserts or drinks","To buy merchandise","Because someone I was with wanted to visit","Other (Please specify)"]},
+  Q3:{section:"Your visit",index:"Q03",type:"single",title:"How did you first hear about the Baskin-Robbins store you visited today?",options:["Social media (Instagram, TikTok, etc.)","YouTube","Travel websites or blogs","Map apps (Google Maps, Naver Map, etc.)","Recommendation from friends or family","Recommendation from a hotel or travel platform","Baskin-Robbins official channels","Saw the store while passing by","Other (Please specify)"]},
+  Q4:{section:"Your visit",index:"Q04",type:"single",title:"What was the main reason you visited the Baskin-Robbins today?",options:["To try special menu items only available in Korea","To experience a unique store different from regular stores","To try popular menu items I saw on social media","To eat ice cream","To enjoy desserts or drinks","To buy merchandise","Because someone I was with wanted to visit","Other (Please specify)"]},
   Q5:{section:"Your visit",index:"Q05",type:"multi",title:"Did you experience any difficulties while using the kiosk? Choose all that apply.",options:["My preferred language was not available","The menu was difficult to understand","It was difficult to find the menu item I wanted","The payment process was complicated","The translation was inaccurate","The screen layout was confusing","Other (Please specify)","I had no difficulties using the kiosk","I did not use the kiosk"],exclusive:["I had no difficulties using the kiosk","I did not use the kiosk"]},
-  Q6:{section:"Your picks",index:"Q06",type:"multi",cols:2,title:"What did you purchase today? Choose all that apply.",options:["Ice cream cone / cup","Workshop Sampler (4 flavors)","Gelato","Drink","Petit ice cream cake","Whole ice cream cake","Ice cream bar","Ice mochi","Parfait","Crepe","Bingsu (Korean shaved ice)","Cookies / Baked goods","Merchandise","Other (Please specify)"]},
+  Q6:{section:"Your picks",index:"Q06",type:"multi",cols:2,title:"What did you purchase today? Choose all that apply.",options:["Ice cream (Cone/Cup)","10Mini (Cone/Cup)","Sampler (4, 8, 10, or 15 flavors)","Gelato","Coffee","Other beverages (Shake, Blast, etc.)","Petit ice cream cake","Whole ice cream cake","Ice cream bar","Ice Mochi","Parfait","Crepe","Bingsu (Korean shaved ice)","Cookies / Baked goods","Merchandise","Other (Please specify)"]},
   Q7:{section:"Your picks",index:"Q07",type:"text",title:"If you remember, please write the name or flavor of what you purchased.",hint:"Flavor, cake, or product name — optional."},
-  Q8:{section:"Your picks",index:"Q08",type:"single",title:"What was the main reason you chose the product(s) you purchased?",options:["I was curious about the taste","It was only available in Korea","It looked visually appealing","I saw it on social media","It was recommended by friends or family","It seemed popular","It’s a collab with a character or IP that I like","Other (Please specify)"]},
-  Q9:{section:"Your picks",index:"Q09",type:"multi",max:3,title:"If special souvenir merchandise were available, what would you be interested in buying?",hint:"Select up to 3.",options:["Keychain","Magnet","Sticker","Postcard / Photo card","Mug","Tumbler","Eco bag / Tote bag","Pouch","Ice cream scoop / Spoon","T-shirt / Hat / Apparel","Plush toy / Character merchandise","Other (Please specify)","I would not be interested in souvenir merchandise"],exclusive:["I would not be interested in souvenir merchandise"]},
-  Q10:{section:"One last thing",index:"Q10",type:"nps",title:"How likely are you to recommend the Workshop Store to your friends or family?",hint:"0 = not at all · 10 = extremely likely"}
+  Q8:{section:"Your picks",index:"Q08",type:"single",title:"What was the main reason you chose the product(s) you purchased?",options:["I was curious about the taste","It was only available in Korea","It looked visually appealing","I saw it on social media","It was recommended by friends or family","It seemed popular","It was a collaboration with a character or IP that I like","Other (Please specify)"]},
+  Q9:{section:"Your picks",index:"Q09",type:"multi",max:3,title:"If special souvenir merchandise were available to remember your visit to Baskin-Robbins Korea, what would you be interested in buying?",hint:"Select up to 3.",options:["Keychain","Magnet","Sticker","Postcard / Photo card","Mug","Tumbler","Eco bag / Tote bag","Pouch","Ice cream scoop / Spoon","T-shirt / Hat / Apparel","Plush toy / Character merchandise","Other (Please specify)","I would not be interested in buying souvenir merchandise"],exclusive:["I would not be interested in buying souvenir merchandise"]},
+  Q10:{section:"One last thing",index:"Q10",type:"nps",title:"How likely are you to recommend the Baskin-Robbins store you visited today to others?",hint:"0 = not at all · 10 = extremely likely"},
+  Q11:{section:"About you",index:"Q11",type:"single",title:"What is your gender?",options:["Male","Female"]},
+  Q12:{section:"About you",index:"Q12",type:"single",title:"Which age group do you belong to?",options:["10–19","20–29","30–39","40–49","50 or above"]}
 };
-var BASE=["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10"];
+var BASE=["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10","Q11","Q12"];
+/* F2: 매장별 Q6 보기 노출 조건 */
+(function(){
+  var only={
+    "10Mini (Cone/Cup)":["parnas","gangnam","gwanghwamun","sicheong"],
+    "Sampler (4, 8, 10, or 15 flavors)":["workshop","cheongdam","parnas","gangnam"],
+    "Gelato":["workshop"],
+    "Crepe":["workshop","parnas","gangnam","cheongdam"],
+    "Cookies / Baked goods":["workshop","parnas","gangnam","cheongdam"]
+  };
+  Q.Q6.options=Q.Q6.options.filter(function(o){ return !only[o] || only[o].indexOf(CUR_STORE)>-1; });
+})();
 
 /* ===================== i18n (English ⇄ Korean) ===================== */
 var lang = 'en';
@@ -467,13 +480,36 @@ var KO = {
 "Select up to 3.":"최대 3개까지 선택할 수 있어요.",
 "0 = not at all · 10 = extremely likely":"0 = 전혀 아님 · 10 = 매우 그렇다",
 "China":"중국","Japan":"일본","Taiwan":"대만","United States":"미국","Hong Kong":"홍콩","Thailand":"태국","Vietnam":"베트남","Singapore":"싱가포르","Malaysia":"말레이시아","Philippines":"필리핀","Indonesia":"인도네시아","Australia":"호주","Canada":"캐나다","United Kingdom":"영국","France":"프랑스","Germany":"독일","Other":"기타",
+/* ---- F2 (26.07.23) 신규/변경 ---- */
+"How did you first hear about the Baskin-Robbins store you visited today?":"오늘 방문하신 배스킨라빈스 매장을 어떻게 처음 알게 되었습니까?",
+"What was the main reason you visited the Baskin-Robbins today?":"오늘 배스킨라빈스 매장을 방문한 가장 큰 이유는 무엇입니까?",
+"Social media (Instagram, TikTok, etc.)":"SNS(Instagram, TikTok 등)",
+"Map apps (Google Maps, Naver Map, etc.)":"지도 앱(Google Maps, Naver Map 등)",
+"Ice cream (Cone/Cup)":"아이스크림 콘/컵",
+"10Mini (Cone/Cup)":"텐미니 콘/컵",
+"Sampler (4, 8, 10, or 15 flavors)":"샘플러 (4구, 8구, 10구, 15구 등)",
+"Coffee":"커피",
+"Other beverages (Shake, Blast, etc.)":"커피 외 음료 (쉐이크, 블라스트 등)",
+"Ice Mochi":"아이스 모찌",
+"It was a collaboration with a character or IP that I like":"좋아하는 캐릭터/IP와 콜라보한 제품이라서",
+"If special souvenir merchandise were available to remember your visit to Baskin-Robbins Korea, what would you be interested in buying?":"한국 배스킨라빈스 매장 방문을 기념할 수 있는 상품이 나온다면, 어떤 상품을 구매하고 싶으십니까?",
+"I would not be interested in buying souvenir merchandise":"기념품을 구매하고 싶지 않음",
+"How likely are you to recommend the Baskin-Robbins store you visited today to others?":"주변 사람들에게 오늘 방문한 배스킨라빈스 매장을 추천할 의향이 얼마나 있습니까?",
+"What is your gender?":"귀하의 성별을 선택해 주세요.",
+"Male":"남성","Female":"여성",
+"Which age group do you belong to?":"귀하의 연령대를 선택해 주세요.",
+"10–19":"10대","20–29":"20대","30–39":"30대","40–49":"40대","50 or above":"50대 이상",
+"Gender":"성별","Age group":"연령대",
+"Thank you!":"감사합니다!",
+"Your survey is now complete. Please show this completion screen to a staff member to receive your gift!":"설문이 모두 종료되었습니다. 종료 페이지 화면을 직원에게 보여주세요!",
+"We are conducting this short survey to better understand our international customers and improve our products and services. It takes about 3 minutes to complete.":"본 조사는 배스킨라빈스 매장을 방문하신 외국인 고객님의 의견을 듣고 더 나은 서비스를 제공하기 위해 진행됩니다. 설문은 약 3분 정도 소요됩니다.",
 "Traveling in Korea":"한국 여행 중","Living in Korea (less than 1 year)":"한국 거주 중 (1년 미만)","Living in Korea (1 year or longer)":"한국 거주 중 (1년 이상)",
-"Social media (Instagram, TikTok…)":"SNS (인스타그램, 틱톡 등)","YouTube":"유튜브","Travel websites or blogs":"여행 정보 사이트·블로그","Map apps (Google Maps, Naver Map…)":"지도 앱 (구글맵, 네이버지도 등)","Recommendation from friends or family":"친구·가족 추천","Recommendation from a hotel or travel platform":"호텔·여행 플랫폼 추천","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw the store while passing by":"매장을 지나가다 발견","Other (Please specify)":"기타 (직접 입력)",
+"Social media (Instagram, TikTok, etc.)":"SNS (인스타그램, 틱톡 등)","YouTube":"유튜브","Travel websites or blogs":"여행 정보 사이트·블로그","Map apps (Google Maps, Naver Map, etc.)":"지도 앱 (구글맵, 네이버지도 등)","Recommendation from friends or family":"친구·가족 추천","Recommendation from a hotel or travel platform":"호텔·여행 플랫폼 추천","Baskin-Robbins official channels":"배스킨라빈스 공식 채널","Saw the store while passing by":"매장을 지나가다 발견","Other (Please specify)":"기타 (직접 입력)",
 "To try special menu items only available in Korea":"한국에서만 경험할 수 있는 특별한 메뉴를 먹기 위해","To experience a unique store different from regular stores":"일반 매장과 다른 특별한 공간을 경험하기 위해","To try popular menu items I saw on social media":"SNS에서 본 인기 메뉴를 직접 경험하기 위해","To eat ice cream":"아이스크림을 먹기 위해","To enjoy desserts or drinks":"디저트·음료를 먹기 위해","To buy merchandise":"굯즈(MD)를 구매하기 위해","Because someone I was with wanted to visit":"동행인이 방문을 원해서",
 "My preferred language was not available":"원하는 언어가 제공되지 않음","The menu was difficult to understand":"메뉴 이해가 어려움","It was difficult to find the menu item I wanted":"메뉴 찾기가 어려움","The payment process was complicated":"결제 과정이 복잡함","The translation was inaccurate":"번역이 정확하지 않음","The screen layout was confusing":"화면 구성이 복잡함","I had no difficulties using the kiosk":"불편한 점 없음","I did not use the kiosk":"키오스크를 이용하지 않음",
 "Ice cream cone / cup":"아이스크림 콘/컵","Workshop Sampler (4 flavors)":"워크샵 샘플러 (4가지 맛)","Gelato":"젤라또","Drink":"음료","Petit ice cream cake":"아이스크림 즁띠 케이크","Whole ice cream cake":"아이스크림 홀 케이크","Ice cream bar":"아이스크림 스틱바","Ice mochi":"아이스 모찌","Parfait":"파르페","Crepe":"크레페","Bingsu (Korean shaved ice)":"빙수","Cookies / Baked goods":"쿠키·제과류","Merchandise":"굯즈(MD)",
-"I was curious about the taste":"맛이 궁금해서","It was only available in Korea":"한국에서만 먹을 수 있어서","It looked visually appealing":"제품 비주얼이 좋아서","I saw it on social media":"SNS에서 봤던 거라서","It was recommended by friends or family":"친구·가족 추천","It seemed popular":"가장 인기 있어 보여서","It’s a collab with a character or IP that I like":"좋아하는 캠릭터·IP 콜라보 제품이라서",
-"Keychain":"키링","Magnet":"마그넷","Sticker":"스티커","Postcard / Photo card":"엽서/포토카드","Mug":"머그컵","Tumbler":"텀블러","Eco bag / Tote bag":"에코백/토트백","Pouch":"파우치","Ice cream scoop / Spoon":"아이스크림 스쿱/스푼","T-shirt / Hat / Apparel":"티셔츠/모자/의류","Plush toy / Character merchandise":"인형/캠릭터 굯즈","I would not be interested in souvenir merchandise":"기념품을 구매하고 싶지 않음",
+"I was curious about the taste":"맛이 궁금해서","It was only available in Korea":"한국에서만 먹을 수 있어서","It looked visually appealing":"제품 비주얼이 좋아서","I saw it on social media":"SNS에서 봤던 거라서","It was recommended by friends or family":"친구·가족 추천","It seemed popular":"가장 인기 있어 보여서","It was a collaboration with a character or IP that I like":"좋아하는 캠릭터·IP 콜라보 제품이라서",
+"Keychain":"키링","Magnet":"마그넷","Sticker":"스티커","Postcard / Photo card":"엽서/포토카드","Mug":"머그컵","Tumbler":"텀블러","Eco bag / Tote bag":"에코백/토트백","Pouch":"파우치","Ice cream scoop / Spoon":"아이스크림 스쿱/스푼","T-shirt / Hat / Apparel":"티셔츠/모자/의류","Plush toy / Character merchandise":"인형/캠릭터 굯즈","I would not be interested in buying souvenir merchandise":"기념품을 구매하고 싶지 않음",
 "Start the survey":"설문 시작하기","Continue":"다음","Back":"이전","Finish":"제출하기","Start over":"다시 시작",
 "Not at all":"전혀 아님","Absolutely":"매우 그렇다",
 "Tell us more…":"자세히 입력…","Your country…":"국가 입력…","Write here…":"여기에 입력…",
@@ -509,9 +545,9 @@ var CHECK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="
 /* ---------- survey views ---------- */
 function viewLanding(){
   return '<section class="hero fade" style="background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;min-height:calc(100vh - 70px);"><div>'+
-    '<p class="eyebrow">Workshop · by Baskin-Robbins</p>'+
+    '<p class="eyebrow">'+esc(((typeof STORES!=="undefined"&&typeof CUR_STORE!=="undefined"&&STORES[CUR_STORE])?STORES[CUR_STORE].en:"Workshop"))+' · by Baskin-Robbins</p>'+
     '<h1>'+esc(tr("31 flavors."))+'<br><span class="pink">'+esc(tr("One little favor."))+'</span></h1>'+
-    '<p class="lead">'+esc(tr("Three quick minutes on what brought you in and what you loved — it shapes the flavors, the store, and your next visit."))+'</p>'+
+    '<p class="lead">'+esc(tr("We are conducting this short survey to better understand our international customers and improve our products and services. It takes about 3 minutes to complete."))+'</p>'+
     '<p class="meta"><b>'+(lang==='ko'?'약 3분':'About 3 minutes')+'</b> · '+(lang==='ko'?'10문항':'10 questions')+' · '+(lang==='ko'?'한국어':'English')+'</p>'+
     '<button class="start" data-act="start">'+esc(tr("Start the survey"))+' <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
     '</div><div class="glass"><span class="balloon bn1"></span><span class="balloon bn2"></span><span class="balloon bn3"></span><span class="balloon bn4"></span><div class="disc photo">'+(PHOTOS.cup?'<img src="'+PHOTOS.cup+'" alt="Workshop ice cream">':heroArt())+'</div></div></section>';
@@ -542,7 +578,7 @@ function viewThanks(){
     else if(lastSaved.ok) tag='<div class="savetag ok">'+esc(tr("Saved."))+'</div>';
     else tag='<div class="savetag warn">'+esc(tr("Your answers were captured, but the data store didn’t confirm the save."))+'</div>';
   }
-  return '<div class="thanks fade">'+(PHOTOS.store?'<div class="thankbanner"><img src="'+PHOTOS.store+'" alt="Workshop storefront"></div>':'')+'<div class="seal">'+mark(56)+'</div><h1>'+esc(tr("Yay — that’s the scoop."))+'</h1><p>'+esc(tr("Thank you. Your feedback goes straight to the team behind the Workshop Store. Enjoy the rest of your visit."))+'</p>'+tag+'<button class="ghost restart" data-act="restart">'+esc(tr("Start over"))+'</button></div>';
+  return '<div class="thanks fade">'+(PHOTOS.store?'<div class="thankbanner"><img src="'+PHOTOS.store+'" alt="Workshop storefront"></div>':'')+'<div class="seal">'+mark(56)+'</div><h1>'+esc(tr("Thank you!"))+'</h1><p>'+esc(tr("Your survey is now complete. Please show this completion screen to a staff member to receive your gift!"))+'</p>'+tag+'<button class="ghost restart" data-act="restart">'+esc(tr("Start over"))+'</button></div>';
 }
 
 async function finishSurvey(){
@@ -1002,7 +1038,7 @@ function seedRecord(){
   r._submittedAt=new Date(Date.now()-Math.floor(Math.random()*14*864e5)).toISOString();
   r.Q1=wpick([["Traveling in Korea",70],["Living in Korea (less than 1 year)",18],["Living in Korea (1 year or longer)",12]]);
   r.Q2=wpick([["China",18],["United States",14],["Japan",12],["Taiwan",9],["Thailand",8],["Hong Kong",7],["Singapore",6],["Vietnam",6],["Malaysia",5],["Indonesia",4],["Australia",4],["United Kingdom",3],["France",2],["Canada",2],["Philippines",2],["Germany",2]]);
-  r.Q3=wpick([["Social media (Instagram, TikTok…)",36],["Map apps (Google Maps, Naver Map…)",16],["Recommendation from friends or family",12],["Travel websites or blogs",11],["Saw the store while passing by",10],["YouTube",6],["Recommendation from a hotel or travel platform",5],["Baskin-Robbins official channels",4]]);
+  r.Q3=wpick([["Social media (Instagram, TikTok, etc.)",36],["Map apps (Google Maps, Naver Map, etc.)",16],["Recommendation from friends or family",12],["Travel websites or blogs",11],["Saw the store while passing by",10],["YouTube",6],["Recommendation from a hotel or travel platform",5],["Baskin-Robbins official channels",4]]);
   r.Q4=wpick([["To try special menu items only available in Korea",28],["To experience a unique store different from regular stores",22],["To try popular menu items I saw on social media",16],["To eat ice cream",14],["To enjoy desserts or drinks",8],["To buy merchandise",6],["Because someone I was with wanted to visit",6]]);
   if(maybe(.15)) r.Q5=["I did not use the kiosk"];
   else if(maybe(.5)) r.Q5=["I had no difficulties using the kiosk"];
@@ -1017,8 +1053,8 @@ function seedRecord(){
   if(!buys.length)buys.push("Ice cream cone / cup");
   r.Q6=buys;
   if(maybe(.6))r.Q7=pick(FLAVORS);
-  r.Q8=wpick([["I was curious about the taste",24],["It was only available in Korea",20],["It looked visually appealing",16],["I saw it on social media",16],["It seemed popular",10],["It’s a collab with a character or IP that I like",8],["It was recommended by friends or family",6]]);
-  if(maybe(.12)) r.Q9=["I would not be interested in souvenir merchandise"];
+  r.Q8=wpick([["I was curious about the taste",24],["It was only available in Korea",20],["It looked visually appealing",16],["I saw it on social media",16],["It seemed popular",10],["It was a collaboration with a character or IP that I like",8],["It was recommended by friends or family",6]]);
+  if(maybe(.12)) r.Q9=["I would not be interested in buying souvenir merchandise"];
   else {
     var sv=Q.Q9.options.slice(0,11), picks=[], want=1+Math.floor(Math.random()*3);
     while(picks.length<want){ var s=pick(sv); if(picks.indexOf(s)<0)picks.push(s); }
