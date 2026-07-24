@@ -659,7 +659,8 @@ function npsCard(resps){
 var DIMS={
   Q1:{label:"Stay"}, Q2:{label:"Nationality",top:10}, Q3:{label:"Source"}, Q4:{label:"Visit reason"},
   Q5:{label:"Kiosk issues",multi:true}, Q6:{label:"Bought",multi:true},
-  Q8:{label:"Choice reason"}, Q9:{label:"Souvenir picks",multi:true}
+  Q8:{label:"Choice reason"}, Q9:{label:"Souvenir picks",multi:true},
+  Q11:{label:"Gender"}, Q12:{label:"Age group"}
 };
 function valForDim(r,dim){
   var v=r[dim];
@@ -750,12 +751,15 @@ function exHeat(a){
   return html+'</div></div>';
 }
 function exTable(a){
-  var showTot=explore.measure==="count";
-  var head='<tr><th>'+esc(DIMS[explore.x].label)+'</th>'+a.sCats.map(function(s){return '<th class="num">'+esc(s)+'</th>';}).join("")+(showTot?'<th class="num">Total</th>':'')+'</tr>';
+  var split=explore.split!=="none";
+  var showTot=!split && explore.measure==="count";
+  var head='<tr><th>'+esc(explore.x+". "+tr(DIMS[explore.x].label))+'</th>'+(split?'<th class="num">'+(lang==='ko'?'전체':'Total')+'</th>':'')+a.sCats.map(function(s){return '<th class="num">'+esc(tr(s))+'</th>';}).join("")+(showTot?'<th class="num">Total</th>':'')+'</tr>';
   var rows=a.xCats.map(function(x){
+    var rowTotal=a.sCats.reduce(function(t,s){return t+a.cnt[x][s];},0);
+    var totCell=split?'<td class="num" style="font-weight:700">'+rowTotal+'</td>':"";
     var tds=a.sCats.map(function(s){return '<td class="num">'+fmtVal(cellVal(a,x,s))+'</td>';}).join("");
-    var tot=showTot?'<td class="num">'+a.sCats.reduce(function(t,s){return t+a.cnt[x][s];},0)+'</td>':"";
-    return '<tr><td>'+esc(x)+'</td>'+tds+tot+'</tr>';
+    var tot=showTot?'<td class="num">'+rowTotal+'</td>':"";
+    return '<tr><td>'+esc(tr(x))+'</td>'+totCell+tds+tot+'</tr>';
   }).join("");
   return '<div class="rawscroll"><table class="ftable"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -785,6 +789,15 @@ function exploreResult(resps){
   var a=aggregate(resps);
   if(!a.rs.length) return '<div class="empty">No data matches these filters.</div>';
   if(!a.xCats.length) return '<div class="empty">No answers yet for this breakdown.</div>';
+  if(explore.split!=="none" && explore.view!=="heat" && explore.view!=="grouped"){
+    var sv=explore.split; explore.split="none";
+    var a0=aggregate(resps);
+    var overall=(explore.view==="pie")?exPie(a0):exBars(a0);
+    explore.split=sv;
+    return overall
+      +'<div style="margin-top:18px;font-weight:700;font-family:\'Fredoka\',sans-serif;font-size:14px">'+(lang==='ko'?'분할 상세 · ':'Split detail · ')+esc(sv+". "+tr(DIMS[sv].label))+'</div>'
+      +'<div style="margin-top:8px">'+exTable(a)+'</div>';
+  }
   if(explore.view==="table") return exTable(a);
   if(explore.view==="heat") return exHeat(a);
   if(explore.view==="grouped") return exGrouped(a);
@@ -795,7 +808,7 @@ function bg(key,current,opts){
   return '<div class="bgrp">'+opts.map(function(o){return '<button class="bgbtn'+(current===o.v?' on':'')+'" data-act="ex" data-k="'+key+'" data-v="'+esc(o.v)+'">'+esc(tr(o.label))+'</button>';}).join("")+'</div>';
 }
 function viewExplore(resps){
-  var dimOpts=Object.keys(DIMS).map(function(k){return {v:k,label:DIMS[k].label};});
+  var dimOpts=Object.keys(DIMS).map(function(k){return {v:k,label:k+". "+tr(DIMS[k].label)};});
   var splitOpts=[{v:"none",label:"None"}].concat(dimOpts);
   var measOpts=[{v:"count",label:"Count"},{v:"share",label:"Share %"},{v:"avgnps",label:"Avg NPS"}];
   var viewOpts=[{v:"bars",label:"Bars"},{v:"grouped",label:"Grouped"},{v:"pie",label:"Pie"},{v:"heat",label:"Heatmap"},{v:"table",label:"Table"}];
@@ -959,8 +972,9 @@ function viewAdmin(resps,starts){
   var avgRec = npsVals.length? (npsVals.reduce(function(s,v){return s+v;},0)/npsVals.length).toFixed(1) : "—";
 
   var kpis='<div class="kpis">'+
-    '<div class="kpi"><div class="k-label">'+tr("Responses")+'</div><div class="k-val k-pink">'+n+'</div><div class="k-sub">'+tr("completed surveys")+'</div></div>'+
-    '<div class="kpi"><div class="k-label">'+tr("Completion")+'</div><div class="k-val k-choco">'+(comp===null?"—":comp+"%")+'</div><div class="k-sub">'+(starts||0)+' '+(lang==='ko'?'명 시작':'started')+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+(lang==='ko'?'접속자':'Visitors')+'</div><div class="k-val k-choco">'+(starts||0)+'</div><div class="k-sub">'+(lang==='ko'?'설문 링크 접속':'opened the survey')+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+(lang==='ko'?'설문 완료':'Completed')+'</div><div class="k-val k-pink">'+n+'</div><div class="k-sub">'+tr("completed surveys")+'</div></div>'+
+    '<div class="kpi"><div class="k-label">'+tr("Completion")+'</div><div class="k-val k-choco">'+(comp===null?"—":comp+"%")+'</div><div class="k-sub">'+(lang==='ko'?'완료/접속 비율':'completed / visitors')+'</div></div>'+
     '<div class="kpi"><div class="k-label">NPS</div><div class="k-val k-pink">'+(npsScore===null?"—":(npsScore>0?'+':'')+npsScore)+'</div><div class="k-sub">'+tr("net promoter score")+'</div></div>'+
     '<div class="kpi"><div class="k-label">'+tr("Avg recommend")+'</div><div class="k-val k-blue">'+avgRec+'</div><div class="k-sub">'+tr("out of 10")+'</div></div>'+
     '</div>';
