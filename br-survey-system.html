@@ -560,10 +560,10 @@ var COMMON_BANNER="data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJCh
 if(CUR_STORE!=="workshop"){
   PHOTOS.cup=COMMON_HERO;
   PHOTOS.store=COMMON_BANNER;
-  PHOTOS.interior=COMMON_BANNER;
+  PHOTOS.interior="";  /* 시작 페이지 배경 이미지 없음 */
 }
 function viewLanding(){
-  return '<section class="hero fade" style="background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;min-height:calc(100vh - 70px);"><div>'+
+  return '<section class="hero fade" style="'+(PHOTOS.interior?('background-image:linear-gradient(rgba(243,236,223,.80),rgba(243,236,223,.94)),url('+PHOTOS.interior+');background-size:cover;background-position:center;'):'')+'min-height:calc(100vh - 70px);"><div>'+
     '<p class="eyebrow">'+esc(((typeof STORES!=="undefined"&&typeof CUR_STORE!=="undefined"&&STORES[CUR_STORE])?STORES[CUR_STORE].en:"Workshop"))+' · by Baskin-Robbins</p>'+
     '<h1>'+esc(tr("31 flavors."))+'<br><span class="pink">'+esc(tr("One little favor."))+'</span></h1>'+
     '<p class="lead">'+esc(tr("We are conducting this short survey to better understand our international customers and improve our products and services. It takes about 3 minutes to complete."))+'</p>'+
