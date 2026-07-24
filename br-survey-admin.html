@@ -113,6 +113,22 @@
   .adm-head h1{font-family:'Fredoka',sans-serif; font-weight:800; font-size:clamp(24px,3.4vw,32px); letter-spacing:-.02em; margin:0;}
   .adm-head .sub{font-size:13.5px; color:var(--choco-soft); margin-top:4px;}
   .tools{display:flex; gap:8px; flex-wrap:wrap;}
+  .refwrap{margin-top:6px;}
+  .refhead{display:flex; justify-content:flex-end; align-items:baseline; gap:10px; padding:6px 2px 8px; border-bottom:2px solid var(--choco);}
+  .refhead .rh1{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; color:var(--choco);}
+  .refhead .rh2{font-size:11px; color:var(--choco-soft);}
+  .refrow{display:grid; grid-template-columns:minmax(150px,44%) 1fr; align-items:center; gap:10px; padding:7px 2px; border-bottom:1px dashed var(--line-deep);}
+  .refrow:last-child{border-bottom:none;}
+  .reflab{font-size:12.5px; color:var(--choco); text-align:right; line-height:1.35;}
+  .reftrack{position:relative; height:18px;}
+  .refgray{position:absolute; left:0; top:2px; height:14px; background:#D8D3C8; border-radius:2px;}
+  .refblue{position:absolute; left:0; top:2px; height:14px; background:var(--pink); border-radius:2px;}
+  .refv-blue{position:absolute; top:1px; font-size:11.5px; font-weight:700; color:#fff; transform:translateX(-100%); padding-right:5px; white-space:nowrap;}
+  .refv-blue.out{color:var(--choco); transform:none; padding-right:0; padding-left:5px;}
+  .refv-gray{position:absolute; top:1px; font-size:11.5px; font-weight:600; color:#9A937F; padding-left:6px; white-space:nowrap;}
+  .refleg{display:flex; gap:14px; justify-content:flex-end; font-size:11px; color:var(--choco-soft); margin-bottom:4px;}
+  .refleg i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px;}
+  @media (max-width:640px){ .refrow{grid-template-columns:minmax(110px,42%) 1fr;} .reflab{font-size:11.5px;} }
   .toolbar{background:var(--paper,#fff); border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; flex-direction:column; gap:11px; margin:16px 0 6px;}
   .toolrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .toolrow .tlabel{font-family:'Fredoka',sans-serif; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--choco-soft); min-width:88px; flex:none;}
@@ -878,16 +894,16 @@ var GROUPS=[
     {id:"Q12",title:"Age group",kind:"vbar"}
   ]},
   {head:"Discovery & visit", items:[
-    {id:"Q3",title:"How they heard about us",kind:"hbar"},
-    {id:"Q4",title:"Reason for visiting",kind:"hbar"}
+    {id:"Q3",title:"How they heard about us",kind:"hbar",ref:true},
+    {id:"Q4",title:"Reason for visiting",kind:"hbar",ref:true}
   ]},
   {head:"Kiosk", items:[
-    {id:"Q5",title:"Kiosk difficulties",kind:"hbar",multi:true,color:"var(--blue)"}
+    {id:"Q5",title:"Kiosk difficulties",kind:"hbar",multi:true,ref:true}
   ]},
   {head:"Purchases & souvenirs", items:[
-    {id:"Q6",title:"What they bought",kind:"hbar",multi:true},
-    {id:"Q8",title:"Why they chose it",kind:"hbar"},
-    {id:"Q9",title:"Souvenirs they’d buy",kind:"hbar",multi:true},
+    {id:"Q6",title:"What they bought",kind:"hbar",multi:true,ref:true},
+    {id:"Q8",title:"Why they chose it",kind:"hbar",ref:true},
+    {id:"Q9",title:"Souvenirs they’d buy",kind:"hbar",multi:true,ref:true},
     {id:"Q7",title:"Products named",kind:"text"}
   ]}
 ];
@@ -943,6 +959,40 @@ function rawTable(resps){
   return card("Raw responses","Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV",tbl,true);
 }
 
+function refbars(rows, cfg, resps){
+  var isStore = storeFilter!=='all';
+  /* 전체(모든 매장) 값 */
+  var allResps = adminCache.responses || resps;
+  var allRows = cfg.multi?countMulti(allResps,cfg.id) : cfg.scale?countScale(allResps,cfg.id) : countSingle(allResps,cfg.id);
+  var allMap = {}; allRows.forEach(function(r){ allMap[r.label]=r.count; });
+  rows = rows.slice().sort(function(a,b){return b.count-a.count;});
+  if(cfg.top) rows = rows.slice(0, cfg.top);
+  var base = resps.length;
+  var allBase = allResps.length;
+  var max = 1;
+  rows.forEach(function(r){ var g=isStore?(allMap[r.label]||0):r.count; if(g>max)max=g; if(r.count>max)max=r.count; });
+  var head =
+    '<div class="refleg">'
+      +'<span><i style="background:var(--pink)"></i>'+(isStore?(lang==='ko'?storeName(storeFilter):storeName(storeFilter)):(lang==='ko'?'응답 수':'Responses'))+'</span>'
+      +(isStore?'<span><i style="background:#D8D3C8"></i>'+(lang==='ko'?'전체 매장':'All stores')+'</span>':'')
+    +'</div>'
+    +'<div class="refhead"><span class="rh1">'+(lang==='ko'?'전체':'Total')+'</span><span class="rh2">(Base '+(isStore?base+' / '+allBase:base)+')</span></div>';
+  var body = rows.map(function(r){
+    var g = isStore ? (allMap[r.label]||0) : r.count;
+    var bw = Math.round(r.count/max*100);
+    var gw = Math.round(g/max*100);
+    var blueIn = bw>=14; /* 좁으면 숫자를 바 밖으로 */
+    var blueVal = '<span class="refv-blue'+(blueIn?'':' out')+'" style="left:'+bw+'%">'+r.count+'</span>';
+    var grayVal = isStore? '<span class="refv-gray" style="left:'+gw+'%">'+g+'</span>' : '';
+    return '<div class="refrow"><div class="reflab">'+esc(tr(r.label))+'</div><div class="reftrack">'
+      +(isStore?'<div class="refgray" style="width:'+gw+'%"></div>':'')
+      +'<div class="refblue" style="width:'+bw+'%"></div>'
+      +blueVal+grayVal
+      +'</div></div>';
+  }).join("");
+  return '<div class="refwrap">'+head+body+'</div>';
+}
+
 function renderChart(cfg,resps){
   if(cfg.kind==="text"){
     var vals=textValues(resps,cfg.id);
@@ -958,8 +1008,8 @@ function renderChart(cfg,resps){
   if(viewMode==="table") inner=freqTable(rows,cfg);
   else if(viewMode==="donuts") inner=donut(rows,cfg);
   else if(viewMode==="pie") inner=pie(rows,cfg);
-  else inner = (cfg.kind==="vbar")? vbars(rows) : hbars(rows,{top:cfg.top,color:cfg.color});
-  return card(cfg.title,note,inner);
+  else inner = (cfg.ref)? refbars(rows,cfg,resps) : (cfg.kind==="vbar")? vbars(rows) : hbars(rows,{top:cfg.top,color:cfg.color});
+  return card((cfg.ref?cfg.id+'. ':'')+tr(cfg.title),note,inner);
 }
 
 function viewAdminLoading(){ return '<div class="adm fade"><div class="empty" style="padding:80px 0">Loading insights…</div></div>'; }
