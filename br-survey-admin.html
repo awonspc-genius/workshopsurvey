@@ -128,6 +128,11 @@
   .refv-gray{position:absolute; top:1px; font-size:11.5px; font-weight:600; color:#9A937F; padding-left:6px; white-space:nowrap;}
   .refleg{display:flex; gap:14px; justify-content:flex-end; font-size:11px; color:var(--choco-soft); margin-bottom:4px;}
   .refleg i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px;}
+  .cmp-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:10px;}
+  .cmp-panel{background:#FDFBF6; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px;}
+  .cmp-head{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2.5px solid; padding-bottom:6px; margin-bottom:6px; font-size:13.5px;}
+  .cmp-head span{font-size:11.5px; color:var(--choco-soft);}
+  @media (max-width:760px){ .cmp-grid{grid-template-columns:1fr;} }
   @media (max-width:640px){ .refrow{grid-template-columns:minmax(110px,42%) 1fr;} .reflab{font-size:11.5px;} }
   .toolbar{background:var(--paper,#fff); border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; display:flex; flex-direction:column; gap:11px; margin:16px 0 6px;}
   .toolrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
@@ -603,7 +608,7 @@ var unlocked=false, ADMIN_CODE="3131"; /* demo gate only — replace with real a
 var viewMode="bars"; /* "bars" | "donuts" | "table" */
 var lastSaved=null;  /* set on each submit so the thank-you screen can confirm accumulation */
 var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
-var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{} };
+var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{}, cmpDim:"none", cmpA:"", cmpB:"" };
 var adminCache={ responses:[], starts:0 };
 function pct(n,d){ return d>0?Math.round(n/d*100):0; }
 
@@ -834,13 +839,57 @@ function viewExplore(resps){
       opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(tr(o))+'</option>';}).join("")+'</select>';
   }
   var inner=
-    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Break down by")+'</span>'+bg("x",explore.x,dimOpts)+'</div>'+
-    '<div class="ctrlrow"><span class="ctrl-label">'+tr("Split by")+'</span>'+bg("split",explore.split,splitOpts)+'</div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'분석 문항':'Question')+'</span>'+
+      '<select class="exsel" data-act="exc" data-k="x">'+dimOpts.map(function(o){return '<option value="'+o.v+'"'+(explore.x===o.v?" selected":"")+'>'+esc(o.label)+'</option>';}).join("")+'</select></div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Measure")+'</span>'+bg("measure",explore.measure,measOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("View as")+'</span>'+bg("view",explore.view,viewOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Filter")+'</span><div class="filters">'+sel("Q1")+sel("Q3")+sel("Q4")+sel("Q2")+'<button class="tbtn" data-act="exreset">'+tr("Reset filters")+'</button></div></div>'+
+    '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'좌우 비교':'Compare')+'</span>'+bg("cmpDim",explore.cmpDim,[{v:"none",label:tr("None")}].concat(Object.keys(DIMS).map(function(k){return {v:k,label:k+". "+tr(DIMS[k].label)};})))+'</div>'+
+    cmpBlock(resps)+
     '<div class="exresult">'+exploreResult(resps)+'</div>';
   return card("Explore & cross-tab","Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses",inner,true);
+}
+
+/* ---------- 좌우 비교 (필터 값 A vs B) ---------- */
+function cmpPanel(resps, val, color){
+  var sub=resps.filter(function(r){ return valForDim(r, explore.cmpDim).indexOf(val)>-1; });
+  var counts={};
+  sub.forEach(function(r){ valForDim(r, explore.x).forEach(function(x){ counts[x]=(counts[x]||0)+1; }); });
+  var rows=Object.keys(counts).map(function(k){return {label:k,count:counts[k]};}).sort(function(a,b){return b.count-a.count;});
+  var max=1; rows.forEach(function(r){ if(r.count>max)max=r.count; });
+  var bars=rows.length? rows.map(function(r){
+    var w=Math.round(r.count/max*100);
+    return '<div class="refrow"><div class="reflab">'+esc(tr(r.label))+'</div><div class="reftrack">'
+      +'<div class="refblue" style="width:'+w+'%;background:'+color+'"></div>'
+      +'<span class="refv-blue'+(w>=14?'':' out')+'" style="left:'+w+'%">'+r.count+'</span>'
+      +'</div></div>';
+  }).join("") : '<div class="empty" style="padding:20px 0">'+(lang==='ko'?'해당 응답 없음':'No responses')+'</div>';
+  return '<div class="cmp-panel">'
+    +'<div class="cmp-head" style="border-color:'+color+'"><b>'+esc(tr(val))+'</b><span>n='+sub.length+'</span></div>'
+    +bars+'</div>';
+}
+function cmpBlock(resps){
+  if(explore.cmpDim==="none") return "";
+  var d=explore.cmpDim;
+  var opts=(d==="Q2")?COUNTRIES:(Q[d]?Q[d].options:[]);
+  function vsel(key,cur,ph){
+    return '<select class="exsel" data-act="exc" data-k="'+key+'"><option value=""'+(cur===""?" selected":"")+'>'+ph+'</option>'
+      +opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(tr(o))+'</option>';}).join("")+'</select>';
+  }
+  var pick='<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'항목 선택':'Pick two')+'</span>'
+    +vsel("cmpA",explore.cmpA,(lang==='ko'?'왼쪽 항목…':'Left item…'))
+    +'<span style="color:var(--choco-soft);font-weight:700">vs</span>'
+    +vsel("cmpB",explore.cmpB,(lang==='ko'?'오른쪽 항목…':'Right item…'))+'</div>';
+  var panels="";
+  if(explore.cmpA && explore.cmpB){
+    panels='<div class="cmp-grid">'
+      +cmpPanel(resps, explore.cmpA, 'var(--pink)')
+      +cmpPanel(resps, explore.cmpB, '#C2974A')
+      +'</div>';
+  } else {
+    panels='<div class="empty" style="padding:14px 0">'+(lang==='ko'?'비교할 두 항목을 선택하세요.':'Choose two items to compare.')+'</div>';
+  }
+  return pick+panels;
 }
 
 /* ===================== OVERVIEW / SNAPSHOT ===================== */
@@ -1169,7 +1218,7 @@ app.addEventListener('click', async function(e){
   else if(act==="goSurvey"){ window.location.href="br-survey-system.html"; }
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
   else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
-  else if(act==="ex"){ explore[el.getAttribute('data-k')]=el.getAttribute('data-v'); paintAdmin(); }
+  else if(act==="ex"){ var exk=el.getAttribute('data-k'); explore[exk]=el.getAttribute('data-v'); if(exk==="cmpDim"){ explore.cmpA=""; explore.cmpB=""; } paintAdmin(); }
   else if(act==="exreset"){ explore.filters={}; paintAdmin(); }
   else if(act==="refresh"){ loadAdmin(); }
   else if(act==="export"){ var rr=filterByStore(await Store.getResponses()); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses"+(storeFilter==='all'?'':'-'+storeFilter)+".csv", toCSV(rr)); }
@@ -1226,6 +1275,10 @@ app.addEventListener('change', function(e){
   if(el.getAttribute('data-act')==="exf"){
     var k=el.getAttribute('data-k'), v=el.value;
     if(v==="__all") delete explore.filters[k]; else explore.filters[k]=v;
+    paintAdmin();
+  }
+  if(el.getAttribute('data-act')==="exc"){
+    explore[el.getAttribute('data-k')]=el.value;
     paintAdmin();
   }
 });
