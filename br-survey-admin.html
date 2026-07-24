@@ -1127,11 +1127,20 @@ app.addEventListener('click', async function(e){
     if(Store.mode()==='sheet'){
       el.textContent = (lang==='ko') ? "삭제 중..." : "Clearing...";
       el.disabled = true;
+      var beforeN = -1;
+      try{ var snap0 = await Store.snapshot(); beforeN = (snap0.responses||[]).length; }catch(err){}
       try{
         await postSheet({ type:'clear', key: CONFIG.ADMIN_CODE || '3131' });
-        await new Promise(function(r){ setTimeout(r, 3000); });
+        await new Promise(function(r){ setTimeout(r, 3500); });
       }catch(err){ console.error(err); }
       try{ await Store.clearAll(); }catch(err){}
+      var afterN = -1;
+      try{ var snap1 = await Store.snapshot(); afterN = (snap1.responses||[]).length; }catch(err){}
+      if(beforeN > 0 && afterN >= beforeN){
+        alert(lang==='ko'
+          ? "삭제 명령을 보냈지만 백엔드가 응답하지 않았습니다.\n\n원인: 현재 연결된 Apps Script가 구버전입니다 (삭제 기능이 없는 코드).\napps-script-FINAL-v3를 붙여넣은 프로젝트에서 '새 배포'를 만들고, 그 웹 앱 URL을 개발자(Claude)에게 전달해 HTML에 반영해야 합니다."
+          : "Clear command was sent but the backend didn't respond.\n\nCause: the connected Apps Script is an old version without the clear feature. Deploy the FINAL-v3 script and update the endpoint URL in the HTML.");
+      }
       loadAdmin();
     } else {
       await Store.clearAll(); loadAdmin();
