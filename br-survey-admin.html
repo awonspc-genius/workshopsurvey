@@ -153,6 +153,8 @@
   .k-pink{color:var(--pink);} .k-blue{color:var(--blue);} .k-choco{color:var(--choco);}
   .grouphead{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--pink); margin:30px 0 6px; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
   .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:14px;}
+  .cards.eq{grid-auto-rows:1fr;}
+  .cards.eq .card{display:flex; flex-direction:column; min-height:0;}
   .card{background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:20px 22px;}
   .card.full{grid-column:1 / -1;}
   .card h3{font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px; margin:0 0 4px; letter-spacing:-.01em;}
@@ -609,6 +611,7 @@ var viewMode="bars"; /* "bars" | "donuts" | "table" */
 var lastSaved=null;  /* set on each submit so the thank-you screen can confirm accumulation */
 var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
 var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{}, cmpDim:"none", cmpA:"", cmpB:"" };
+var xcmp={ x:"Q3", flts:[{d:"",v:""}] };
 var adminCache={ responses:[], starts:0 };
 function pct(n,d){ return d>0?Math.round(n/d*100):0; }
 
@@ -850,6 +853,60 @@ function viewExplore(resps){
   return card("Explore & cross-tab","Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses",inner,true);
 }
 
+/* ---------- 문항 기반 필터 교차 비교 ---------- */
+function xcmpOpts(d){ return (d==="Q2")?COUNTRIES:(Q[d]?Q[d].options:[]); }
+function xcmpActive(){ return xcmp.flts.filter(function(f){return f.d&&f.v;}); }
+function xcmpPass(r, flts){ return flts.every(function(f){ return valForDim(r,f.d).indexOf(f.v)>-1; }); }
+function xcmpDesc(flts){ return flts.map(function(f){ return f.d+"="+tr(f.v); }).join(" + "); }
+function xcmpPanel(resps, flts, color, titlePrefix){
+  var sub=resps.filter(function(r){ return xcmpPass(r, flts); });
+  var counts={};
+  sub.forEach(function(r){ valForDim(r, xcmp.x).forEach(function(x){ counts[x]=(counts[x]||0)+1; }); });
+  var rows=Object.keys(counts).map(function(k){return {label:k,count:counts[k]};}).sort(function(a,b){return b.count-a.count;});
+  var max=1; rows.forEach(function(r){ if(r.count>max)max=r.count; });
+  var bars=rows.length? rows.map(function(r){
+    var w=Math.round(r.count/max*100);
+    return '<div class="refrow"><div class="reflab">'+esc(tr(r.label))+'</div><div class="reftrack">'
+      +'<div class="refblue" style="width:'+w+'%;background:'+color+'"></div>'
+      +'<span class="refv-blue'+(w>=14?'':' out')+'" style="left:'+w+'%">'+r.count+'</span>'
+      +'</div></div>';
+  }).join("") : '<div class="empty" style="padding:20px 0">'+(lang==='ko'?'해당 응답 없음':'No responses')+'</div>';
+  return '<div class="cmp-panel">'
+    +'<div class="cmp-head" style="border-color:'+color+'"><b>'+titlePrefix+' '+esc(xcmpDesc(flts))+'</b><span>n='+sub.length+'</span></div>'
+    +bars+'</div>';
+}
+function xcmpCard(resps){
+  var dimSel='<select class="exsel" data-act="xcx">'+Object.keys(DIMS).map(function(k){
+    return '<option value="'+k+'"'+(xcmp.x===k?" selected":"")+'>'+esc(k+". "+tr(DIMS[k].label))+'</option>';
+  }).join("")+'</select>';
+  var fltRows=xcmp.flts.map(function(f,i){
+    var qs='<select class="exsel" data-act="xcd" data-i="'+i+'"><option value=""'+(f.d===""?" selected":"")+'>'+(lang==='ko'?'문항 선택…':'Question…')+'</option>'
+      +Object.keys(DIMS).map(function(k){ return '<option value="'+k+'"'+(f.d===k?" selected":"")+'>'+esc(k+". "+tr(DIMS[k].label))+'</option>'; }).join("")+'</select>';
+    var vs=f.d? '<select class="exsel" data-act="xcv" data-i="'+i+'"><option value=""'+(f.v===""?" selected":"")+'>'+(lang==='ko'?'보기 선택…':'Answer…')+'</option>'
+      +xcmpOpts(f.d).map(function(o){ return '<option value="'+esc(o)+'"'+(f.v===o?" selected":"")+'>'+esc(tr(o))+'</option>'; }).join("")+'</select>' : '';
+    var del=xcmp.flts.length>1? '<button class="tbtn" data-act="xcdel" data-i="'+i+'">✕</button>' : '';
+    return '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'필터 ':'Filter ')+(i+1)+'</span>'+qs+vs+del+'</div>';
+  }).join("");
+  var addBtn=xcmp.flts.length<4? '<div class="ctrlrow"><span class="ctrl-label"></span><button class="tbtn" data-act="xcadd">+ '+(lang==='ko'?'필터 추가':'Add filter')+'</button></div>' : '';
+  var act=xcmpActive();
+  var panels;
+  if(act.length===0){
+    panels='<div class="empty" style="padding:14px 0">'+(lang==='ko'?'필터 1의 문항과 보기를 선택하면 결과가 나타납니다.':'Pick a question and answer for Filter 1 to see results.')+'</div>';
+  } else if(act.length===1){
+    panels='<div class="cmp-grid">'+xcmpPanel(resps, act, 'var(--pink)', (lang==='ko'?'필터:':'Filter:'))
+      +'<div class="cmp-panel" style="display:flex;align-items:center;justify-content:center;color:var(--choco-soft);font-size:13px">'+(lang==='ko'?'필터를 추가하면 우측에 교차(AND) 결과가 표시됩니다':'Add another filter to see the combined (AND) result here')+'</div></div>';
+  } else {
+    panels='<div class="cmp-grid">'
+      +xcmpPanel(resps, [act[0]], 'var(--pink)', (lang==='ko'?'필터 1:':'Filter 1:'))
+      +xcmpPanel(resps, act, '#C2974A', (lang==='ko'?'교차:':'Combined:'))
+      +'</div>';
+  }
+  var inner='<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'분석 문항':'Question')+'</span>'+dimSel+'</div>'+fltRows+addBtn+panels;
+  return card((lang==='ko'?'문항 필터 교차 비교':'Filter cross-compare'),
+    (lang==='ko'?'문항의 보기를 필터로 걸어 좌(필터 1) · 우(필터 결합) 비교':'Left = filter 1 alone · Right = all filters combined'),
+    inner, true);
+}
+
 /* ---------- 좌우 비교 (필터 값 A vs B) ---------- */
 function cmpPanel(resps, val, color){
   var sub=resps.filter(function(r){ return valForDim(r, explore.cmpDim).indexOf(val)>-1; });
@@ -1081,9 +1138,10 @@ function viewAdmin(resps,starts){
   var body='';
   body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(resps)+trendCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
+  body+='<div class="grouphead">'+(lang==='ko'?'문항 필터 교차 비교':'Filter cross-compare')+'</div><div class="cards">'+xcmpCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Advocacy")+'</div><div class="cards">'+npsCard(resps)+'</div>';
   GROUPS.forEach(function(g){
-    body+='<div class="grouphead">'+tr(g.head)+'</div><div class="cards">';
+    body+='<div class="grouphead">'+tr(g.head)+'</div><div class="cards'+(g.head==="Audience"?' eq':'')+'">';
     g.items.forEach(function(cfg){ body+=renderChart(cfg,resps); });
     body+='</div>';
   });
@@ -1219,6 +1277,8 @@ app.addEventListener('click', async function(e){
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
   else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
   else if(act==="ex"){ var exk=el.getAttribute('data-k'); explore[exk]=el.getAttribute('data-v'); if(exk==="cmpDim"){ explore.cmpA=""; explore.cmpB=""; } paintAdmin(); }
+  else if(act==="xcadd"){ if(xcmp.flts.length<4) xcmp.flts.push({d:"",v:""}); paintAdmin(); }
+  else if(act==="xcdel"){ xcmp.flts.splice(+el.getAttribute('data-i'),1); if(!xcmp.flts.length) xcmp.flts.push({d:"",v:""}); paintAdmin(); }
   else if(act==="exreset"){ explore.filters={}; paintAdmin(); }
   else if(act==="refresh"){ loadAdmin(); }
   else if(act==="export"){ var rr=filterByStore(await Store.getResponses()); if(!rr.length){ alert("No responses to export yet."); return;} download("br-survey-responses"+(storeFilter==='all'?'':'-'+storeFilter)+".csv", toCSV(rr)); }
@@ -1281,6 +1341,9 @@ app.addEventListener('change', function(e){
     explore[el.getAttribute('data-k')]=el.value;
     paintAdmin();
   }
+  if(el.getAttribute('data-act')==="xcx"){ xcmp.x=el.value; paintAdmin(); }
+  if(el.getAttribute('data-act')==="xcd"){ var xi=+el.getAttribute('data-i'); xcmp.flts[xi]={d:el.value, v:""}; paintAdmin(); }
+  if(el.getAttribute('data-act')==="xcv"){ var xj=+el.getAttribute('data-i'); xcmp.flts[xj].v=el.value; paintAdmin(); }
 });
 app.addEventListener('input', function(e){
   var el=e.target.closest('[data-act]'); if(!el)return;
