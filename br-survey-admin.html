@@ -286,6 +286,55 @@
   .adm .kpi{text-align:center;}
   .adm .card>h3, .adm .card>.n{text-align:center;}
   .gate{text-align:center;}
+
+  /* --- 문항 전문 표시 (question wording on result cards) --- */
+  .qmeta{display:flex; flex-direction:column; align-items:center; gap:8px; margin:4px 0 15px;}
+  .qtags{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;}
+  .qcode{font-family:'Fredoka',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.1em; color:#fff; background:var(--pink); padding:3px 9px; border-radius:6px;}
+  .qkind{font-size:10.5px; font-weight:600; letter-spacing:.05em; color:var(--choco-soft); background:var(--cream); border:1px solid var(--line); padding:3px 9px; border-radius:6px;}
+  .qask{width:100%; background:#FBF8F1; border:1px solid var(--line); border-left:3px solid var(--pink); border-radius:10px; padding:11px 14px; text-align:center;}
+  .qask .qp{display:block; font-size:13.5px; line-height:1.45; color:var(--choco); font-weight:600;}
+  .qask .qs{display:block; font-size:11.5px; line-height:1.4; color:var(--choco-soft); margin-top:5px;}
+  .qask .qh{display:block; font-size:11px; line-height:1.35; color:var(--blue); margin-top:5px;}
+  .qline{font-size:12px; color:var(--choco-soft); background:#FBF8F1; border:1px dashed var(--line-deep); border-radius:9px; padding:7px 12px; margin:0 0 9px; text-align:center; line-height:1.45;}
+  .qline b{font-family:'Fredoka',sans-serif; font-weight:700; color:var(--pink-deep); margin-right:5px;}
+  .qline i{font-style:normal; font-weight:600; color:var(--choco); margin-right:4px;}
+  .qlist{width:100%; border-collapse:collapse; font-size:13px; text-align:left;}
+  .qlist th,.qlist td{padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left;}
+  .qlist th{font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--choco-soft);}
+  .qlist td.qc{font-family:'Fredoka',sans-serif; font-weight:700; color:var(--pink-deep); white-space:nowrap; width:52px;}
+  .qlist td.num,.qlist th.num{text-align:right; white-space:nowrap;}
+  .qlist .qt{color:var(--choco); font-weight:600; line-height:1.4;}
+  .qlist .qsub{color:var(--choco-soft); font-size:11.5px; line-height:1.35; margin-top:3px;}
+  .qlist .qk{color:var(--choco-soft); font-size:11.5px; white-space:nowrap;}
+  @media (max-width:640px){ .qlist .qk{display:none;} .qlist th.kcol{display:none;} }
+
+  /* --- 매장별 응답 순위 (store ranking) --- */
+  .sbanner{display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:var(--pink-soft); border:1px solid #C9D3F4; border-radius:14px; padding:13px 16px; margin:2px 0 16px;}
+  .sbanner .sb-l{font-family:'Fredoka',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#fff; background:var(--pink); padding:4px 10px; border-radius:6px;}
+  .sbanner .sb-v{font-family:'Fredoka',sans-serif; font-weight:700; font-size:19px; color:var(--pink-deep); letter-spacing:-.01em;}
+  .sbanner .sb-s{font-size:12.5px; color:var(--choco-soft);}
+  .srank{display:flex; flex-direction:column; gap:10px;}
+  .srow{display:grid; grid-template-columns:24px minmax(78px,116px) 1fr 132px; align-items:center; gap:11px; cursor:pointer; border-radius:8px; padding:3px 4px; transition:background .14s ease;}
+  .srow:hover{background:#FBF8F1;}
+  .srow.cur{background:var(--pink-soft);}
+  .srow .rk{font-family:'Fredoka',sans-serif; font-weight:700; font-size:11px; color:var(--choco-soft); text-align:center;}
+  .srow.top .rk{color:#fff; background:var(--pink); border-radius:50%; width:22px; height:22px; line-height:22px; margin:0 auto;}
+  .srow .snm{font-size:13px; color:var(--choco); text-align:right; line-height:1.25;}
+  .srow.top .snm{font-weight:700;}
+  .srow .strack{position:relative; height:15px; background:var(--cream); border-radius:4px; overflow:hidden;}
+  .srow .sfill{position:absolute; left:0; top:0; height:100%; background:#9FB0E8; border-radius:4px; transition:width .5s cubic-bezier(.2,.7,.3,1);}
+  .srow.top .sfill{background:var(--pink);}
+  .srow .sval{font-size:12px; color:var(--choco-soft); white-space:nowrap; text-align:left;}
+  .srow .sval b{font-family:'Fredoka',sans-serif; font-weight:700; font-size:13.5px; color:var(--choco); margin-right:4px;}
+  .srow .sval em{font-style:normal; color:var(--blue); margin-left:5px;}
+  .snote{font-size:11.5px; color:var(--choco-soft); text-align:center; margin-top:13px; line-height:1.45;}
+  @media (max-width:640px){
+    .srow{grid-template-columns:20px 1fr; row-gap:4px;}
+    .srow .snm{text-align:left; font-size:12.5px;}
+    .srow .strack{grid-column:2;}
+    .srow .sval{grid-column:2; text-align:left;}
+  }
 </style>
 </head>
 <body>
@@ -549,6 +598,50 @@ var KO = {
 };
 function tr(s){ if(lang==='ko' && KO[s]!==undefined) return KO[s]; return s; }
 
+/* ============ 문항 전문(question wording) 표시 유틸 ============ */
+var showQText = true;   /* 결과 화면에 실제 설문 문구를 함께 노출 */
+var QKIND = {
+  single:{ko:"단일 선택",en:"Single choice"},
+  country:{ko:"국적 · 단일 선택",en:"Nationality · single"},
+  multi:{ko:"복수 선택",en:"Multiple choice"},
+  text:{ko:"주관식",en:"Open text"},
+  nps:{ko:"0–10점 척도",en:"0–10 scale"},
+  scale:{ko:"5점 척도",en:"5-point scale"}
+};
+function qKindLabel(id){
+  var d=Q[id]; if(!d) return "";
+  var k=QKIND[d.type]; var base=k?(lang==='ko'?k.ko:k.en):d.type;
+  var extra="";
+  if(d.type==="multi" && d.max) extra=(lang==='ko'?(" · 최대 "+d.max+"개"):(" · max "+d.max));
+  if(d.options && d.type!=="country") extra+=(lang==='ko'?(" · 보기 "+d.options.length+"개"):(" · "+d.options.length+" options"));
+  return base+extra;
+}
+function qCode(id){ return (Q[id]&&Q[id].index)?Q[id].index:id; }
+function qWording(id){
+  var d=Q[id]; if(!d) return {p:"",s:""};
+  var en=d.title, ko=KO[en];
+  if(lang==='ko' && ko) return {p:ko, s:en};
+  return {p:en, s:""};
+}
+/* 카드 상단용 — 문항 번호 + 유형 + 실제 문구 전문 */
+function qBlock(id){
+  var d=Q[id]; if(!showQText||!d) return "";
+  var w=qWording(id);
+  var hint=d.hint?tr(d.hint):"";
+  return '<div class="qmeta">'
+    +'<div class="qtags"><span class="qcode">'+esc(qCode(id))+'</span><span class="qkind">'+esc(qKindLabel(id))+'</span></div>'
+    +'<div class="qask"><span class="qp">'+esc(w.p)+'</span>'
+      +(w.s?'<span class="qs">'+esc(w.s)+'</span>':'')
+      +(hint?'<span class="qh">'+esc(hint)+'</span>':'')
+    +'</div></div>';
+}
+/* 셀렉터 옆 한 줄 요약용 */
+function qLine(id,label){
+  var d=Q[id]; if(!showQText||!d) return "";
+  var w=qWording(id);
+  return '<div class="qline"><b>'+esc(qCode(id))+'</b>'+(label?'<i>'+esc(label)+'</i>':'')+esc(w.p)+'</div>';
+}
+
 /* ============================ survey state + logic ============================ */
 var state={screen:"landing", answers:{}};
 function visible(id){ return true; }
@@ -607,7 +700,8 @@ async function finishSurvey(){
 
 /* ============================ ADMIN ============================ */
 var unlocked=false, ADMIN_CODE="3131"; /* demo gate only — replace with real auth in production */
-var viewMode="bars"; /* "bars" | "donuts" | "table" */
+var viewMode="bars"; /* "bars" | "pie" — 결과 카드 표시 방식 */
+var VIEW_MODES=["bars","pie"];
 var lastSaved=null;  /* set on each submit so the thank-you screen can confirm accumulation */
 var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
 var explore={ x:"Q3", split:"none", measure:"count", view:"bars", filters:{}, cmpDim:"none", cmpA:"", cmpB:"" };
@@ -660,11 +754,11 @@ function hbars(rows,opts){
     return '<div class="hrow"><div class="hl"><span class="lab">'+esc(r.label)+'</span><span class="val">'+r.count+(opts.showPct?'  ·  '+p+'%':'')+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
   }).join("")+'</div>';
 }
-function card(title,note,inner,full){ return '<div class="card'+(full?' full':'')+'"><h3>'+tr(title)+'</h3>'+(note?'<p class="n">'+note+'</p>':'')+inner+'</div>'; }
+function card(title,note,inner,full,qid){ return '<div class="card'+(full?' full':'')+'"><h3>'+tr(title)+'</h3>'+(note?'<p class="n">'+note+'</p>':'')+(qid?qBlock(qid):'')+inner+'</div>'; }
 
 function npsCard(resps){
   var vals=resps.map(function(r){return r.Q10;}).filter(function(v){return typeof v==="number";});
-  if(!vals.length) return card("Net Promoter Score","Likelihood to recommend (Q10)",'<div class="empty">No responses yet.</div>',true);
+  if(!vals.length) return card("Net Promoter Score",(lang==='ko'?'추천 의향 (Q10)':"Likelihood to recommend (Q10)"),'<div class="empty">'+tr("No responses yet.")+'</div>',true,"Q10");
   var det=vals.filter(function(v){return v<=6;}).length, pas=vals.filter(function(v){return v>=7&&v<=8;}).length, pro=vals.filter(function(v){return v>=9;}).length;
   var n=vals.length, nps=Math.round((pro/n - det/n)*100);
   var avg=(vals.reduce(function(s,v){return s+v;},0)/n).toFixed(1);
@@ -676,7 +770,7 @@ function npsCard(resps){
     (prP?'<span style="width:'+prP+'%;background:var(--pink)">'+prP+'%</span>':'')+'</div>';
   var leg='<div class="leg"><span><i style="background:var(--blue)"></i>Detractors (0–6) · '+det+'</span><span><i style="background:var(--choco)"></i>Passives (7–8) · '+pas+'</span><span><i style="background:var(--pink)"></i>Promoters (9–10) · '+pro+'</span></div>';
   var inner='<div class="npswrap"><div><div class="npsbig" style="color:'+color+'">'+(nps>0?'+':'')+nps+'</div><div class="n" style="margin:4px 0 0">avg '+avg+' / 10</div></div><div class="npsstack">'+stack+leg+'</div></div>';
-  return card("Net Promoter Score","Likelihood to recommend (Q10) · n="+n,inner,true);
+  return card("Net Promoter Score",(lang==='ko'?('추천 의향 (Q10) · 응답 '+n+'건'):("Likelihood to recommend (Q10) · n="+n)),inner,true,"Q10");
 }
 
 /* ===================== EXPLORE / CROSS-TAB ENGINE ===================== */
@@ -823,10 +917,8 @@ function exploreResult(resps){
       +'<div style="margin-top:8px">'+exTable(a)+'</div>';
   }
   if(explore.view==="table") return exTable(a);
-  if(explore.view==="heat") return exHeat(a);
-  if(explore.view==="grouped") return exGrouped(a);
   if(explore.view==="pie") return exPie(a);
-  return exBars(a);
+  return exBars(a);   /* 보기 = 막대 / 파이 두 가지만 사용 */
 }
 function bg(key,current,opts){
   return '<div class="bgrp">'+opts.map(function(o){return '<button class="bgbtn'+(current===o.v?' on':'')+'" data-act="ex" data-k="'+key+'" data-v="'+esc(o.v)+'">'+esc(tr(o.label))+'</button>';}).join("")+'</div>';
@@ -835,7 +927,7 @@ function viewExplore(resps){
   var dimOpts=Object.keys(DIMS).map(function(k){return {v:k,label:k+". "+tr(DIMS[k].label)};});
   var splitOpts=[{v:"none",label:"None"}].concat(dimOpts);
   var measOpts=[{v:"count",label:"Count"},{v:"share",label:"Share %"},{v:"avgnps",label:"Avg NPS"}];
-  var viewOpts=[{v:"bars",label:"Bars"},{v:"grouped",label:"Grouped"},{v:"pie",label:"Pie"},{v:"heat",label:"Heatmap"},{v:"table",label:"Table"}];
+  var viewOpts=[{v:"bars",label:"Bars"},{v:"pie",label:"Pie"}];
   function sel(field){
     var opts=field==="Q2"?COUNTRIES:Q[field].options, cur=explore.filters[field]||"__all";
     return '<select class="exsel" data-act="exf" data-k="'+field+'"><option value="__all"'+(cur==="__all"?" selected":"")+'>'+(lang==='ko'?'전체':'All '+esc(DIMS[field].label.toLowerCase()))+'</option>'+
@@ -844,6 +936,7 @@ function viewExplore(resps){
   var inner=
     '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'분석 문항':'Question')+'</span>'+
       '<select class="exsel" data-act="exc" data-k="x">'+dimOpts.map(function(o){return '<option value="'+o.v+'"'+(explore.x===o.v?" selected":"")+'>'+esc(o.label)+'</option>';}).join("")+'</select></div>'+
+    qBlock(explore.x)+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Measure")+'</span>'+bg("measure",explore.measure,measOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("View as")+'</span>'+bg("view",explore.view,viewOpts)+'</div>'+
     '<div class="ctrlrow"><span class="ctrl-label">'+tr("Filter")+'</span><div class="filters">'+sel("Q1")+sel("Q3")+sel("Q4")+sel("Q2")+'<button class="tbtn" data-act="exreset">'+tr("Reset filters")+'</button></div></div>'+
@@ -857,7 +950,7 @@ function viewExplore(resps){
 function xcmpOpts(d){ return (d==="Q2")?COUNTRIES:(Q[d]?Q[d].options:[]); }
 function xcmpActive(){ return xcmp.flts.filter(function(f){return f.d&&f.v;}); }
 function xcmpPass(r, flts){ return flts.every(function(f){ return valForDim(r,f.d).indexOf(f.v)>-1; }); }
-function xcmpDesc(flts){ return flts.map(function(f){ return f.d+"="+tr(f.v); }).join(" + "); }
+function xcmpDesc(flts){ return flts.map(function(f){ return qCode(f.d)+" "+(DIMS[f.d]?tr(DIMS[f.d].label):"")+" = "+tr(f.v); }).join("  +  "); }
 function xcmpPanel(resps, flts, color, titlePrefix){
   var sub=resps.filter(function(r){ return xcmpPass(r, flts); });
   var counts={};
@@ -885,7 +978,8 @@ function xcmpCard(resps){
     var vs=f.d? '<select class="exsel" data-act="xcv" data-i="'+i+'"><option value=""'+(f.v===""?" selected":"")+'>'+(lang==='ko'?'보기 선택…':'Answer…')+'</option>'
       +xcmpOpts(f.d).map(function(o){ return '<option value="'+esc(o)+'"'+(f.v===o?" selected":"")+'>'+esc(tr(o))+'</option>'; }).join("")+'</select>' : '';
     var del=xcmp.flts.length>1? '<button class="tbtn" data-act="xcdel" data-i="'+i+'">✕</button>' : '';
-    return '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'필터 ':'Filter ')+(i+1)+'</span>'+qs+vs+del+'</div>';
+    return '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'필터 ':'Filter ')+(i+1)+'</span>'+qs+vs+del+'</div>'
+      +(f.d? qLine(f.d,(lang==='ko'?('필터 '+(i+1)+' 문항 '):('Filter '+(i+1)+' '))) : '');
   }).join("");
   var addBtn=xcmp.flts.length<4? '<div class="ctrlrow"><span class="ctrl-label"></span><button class="tbtn" data-act="xcadd">+ '+(lang==='ko'?'필터 추가':'Add filter')+'</button></div>' : '';
   var act=xcmpActive();
@@ -901,7 +995,7 @@ function xcmpCard(resps){
       +xcmpPanel(resps, act, '#C2974A', (lang==='ko'?'교차:':'Combined:'))
       +'</div>';
   }
-  var inner='<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'분석 문항':'Question')+'</span>'+dimSel+'</div>'+fltRows+addBtn+panels;
+  var inner='<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'분석 문항':'Question')+'</span>'+dimSel+'</div>'+qBlock(xcmp.x)+fltRows+addBtn+panels;
   return card((lang==='ko'?'문항 필터 교차 비교':'Filter cross-compare'),
     (lang==='ko'?'문항의 보기를 필터로 걸어 좌(필터 1) · 우(필터 결합) 비교':'Left = filter 1 alone · Right = all filters combined'),
     inner, true);
@@ -933,7 +1027,8 @@ function cmpBlock(resps){
     return '<select class="exsel" data-act="exc" data-k="'+key+'"><option value=""'+(cur===""?" selected":"")+'>'+ph+'</option>'
       +opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(tr(o))+'</option>';}).join("")+'</select>';
   }
-  var pick='<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'항목 선택':'Pick two')+'</span>'
+  var pick=qLine(d,(lang==='ko'?'비교 기준 ':'Compared by '))
+    +'<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'항목 선택':'Pick two')+'</span>'
     +vsel("cmpA",explore.cmpA,(lang==='ko'?'왼쪽 항목…':'Left item…'))
     +'<span style="color:var(--choco-soft);font-weight:700">vs</span>'
     +vsel("cmpB",explore.cmpB,(lang==='ko'?'오른쪽 항목…':'Right item…'))+'</div>';
@@ -1065,6 +1160,101 @@ function rawTable(resps){
   return card("Raw responses","Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV",tbl,true);
 }
 
+/* ---------- 매장별 응답 순위 (전체 매장 기준) ---------- */
+function storeRankCard(){
+  var all = adminCache.responses || [];
+  var buckets = {};
+  STORE_ORDER.forEach(function(s){ buckets[s]={n:0,nps:[]}; });
+  var otherKey = "__other";
+  all.forEach(function(r){
+    var s = recStore(r);
+    if(!buckets[s]){ if(!STORES[s]){ s=otherKey; if(!buckets[s]) buckets[s]={n:0,nps:[]}; } else buckets[s]={n:0,nps:[]}; }
+    buckets[s].n++;
+    if(typeof r.Q10==="number") buckets[s].nps.push(r.Q10);
+  });
+  var rows = Object.keys(buckets).map(function(s){
+    var b=buckets[s];
+    return {
+      slug:s,
+      name:(s===otherKey?(lang==='ko'?'기타/미지정':'Unassigned'):storeName(s)),
+      n:b.n,
+      avg:b.nps.length?(b.nps.reduce(function(x,y){return x+y;},0)/b.nps.length):null
+    };
+  }).filter(function(r){ return r.slug!==otherKey || r.n>0; });
+  rows.sort(function(a,b){ return b.n-a.n || a.name.localeCompare(b.name); });
+
+  var total = all.length;
+  var max = Math.max(1, rows.length?rows[0].n:1);
+  var top = rows[0];
+  var tied = rows.filter(function(r){ return top && r.n===top.n && r.n>0; });
+
+  var banner;
+  if(!total || !top || top.n===0){
+    banner='<div class="sbanner"><span class="sb-l">'+(lang==='ko'?'응답 최다 매장':'Most responses')+'</span><span class="sb-s">'+(lang==='ko'?'아직 응답이 없습니다.':'No responses yet.')+'</span></div>';
+  } else if(tied.length>1){
+    banner='<div class="sbanner"><span class="sb-l">'+(lang==='ko'?'공동 1위':'Tied 1st')+'</span>'
+      +'<span class="sb-v">'+esc(tied.map(function(r){return r.name;}).join(' · '))+'</span>'
+      +'<span class="sb-s">'+(lang==='ko'?('각 '+top.n+'건 · 전체의 '+pct(top.n,total)+'%'):('each '+top.n+' · '+pct(top.n,total)+'% of total'))+'</span></div>';
+  } else {
+    banner='<div class="sbanner"><span class="sb-l">'+(lang==='ko'?'응답 최다 매장':'Most responses')+'</span>'
+      +'<span class="sb-v">'+esc(top.name)+'</span>'
+      +'<span class="sb-s">'+(lang==='ko'
+          ? (top.n+'건 · 전체의 '+pct(top.n,total)+'%'+(top.avg!==null?(' · 평균 추천 '+top.avg.toFixed(1)):''))
+          : (top.n+' responses · '+pct(top.n,total)+'% of total'+(top.avg!==null?(' · avg '+top.avg.toFixed(1)):'')))
+      +'</span></div>';
+  }
+
+  var list='<div class="srank">'+rows.map(function(r,i){
+    var isTop = r.n>0 && r.n===top.n;
+    var w = Math.round(r.n/max*100);
+    var cls='srow'+(isTop?' top':'')+(storeFilter===r.slug?' cur':'');
+    return '<div class="'+cls+'" data-act="storerow" data-store="'+esc(r.slug)+'" title="'+esc(r.name)+'">'
+      +'<div class="rk">'+(i+1)+'</div>'
+      +'<div class="snm">'+esc(r.name)+'</div>'
+      +'<div class="strack"><div class="sfill" style="width:'+w+'%"></div></div>'
+      +'<div class="sval"><b>'+r.n+'</b>'+(lang==='ko'?'건':'')+' · '+pct(r.n,total||1)+'%'
+        +(r.avg!==null?'<em>'+(lang==='ko'?'추천 ':'avg ')+r.avg.toFixed(1)+'</em>':'')+'</div>'
+      +'</div>';
+  }).join("")+'</div>';
+
+  var note='<div class="snote">'+(lang==='ko'
+    ? '※ 완료된 설문 응답 수 기준입니다. 실제 매장 방문객 수가 아니라 설문에 참여한 고객 수를 나타냅니다.<br>매장명을 클릭하면 해당 매장 결과만 볼 수 있습니다.'
+    : '※ Based on completed survey responses, not actual store footfall. Click a store to filter the dashboard.')+'</div>';
+
+  return card((lang==='ko'?'매장별 응답 순위':'Store ranking'),
+    (lang==='ko'?('전체 '+rows.length+'개 매장 · 총 '+total+'건'):(rows.length+' stores · '+total+' responses')),
+    banner+list+note, true);
+}
+
+/* ---------- 문항 목록 (설문에 실제로 나간 문구 전체) ---------- */
+function questionListCard(resps){
+  var body=BASE.map(function(id){
+    var d=Q[id]; if(!d) return '';
+    var w=qWording(id);
+    var answered=resps.filter(function(r){
+      var v=r[id];
+      if(Array.isArray(v)) return v.length>0;
+      return v!==undefined && v!==null && v!=='';
+    }).length;
+    return '<tr>'
+      +'<td class="qc">'+esc(qCode(id))+'</td>'
+      +'<td><div class="qt">'+esc(w.p)+'</div>'+(w.s?'<div class="qsub">'+esc(w.s)+'</div>':'')
+        +(d.hint?'<div class="qsub">· '+esc(tr(d.hint))+'</div>':'')+'</td>'
+      +'<td><span class="qk">'+esc(qKindLabel(id))+'</span></td>'
+      +'<td class="num">'+answered+'</td>'
+      +'</tr>';
+  }).join("");
+  var tbl='<table class="qlist"><thead><tr>'
+    +'<th>'+(lang==='ko'?'번호':'No.')+'</th>'
+    +'<th>'+(lang==='ko'?'설문 문항 (실제 노출 문구)':'Question as shown to respondents')+'</th>'
+    +'<th class="kcol">'+(lang==='ko'?'유형':'Type')+'</th>'
+    +'<th class="num">'+(lang==='ko'?'응답':'Answered')+'</th>'
+    +'</tr></thead><tbody>'+body+'</tbody></table>';
+  return card((lang==='ko'?'문항 목록 · Questionnaire':'Questionnaire'),
+    (lang==='ko'?('총 '+BASE.length+'문항 · 응답자 '+resps.length+'명 기준'):(BASE.length+' questions · base '+resps.length+' respondents')),
+    tbl, true);
+}
+
 function refbars(rows, cfg, resps){
   var isStore = storeFilter!=='all';
   /* 전체(모든 매장) 값 */
@@ -1099,23 +1289,27 @@ function refbars(rows, cfg, resps){
   return '<div class="refwrap">'+head+body+'</div>';
 }
 
+function chartTitle(cfg){
+  /* 문항 전문을 켜면 번호는 배지로 나오므로 제목에서 생략 */
+  return (showQText? '' : (qCode(cfg.id)+'. '))+tr(cfg.title);
+}
 function renderChart(cfg,resps){
   if(cfg.kind==="text"){
     var vals=textValues(resps,cfg.id);
-    if(!vals.length) return card(cfg.title,"0 responses",'<div class="empty">No responses yet.</div>');
+    if(!vals.length) return card(chartTitle(cfg),(lang==='ko'?'응답 0건':"0 responses"),'<div class="empty">'+tr("No responses yet.")+'</div>',false,cfg.id);
     var list='<div class="feed">'+vals.slice(-40).reverse().map(function(v){return '<div class="quote">'+esc(v)+'</div>';}).join("")+'</div>';
-    return card(cfg.title,vals.length+" written in",list);
+    return card(chartTitle(cfg),(lang==='ko'?('직접 입력 '+vals.length+'건'):(vals.length+" written in")),list,false,cfg.id);
   }
   var rows = cfg.multi?countMulti(resps,cfg.id) : cfg.scale?countScale(resps,cfg.id) : countSingle(resps,cfg.id);
   var n = rows.reduce(function(s,r){return s+r.count;},0);
-  var note = cfg.multi?("counts across "+resps.length+" responses") : ("n="+n);
-  if(!n) return card(cfg.title,note,'<div class="empty">No responses yet.</div>');
+  var note = cfg.multi
+    ? (lang==='ko'?('복수응답 · 응답자 '+resps.length+'명 기준 선택 건수'):("counts across "+resps.length+" responses"))
+    : (lang==='ko'?('응답 '+n+'건 (Base '+n+')'):("n="+n));
+  if(!n) return card(chartTitle(cfg),note,'<div class="empty">'+tr("No responses yet.")+'</div>',false,cfg.id);
   var inner;
-  if(viewMode==="table") inner=freqTable(rows,cfg);
-  else if(viewMode==="donuts") inner=donut(rows,cfg);
-  else if(viewMode==="pie") inner=pie(rows,cfg);
+  if(viewMode==="pie") inner=pie(rows,cfg);
   else inner = (cfg.ref)? refbars(rows,cfg,resps) : (cfg.kind==="vbar")? vbars(rows) : hbars(rows,{top:cfg.top,color:cfg.color});
-  return card((cfg.ref?cfg.id+'. ':'')+tr(cfg.title),note,inner);
+  return card(chartTitle(cfg),note,inner,false,cfg.id);
 }
 
 function viewAdminLoading(){ return '<div class="adm fade"><div class="empty" style="padding:80px 0">Loading insights…</div></div>'; }
@@ -1136,6 +1330,7 @@ function viewAdmin(resps,starts){
     '</div>';
 
   var body='';
+  body+='<div class="grouphead">'+(lang==='ko'?'매장 비교':'Store comparison')+'</div><div class="cards">'+storeRankCard()+'</div>';
   body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(resps)+trendCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
   body+='<div class="grouphead">'+(lang==='ko'?'문항 필터 교차 비교':'Filter cross-compare')+'</div><div class="cards">'+xcmpCard(resps)+'</div>';
@@ -1145,12 +1340,13 @@ function viewAdmin(resps,starts){
     g.items.forEach(function(cfg){ body+=renderChart(cfg,resps); });
     body+='</div>';
   });
+  body+='<div class="grouphead">'+(lang==='ko'?'문항 목록':'Questionnaire')+'</div><div class="cards">'+questionListCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Records")+'</div><div class="cards">'+rawTable(resps)+'</div>';
 
   var warn = Store.available()? '' : '<div class="card full" style="border-color:var(--pink)"><h3>Storage unavailable</h3><p class="n">This build expects the artifact runtime\'s storage. Wire the Store module to your backend to run elsewhere.</p></div>';
 
-  var seg='<div class="seg">'+["bars","donuts","pie","table"].map(function(m){
-    var labels={bars:"Bars",donuts:"Donuts",pie:"Pie",table:"Table"};
+  var seg='<div class="seg">'+VIEW_MODES.map(function(m){
+    var labels={bars:"Bars",pie:"Pie"};
     return '<button data-act="mode" data-val="'+m+'"'+(viewMode===m?' class="on"':'')+'>'+tr(labels[m])+'</button>';
   }).join("")+'</div>';
 
@@ -1160,7 +1356,9 @@ function viewAdmin(resps,starts){
       '<button class="tbtn out" data-act="logout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3" stroke="#9A7430" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+tr("Log out")+'</button>'+
     '</div></div>'+
     '<div class="toolbar">'+
-      '<div class="toolrow"><span class="tlabel">'+(lang==='ko'?'보기 · View':'View')+'</span>'+storeSelectHtml()+'<span class="tsep"></span>'+seg+'</div>'+
+      '<div class="toolrow"><span class="tlabel">'+(lang==='ko'?'보기 · View':'View')+'</span>'+storeSelectHtml()+'<span class="tsep"></span>'+seg+
+        '<span class="tsep"></span><button class="tbtn'+(showQText?' solid':'')+'" data-act="qtext">'+
+        (lang==='ko'?('문항 전문 '+(showQText?'ON':'OFF')):('Question text '+(showQText?'ON':'OFF')))+'</button></div>'+
       '<div class="toolrow"><span class="tlabel">'+(lang==='ko'?'기능 · Actions':'Actions')+'</span>'+
         '<button class="tbtn" data-act="refresh">'+tr("Refresh")+'</button>'+
         '<button class="tbtn" data-act="export">'+tr("Export CSV")+'</button>'+
@@ -1275,7 +1473,21 @@ app.addEventListener('click', async function(e){
   }
   else if(act==="goSurvey"){ window.location.href="br-survey-system.html"; }
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; render(); }
-  else if(act==="mode"){ viewMode=el.getAttribute('data-val'); paintAdmin(); }
+  else if(act==="mode"){ var mv=el.getAttribute('data-val'); viewMode=(VIEW_MODES.indexOf(mv)>-1)?mv:"bars"; paintAdmin(); }
+  else if(act==="qtext"){ showQText=!showQText; try{ localStorage.setItem('brk_qtext', showQText?'1':'0'); }catch(e){} paintAdmin(); }
+  else if(act==="storerow"){
+    var sr=el.getAttribute('data-store');
+    if(sr && STORES[sr]){
+      storeFilter = (storeFilter===sr)? 'all' : sr;
+      try{
+        var u2=new URL(location.href);
+        if(storeFilter==='all') u2.searchParams.delete('store'); else u2.searchParams.set('store',storeFilter);
+        history.replaceState(null,'',u2.toString());
+      }catch(_){}
+      paintAdmin();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  }
   else if(act==="ex"){ var exk=el.getAttribute('data-k'); explore[exk]=el.getAttribute('data-v'); if(exk==="cmpDim"){ explore.cmpA=""; explore.cmpB=""; } paintAdmin(); }
   else if(act==="xcadd"){ if(xcmp.flts.length<4) xcmp.flts.push({d:"",v:""}); paintAdmin(); }
   else if(act==="xcdel"){ xcmp.flts.splice(+el.getAttribute('data-i'),1); if(!xcmp.flts.length) xcmp.flts.push({d:"",v:""}); paintAdmin(); }
@@ -1362,6 +1574,7 @@ document.getElementById('navRight').addEventListener('click', function(e){
   setChrome();
   if(route==="admin"){ if(unlocked) paintAdmin(); else render(); } else { render(); }
 });
+try{ var __qt=localStorage.getItem('brk_qtext'); if(__qt==='0') showQText=false; }catch(e){}
 render();
 </script>
 </body>
