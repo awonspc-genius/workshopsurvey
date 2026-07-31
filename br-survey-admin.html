@@ -596,7 +596,21 @@ var KO = {
 "Admin access":"관리자 접근","Enter the passcode to view survey insights.":"설문 인사이트를 보려면 비밀번호를 입력하세요.","Unlock dashboard":"대시보드 열기","Back to survey":"설문으로 돌아가기",
 "No responses yet.":"아직 응답이 없습니다."
 };
+/* 보기(응답 선택지)·범례 등 값(value) 번역 보강 */
+KO["Very difficult"]="매우 불편했다";
+KO["Somewhat difficult"]="조금 불편했다";
+KO["Neutral"]="보통이다";
+KO["Somewhat easy"]="조금 편했다";
+KO["Very easy"]="매우 편했다";
+KO["Other"]="기타";
+KO["Time"]="시간";
+KO["Nationality"]="국적";
+KO["Stay"]="체류";
+KO["Total"]="전체";
+
 function tr(s){ if(lang==='ko' && KO[s]!==undefined) return KO[s]; return s; }
+/* 값 전용 번역 — 숫자/빈값은 그대로 통과 */
+function trv(v){ if(v===undefined||v===null) return ""; return tr(String(v)); }
 
 /* ============ 문항 전문(question wording) 표시 유틸 ============ */
 var showQText = true;   /* 결과 화면에 실제 설문 문구를 함께 노출 */
@@ -737,7 +751,7 @@ function vbars(rows){
   var max=Math.max(1, Math.max.apply(null, rows.map(function(r){return r.count;})));
   return '<div class="vbars">'+rows.map(function(r){
     var h=Math.round(r.count/max*100);
-    return '<div class="vbar"><div class="vc">'+r.count+'</div><div class="col" style="height:'+h+'%"></div><div class="vl">'+esc(r.label)+'</div></div>';
+    return '<div class="vbar"><div class="vc">'+r.count+'</div><div class="col" style="height:'+h+'%"></div><div class="vl">'+esc(trv(r.label))+'</div></div>';
   }).join("")+'</div>';
 }
 function hbars(rows,opts){
@@ -751,7 +765,7 @@ function hbars(rows,opts){
     var w=Math.round(r.count/max*100);
     var p=total>0?Math.round(r.count/ (opts.pctOf||total) *100):0;
     var color=opts.color||'var(--pink)';
-    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(r.label)+'</span><span class="val">'+r.count+(opts.showPct?'  ·  '+p+'%':'')+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
+    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(trv(r.label))+'</span><span class="val">'+r.count+(opts.showPct?'  ·  '+p+'%':'')+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
   }).join("")+'</div>';
 }
 function card(title,note,inner,full,qid){ return '<div class="card'+(full?' full':'')+'"><h3>'+tr(title)+'</h3>'+(note?'<p class="n">'+note+'</p>':'')+(qid?qBlock(qid):'')+inner+'</div>'; }
@@ -768,8 +782,9 @@ function npsCard(resps){
     (dP?'<span style="width:'+dP+'%;background:var(--blue)">'+dP+'%</span>':'')+
     (paP?'<span style="width:'+paP+'%;background:var(--choco)">'+paP+'%</span>':'')+
     (prP?'<span style="width:'+prP+'%;background:var(--pink)">'+prP+'%</span>':'')+'</div>';
-  var leg='<div class="leg"><span><i style="background:var(--blue)"></i>Detractors (0–6) · '+det+'</span><span><i style="background:var(--choco)"></i>Passives (7–8) · '+pas+'</span><span><i style="background:var(--pink)"></i>Promoters (9–10) · '+pro+'</span></div>';
-  var inner='<div class="npswrap"><div><div class="npsbig" style="color:'+color+'">'+(nps>0?'+':'')+nps+'</div><div class="n" style="margin:4px 0 0">avg '+avg+' / 10</div></div><div class="npsstack">'+stack+leg+'</div></div>';
+  var npsLab = (lang==='ko')? {d:'비추천 (0–6)',p:'중립 (7–8)',r:'추천 (9–10)'} : {d:'Detractors (0–6)',p:'Passives (7–8)',r:'Promoters (9–10)'};
+  var leg='<div class="leg"><span><i style="background:var(--blue)"></i>'+npsLab.d+' · '+det+'</span><span><i style="background:var(--choco)"></i>'+npsLab.p+' · '+pas+'</span><span><i style="background:var(--pink)"></i>'+npsLab.r+' · '+pro+'</span></div>';
+  var inner='<div class="npswrap"><div><div class="npsbig" style="color:'+color+'">'+(nps>0?'+':'')+nps+'</div><div class="n" style="margin:4px 0 0">'+(lang==='ko'?('평균 '+avg+' / 10점'):('avg '+avg+' / 10'))+'</div></div><div class="npsstack">'+stack+leg+'</div></div>';
   return card("Net Promoter Score",(lang==='ko'?('추천 의향 (Q10) · 응답 '+n+'건'):("Likelihood to recommend (Q10) · n="+n)),inner,true,"Q10");
 }
 
@@ -825,7 +840,7 @@ function cellVal(a,x,s){
   return c;
 }
 function fmtVal(v){ if(v==null)return "–"; if(explore.measure==="share")return Math.round(v)+"%"; if(explore.measure==="avgnps")return v.toFixed(1); return ""+v; }
-function legend(a,on){ if(!on)return ""; return '<div class="leg" style="margin-top:14px">'+a.sCats.map(function(s,i){return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(s)+'</span>';}).join("")+'</div>'; }
+function legend(a,on){ if(!on)return ""; return '<div class="leg" style="margin-top:14px">'+a.sCats.map(function(s,i){return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(trv(s))+'</span>';}).join("")+'</div>'; }
 
 function exBars(a){
   if(explore.split!=="none"&&explore.measure==="avgnps") return exGrouped(a);
@@ -833,7 +848,7 @@ function exBars(a){
     var max=0; a.xCats.forEach(function(x){ var v=cellVal(a,x,"All"); if(v!=null&&v>max)max=v; }); max=max||1;
     return '<div class="hbar">'+a.xCats.map(function(x){
       var v=cellVal(a,x,"All"), w=v==null?0:Math.round(v/max*100);
-      return '<div class="hrow"><div class="hl"><span class="lab">'+esc(x)+'</span><span class="val">'+fmtVal(v)+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%"></div></div></div>';
+      return '<div class="hrow"><div class="hl"><span class="lab">'+esc(trv(x))+'</span><span class="val">'+fmtVal(v)+'</span></div><div class="htrack"><div class="hfill" style="width:'+w+'%"></div></div></div>';
     }).join("")+'</div>';
   }
   var maxRow=0; a.xCats.forEach(function(x){ var t=a.sCats.reduce(function(s,sc){return s+a.cnt[x][sc];},0); if(t>maxRow)maxRow=t; }); maxRow=maxRow||1;
@@ -842,17 +857,17 @@ function exBars(a){
     var rowTot=a.sCats.reduce(function(s,sc){return s+a.cnt[x][sc];},0);
     var segs=a.sCats.map(function(s,i){
       var c=a.cnt[x][s]; var w=share?(rowTot?c/rowTot*100:0):(c/maxRow*100);
-      return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(s)+': '+c+'"></span>';
+      return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(trv(s))+': '+c+'"></span>';
     }).join("");
-    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(x)+'</span><span class="val">'+(share?"100%":rowTot)+'</span></div><div class="stackbar">'+segs+'</div></div>';
+    return '<div class="hrow"><div class="hl"><span class="lab">'+esc(trv(x))+'</span><span class="val">'+(share?"100%":rowTot)+'</span></div><div class="stackbar">'+segs+'</div></div>';
   }).join("");
   return '<div class="hbar">'+rows+'</div>'+legend(a,true);
 }
 function exGrouped(a){
   var max=0; a.xCats.forEach(function(x){ a.sCats.forEach(function(s){ var v=cellVal(a,x,s); if(v!=null&&v>max)max=v; }); }); max=max||1;
   var groups=a.xCats.map(function(x){
-    var bars=a.sCats.map(function(s,i){ var v=cellVal(a,x,s),h=v==null?0:Math.round(v/max*100); return '<div class="gb" title="'+esc(s)+': '+fmtVal(v)+'" style="height:'+h+'%;background:'+PAL[i%PAL.length]+'"></div>'; }).join("");
-    return '<div class="ggroup"><div class="gbars">'+bars+'</div><div class="glab">'+esc(x)+'</div></div>';
+    var bars=a.sCats.map(function(s,i){ var v=cellVal(a,x,s),h=v==null?0:Math.round(v/max*100); return '<div class="gb" title="'+esc(trv(s))+': '+fmtVal(v)+'" style="height:'+h+'%;background:'+PAL[i%PAL.length]+'"></div>'; }).join("");
+    return '<div class="ggroup"><div class="gbars">'+bars+'</div><div class="glab">'+esc(trv(x))+'</div></div>';
   }).join("");
   return '<div class="grouped">'+groups+'</div>'+legend(a,true);
 }
@@ -860,9 +875,9 @@ function exHeat(a){
   var max=0; a.xCats.forEach(function(x){ a.sCats.forEach(function(s){ var v=cellVal(a,x,s); if(v!=null&&v>max)max=v; }); }); max=max||1;
   var cols="120px "+a.sCats.map(function(){return "minmax(54px,1fr)";}).join(" ");
   var html='<div style="overflow-x:auto"><div class="heat" style="grid-template-columns:'+cols+'">';
-  html+='<div class="hcell head"></div>'+a.sCats.map(function(s){return '<div class="hcell head">'+esc(s)+'</div>';}).join("");
+  html+='<div class="hcell head"></div>'+a.sCats.map(function(s){return '<div class="hcell head">'+esc(trv(s))+'</div>';}).join("");
   a.xCats.forEach(function(x){
-    html+='<div class="hcell rowlab">'+esc(x)+'</div>';
+    html+='<div class="hcell rowlab">'+esc(trv(x))+'</div>';
     a.sCats.forEach(function(s){ var v=cellVal(a,x,s),al=v==null?0:Math.max(.06,v/max),txt=al>0.5?"#fff":"var(--choco)";
       html+='<div class="hcell val" style="background:rgba(43,76,196,'+al.toFixed(3)+');color:'+txt+'">'+fmtVal(v)+'</div>'; });
   });
@@ -871,7 +886,7 @@ function exHeat(a){
 function exTable(a){
   var split=explore.split!=="none";
   var showTot=!split && explore.measure==="count";
-  var head='<tr><th>'+esc(explore.x+". "+tr(DIMS[explore.x].label))+'</th>'+(split?'<th class="num">'+(lang==='ko'?'전체':'Total')+'</th>':'')+a.sCats.map(function(s){return '<th class="num">'+esc(tr(s))+'</th>';}).join("")+(showTot?'<th class="num">Total</th>':'')+'</tr>';
+  var head='<tr><th>'+esc(explore.x+". "+tr(DIMS[explore.x].label))+'</th>'+(split?'<th class="num">'+(lang==='ko'?'전체':'Total')+'</th>':'')+a.sCats.map(function(s){return '<th class="num">'+esc(tr(s))+'</th>';}).join("")+(showTot?'<th class="num">'+(lang==='ko'?'전체':'Total')+'</th>':'')+'</tr>';
   var rows=a.xCats.map(function(x){
     var rowTotal=a.sCats.reduce(function(t,s){return t+a.cnt[x][s];},0);
     var totCell=split?'<td class="num" style="font-weight:700">'+rowTotal+'</td>':"";
@@ -887,7 +902,7 @@ function exPie(a){
 }
 function trendCard(resps){
   var dated=resps.filter(function(r){return r._submittedAt;});
-  if(dated.length<2) return card("Responses over time","Daily completed surveys",'<div class="empty">Not enough dated responses yet to plot a trend.</div>',true);
+  if(dated.length<2) return card("Responses over time",(lang==='ko'?'일자별 설문 완료 건수':"Daily completed surveys"),'<div class="empty">Not enough dated responses yet to plot a trend.</div>',true);
   var byDay={};
   dated.forEach(function(r){ var d=new Date(r._submittedAt); var k=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); byDay[k]=(byDay[k]||0)+1; });
   var keys=Object.keys(byDay).sort(); if(keys.length>14) keys=keys.slice(keys.length-14);
@@ -901,7 +916,7 @@ function trendCard(resps){
   var dots=vals.map(function(v,i){return '<circle cx="'+xAt(i).toFixed(1)+'" cy="'+yAt(v).toFixed(1)+'" r="3.6" fill="#2B4CC4" stroke="#fff" stroke-width="1.5"/>';}).join('');
   var labs=keys.map(function(k,i){ if(n>8 && i%2) return ''; return '<text x="'+xAt(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="#917163">'+esc(k.slice(5))+'</text>'; }).join('');
   var svg='<div class="trend"><svg viewBox="0 0 '+W+' '+H+'"><path d="'+area+'" fill="rgba(43,76,196,0.12)"/><path d="'+line+'" fill="none" stroke="#2B4CC4" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>'+dots+labs+'</svg></div>';
-  return card("Responses over time","Daily completed surveys · last "+n+" active days",svg,true);
+  return card("Responses over time",(lang==='ko'?('일자별 설문 완료 건수 · 최근 '+n+'일'):("Daily completed surveys · last "+n+" active days")),svg,true);
 }
 function exploreResult(resps){
   var a=aggregate(resps);
@@ -943,7 +958,9 @@ function viewExplore(resps){
     '<div class="ctrlrow"><span class="ctrl-label">'+(lang==='ko'?'좌우 비교':'Compare')+'</span>'+bg("cmpDim",explore.cmpDim,[{v:"none",label:tr("None")}].concat(Object.keys(DIMS).map(function(k){return {v:k,label:k+". "+tr(DIMS[k].label)};})))+'</div>'+
     cmpBlock(resps)+
     '<div class="exresult">'+exploreResult(resps)+'</div>';
-  return card("Explore & cross-tab","Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses",inner,true);
+  return card("Explore & cross-tab",(lang==='ko'
+    ? ('문항을 골라 필터·보기·좌우 비교를 자유롭게 조합해 보세요 · 전체 '+resps.length+'건 중 '+resps.filter(passFilters).length+'건')
+    : ("Mix any two dimensions, filter to a segment, switch the view · "+resps.filter(passFilters).length+" of "+resps.length+" responses")),inner,true);
 }
 
 /* ---------- 문항 기반 필터 교차 비교 ---------- */
@@ -1051,16 +1068,27 @@ function topCat(resps,dim){
   return best?{ label:best, count:bc, pct:Math.round(bc/(resps.length||1)*100) }:null;
 }
 function pctWhere(resps,dim,val){ if(!resps.length)return 0; var n=resps.filter(function(r){return valForDim(r,dim).indexOf(val)>-1;}).length; return Math.round(n/resps.length*100); }
-function stayPhrase(label){ if(/Traveling/.test(label))return "mostly travelers"; if(/1 year or longer/.test(label))return "many longer-term residents"; if(/less than 1 year/.test(label))return "many recent arrivals"; return label; }
-function hiSpan(x){ return '<span class="hi">'+esc(x)+'</span>'; }
+function stayPhrase(label){
+  if(lang==='ko'){
+    if(/Traveling/.test(label))return "대부분 여행 중인 방문객입니다";
+    if(/1 year or longer/.test(label))return "장기 거주자 비중이 높습니다";
+    if(/less than 1 year/.test(label))return "최근 입국한 거주자가 많습니다";
+    return trv(label)+" 비중이 가장 높습니다";
+  }
+  if(/Traveling/.test(label))return "mostly travelers";
+  if(/1 year or longer/.test(label))return "many longer-term residents";
+  if(/less than 1 year/.test(label))return "many recent arrivals";
+  return label;
+}
+function hiSpan(x){ return '<span class="hi">'+esc(trv(x))+'</span>'; }
 function miniDist(resps,dim,topn){
   var cats=dimCats(resps,dim), counts={};
   resps.forEach(function(r){ valForDim(r,dim).forEach(function(c){ counts[c]=(counts[c]||0)+1; }); });
   var tot=cats.reduce(function(s,c){return s+(counts[c]||0);},0)||1;
   if(topn) cats=cats.slice(0,topn);
-  var bar='<div class="stackbar" style="height:13px">'+cats.map(function(c,i){ var w=(counts[c]||0)/tot*100; return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(c)+'"></span>'; }).join("")+'</div>';
-  var leg='<div class="minileg">'+cats.map(function(c,i){ return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(c)+' '+Math.round((counts[c]||0)/tot*100)+'%</span>'; }).join("")+'</div>';
-  return '<div class="mini"><div class="mini-t">'+esc(DIMS[dim]?DIMS[dim].label:dim)+'</div>'+bar+leg+'</div>';
+  var bar='<div class="stackbar" style="height:13px">'+cats.map(function(c,i){ var w=(counts[c]||0)/tot*100; return w<=0?"":'<span style="width:'+w+'%;background:'+PAL[i%PAL.length]+'" title="'+esc(trv(c))+'"></span>'; }).join("")+'</div>';
+  var leg='<div class="minileg">'+cats.map(function(c,i){ return '<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(trv(c))+' '+Math.round((counts[c]||0)/tot*100)+'%</span>'; }).join("")+'</div>';
+  return '<div class="mini"><div class="mini-t">'+esc(DIMS[dim]?tr(DIMS[dim].label):dim)+'</div>'+bar+leg+'</div>';
 }
 function viewOverview(resps){
   if(!resps.length) return card("Overview","A snapshot of all accumulated responses",'<div class="empty">No responses yet. Submit the survey or seed demo data to see the overall picture.</div>',true);
@@ -1070,11 +1098,24 @@ function viewOverview(resps){
   var travelers=pctWhere(resps,"Q1","Traveling in Korea");
   var smoothKiosk=pctWhere(resps,"Q5","I had no difficulties using the kiosk");
 
-  var sentence='Most respondents are visiting from '+hiSpan(na?na.label:"—")+(st?' \u2014 '+esc(stayPhrase(st.label)):"")+'. '+
-    'They tend to discover the store through '+hiSpan(chan?chan.label:"—")+
-    (buy?' and most often leave with '+hiSpan(buy.label.toLowerCase()):"")+'.';
+  var sentence;
+  if(lang==='ko'){
+    sentence='응답자 중에서는 '+hiSpan(na?na.label:"—")+' 방문객이 가장 많고'+(st?', '+esc(stayPhrase(st.label)):"")+'. '+
+      '매장을 알게 된 경로는 '+hiSpan(chan?chan.label:"—")+' 비중이 가장 높았고'+
+      (buy?', 가장 많이 구매한 제품은 '+hiSpan(buy.label)+'입니다.':'.');
+  } else {
+    sentence='Most respondents are visiting from '+hiSpan(na?na.label:"—")+(st?' \u2014 '+esc(stayPhrase(st.label)):"")+'. '+
+      'They tend to discover the store through '+hiSpan(chan?chan.label:"—")+
+      (buy?' and most often leave with '+hiSpan(buy.label.toLowerCase()):"")+'.';
+  }
 
-  var tiles=[
+  var tiles = (lang==='ko')? [
+    {v:travelers+"%", l:"여행객 비율"},
+    {v:na?trv(na.label):"—", l:"최다 국적"+(na?" ("+na.pct+"%)":"")},
+    {v:chan?trv(chan.label):"—", l:"주요 인지 경로"},
+    {v:smoothKiosk+"%", l:"키오스크 불편 없음"},
+    {v:promoters+"%", l:"추천 고객 (NPS 9–10)"}
+  ] : [
     {v:travelers+"%", l:"are tourists"},
     {v:na?na.label:"—", l:"top nationality"+(na?" ("+na.pct+"%)":"")},
     {v:chan?chan.label:"—", l:"top discovery channel"},
@@ -1084,7 +1125,7 @@ function viewOverview(resps){
   var tilesHTML='<div class="hl-tiles">'+tiles.map(function(t){ return '<div class="hl-tile"><div class="hl-v">'+esc(t.v)+'</div><div class="hl-l">'+esc(t.l)+'</div></div>'; }).join("")+'</div>';
   var minis='<div class="minirow">'+miniDist(resps,"Q1")+miniDist(resps,"Q3")+miniDist(resps,"Q4")+miniDist(resps,"Q2",5)+'</div>';
 
-  return card("Overview \u00b7 who\u2019s responding","A plain-language read of all "+resps.length+" responses",'<p class="profile">'+sentence+'</p>'+tilesHTML+minis,true);
+  return card("Overview \u00b7 who\u2019s responding",(lang==='ko'?('전체 응답 '+resps.length+'건 요약'):("A plain-language read of all "+resps.length+" responses")),'<p class="profile">'+sentence+'</p>'+tilesHTML+minis,true);
 }
 
 var GROUPS=[
@@ -1134,7 +1175,7 @@ function pieOrDonut(rows, solid){
     '<text x="64" y="79" text-anchor="middle" font-family="Hanken Grotesk,sans-serif" font-size="11" fill="#6E769B">total</text>';
   var svg='<svg width="128" height="128" viewBox="0 0 128 128">'+segs+center+'</svg>';
   var leg='<div class="dlegend">'+rows.map(function(r,i){
-    return '<div class="row"><i style="background:'+PAL[i%PAL.length]+'"></i><span class="lab">'+esc(r.label)+'</span><span class="val">'+Math.round(r.count/total*100)+'%</span></div>';
+    return '<div class="row"><i style="background:'+PAL[i%PAL.length]+'"></i><span class="lab">'+esc(trv(r.label))+'</span><span class="val">'+Math.round(r.count/total*100)+'%</span></div>';
   }).join("")+'</div>';
   return '<div class="donut">'+svg+leg+'</div>';
 }
@@ -1144,7 +1185,7 @@ function freqTable(rows,cfg){
   rows=prep(rows,cfg); var total=rows.reduce(function(s,r){return s+r.count;},0);
   if(!total) return '<div class="empty">No responses yet.</div>';
   return '<table class="ftable"><thead><tr><th>Answer</th><th class="num">Count</th><th class="num">%</th></tr></thead><tbody>'+
-    rows.map(function(r){ return '<tr><td>'+esc(r.label)+'</td><td class="num">'+r.count+'</td><td class="num">'+Math.round(r.count/total*100)+'%</td></tr>'; }).join("")+
+    rows.map(function(r){ return '<tr><td>'+esc(trv(r.label))+'</td><td class="num">'+r.count+'</td><td class="num">'+Math.round(r.count/total*100)+'%</td></tr>'; }).join("")+
     '</tbody></table>';
 }
 function rawTable(resps){
@@ -1153,11 +1194,11 @@ function rawTable(resps){
   var body=rows.map(function(r,idx){
     var d=r._submittedAt?new Date(r._submittedAt):null;
     var dt=d?((d.getMonth()+1)+"/"+d.getDate()+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)):"—";
-    var nat=r.Q2==="__other"?"Other":(r.Q2||"—");
-    return '<tr><td>'+(resps.length-idx)+'</td><td>'+dt+'</td><td>'+esc(nat)+'</td><td>'+esc(r.Q1||"—")+'</td><td class="num">'+(typeof r.Q10==="number"?r.Q10:"—")+'</td></tr>';
+    var nat=r.Q2==="__other"?tr("Other"):(r.Q2?trv(r.Q2):"—");
+    return '<tr><td>'+(resps.length-idx)+'</td><td>'+dt+'</td><td>'+esc(nat)+'</td><td>'+esc(r.Q1?trv(r.Q1):"—")+'</td><td class="num">'+(typeof r.Q10==="number"?r.Q10:"—")+'</td></tr>';
   }).join("");
-  var tbl='<div class="rawscroll"><table class="ftable"><thead><tr><th>#</th><th>Time</th><th>Nationality</th><th>Stay</th><th class="num">NPS</th></tr></thead><tbody>'+body+'</tbody></table></div>';
-  return card("Raw responses","Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV",tbl,true);
+  var tbl='<div class="rawscroll"><table class="ftable"><thead><tr><th>#</th><th>'+tr("Time")+'</th><th>'+tr("Nationality")+'</th><th>'+tr("Stay")+'</th><th class="num">NPS</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  return card("Raw responses",(lang==='ko'?('최근 '+rows.length+'건 / 전체 '+resps.length+'건 · 상세는 CSV 내보내기'):("Latest "+rows.length+" of "+resps.length+" · full detail via Export CSV")),tbl,true);
 }
 
 /* ---------- 매장별 응답 순위 (전체 매장 기준) ---------- */
@@ -1332,7 +1373,6 @@ function viewAdmin(resps,starts){
   var body='';
   body+='<div class="grouphead">'+(lang==='ko'?'매장 비교':'Store comparison')+'</div><div class="cards">'+storeRankCard()+'</div>';
   body+='<div class="grouphead">'+tr("Overview")+'</div><div class="cards">'+viewOverview(resps)+trendCard(resps)+'</div>';
-  body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
   body+='<div class="grouphead">'+(lang==='ko'?'문항 필터 교차 비교':'Filter cross-compare')+'</div><div class="cards">'+xcmpCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Advocacy")+'</div><div class="cards">'+npsCard(resps)+'</div>';
   GROUPS.forEach(function(g){
@@ -1342,6 +1382,8 @@ function viewAdmin(resps,starts){
   });
   body+='<div class="grouphead">'+(lang==='ko'?'문항 목록':'Questionnaire')+'</div><div class="cards">'+questionListCard(resps)+'</div>';
   body+='<div class="grouphead">'+tr("Records")+'</div><div class="cards">'+rawTable(resps)+'</div>';
+  /* 탐색 & 교차분석 — 맨 아래 배치 */
+  body+='<div class="grouphead">'+tr("Explore")+'</div><div class="cards">'+viewExplore(resps)+'</div>';
 
   var warn = Store.available()? '' : '<div class="card full" style="border-color:var(--pink)"><h3>Storage unavailable</h3><p class="n">This build expects the artifact runtime\'s storage. Wire the Store module to your backend to run elsewhere.</p></div>';
 
