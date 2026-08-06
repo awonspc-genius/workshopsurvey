@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>설문 조사 · BRK Genius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#232A4A; --mute:#6E769B; --faint:#9AA2BE;
+    --blue:#2B4CC4; --blue-deep:#1E3795; --blue-soft:#E5E9F9;
+    --live:#EE5B36; --gold:#C9A227;
+    --page:#EEF1F7; --line:#E0E4EE; --paper:#FFFFFF;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{
+    font-family:'Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;
+    color:var(--ink); background:var(--page);
+    background-image:linear-gradient(rgba(35,42,74,.035) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(35,42,74,.035) 1px, transparent 1px);
+    background-size:74px 74px;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  .top{display:flex; align-items:center; justify-content:space-between;
+       padding:18px clamp(16px,4vw,40px); position:sticky; top:0; z-index:20;
+       background:rgba(238,241,247,.86); backdrop-filter:blur(9px);}
+  .id{display:flex; align-items:center; gap:11px;}
+  .id .nm{font-family:'Fredoka',sans-serif; font-weight:600; font-size:18px; line-height:1;
+          display:flex; flex-direction:column;}
+  .id .nm small{font-family:'Noto Sans KR',sans-serif; font-weight:500; font-size:10.5px;
+          letter-spacing:.03em; color:var(--mute); margin-top:5px;}
+  .topr{display:flex; align-items:center; gap:9px;}
+  .btn-q{font-size:12.5px; font-weight:700; color:var(--mute); text-decoration:none;
+         background:var(--paper); border:1.5px solid var(--line); border-radius:11px;
+         padding:9px 14px; transition:all .16s ease; white-space:nowrap;}
+  .btn-q:hover{border-color:var(--blue); color:var(--blue);}
+  .lang{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; letter-spacing:.13em;
+        color:var(--mute); background:var(--paper); border:1.5px solid var(--line);
+        border-radius:11px; padding:9px 15px; cursor:pointer; transition:all .16s ease;}
+  .lang:hover{border-color:var(--blue); color:var(--blue);}
+
+  main{flex:1; width:100%; max-width:1180px; margin:0 auto;
+       padding:clamp(30px,5vw,64px) clamp(16px,4vw,40px) 20px;}
+
+  .eyebrow{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .eyebrow i{width:44px; height:3px; background:var(--live); border-radius:3px; flex:none;}
+  .eyebrow span{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12.5px;
+                letter-spacing:.17em; color:var(--blue); text-transform:uppercase;}
+  h1{font-size:clamp(46px,8vw,86px); font-weight:900; letter-spacing:-.045em; line-height:.95;}
+  .tagline{font-size:clamp(15px,1.7vw,18px); color:var(--mute); margin-top:20px;}
+
+  .prog{margin-top:38px; max-width:760px;}
+  .track{height:9px; border-radius:9px; background:#DFE3ED; overflow:hidden;}
+  .fill{height:100%; border-radius:9px; background:var(--live); width:70%;}
+  .pmeta{display:flex; justify-content:space-between; align-items:center; margin-top:14px;
+         flex-wrap:wrap; gap:12px; font-size:14px;}
+  .pmeta .grp{display:flex; gap:22px;}
+  .pmeta b{font-weight:700; margin-left:6px;}
+  .pdot{display:inline-flex; align-items:center; gap:8px; color:var(--mute);}
+  .pdot i{width:9px; height:9px; border-radius:50%; background:var(--live);}
+  .pdot.done i{background:var(--faint);}
+
+  .shead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+         margin:clamp(46px,6vw,74px) 0 0; flex-wrap:wrap;}
+  .shead .lhs{display:flex; gap:15px; align-items:flex-start;}
+  .shead .bul{width:13px; height:13px; border-radius:50%; background:var(--live); margin-top:8px; flex:none;}
+  .shead.arch .bul{background:var(--faint);}
+  .shead h2{font-size:clamp(22px,2.6vw,27px); font-weight:700; letter-spacing:-.02em;}
+  .shead p{font-size:13.5px; color:var(--mute); margin-top:5px;}
+  .pill{font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:11px;
+        background:var(--blue); color:#fff;}
+  .pill.grey{background:#E3E7F0; color:var(--mute);}
+  .rule{height:2px; background:var(--live); border-radius:2px; margin:16px 0 26px;}
+  .rule.grey{background:var(--line); height:1px;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:22px;}
+  .card{background:var(--paper); border-radius:20px; overflow:hidden; display:flex; flex-direction:column;
+        box-shadow:0 12px 30px -22px rgba(35,42,74,.6); transition:transform .2s ease, box-shadow .2s ease;}
+  .card:hover{transform:translateY(-3px); box-shadow:0 22px 44px -24px rgba(35,42,74,.55);}
+  .banner{position:relative; aspect-ratio:16/9; padding:18px; display:flex; flex-direction:column;
+          justify-content:space-between; color:#fff;}
+  .banner .top31{width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.94);
+          display:grid; place-items:center; font-family:'Fredoka',sans-serif; font-weight:700;
+          font-size:14px; color:var(--blue);}
+  .banner .bname{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(26px,3vw,33px); line-height:1;}
+  .banner .bsub{font-size:12.5px; font-weight:500; color:rgba(255,255,255,.82); margin-top:7px;}
+  .banner .tag{position:absolute; top:16px; right:16px; font-size:11px; font-weight:700;
+          padding:6px 11px; border-radius:9px; background:rgba(255,255,255,.94); color:var(--ink);
+          display:inline-flex; align-items:center; gap:6px;}
+  .banner .tag i{width:7px; height:7px; border-radius:50%; background:var(--live);}
+  .banner .motif{position:absolute; right:20px; bottom:16px; opacity:.9;}
+  .body{padding:22px; display:flex; flex-direction:column; flex:1;}
+  .body h3{font-size:17px; font-weight:700; letter-spacing:-.01em;}
+  .body .d{font-size:13.5px; line-height:1.6; color:var(--mute); margin-top:9px; flex:1;}
+  .body .m{font-size:12px; color:var(--faint); margin-top:16px;}
+  .acts{display:flex; gap:9px; margin-top:16px; flex-wrap:wrap;}
+  .a1{font-size:13.5px; font-weight:700; text-decoration:none; padding:12px 17px; border-radius:12px;
+      background:var(--blue); color:#fff; display:inline-flex; align-items:center; gap:8px;
+      transition:background .16s ease;}
+  .a1:hover{background:var(--blue-deep);}
+  .a2{font-size:13.5px; font-weight:700; text-decoration:none; padding:12px 17px; border-radius:12px;
+      background:var(--blue-soft); color:var(--blue-deep); transition:background .16s ease;}
+  .a2:hover{background:#D5DCF6;}
+  .a0{font-size:13.5px; font-weight:700; padding:12px 17px; border-radius:12px;
+      background:#EDEFF5; color:var(--faint); cursor:not-allowed;}
+
+  /* prep card (no banner) */
+  .card.prep{border-top:5px solid var(--faint);}
+  .card.prep .body{padding-top:24px;}
+  .prep .ph{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .prep .emoji{font-size:30px; line-height:1;}
+  .prep .st{font-size:11.5px; font-weight:700; color:var(--live); display:inline-flex;
+            align-items:center; gap:7px;}
+  .prep .st i{width:7px; height:7px; border-radius:50%; background:var(--live);}
+  .prep h3{font-size:20px;}
+
+  /* archive rows */
+  .arch-list{background:var(--paper); border-radius:20px; overflow:hidden;
+             box-shadow:0 12px 30px -22px rgba(35,42,74,.6);}
+  .row{display:flex; align-items:center; gap:16px; padding:20px 24px; text-decoration:none; color:inherit;
+       transition:background .15s ease;}
+  .row + .row{border-top:1px solid var(--line);}
+  .row:hover{background:#F7F9FC;}
+  .row .emoji{font-size:22px; flex:none;}
+  .row .tt{flex:1; min-width:0;}
+  .row .tt b{font-size:15.5px; font-weight:700;}
+  .row .tt span{font-size:12.5px; color:var(--faint); margin-left:10px;}
+  .row .n{font-size:13.5px; font-weight:700; color:var(--mute); white-space:nowrap;}
+  .row .go{font-size:13.5px; font-weight:700; color:var(--blue); white-space:nowrap;
+           display:inline-flex; align-items:center; gap:7px;}
+
+  footer{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+         max-width:1180px; margin:0 auto; width:100%;
+         padding:38px clamp(16px,4vw,40px) 30px; font-size:12px; color:var(--faint);}
+
+  @media (max-width:600px){
+    .grid{grid-template-columns:1fr;}
+    .row{flex-wrap:wrap; gap:10px;}
+    .row .tt{flex:1 0 100%;}
+    .id .nm small{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition-duration:.01ms !important;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="id">
+    <svg width="38" height="38" viewBox="0 0 72 72" aria-hidden="true">
+      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="2.5"/>
+      <circle cx="36" cy="36" r="28" fill="none" stroke="#E5E9F9" stroke-width="1.5"/>
+      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central"
+            font-family="Fredoka, sans-serif" font-weight="700" font-size="30" fill="#2B4CC4">31</text>
+      <circle cx="16" cy="20" r="2.4" fill="#2B4CC4"/><circle cx="57" cy="22" r="2.4" fill="#C9A227"/>
+      <circle cx="52" cy="54" r="2.4" fill="#2B4CC4"/>
+    </svg>
+    <span class="nm">BRK Genius<small>서베이 시스템 · 마케팅전략실</small></span>
+  </div>
+  <div class="topr">
+    <a class="btn-q" href="index.html">← BRK Genius</a>
+    <button class="lang" id="lang">EN</button>
+  </div>
+</header>
+
+<main>
+  <div class="eyebrow"><i></i><span>BRK Genius · 마케팅전략실 지니어스팀</span></div>
+  <h1>설문 조사</h1>
+  <p class="tagline">배스킨라빈스 마케팅 전략실 지니어스팀 진행 설문 사이트</p>
+
+  <div class="prog">
+    <div class="track"><div class="fill"></div></div>
+    <div class="pmeta">
+      <div class="grp">
+        <span class="pdot"><i></i>진행 중<b>7</b></span>
+        <span class="pdot done"><i></i>완료<b>3</b></span>
+      </div>
+      <span class="pdot" style="color:var(--mute)">전체<b style="color:var(--ink)">10</b></span>
+    </div>
+  </div>
+
+  <!-- ================= 진행 중 ================= -->
+  <div class="shead">
+    <div class="lhs"><span class="bul"></span>
+      <div><h2>진행 중 설문</h2><p>지금 응답을 받고 있어요</p></div>
+    </div>
+    <span class="pill">7개 진행</span>
+  </div>
+  <div class="rule"></div>
+
+  <div class="grid" id="live"></div>
+
+  <!-- ================= 완료 ================= -->
+  <div class="shead arch">
+    <div class="lhs"><span class="bul"></span>
+      <div><h2>완료된 설문</h2><p>종료 · 보관된 결과</p></div>
+    </div>
+    <span class="pill grey">3개 보관</span>
+  </div>
+  <div class="rule grey"></div>
+
+  <div class="arch-list" id="arch"></div>
+</main>
+
+<footer>
+  <span>© Baskin-Robbins Korea · 마케팅전략실</span>
+  <span id="today"></span>
+</footer>
+
+<script>
+/* =====================================================================
+   매장 설문 목록
+   ※ url 은 매장에 배포된 QR 주소입니다 — 절대 수정하지 마세요.
+   ===================================================================== */
+var STORES = [
+  { slug:"workshop",    en:"Workshop",      ko:"워크샵",
+    c1:"#3A5BD9", c2:"#1E3795", tag:"플래그십", motif:"cone",
+    title:"Workshop 매장 — 외국인 방문객 설문",
+    desc:"Workshop 플래그십 외국인 방문객 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 영문 · 약 3분 · 진행 중" },
+  { slug:"parnas",      en:"Parnas Mall",   ko:"파르나스몰점",
+    c1:"#3C8DAE", c2:"#184E6B", tag:"진행 중", motif:"bars",
+    title:"파르나스몰점 — 방문객 설문",
+    desc:"파르나스몰점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 국문 · 영문 · 약 3분 · 진행 중" },
+  { slug:"gangnam",     en:"Gangnam-daero", ko:"강남대로점",
+    c1:"#D94F9C", c2:"#7A2A66", tag:"진행 중", motif:"cup",
+    title:"강남대로점 — 방문객 설문",
+    desc:"강남대로점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 국문 · 영문 · 약 3분 · 진행 중" },
+  { slug:"cheongdam",   en:"Cheongdam",     ko:"청담점",
+    c1:"#4A68DE", c2:"#1E2A6B", tag:"진행 중", motif:"scoop",
+    title:"청담점 — 방문객 설문",
+    desc:"청담점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 국문 · 영문 · 약 3분 · 진행 중" },
+  { slug:"gwanghwamun", en:"Gwanghwamun",   ko:"광화문점",
+    c1:"#C09343", c2:"#6E5313", tag:"진행 중", motif:"cake",
+    title:"광화문점 — 방문객 설문",
+    desc:"광화문점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 국문 · 영문 · 약 3분 · 진행 중" },
+  { slug:"sicheong",    en:"City Hall",     ko:"시청점",
+    c1:"#2AAFAF", c2:"#12666A", tag:"진행 중", motif:"popsicle",
+    title:"시청점 — 방문객 설문",
+    desc:"시청점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점.",
+    meta:"2026.06.16 – 진행 중 · 국문 · 영문 · 약 3분 · 진행 중" }
+];
+
+function motif(kind){
+  var w='opacity=".85"';
+  switch(kind){
+    case "cone": return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><path d="M35 56 L50 92 L65 56 Z" fill="#C9A227" stroke="#fff" stroke-width="3"/><circle cx="39" cy="47" r="15" fill="rgba(255,255,255,.35)" stroke="#fff" stroke-width="3"/><circle cx="61" cy="47" r="15" fill="rgba(255,255,255,.35)" stroke="#fff" stroke-width="3"/><circle cx="50" cy="31" r="16" fill="rgba(255,255,255,.5)" stroke="#fff" stroke-width="3"/></svg>';
+    case "bars": return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><rect x="16" y="52" width="19" height="38" rx="3" fill="rgba(255,255,255,.28)" stroke="#fff" stroke-width="2.6"/><rect x="41" y="24" width="19" height="66" rx="3" fill="rgba(255,255,255,.42)" stroke="#fff" stroke-width="2.6"/><rect x="66" y="42" width="19" height="48" rx="3" fill="rgba(255,255,255,.28)" stroke="#fff" stroke-width="2.6"/></svg>';
+    case "cup": return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><path d="M28 44 L34 86 a4 4 0 0 0 4 4 h24 a4 4 0 0 0 4-4 L72 44 Z" fill="rgba(255,255,255,.3)" stroke="#fff" stroke-width="3"/><path d="M25 44 q25 -19 50 0" fill="rgba(255,255,255,.5)" stroke="#fff" stroke-width="3"/></svg>';
+    case "scoop": return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><circle cx="50" cy="38" r="24" fill="rgba(255,255,255,.4)" stroke="#fff" stroke-width="3"/><path d="M30 62 h40 l-6 26 a4 4 0 0 1 -4 3 h-20 a4 4 0 0 1 -4 -3 Z" fill="rgba(255,255,255,.25)" stroke="#fff" stroke-width="3"/></svg>';
+    case "cake": return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><path d="M20 84 L70 84 L70 40 Z" fill="rgba(255,255,255,.32)" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M20 84 L70 84 L70 70 L20 70 Z" fill="rgba(255,255,255,.5)" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><circle cx="68" cy="36" r="6" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="2.6"/></svg>';
+    default: return '<svg width="86" height="86" viewBox="0 0 100 100" fill="none" '+w+'><rect x="32" y="14" width="36" height="52" rx="18" fill="rgba(255,255,255,.35)" stroke="#fff" stroke-width="3"/><rect x="45" y="64" width="10" height="26" rx="5" fill="rgba(255,255,255,.5)" stroke="#fff" stroke-width="2.6"/></svg>';
+  }
+}
+
+document.getElementById('live').innerHTML = STORES.map(function(s){
+  var live = s.tag !== "플래그십";
+  return '<article class="card">'
+    + '<div class="banner" style="background:linear-gradient(150deg,'+s.c1+' 0%,'+s.c2+' 100%)">'
+      + '<div class="top31">31</div>'
+      + '<span class="tag">'+(live?'<i></i>':'')+s.tag+'</span>'
+      + '<div class="motif">'+motif(s.motif)+'</div>'
+      + '<div><div class="bname">'+s.en+'</div><div class="bsub">'+s.ko+' · Baskin-Robbins</div></div>'
+    + '</div>'
+    + '<div class="body">'
+      + '<h3>'+s.title+'</h3>'
+      + '<p class="d">'+s.desc+'</p>'
+      + '<p class="m">'+s.meta+'</p>'
+      + '<div class="acts">'
+        + '<a class="a1" href="br-survey-system.html?store='+s.slug+'" target="_blank" rel="noopener">설문 열기'
+          + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>'
+        + '<a class="a2" href="br-survey-admin.html?store='+s.slug+'">결과 분석</a>'
+      + '</div>'
+    + '</div></article>';
+}).join("")
++ '<article class="card prep">'
+  + '<div class="body">'
+    + '<div class="ph"><span class="emoji">🎯</span><span class="st"><i></i>진행 중</span></div>'
+    + '<h3>9월 FOM IMC 컨셉 사전 반응 조사</h3>'
+    + '<p class="d">몬치치 콜라보 \'엄마의 친구, 너의 31\' 컨셉 사전 선호도 테스트.</p>'
+    + '<p class="m">2026.07 예정 · 국문 · 약 4분 · 준비 중</p>'
+    + '<div class="acts"><span class="a0">링크 미연결</span></div>'
+  + '</div></article>';
+
+/* ---- 완료된 설문 ---- */
+var ARCHIVE = [
+  { emoji:"📊", title:"BR 브랜드 헬스 트래킹 — 2026 상반기", meta:"2026.01 – 2026.03 · 국문", n:"1,284" },
+  { emoji:"🍨", title:"시그니처 매시업 시식 테스트",          meta:"2025.11 · 국문",             n:"612" },
+  { emoji:"📱", title:"1020 타깃 SNS 선호도 조사",            meta:"2025.09 · 국문",             n:"938" }
+];
+document.getElementById('arch').innerHTML = ARCHIVE.map(function(a){
+  return '<a class="row" href="br-survey-admin.html">'
+    + '<span class="emoji">'+a.emoji+'</span>'
+    + '<span class="tt"><b>'+a.title+'</b><span>'+a.meta+'</span></span>'
+    + '<span class="n">응답 '+a.n+'</span>'
+    + '<span class="go">결과 보기 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+  + '</a>';
+}).join("");
+
+/* ---- 오늘 날짜 ---- */
+(function(){
+  var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
+  document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
+})();
+
+/* ---- KO / EN ---- */
+var EN = {
+  "설문 조사":"Surveys",
+  "배스킨라빈스 마케팅 전략실 지니어스팀 진행 설문 사이트":"Surveys run by the Genius Team, Baskin-Robbins Marketing Strategy",
+  "진행 중 설문":"Running", "지금 응답을 받고 있어요":"Collecting responses now",
+  "완료된 설문":"Closed", "종료 · 보관된 결과":"Archived results",
+  "7개 진행":"7 running", "3개 보관":"3 archived",
+  "서베이 시스템 · 마케팅전략실":"Survey system · Marketing Strategy",
+  "© Baskin-Robbins Korea · 마케팅전략실":"© Baskin-Robbins Korea · Marketing Strategy"
+};
+document.getElementById('lang').addEventListener('click', function(){
+  var toEN = this.textContent === 'EN';
+  var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  var nodes = []; while(w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(function(n){
+    var t = n.nodeValue.trim(); if(!t) return;
+    if(toEN){ if(EN[t]) { n.__ko = t; n.nodeValue = n.nodeValue.replace(t, EN[t]); } }
+    else if(n.__ko){ n.nodeValue = n.__ko; }
+  });
+  this.textContent = toEN ? '한국어' : 'EN';
+  document.documentElement.lang = toEN ? 'en' : 'ko';
+});
+</script>
+</body>
+</html>
