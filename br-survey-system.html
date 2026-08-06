@@ -1195,10 +1195,8 @@ document.getElementById('navRight').addEventListener('click', function(e){
 var __asl=document.getElementById('allSurveysLink');
 if(__asl) __asl.addEventListener('click', function(e){
   e.preventDefault();
-  var v=window.prompt(lang==='ko'?'설문 허브로 이동하려면 비밀번호를 입력하세요':'Enter the passcode to open the Survey Hub');
-  if(v===null) return;
-  if(v===ADMIN_CODE){ window.location.href='surveys.html'; }
-  else { window.alert(lang==='ko'?'비밀번호가 올바르지 않습니다.':'Incorrect passcode.'); }
+  /* 설문 허브(surveys.html)가 자체 비밀번호 게이트를 가지므로 여기서는 묻지 않는다 */
+  window.location.href='surveys.html';
 });
 
 render();

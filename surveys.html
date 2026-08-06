@@ -143,9 +143,49 @@
     .id .nm small{display:none;}
   }
   @media (prefers-reduced-motion:reduce){ *{transition-duration:.01ms !important;} }
+
+  /* ===== passcode gate ===== */
+  body.locked > .top, body.locked > main, body.locked > footer{display:none;}
+  .sgate{position:fixed; inset:0; z-index:9999; display:none; place-items:center; padding:20px;
+         background:radial-gradient(120% 80% at 50% 0%, #fff 0%, var(--page) 62%);}
+  body.locked .sgate{display:grid;}
+  .sgate .box{width:min(390px,100%); background:var(--paper); border:1px solid var(--line);
+              border-radius:22px; padding:36px 32px 30px; text-align:center;
+              box-shadow:0 34px 66px -34px rgba(35,42,74,.5);}
+  .sgate .box > svg{margin-bottom:14px;}
+  .sgate h2{font-size:21px; font-weight:900; letter-spacing:-.02em;}
+  .sgate p{font-size:13px; color:var(--mute); margin-top:9px; line-height:1.6;}
+  .sgate input{width:100%; margin-top:22px; padding:15px 16px; border-radius:14px;
+               border:1.5px solid var(--line); background:var(--page); font:inherit;
+               font-size:19px; letter-spacing:.4em; text-align:center; color:var(--ink);}
+  .sgate input:focus{outline:none; border-color:var(--blue); background:var(--paper);}
+  .sgate .err{min-height:19px; font-size:12.5px; color:var(--live); font-weight:700; margin-top:10px;}
+  .sgate button{width:100%; padding:15px; border:none; border-radius:14px; cursor:pointer;
+                background:var(--blue); color:#fff; font:inherit; font-weight:700; font-size:15px;
+                transition:background .16s ease;}
+  .sgate button:hover{background:var(--blue-deep);}
+  .sgate .back{margin-top:10px; background:var(--paper); color:var(--mute);
+               border:1.5px solid var(--line);}
+  .sgate .back:hover{background:var(--page); color:var(--ink);}
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="sgate" id="sgate">
+  <div class="box">
+    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="10" width="17" height="11" rx="2.5" fill="#E5E9F9" stroke="#2B4CC4" stroke-width="1.7"/>
+      <path d="M7.8 10V7a4.2 4.2 0 0 1 8.4 0v3" stroke="#2B4CC4" stroke-width="1.7" stroke-linecap="round"/>
+      <circle cx="12" cy="15.5" r="1.5" fill="#2B4CC4"/>
+    </svg>
+    <h2>설문 사이트</h2>
+    <p>마케팅전략실 내부 페이지입니다.<br>비밀번호를 입력해 주세요.</p>
+    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
+    <div class="err" id="sErr"></div>
+    <button id="sBtn">열기</button>
+    <button class="back" id="sBack">← BRK Genius</button>
+  </div>
+</div>
 
 <header class="top">
   <div class="id">
@@ -208,6 +248,43 @@
   <span>© Baskin-Robbins Korea · 마케팅전략실</span>
   <span id="today"></span>
 </footer>
+
+<script>
+/* =====================================================================
+   PASSCODE GATE
+   SURVEY_CODE : 설문 사이트(허브) 열람 비밀번호.
+   ※ 매장 응답 페이지(br-survey-system.html?store=…)는 잠기지 않습니다.
+     손님이 QR로 바로 여는 주소이므로 게이트가 걸리면 안 됩니다.
+   ===================================================================== */
+var SURVEY_CODE = "2607";
+
+(function(){
+  var KEY = "br_survey_ok";
+  function attempt(){
+    var el = document.getElementById("sCode");
+    var v = (el && el.value) || "";
+    if (v === SURVEY_CODE) {
+      try { sessionStorage.setItem(KEY, "1"); } catch(e){}
+      document.body.classList.remove("locked");
+    } else {
+      document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
+      if (el) { el.value = ""; el.focus(); }
+    }
+  }
+  var already = false;
+  try { already = sessionStorage.getItem(KEY) === "1"; } catch(e){}
+  if (already) document.body.classList.remove("locked");
+  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
+
+  document.getElementById("sBtn").addEventListener("click", attempt);
+  document.getElementById("sCode").addEventListener("keydown", function(e){
+    if (e.key === "Enter") attempt();
+  });
+  document.getElementById("sBack").addEventListener("click", function(){
+    window.location.href = "index.html";
+  });
+})();
+</script>
 
 <script>
 /* =====================================================================
