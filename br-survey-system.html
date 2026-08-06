@@ -254,7 +254,7 @@
 
 <footer>
   <span>© Baskin-Robbins</span>
-  <span style="display:flex; gap:18px;"><a href="index.html" id="allSurveysLink">All surveys</a><a href="br-survey-admin.html" id="adminLink">Admin &amp; data</a></span>
+  <span style="display:flex; gap:18px;"><a href="surveys.html" id="allSurveysLink">All surveys</a><a href="br-survey-admin.html" id="adminLink">Admin &amp; data</a></span>
 </footer>
 
 <script>
@@ -1197,7 +1197,7 @@ if(__asl) __asl.addEventListener('click', function(e){
   e.preventDefault();
   var v=window.prompt(lang==='ko'?'설문 허브로 이동하려면 비밀번호를 입력하세요':'Enter the passcode to open the Survey Hub');
   if(v===null) return;
-  if(v===ADMIN_CODE){ window.location.href='index.html'; }
+  if(v===ADMIN_CODE){ window.location.href='surveys.html'; }
   else { window.alert(lang==='ko'?'비밀번호가 올바르지 않습니다.':'Incorrect passcode.'); }
 });
 

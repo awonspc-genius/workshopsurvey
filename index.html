@@ -1,552 +1,235 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BRK Genius · 서베이 시스템</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>BRK Genius · 마케팅전략실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#ECEEF3; --card:#FFFFFF;
-    --ink:#14161D; --ink2:#3A3F4D; --muted:#5A5F6E;
-    --line:#E1E3EA; --line2:#EAECF1;
-    --blue:#2A36D8; --blue-deep:#1E27A8; --blue-soft:#E7E9FB;
-    --coral:#FF4E33; --coral-deep:#DE3A1F; --coral-soft:#FFE6E0;
-    --slate:#9AA0AE; --slate-soft:#E8EAEF;
-    --shadow:rgba(20,22,29,.18);
-    --font:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --ink:#232A4A; --ink-deep:#151B36; --mute:#6E769B;
+    --blue:#2B4CC4; --blue-deep:#1E3795; --blue-soft:#E5E9F9;
+    --gold:#C9A227; --gold-soft:#F7EFD8;
+    --page:#EEF1F7; --line:#DDE2EE; --paper:#FFFFFF;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{margin:0; padding:0; box-sizing:border-box;}
+  html,body{height:100%;}
   body{
-    font-family:var(--font); color:var(--ink); font-size:16px; line-height:1.55; letter-spacing:-.005em;
-    background-color:var(--bg);
-    background-image:linear-gradient(rgba(20,22,29,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(20,22,29,.032) 1px,transparent 1px);
-    background-size:58px 58px; background-position:-1px -1px;
-    min-height:100vh; display:flex; flex-direction:column;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    font-family:'Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;
+    color:var(--ink); background:var(--page);
+    background-image:radial-gradient(circle at 1px 1px, rgba(35,42,74,.055) 1.5px, transparent 1.6px);
+    background-size:26px 26px;
+    display:flex; flex-direction:column; min-height:100%;
   }
 
-  .nav{display:flex; align-items:center; justify-content:space-between; padding:17px clamp(20px,5vw,56px);
-    position:sticky; top:0; z-index:20; background:rgba(236,238,243,.8); backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--line);}
-  .brand{display:flex; align-items:center; gap:12px;}
-  .brand .wm{font-weight:800; font-size:17px; color:var(--ink); line-height:1; display:flex; flex-direction:column; letter-spacing:-.02em;}
-  .brand .wm small{font-weight:600; font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin-top:5px; letter-spacing:.04em;}
-  .langtoggle{font-family:var(--font); font-weight:700; font-size:13px; letter-spacing:.01em; color:var(--blue); background:var(--card);
-    border:1.5px solid var(--blue-soft); border-radius:10px; padding:9px 15px; cursor:pointer; transition:all .15s ease; display:inline-flex; align-items:center; gap:7px;}
-  .langtoggle::before{content:"🌐"; font-size:12.5px;}
-  .langtoggle:hover{border-color:var(--blue); background:var(--blue-soft);}
+  /* ---------- chrome ---------- */
+  .top{display:flex; align-items:center; justify-content:space-between;
+       padding:20px clamp(18px,4vw,44px); flex:none;}
+  .id{display:flex; align-items:center; gap:11px;}
+  .id .nm{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; line-height:1;
+          display:flex; flex-direction:column;}
+  .id .nm small{font-family:'Noto Sans KR',sans-serif; font-weight:500; font-size:11px;
+          letter-spacing:.04em; color:var(--mute); margin-top:5px;}
+  .lang{font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; letter-spacing:.14em;
+        color:var(--mute); background:var(--paper); border:1.5px solid var(--line);
+        border-radius:11px; padding:9px 15px; cursor:pointer; transition:all .16s ease;}
+  .lang:hover{border-color:var(--blue); color:var(--blue);}
 
-  main{flex:1; width:100%; max-width:1040px; margin:0 auto; padding:clamp(36px,6vw,66px) clamp(20px,4vw,40px);}
+  /* ---------- the fork ---------- */
+  .fork{flex:1; display:flex; align-items:stretch; gap:0;
+        padding:0 clamp(18px,4vw,44px) clamp(18px,3vw,34px); position:relative;}
 
-  .hero{max-width:780px;}
-  .hero-eyebrow{font-weight:700; font-size:12px; letter-spacing:.15em; text-transform:uppercase; color:var(--blue);
-    display:flex; align-items:center; gap:11px; margin:0 0 18px;}
-  .hero-eyebrow::before{content:""; width:28px; height:2px; background:var(--coral); display:inline-block; border-radius:2px;}
-  .hero h1{font-weight:800; font-size:clamp(38px,6.2vw,60px); letter-spacing:-.025em; line-height:1.05; margin:0; color:var(--ink);}
-  .hero p{font-size:17px; line-height:1.55; color:var(--muted); margin:17px 0 0; max-width:50ch;}
+  .gate{flex:1 1 50%; position:relative; overflow:hidden; text-decoration:none; color:inherit;
+        border-radius:26px; padding:clamp(28px,3.4vw,46px); display:flex; flex-direction:column;
+        min-height:clamp(400px,54vh,540px);
+        transition:flex-grow .55s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, transform .35s ease;
+        opacity:0; animation:rise .7s cubic-bezier(.22,1,.36,1) forwards;}
+  .gate:first-child{animation-delay:.05s; margin-right:clamp(9px,1.1vw,15px);}
+  .gate:last-child{animation-delay:.16s;  margin-left:clamp(9px,1.1vw,15px);}
+  @keyframes rise{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
 
-  .idx{margin-top:32px; max-width:580px;}
-  .idx-bar{height:10px; border-radius:6px; background:var(--slate-soft); overflow:hidden; display:flex; border:1px solid var(--line);}
-  .idx-fill{height:100%; background:var(--coral); border-radius:6px 0 0 6px; transition:width .7s cubic-bezier(.2,.7,.3,1);}
-  .idx-legend{display:flex; align-items:center; gap:22px; margin-top:13px; flex-wrap:wrap;}
-  .idx-k{display:inline-flex; align-items:center; gap:8px; font-size:13.5px; color:var(--muted); font-weight:500;}
-  .idx-k b{color:var(--ink); font-weight:700; font-size:15px; margin-left:1px;}
-  .idx-k .dot{width:9px; height:9px; border-radius:50%; flex:none;}
-  .idx-k .live-dot{background:var(--coral); box-shadow:0 0 0 3px var(--coral-soft);}
-  .idx-k .done-dot{background:var(--slate);}
-  .idx-tot{margin-left:auto; padding-left:18px; border-left:1px solid var(--line);}
-  @media (max-width:520px){ .idx-tot{margin-left:0; padding-left:0; border-left:none;} }
+  .gate.survey{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
+               color:#fff; box-shadow:0 26px 50px -28px rgba(30,55,149,.75);}
+  .gate.sales{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
+              color:#fff; box-shadow:0 26px 50px -28px rgba(21,27,54,.75);}
 
-  .sec{margin-top:52px;}
-  .sec-head{display:flex; align-items:center; gap:13px; padding:0 2px 14px; border-bottom:2px solid var(--line); margin-bottom:22px;}
-  .sec-head.active{border-bottom-color:var(--coral);}
-  .sec-head.done{border-bottom-color:var(--slate-soft);}
-  .sec-dot{width:10px; height:10px; border-radius:50%; flex:none;}
-  .sec-head.active .sec-dot{background:var(--coral); box-shadow:0 0 0 4px var(--coral-soft); animation:pulse 2s infinite;}
-  .sec-head.done .sec-dot{background:var(--slate);}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px var(--coral-soft);}50%{box-shadow:0 0 0 7px rgba(255,78,51,.05);}}
-  .sec-head h2{font-weight:800; font-size:19px; letter-spacing:-.01em; margin:0; color:var(--ink);}
-  .sec-head.done h2{color:var(--ink2);}
-  .sec-head .sub{font-size:13.5px; color:var(--muted);}
-  .sec-head .badge{margin-left:auto; font-weight:700; font-size:12px; letter-spacing:.01em; padding:5px 11px; border-radius:8px;}
-  .sec-head.active .badge{background:var(--blue); color:#fff;}
-  .sec-head.done .badge{background:var(--slate-soft); color:var(--muted);}
-  .sec-body{padding:0;}
+  .fork:hover .gate{flex-grow:.82;}
+  .fork .gate:hover{flex-grow:1.36;}
+  .gate:hover{transform:translateY(-3px);}
+  .gate.survey:hover{box-shadow:0 34px 62px -26px rgba(30,55,149,.85);}
+  .gate.sales:hover{box-shadow:0 34px 62px -26px rgba(21,27,54,.85);}
+  .gate:focus-visible{outline:3px solid var(--gold); outline-offset:4px;}
 
-  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
-  @media (max-width:720px){ .grid{grid-template-columns:1fr;} }
-  .acard{display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:16px;
-    text-decoration:none; color:inherit; cursor:default; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; position:relative; overflow:hidden;}
-  .acard::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--coral); z-index:4;}
-  .acard.feature::before{background:linear-gradient(90deg,var(--blue),var(--coral));}
-  .acard:hover{border-color:var(--blue); transform:translateY(-4px); box-shadow:0 30px 52px -30px var(--shadow);}
-  .acard.disabled{cursor:default;}
-  .acard.disabled::before{background:var(--slate);}
-  .acard.disabled:hover{border-color:var(--line); transform:none; box-shadow:none;}
-  .ac-body{display:flex; flex-direction:column; flex:1; padding:22px 22px 24px;}
-  .ac-photo{position:relative; aspect-ratio:800/440; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--blue),var(--blue-deep));}
-  .ac-photo img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .4s ease;}
-  .ac-photo .ph-emoji{font-size:48px; line-height:1; z-index:1; filter:drop-shadow(0 6px 14px rgba(0,0,0,.26));}
-  .ac-photo .ph-scrim{position:absolute; inset:0; z-index:2; background:linear-gradient(to top,rgba(11,13,20,.46),rgba(11,13,20,.05) 52%,transparent 70%);}
-  .ac-photo .ph-pill{position:absolute; top:13px; right:13px; z-index:3;}
-  .ac-photo .ph-pill .tag,.ac-photo .ph-pill .live{background:rgba(255,255,255,.95); box-shadow:0 4px 12px -4px rgba(0,0,0,.34);}
-  .ac-photo .ph-pill .tag{color:var(--blue-deep);} .ac-photo .ph-pill .live{color:var(--coral-deep);}
-  .acard.has-photo:hover .ac-photo img{transform:scale(1.05);}
-  .ac-photo.img-ok .ph-emoji{display:none;}
-  .ac-photo.img-ok .ph-scrim{background:linear-gradient(to top,rgba(11,13,20,.20),transparent 45%);}
-  .ac-top{display:flex; align-items:center; justify-content:space-between; margin:2px 0 16px;}
-  .emoji{font-size:30px; line-height:1;}
-  .tag{font-family:var(--font); font-weight:700; font-size:10.5px; letter-spacing:.06em; padding:5px 10px; border-radius:7px; background:var(--blue-soft); color:var(--blue-deep);}
-  .live{font-family:var(--font); font-weight:700; font-size:11px; letter-spacing:.03em; color:var(--coral-deep); display:inline-flex; align-items:center; gap:6px;}
-  .live .d{width:7px; height:7px; border-radius:50%; background:var(--coral); animation:pulse 2s infinite;}
-  .acard h3{font-weight:800; font-size:19px; line-height:1.32; letter-spacing:-.015em; margin:0 0 8px; color:var(--ink);}
-  .desc{font-size:14.5px; color:var(--muted); line-height:1.55; margin:0;}
-  .meta{font-size:12.5px; color:var(--muted); margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-weight:500;}
-  .meta .sep{opacity:.4;}
-  .cta-row{display:flex; gap:9px; margin-top:18px; flex-wrap:wrap; align-items:center;}
-  .cta{font-family:var(--font); font-weight:700; font-size:13.5px; text-decoration:none;
-    background:var(--blue); color:#fff; padding:11px 17px; border-radius:10px; display:inline-flex; align-items:center; gap:8px; transition:background .16s ease; cursor:pointer;}
-  .cta-row .cta{margin-top:0;}
-  .acard:hover .cta{background:var(--blue-deep);} .acard:hover .cta .arr{transform:translateX(3px);}
-  .cta.muted{margin-top:18px; align-self:flex-start; background:var(--slate-soft); color:var(--muted);} .acard:hover .cta.muted{background:var(--slate-soft);}
-  .cta2{font-family:var(--font); font-weight:700; font-size:13.5px; text-decoration:none; cursor:pointer;
-    background:var(--blue-soft); color:var(--blue-deep); padding:11px 16px; border-radius:10px; display:inline-flex; align-items:center; gap:7px; border:1.5px solid transparent; transition:all .16s ease;}
-  .cta2:hover{background:var(--card); border-color:var(--blue);}
-  .arr{transition:transform .16s ease;}
+  /* access label — encodes who may open it */
+  .acc{display:inline-flex; align-items:center; gap:7px; align-self:flex-start;
+       font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; letter-spacing:.16em;
+       padding:7px 13px; border-radius:999px; text-transform:uppercase;}
+  .gate.survey .acc{background:rgba(255,255,255,.16); color:#fff;}
+  .gate.sales  .acc{background:var(--gold); color:#3A2C05;}
 
-  .donelist{display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
-  .drow{display:flex; align-items:center; gap:16px; padding:17px 18px; text-decoration:none; color:inherit;
-    cursor:pointer; transition:background .14s ease; border-bottom:1px solid var(--line2);}
-  .drow:last-child{border-bottom:none;}
-  .drow:hover{background:#F6F7FA;}
-  .drow.disabled{cursor:default;}
-  .d-emoji{font-size:21px; line-height:1; opacity:.65; flex:none;}
-  .d-main{flex:1; min-width:0;}
-  .d-title{font-weight:700; font-size:15.5px; color:var(--ink); margin:0; line-height:1.35;}
-  .d-meta{font-size:12.5px; color:var(--muted); margin-top:3px;}
-  .d-resp{font-weight:700; font-size:13.5px; color:var(--ink2); white-space:nowrap;}
-  .d-go{font-family:var(--font); font-weight:600; font-size:12.5px; color:var(--muted); white-space:nowrap; display:inline-flex; align-items:center; gap:5px;}
-  .drow:hover .d-go{color:var(--blue);}
-  @media (max-width:560px){ .d-resp{display:none;} }
+  .art{flex:1; display:grid; place-items:center; padding:22px 0 12px; min-height:120px;}
+  .art svg{width:clamp(96px,13vw,150px); height:auto; display:block;
+           transition:transform .55s cubic-bezier(.22,1,.36,1);}
+  .gate:hover .art svg{transform:translateY(-5px) scale(1.05);}
 
-  footer{margin-top:62px; padding:28px clamp(20px,5vw,56px); border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
-  footer span{font-size:12.5px; color:var(--muted);}
+  .gate h2{font-size:clamp(31px,4.4vw,50px); font-weight:900; letter-spacing:-.035em; line-height:1;}
+  .gate .desc{font-size:14.5px; line-height:1.6; margin-top:13px; max-width:34ch;
+              color:rgba(255,255,255,.74);}
+  .stats{display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; padding-top:18px;
+         border-top:1px solid rgba(255,255,255,.16);}
+  .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:21px; line-height:1;}
+  .stat .l{font-size:11.5px; color:rgba(255,255,255,.62); margin-top:6px; letter-spacing:.02em;}
+  .gate.sales .stat .v{color:var(--gold-soft);}
 
-  .toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff;
-    font-size:14px; padding:13px 20px; border-radius:12px; opacity:0; pointer-events:none; transition:all .25s ease; z-index:50; box-shadow:0 18px 40px -16px var(--shadow); max-width:90vw;}
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .fade{animation:rise .45s cubic-bezier(.2,.7,.3,1);}
-  @keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
-  a:focus-visible,.drow:focus-visible,.acard:focus-visible,.langtoggle:focus-visible{outline:2px solid var(--blue); outline-offset:3px;}
+  .go{display:inline-flex; align-items:center; gap:9px; margin-top:24px; align-self:flex-start;
+      font-weight:700; font-size:15px; padding:14px 22px; border-radius:14px;
+      background:#fff; color:var(--blue-deep); transition:gap .2s ease, background .2s ease;}
+  .gate.sales .go{background:var(--gold); color:#3A2C05;}
+  .gate:hover .go{gap:15px;}
+  .go svg{flex:none;}
 
-  .intro{position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; color:#fff;
-    background:
-      radial-gradient(58% 48% at 50% 18%, rgba(255,78,51,.24), transparent 62%),
-      radial-gradient(125% 120% at 50% 0%, #2A36D8 0%, #1B238F 48%, #11143A 100%);
-    transition:opacity .85s ease, transform .85s ease, filter .85s ease;}
-  .intro.out{opacity:0; transform:scale(1.04); filter:blur(7px); pointer-events:none;}
-  .intro-inner{animation:introIn .9s cubic-bezier(.2,.8,.25,1) both; padding:0 24px;}
-  .intro-mark{animation:introPop .75s cubic-bezier(.2,1.2,.3,1) both; filter:drop-shadow(0 12px 26px rgba(0,0,0,.3));}
-  .intro-eyebrow{font-weight:700; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#B9C2FF; margin-top:28px;}
-  .intro-title{font-weight:800; font-size:clamp(40px,8.5vw,72px); letter-spacing:-.035em; margin:12px 0 0; line-height:1;}
-  .intro-by{font-weight:700; font-size:clamp(15px,2.6vw,19px); color:#FF8A75; margin-top:16px; letter-spacing:.05em;}
-  .intro-skip{position:absolute; bottom:30px; left:50%; transform:translateX(-50%); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.5); font-weight:600;}
-  @keyframes introIn{from{opacity:0; transform:translateY(16px) scale(.97);} to{opacity:1; transform:none;}}
-  @keyframes introPop{from{opacity:0; transform:scale(.55);} to{opacity:1; transform:scale(1);}}
+  /* seam: the 31 mark sits exactly on the fork */
+  .seam{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:3;
+        pointer-events:none; width:56px; height:56px; border-radius:50%; background:var(--page);
+        display:grid; place-items:center; box-shadow:0 0 0 7px var(--page);}
 
-  /* ---------------- PASSWORD GATE ---------------- */
-  #gate{position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(160deg,#ECEEF3 0%,#DDE3F5 100%); padding:20px;}
-  #gate .gcard{background:#fff; border:1px solid var(--line); border-radius:20px; padding:36px 32px 30px;
-    width:min(400px,100%); box-shadow:0 30px 60px -30px rgba(20,30,80,.35); text-align:center;}
-  #gate h2{font-family:'Fredoka',sans-serif; font-weight:800; font-size:22px; margin:14px 0 6px; color:var(--ink);}
-  #gate p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
-  #gate input{width:100%; box-sizing:border-box; font-family:var(--font); font-size:18px; letter-spacing:.25em; text-align:center;
-    padding:13px 14px; border:1.5px solid var(--line); border-radius:12px; outline:none; margin-bottom:12px;}
-  #gate input:focus{border-color:var(--blue);}
-  #gate .gbtn{width:100%; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; padding:13px; border:none; border-radius:12px;
-    background:var(--blue); color:#fff; cursor:pointer;}
-  #gate .gbtn:hover{background:var(--blue-deep,#1E3795);}
-  #gate .gerr{color:#D2465A; font-size:12.5px; min-height:16px; margin:8px 0 0;}
-  #gate .greset{display:inline-block; margin-top:16px; font-size:12.5px; color:var(--muted); cursor:pointer; text-decoration:underline; background:none; border:none;}
-  #gate .greset:hover{color:var(--blue);}
-  body.gated>*:not(#gate){filter:blur(6px); pointer-events:none; user-select:none;}
+  footer{flex:none; display:flex; justify-content:space-between; align-items:center;
+         flex-wrap:wrap; gap:8px; padding:0 clamp(18px,4vw,44px) 24px;
+         font-size:12px; color:var(--mute);}
 
+  @media (max-width:860px){
+    .fork{flex-direction:column; gap:14px;}
+    .gate{min-height:0;}
+    .gate:first-child{margin:0;} .gate:last-child{margin:0;}
+    .fork:hover .gate, .fork .gate:hover{flex-grow:1;}
+    .seam{display:none;}
+    .art{min-height:0; padding:16px 0 8px;}
+    .art svg{width:84px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+    .gate{opacity:1;}
+  }
 </style>
 </head>
 <body>
-<div id="gate" style="display:none">
-  <div class="gcard">
-    <div id="gateMark"></div>
-    <h2 id="gTitle">BRK Genius 서베이 시스템</h2>
-    <p id="gDesc">비밀번호를 입력해 주세요.<br><span style="font-size:12px">Enter the password to continue.</span></p>
-    <input id="gInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••">
-    <button class="gbtn" id="gBtn">입장하기 · Enter</button>
-    <div class="gerr" id="gErr"></div>
-    <button class="greset" id="gReset">비밀번호를 잊으셨나요? (재설정)</button>
-  </div>
-</div>
 
-<div class="intro" id="intro">
-  <div class="intro-inner">
-    <svg class="intro-mark" width="84" height="84" viewBox="0 0 72 72" aria-hidden="true">
-      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#14161D" stroke-width="2.5"/>
-      <circle cx="36" cy="36" r="28" fill="none" stroke="#C8CEF6" stroke-width="1.5"/>
-      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Pretendard Variable, sans-serif" font-weight="800" font-size="29" fill="#2A36D8" style="letter-spacing:-1px">31</text>
-      <circle cx="16" cy="20" r="2.4" fill="#2A36D8"/><circle cx="57" cy="22" r="2.6" fill="#FF4E33"/><circle cx="52" cy="54" r="2.4" fill="#2A36D8"/>
+<header class="top">
+  <div class="id">
+    <svg width="40" height="40" viewBox="0 0 72 72" aria-hidden="true">
+      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="2.5"/>
+      <circle cx="36" cy="36" r="28" fill="none" stroke="#E5E9F9" stroke-width="1.5"/>
+      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central"
+            font-family="Fredoka, sans-serif" font-weight="700" font-size="30" fill="#2B4CC4">31</text>
+      <circle cx="16" cy="20" r="2.4" fill="#2B4CC4"/><circle cx="57" cy="22" r="2.4" fill="#C9A227"/>
+      <circle cx="52" cy="54" r="2.4" fill="#2B4CC4"/>
     </svg>
-    <div class="intro-eyebrow" id="introEyebrow">Welcome to</div>
-    <h1 class="intro-title">BRK Genius</h1>
-    <div class="intro-by">서베이 시스템</div>
+    <span class="nm">BRK Genius<small data-t="sub">마케팅전략실 지니어스팀</small></span>
   </div>
-</div>
-
-<header class="nav">
-  <div class="brand">
-    <svg width="30" height="30" viewBox="0 0 72 72" aria-hidden="true">
-      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#14161D" stroke-width="2.5"/>
-      <circle cx="36" cy="36" r="28" fill="none" stroke="#C8CEF6" stroke-width="1.5"/>
-      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central" font-family="Pretendard Variable, sans-serif" font-weight="800" font-size="29" fill="#2A36D8" style="letter-spacing:-1px">31</text>
-      <circle cx="16" cy="20" r="2.4" fill="#2A36D8"/><circle cx="57" cy="22" r="2.6" fill="#FF4E33"/><circle cx="52" cy="54" r="2.4" fill="#2A36D8"/>
-    </svg>
-    <span class="wm">BRK Genius<small>서베이 시스템 · 마케팅전략실</small></span>
-  </div>
-  <button class="langtoggle" id="langToggle">EN</button>
+  <button class="lang" id="lang">EN</button>
 </header>
 
-<main class="fade">
-  <section class="hero">
-    <div class="hero-eyebrow">BRK Genius · 마케팅전략실 지니어스팀</div>
-    <h1 id="heroH1">Surveys</h1>
-    <p id="heroP"></p>
-    <div class="stats" id="stats"></div>
-  </section>
+<main class="fork">
 
-  <section class="sec">
-    <div class="sec-head active">
-      <span class="sec-dot"></span>
-      <div><h2 id="secActiveH">Active surveys</h2><div class="sub" id="secActiveSub">Open to respondents right now</div></div>
-      <span class="badge" id="activeBadge"></span>
+  <a class="gate survey" href="surveys.html">
+    <span class="acc" data-t="a1">사내 공개</span>
+    <div class="art">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="46" cy="54" r="18" fill="#8FA6E0" stroke="#fff" stroke-width="3.5"/>
+        <circle cx="74" cy="54" r="18" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
+        <circle cx="60" cy="34" r="19" fill="#fff" stroke="#fff" stroke-width="3.5"/>
+        <circle cx="53" cy="30" r="2.6" fill="#232A4A"/><circle cx="68" cy="38" r="2.2" fill="#232A4A"/>
+      </svg>
     </div>
-    <div class="sec-body active"><div class="grid" id="activeGrid"></div></div>
-  </section>
+    <h2 data-t="t1">설문 조사</h2>
+    <p class="desc" data-t="d1">매장 방문객 피드백, 브랜드 헬스 트래킹, FOM 컨셉 사전 반응 조사.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">7</div><div class="l" data-t="s1a">진행 중</div></div>
+      <div class="stat"><div class="v">3</div><div class="l" data-t="s1b">완료</div></div>
+      <div class="stat"><div class="v">6</div><div class="l" data-t="s1c">직영 매장</div></div>
+    </div>
+    <span class="go"><span data-t="g1">설문 사이트 열기</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
 
-  <section class="sec">
-    <div class="sec-head done">
-      <span class="sec-dot"></span>
-      <div><h2 id="secDoneH">Completed surveys</h2><div class="sub" id="secDoneSub">Closed — archived results</div></div>
-      <span class="badge" id="doneBadge"></span>
+  <a class="gate sales" href="br-sales.html">
+    <span class="acc">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span data-t="a2">대외비 · 비밀번호</span>
+    </span>
+    <div class="art">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
+        <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
+        <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
+        <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
+        <path d="M14 40 L47 22 L74 34 L108 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5"/>
+      </svg>
     </div>
-    <div class="sec-body done"><div class="donelist" id="doneList"></div></div>
-  </section>
+    <h2 data-t="t2">BR 매출</h2>
+    <p class="desc" data-t="d2">2019 – 2026.06 POS 실매출 90개월 타임라인 × FOM &amp; IP 캠페인 캘린더.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
+      <div class="stat"><div class="v">742<small style="font-size:12px">억</small></div><div class="l" data-t="s2b">월평균</div></div>
+      <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
+    </div>
+    <span class="go"><span data-t="g2">매출 타임라인 열기</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
+  <div class="seam" aria-hidden="true">
+    <svg width="34" height="34" viewBox="0 0 72 72">
+      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="3"/>
+      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central"
+            font-family="Fredoka, sans-serif" font-weight="700" font-size="31" fill="#2B4CC4">31</text>
+    </svg>
+  </div>
+
 </main>
 
 <footer>
-  <span>© Baskin-Robbins Korea · 마케팅전략실</span>
+  <span data-t="ft">© Baskin-Robbins Korea · 마케팅전략실</span>
   <span id="today"></span>
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script>
-/* ===================== i18n ===================== */
-var lang = 'ko';
-var UI = {
-  en:{
-    heroH1:"Surveys",
-    heroP:'Surveys run by the Genius Team · Marketing Strategy Office · Baskin-Robbins Korea',
-    sActive:"Active", sCompleted:"Completed", sTotal:"Total",
-    activeH:"Active surveys", activeSub:"Open to respondents right now",
-    doneH:"Completed surveys", doneSub:"Closed — archived results",
-    running:"running", archived:"archived",
-    open:"Open survey", results:"View results", analyze:"Results", notLinked:"Not linked yet",
-    flagship:"FLAGSHIP", live:"LIVE",
-    toggle:"한국어", eyebrow:"Welcome to"
-  },
-  ko:{
-    heroH1:"설문 조사",
-    heroP:'배스킨라빈스 마케팅 전략실 지니어스팀 진행 설문 사이트',
-    sActive:"진행 중", sCompleted:"완료", sTotal:"전체",
-    activeH:"진행 중 설문", activeSub:"지금 응답을 받고 있어요",
-    doneH:"완료된 설문", doneSub:"종료 · 보관된 결과",
-    running:"개 진행", archived:"개 보관",
-    open:"설문 열기", results:"결과 보기", analyze:"결과 분석", notLinked:"링크 미연결",
-    flagship:"플래그십", live:"진행 중",
-    toggle:"EN", eyebrow:"환영합니다"
-  }
+/* ---- 오늘 날짜 ---- */
+(function(){
+  var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
+  document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
+})();
+
+/* ---- KO / EN ---- */
+var EN = {
+  sub:'Marketing Strategy · Genius Team',
+  a1:'Internal', a2:'Confidential · passcode',
+  t1:'Surveys', t2:'BR Sales',
+  d1:'Store visitor feedback, brand health tracking, and FOM concept pre-tests.',
+  d2:'90 months of POS revenue, 2019 – 2026.06, mapped against the FOM &amp; IP campaign calendar.',
+  s1a:'running', s1b:'closed', s1c:'stores',
+  s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
+  g1:'Open survey site', g2:'Open sales timeline',
+  ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };
-function t(k){ return (UI[lang][k]!==undefined?UI[lang][k]:UI.en[k]); }
-function L(o){ return (o && o[lang]!==undefined)?o[lang]:(o?o.en:""); }
+var KO = {};
+document.querySelectorAll('[data-t]').forEach(function(el){ KO[el.dataset.t]=el.innerHTML; });
 
-/* ===================== SURVEY LIST =====================
-   title / desc / period / meta / responses each take {en, ko}.
-   Set "url" (active) or "resultsUrl" (completed) to link a card.
-   ====================================================== */
-var SURVEYS = [
-  {
-    title:{en:"Workshop Store — International Visitor Survey", ko:"Workshop 매장 — 외국인 방문객 설문"},
-    desc:{en:"International guest feedback at the Workshop flagship — how they found us, ordering, and what they loved.",
-          ko:"Workshop 플래그십 외국인 방문객 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🍦", feature:true,
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"English · ~3 min", ko:"영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html"
-  },
-  {
-    title:{en:"Parnas Mall Store — Visitor Survey", ko:"파르나스몰점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Parnas Mall store — discovery, ordering, and what they loved.",
-          ko:"파르나스몰점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🏢",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=parnas"
-  },
-  {
-    title:{en:"Gangnam-daero Store — Visitor Survey", ko:"강남대로점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Gangnam-daero store — discovery, ordering, and what they loved.",
-          ko:"강남대로점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"✨",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=gangnam"
-  },
-  {
-    title:{en:"Cheongdam Store — Visitor Survey", ko:"청담점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Cheongdam store — discovery, ordering, and what they loved.",
-          ko:"청담점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🏙️",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=cheongdam"
-  },
-  {
-    title:{en:"Gwanghwamun Store — Visitor Survey", ko:"광화문점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the Gwanghwamun store — discovery, ordering, and what they loved.",
-          ko:"광화문점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"🏛️",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=gwanghwamun"
-  },
-  {
-    title:{en:"City Hall Store — Visitor Survey", ko:"시청점 — 방문객 설문"},
-    desc:{en:"Visitor experience feedback at the City Hall store — discovery, ordering, and what they loved.",
-          ko:"시청점 방문객 경험 피드백 — 인지 경로, 주문 경험, 좋았던 점."},
-    status:"active", emoji:"⛲",
-    period:{en:"2026.06.16 – ongoing", ko:"2026.06.16 – 진행 중"},
-    meta:{en:"KO · EN · ~3 min", ko:"국문 · 영문 · 약 3분"},
-    responses:{en:"Live", ko:"진행 중"},
-    url:"br-survey-system.html?store=sicheong"
-  },
-  {
-    title:{en:"Sept FOM IMC Concept Pre-test", ko:"9월 FOM IMC 컨셉 사전 반응 조사"},
-    desc:{en:"Pre-test of the Monchhichi collab concept '엄마의 친구, 너의 31'.",
-          ko:"몬치치 콜라보 '엄마의 친구, 너의 31' 컨셉 사전 선호도 테스트."},
-    status:"active", emoji:"🎯",
-    period:{en:"2026.07 (planned)", ko:"2026.07 예정"},
-    meta:{en:"Korean · ~4 min", ko:"국문 · 약 4분"},
-    responses:{en:"Coming soon", ko:"준비 중"},
-    url:"", note:{en:"This survey isn't linked yet — set its url in the SURVEYS list.", ko:"아직 링크가 연결되지 않았습니다. SURVEYS 목록에서 url을 설정해 주세요."}
-  },
-  {
-    title:{en:"Brand Health Tracking — 2026 H1", ko:"BR 브랜드 헬스 트래킹 — 2026 상반기"},
-    desc:{en:"Regular tracking of brand awareness, preference, and visit intent.", ko:"브랜드 인지도·선호도·방문 의향 정기 추적 조사."},
-    status:"completed", emoji:"📊",
-    period:{en:"2026.01 – 2026.03", ko:"2026.01 – 2026.03"},
-    meta:{en:"Korean", ko:"국문"},
-    responses:{en:"1,284 responses", ko:"응답 1,284"}, resultsUrl:""
-  },
-  {
-    title:{en:"Signature Mashup Tasting Test", ko:"시그니처 매시업 시식 테스트"},
-    desc:{en:"Taste, visual, and repurchase-intent rating for the F1 signature menu.", ko:"F1 시그니처 신메뉴 맛·비주얼·재구매 의향 평가."},
-    status:"completed", emoji:"🍨",
-    period:{en:"2025.11", ko:"2025.11"},
-    meta:{en:"Korean", ko:"국문"},
-    responses:{en:"612 responses", ko:"응답 612"}, resultsUrl:""
-  },
-  {
-    title:{en:"1020 Target SNS Preference Study", ko:"1020 타깃 SNS 선호도 조사"},
-    desc:{en:"Content, channel, and collab preferences among the 1020 female target.", ko:"1020 여성 타깃의 콘텐츠·채널·콜라보 선호 분석."},
-    status:"completed", emoji:"📱",
-    period:{en:"2025.09", ko:"2025.09"},
-    meta:{en:"Korean", ko:"국문"},
-    responses:{en:"938 responses", ko:"응답 938"}, resultsUrl:""
-  }
-];
-
-function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
-/* Per-store photo + placeholder tint.
-   Drop a photo at  img/<slug>.jpg  (e.g. img/cheongdam.jpg) and it shows automatically.
-   Until then, a branded gradient placeholder is used. */
-var STORE_TINT = {
-  workshop:['#2B4CC4','#1E3795'],
-  parnas:['#2C7DA0','#184E6B'],
-  gangnam:['#D94F9C','#7A2A66'],
-  cheongdam:['#3A5BD9','#1E2A6B'],
-  gwanghwamun:['#C2974A','#7A5A1E'],
-  sicheong:['#1E9E9E','#125E66']
-};
-function storeSlug(s){
-  if(!s.url) return null;
-  var m = s.url.match(/[?&]store=([^&]+)/);
-  if(m) return decodeURIComponent(m[1]);
-  if(s.url.indexOf('br-survey-system.html')===0) return 'workshop';
-  return null;
-}
-function photoBanner(s, pillHtml){
-  var slug = storeSlug(s);
-  if(!slug) return null;
-  var tint = STORE_TINT[slug] || ['#2B4CC4','#1E3795'];
-  return '<div class="ac-photo" style="background:linear-gradient(135deg,'+tint[0]+','+tint[1]+')">'+
-    '<span class="ph-emoji">'+esc(s.emoji||'📋')+'</span>'+
-    '<img src="'+esc(slug)+'.jpg" alt="" loading="lazy" onload="this.parentNode.classList.add(\'img-ok\')" onerror="this.style.display=\'none\'">'+
-    '<span class="ph-scrim"></span>'+
-    '<span class="ph-pill">'+pillHtml+'</span>'+
-  '</div>';
-}
-function activeCard(s){
-  var pill = s.feature
-    ? '<span class="tag">'+t('flagship')+'</span>'
-    : '<span class="live"><span class="d"></span>'+t('live')+'</span>';
-  var banner = photoBanner(s, pill);
-  var inner =
-    (banner ? '' : '<div class="ac-top"><span class="emoji">'+esc(s.emoji||"📋")+'</span>'+pill+'</div>')+
-    '<h3>'+esc(L(s.title))+'</h3>'+
-    '<p class="desc">'+esc(L(s.desc))+'</p>'+
-    '<div class="meta"><span>'+esc(L(s.period))+'</span><span class="sep">·</span><span>'+esc(L(s.meta))+'</span><span class="sep">·</span><span>'+esc(L(s.responses))+'</span></div>';
-  if(s.url){
-    var slug = storeSlug(s);
-    var adminUrl = 'br-survey-admin.html'+(slug?('?store='+encodeURIComponent(slug)):'');
-    var row =
-      '<div class="cta-row">'+
-        '<a class="cta" href="'+esc(s.url)+'">'+t('open')+' <span class="arr">→</span></a>'+
-        '<a class="cta2" href="'+esc(adminUrl)+'">'+t('analyze')+'</a>'+
-      '</div>';
-    return '<div class="acard'+(s.feature?' feature':'')+(banner?' has-photo':'')+'">'+
-      (banner||'')+'<div class="ac-body">'+inner+row+'</div></div>';
-  }
-  return '<div class="acard disabled'+(banner?' has-photo':'')+'" role="button" tabindex="0" data-note="'+esc(L(s.note)||"")+'">'+
-    (banner||'')+'<div class="ac-body">'+inner+'<span class="cta muted">'+t('notLinked')+'</span></div></div>';
-}
-function doneRow(s){
-  var inner =
-    '<span class="d-emoji">'+esc(s.emoji||"📋")+'</span>'+
-    '<span class="d-main"><span class="d-title">'+esc(L(s.title))+'</span><span class="d-meta">'+esc(L(s.period))+' · '+esc(L(s.meta))+'</span></span>'+
-    '<span class="d-resp">'+esc(L(s.responses))+'</span>'+
-    '<span class="d-go">'+t('results')+' <span class="arr">→</span></span>';
-  if(s.resultsUrl){ return '<a class="drow" href="'+esc(s.resultsUrl)+'">'+inner+'</a>'; }
-  return '<div class="drow disabled" role="button" tabindex="0" data-note="'+esc(L(s.note)||"")+'">'+inner+'</div>';
-}
-
-function render(){
-  var act=SURVEYS.filter(function(s){return s.status==="active";});
-  var done=SURVEYS.filter(function(s){return s.status==="completed";});
-  document.getElementById('heroH1').textContent=t('heroH1');
-  document.getElementById('heroP').innerHTML=t('heroP');
-  document.getElementById('secActiveH').textContent=t('activeH');
-  document.getElementById('secActiveSub').textContent=t('activeSub');
-  document.getElementById('secDoneH').textContent=t('doneH');
-  document.getElementById('secDoneSub').textContent=t('doneSub');
-  document.getElementById('langToggle').textContent=t('toggle');
-  document.getElementById('activeGrid').innerHTML = act.map(activeCard).join("") || '<div class="desc">—</div>';
-  document.getElementById('doneList').innerHTML = done.map(doneRow).join("") || '<div class="desc">—</div>';
-  document.getElementById('activeBadge').textContent = (lang==='ko'? act.length+t('running') : act.length+" "+t('running'));
-  document.getElementById('doneBadge').textContent = (lang==='ko'? done.length+t('archived') : done.length+" "+t('archived'));
-  var totN = SURVEYS.length || 1;
-  var pct = Math.round(act.length / totN * 100);
-  document.getElementById('stats').innerHTML =
-    '<div class="idx">'+
-      '<div class="idx-bar"><span class="idx-fill" style="width:'+pct+'%"></span></div>'+
-      '<div class="idx-legend">'+
-        '<span class="idx-k"><i class="dot live-dot"></i>'+t('sActive')+' <b>'+act.length+'</b></span>'+
-        '<span class="idx-k"><i class="dot done-dot"></i>'+t('sCompleted')+' <b>'+done.length+'</b></span>'+
-        '<span class="idx-k idx-tot">'+t('sTotal')+' <b>'+SURVEYS.length+'</b></span>'+
-      '</div>'+
-    '</div>';
-  var d=new Date();
-  document.getElementById('today').textContent = d.getFullYear()+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2);
-}
-
-document.getElementById('langToggle').addEventListener('click', function(){
-  lang = (lang==='en'?'ko':'en');
-  try{ document.documentElement.lang = lang; }catch(e){}
-  render();
+var lang='ko';
+document.getElementById('lang').addEventListener('click', function(){
+  lang = (lang==='ko') ? 'en' : 'ko';
+  var dict = (lang==='en') ? EN : KO;
+  document.querySelectorAll('[data-t]').forEach(function(el){
+    if(dict[el.dataset.t]!==undefined) el.innerHTML = dict[el.dataset.t];
+  });
+  this.textContent = (lang==='ko') ? 'EN' : '한국어';
+  document.documentElement.lang = lang;
 });
-
-var toastT;
-function toast(msg){ if(!msg) return; var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('show'); },2800); }
-document.addEventListener('click', function(e){ var d=e.target.closest('.disabled'); if(d && d.getAttribute('data-note')){ toast(d.getAttribute('data-note')); } });
-document.addEventListener('keydown', function(e){ if((e.key==="Enter"||e.key===" ") && document.activeElement && document.activeElement.classList.contains('disabled')){ e.preventDefault(); toast(document.activeElement.getAttribute('data-note')); } });
-
-render();
-
-/* welcome intro → dissolve into the hub */
-(function(){
-  var intro=document.getElementById('intro');
-  if(!intro) return;
-  var done=false;
-  function dismiss(){ if(done) return; done=true; intro.classList.add('out'); setTimeout(function(){ if(intro && intro.parentNode) intro.parentNode.removeChild(intro); }, 900); }
-  var tm=setTimeout(dismiss, 2100);
-  intro.addEventListener('click', function(){ clearTimeout(tm); dismiss(); });
-})();
-</script>
-
-<script>
-/* ================= PASSWORD GATE ================= */
-(function(){
-  var DEFAULT_PW='2607';
-  var RECOVERY_CODE='GENIUS-2607';   /* 마스터 복구 코드 — 이 코드로 비밀번호 재설정 가능 */
-  function pw(){ try{return localStorage.getItem('brkg_gate_pw')||DEFAULT_PW;}catch(e){return DEFAULT_PW;} }
-  function ok(){ try{return sessionStorage.getItem('brkg_gate_ok')==='1';}catch(e){return false;} }
-  function pass(){ try{sessionStorage.setItem('brkg_gate_ok','1');}catch(e){} }
-
-  var gate=document.getElementById('gate');
-  if(ok()){ gate.remove(); return; }
-  gate.style.display='flex';
-  document.body.classList.add('gated');
-  document.getElementById('gateMark').innerHTML = "<svg width=\"56\" height=\"56\" viewBox=\"0 0 72 72\" aria-hidden=\"true\"><circle cx=\"36\" cy=\"36\" r=\"34\" fill=\"#fff\" stroke=\"#232A4A\" stroke-width=\"2.5\"/><circle cx=\"36\" cy=\"36\" r=\"28\" fill=\"none\" stroke=\"#E5E9F9\" stroke-width=\"1.5\"/><text x=\"36\" y=\"37.5\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"Pretendard Variable, sans-serif\" font-weight=\"800\" font-size=\"29\" fill=\"#2A36D8\" style=\"letter-spacing:-1px\">31</text></svg>";
-
-  var input=document.getElementById('gInput'), err=document.getElementById('gErr');
-  var mode='enter'; /* 'enter' | 'recover' | 'newpw' */
-
-  function setMode(m){
-    mode=m; err.textContent=''; input.value='';
-    var t=document.getElementById('gTitle'), d=document.getElementById('gDesc'),
-        b=document.getElementById('gBtn'), r=document.getElementById('gReset');
-    if(m==='enter'){ t.textContent='BRK Genius 서베이 시스템'; d.innerHTML='비밀번호를 입력해 주세요.<br><span style="font-size:12px">Enter the password to continue.</span>'; b.textContent='입장하기 · Enter'; r.style.display='inline-block'; input.type='password'; input.placeholder='••••'; }
-    if(m==='recover'){ t.textContent='비밀번호 재설정'; d.innerHTML='복구 코드를 입력하세요.<br><span style="font-size:12px">Enter the recovery code to reset.</span>'; b.textContent='확인 · Verify'; r.style.display='inline-block'; r.textContent='← 돌아가기'; input.type='text'; input.placeholder='RECOVERY CODE'; }
-    if(m==='newpw'){ t.textContent='새 비밀번호 설정'; d.innerHTML='새 비밀번호를 입력하세요.<br><span style="font-size:12px">Set a new password (this device).</span>'; b.textContent='저장 · Save'; r.style.display='none'; input.type='password'; input.placeholder='••••'; }
-    input.focus();
-  }
-  function submit(){
-    var v=(input.value||'').trim();
-    if(mode==='enter'){
-      if(v===pw()){ pass(); document.body.classList.remove('gated'); gate.remove(); }
-      else{ err.textContent='비밀번호가 올바르지 않습니다. Incorrect password.'; input.value=''; input.focus(); }
-    }else if(mode==='recover'){
-      if(v===RECOVERY_CODE){ setMode('newpw'); }
-      else{ err.textContent='복구 코드가 올바르지 않습니다. Incorrect recovery code.'; input.value=''; input.focus(); }
-    }else if(mode==='newpw'){
-      if(v.length<4){ err.textContent='4자 이상 입력해 주세요. Use at least 4 characters.'; return; }
-      try{ localStorage.setItem('brkg_gate_pw', v); }catch(e){}
-      pass(); document.body.classList.remove('gated'); gate.remove();
-      alert('비밀번호가 변경되었습니다. (이 기기 기준)');
-    }
-  }
-  document.getElementById('gBtn').addEventListener('click', submit);
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); });
-  document.getElementById('gReset').addEventListener('click', function(){ setMode(mode==='enter'?'recover':'enter'); });
-  setTimeout(function(){ input.focus(); }, 120);
-})();
 </script>
 </body>
 </html>

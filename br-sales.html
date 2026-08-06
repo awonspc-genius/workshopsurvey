@@ -112,11 +112,11 @@
     <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
     <div class="err" id="sErr"></div>
     <button id="sBtn">열기</button>
-    <button class="back" id="sBack">관리자 대시보드로</button>
+    <button class="back" id="sBack">처음 화면으로</button>
   </div>
 </div>
 <div class="wrap">
-  <div class="backbar" id="backbar"><a href="br-survey-admin.html"><span>←</span> 관리자 대시보드</a></div>
+  <div class="backbar" id="backbar"><a href="index.html"><span>←</span> BRK Genius</a></div>
   <header>
     <h1>2019 – 2026.06 <em>월별 매출</em> × FOM & IP 캘린더</h1>
     <span class="sub-h">배스킨라빈스 · POS 실매출액(시재) 기준 · 90개월</span>
@@ -183,7 +183,7 @@ new Chart(document.getElementById('c'), {
                            매출 접근을 더 좁히려면 false 로 바꾸세요.
    ===================================================================== */
 var SALES_CODE = "3131";
-var TRUST_ADMIN_SESSION = true;
+var TRUST_ADMIN_SESSION = false;
 
 (function(){
   var SKEY = "br_sales_ok", AKEY = "br_admin_ok";
@@ -224,7 +224,7 @@ var TRUST_ADMIN_SESSION = true;
     if (e.key === "Enter") attempt();
   });
   var back = document.getElementById("sBack");
-  if (back) back.addEventListener("click", function(){ window.location.href = "br-survey-admin.html"; });
+  if (back) back.addEventListener("click", function(){ window.location.href = "index.html"; });
 })();
 </script>
 </body>
