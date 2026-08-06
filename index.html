@@ -76,6 +76,8 @@
   .gate:hover .art svg{transform:translateY(-5px) scale(1.05);}
 
   .gate h2{font-size:clamp(31px,4.4vw,50px); font-weight:900; letter-spacing:-.035em; line-height:1;}
+  .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(17px,1.9vw,22px);
+            letter-spacing:.02em; color:var(--gold); margin-top:9px;}
   .gate .desc{font-size:14.5px; line-height:1.6; margin-top:13px; max-width:34ch;
               color:rgba(255,255,255,.74);}
   .stats{display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; padding-top:18px;
@@ -145,7 +147,7 @@
         <circle cx="53" cy="30" r="2.6" fill="#232A4A"/><circle cx="68" cy="38" r="2.2" fill="#232A4A"/>
       </svg>
     </div>
-    <h2 data-t="t1">설문 조사</h2>
+    <h2 data-t="t1">설문조사</h2>
     <p class="desc" data-t="d1">매장 방문객 피드백, 브랜드 헬스 트래킹, FOM 컨셉 사전 반응 조사.</p>
     <div class="stats">
       <div class="stat"><div class="v">7</div><div class="l" data-t="s1a">진행 중</div></div>
@@ -171,8 +173,9 @@
         <path d="M14 40 L47 22 L74 34 L108 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5"/>
       </svg>
     </div>
-    <h2 data-t="t2">BR 매출</h2>
-    <p class="desc" data-t="d2">2019 – 2026.06 POS 실매출 90개월 타임라인 × FOM &amp; IP 캠페인 캘린더.</p>
+    <h2 data-t="t2">BR 총 POS 매출</h2>
+    <div class="yr">2019 &ndash; 2026</div>
+    <p class="desc" data-t="d2">90개월 월별 실매출 타임라인 × FOM &amp; IP 캠페인 캘린더.</p>
     <div class="stats">
       <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
       <div class="stat"><div class="v">742<small style="font-size:12px">억</small></div><div class="l" data-t="s2b">월평균</div></div>
@@ -209,9 +212,9 @@
 var EN = {
   sub:'Marketing Strategy · Genius Team',
   a1:'Internal', a2:'Confidential · passcode',
-  t1:'Surveys', t2:'BR Sales',
+  t1:'Surveys', t2:'BR Total POS Sales',
   d1:'Store visitor feedback, brand health tracking, and FOM concept pre-tests.',
-  d2:'90 months of POS revenue, 2019 – 2026.06, mapped against the FOM &amp; IP campaign calendar.',
+  d2:'90 months of monthly revenue, mapped against the FOM &amp; IP campaign calendar.',
   s1a:'running', s1b:'closed', s1c:'stores',
   s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
   g1:'Open survey site', g2:'Open sales timeline',
