@@ -597,9 +597,19 @@ var TRUST_ADMIN_SESSION = false;
                  (TRUST_ADMIN_SESSION && sessionStorage.getItem(AKEY) === "1"); }
     catch(e){ return false; }
   }
+  function toEnd(){
+    /* 최신 월(맨 오른쪽)이 먼저 보이도록 타임라인을 끝으로 보낸다 */
+    var sc = document.querySelector(".scroller");
+    if (!sc) return;
+    var go = function(){ sc.scrollLeft = sc.scrollWidth; };
+    go();
+    requestAnimationFrame(go);
+    setTimeout(go, 60); setTimeout(go, 300); setTimeout(go, 900);
+  }
   function unlock(){
     try { sessionStorage.setItem(SKEY, "1"); } catch(e){}
     document.body.classList.remove("locked");
+    toEnd();
   }
   function attempt(){
     var el = document.getElementById("sCode");
@@ -617,7 +627,7 @@ var TRUST_ADMIN_SESSION = false;
     var sb = document.getElementById("sBack");   if (sb) sb.style.display = "none";
   }
 
-  if (ok()) { document.body.classList.remove("locked"); }
+  if (ok()) { document.body.classList.remove("locked"); toEnd(); }
   else {
     var i = document.getElementById("sCode"); if (i) i.focus();
   }
