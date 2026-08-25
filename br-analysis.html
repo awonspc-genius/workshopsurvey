@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>2026 THEME · TPO 분석 | BRK Genius</title>
+<title>분석: 2027년도 마케팅 전략 | BRK Genius</title>
 <style>
   :root { --cream:#FFFFFF; --choco:#000000; --berry:#E8447A; --mint:#0F6E56;
           --soft:#F6E3E9; --line:#EBD9CD; --gold:#C9A227; }
@@ -122,7 +122,7 @@
 
 <div class="sgate" id="sgate">
   <div class="box">
-    <h2>2026 THEME 분석</h2>
+    <h2>분석: 2027년도 마케팅 전략</h2>
     <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
     <div class="err" id="sErr"></div>
     <button id="sBtn">열기</button>
@@ -133,8 +133,7 @@
 <div class="wrap">
   <div class="backbar" id="backbar"><a href="br-sales.html"><span>←</span> 매출 · FOM &amp; IP 캘린더</a></div>
   <header>
-    <h1>2026 THEME <em>· TPO 분석</em></h1>
-    <span class="sub-h">시즌성 지수 × 월별 TPO × 제철 원료 · 지수 기준 2019.01–2025.12</span>
+    <h1>분석: <em>2027년도 마케팅 전략</em></h1>
   </header>
 
   <div class="smark first"><i>&gt;</i> Seasonality<small>마감 84개월 기준 · 100 = 7년 월평균 743억</small></div>
@@ -207,15 +206,15 @@
 </script>
 
 <script>
-var SALES_CODE = "3131";
+var ANALYSIS_CODE = "2701";
 (function(){
-  var SKEY = "br_sales_ok";
+  var SKEY = "br_analysis_ok";
   function ok(){ try { return sessionStorage.getItem(SKEY) === "1"; } catch(e){ return false; } }
   function unlock(){ try { sessionStorage.setItem(SKEY,"1"); } catch(e){}
                      document.body.classList.remove("locked"); }
   function attempt(){
     var el = document.getElementById("sCode"), v = (el && el.value) || "";
-    if (v === SALES_CODE) unlock();
+    if (v === ANALYSIS_CODE) unlock();
     else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
            if (el) { el.value=""; el.focus(); } }
   }
