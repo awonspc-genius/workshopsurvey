@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>2026 THEME · TPO 분석 | BRK Genius</title>
+<style>
+  :root { --cream:#FFFFFF; --choco:#000000; --berry:#E8447A; --mint:#0F6E56;
+          --soft:#F6E3E9; --line:#EBD9CD; --gold:#C9A227; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+         background:var(--cream); color:var(--choco); padding:56px 40px 72px; }
+  body.locked > .wrap { display:none; }
+  body:not(.locked) > .sgate { display:none; }
+  .wrap { max-width:1280px; margin:0 auto; }
+  [hidden] { display:none !important; }
+  .backbar { margin-bottom:18px; }
+  .backbar a { display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+               font-size:12.5px; font-weight:800; color:#8a6f63; border:1px solid var(--line);
+               border-radius:20px; padding:7px 15px; transition:.18s; }
+  .backbar a:hover { border-color:var(--berry); color:var(--berry); }
+  header { display:flex; align-items:baseline; justify-content:space-between;
+           padding-bottom:14px; flex-wrap:wrap; gap:8px; }
+  h1 { font-size:30px; font-weight:900; letter-spacing:-0.5px; }
+  h1 em { font-style:normal; color:var(--berry); }
+  .sub-h { font-size:14px; color:#8a6f63; }
+  h2 { font-size:20px; font-weight:700; margin-bottom:14px; }
+  .smark { display:flex; align-items:baseline; gap:9px; margin:58px 0 20px; padding-top:20px;
+           border-top:2px solid var(--choco); font-size:21px; font-weight:900;
+           color:var(--choco); letter-spacing:-0.4px; }
+  .smark i { font-style:normal; color:var(--berry); font-size:23px; line-height:1; }
+  .smark small { margin-left:auto; font-size:12px; font-weight:500; color:#8a6f63; letter-spacing:0; }
+  .smark.first { margin-top:0; border-top-width:3px; }
+  .tgl { background:#fff; border:1.5px solid var(--line); border-radius:20px; font-family:inherit;
+         font-size:11px; font-weight:800; color:#8a6f63; padding:4px 11px; cursor:pointer; transition:.18s; }
+  .tgl:hover { border-color:var(--berry); color:var(--berry); }
+  .tgl i { font-style:normal; display:inline-block; margin-right:5px; transition:transform .22s; }
+  .tgl[aria-expanded="true"] i { transform:rotate(90deg); }
+  .srcbar2 { margin-top:14px; }
+  .lead { font-size:12.5px; color:#8a6f63; line-height:1.75; background:#FDF7F3;
+          border:1px solid var(--line); border-radius:10px; padding:13px 16px; margin-top:14px; }
+  .lead b { color:var(--choco); }
+  /* insight cards */
+  .agrid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .acard { background:#fff; border:1px solid var(--line); border-radius:14px;
+           padding:20px 20px 16px; display:flex; flex-direction:column; }
+  .aeb { font-size:10.5px; font-weight:900; letter-spacing:.14em; color:#B09A8C; margin-bottom:11px; }
+  .ahd b { font-size:38px; font-weight:900; color:var(--berry); line-height:1;
+           letter-spacing:-1.5px; font-variant-numeric:tabular-nums; }
+  .ahd b i { font-size:19px; font-style:normal; margin-left:1px; letter-spacing:0; }
+  .ahd span { display:block; font-size:12px; font-weight:700; color:#8a6f63; margin-top:7px; }
+  .ahd em { font-style:normal; color:var(--choco); }
+  .anote { margin-top:auto; padding-top:13px; font-size:12px; line-height:1.6; color:#8a6f63;
+           border-top:1px dashed var(--line); }
+  .anote b { color:var(--choco); font-weight:800; }
+  /* hero */
+  .thero { background:#fff; border:1px solid var(--line); border-radius:14px;
+           padding:18px 22px; margin-bottom:16px; }
+  .thero b { display:block; font-size:16px; font-weight:900; color:var(--berry); margin-bottom:5px; }
+  .thero span { font-size:13.5px; color:#5C463D; line-height:1.6; }
+  .thero span em { font-style:normal; font-weight:800; color:var(--choco); }
+  /* matrix */
+  .tscroll { overflow-x:auto; padding-bottom:4px; }
+  .ttab { display:grid; grid-template-columns:repeat(12,1fr); gap:0 7px; min-width:1240px; }
+  .tc { background:#fff; border-left:1px solid var(--line); border-right:1px solid var(--line);
+        padding:8px 9px; }
+  .tc.h { background:var(--berry); color:#fff; border:none; border-radius:9px 9px 0 0;
+          padding:7px 2px; text-align:center; font-size:12.5px; font-weight:900;
+          letter-spacing:-0.2px; white-space:nowrap; }
+  .tc.h em { font-style:normal; font-size:7.5px; letter-spacing:.04em; opacity:.8; margin-left:2px; }
+  .tc.last { border-bottom:1px solid var(--line); border-radius:0 0 9px 9px; padding-bottom:10px; }
+  .tc.now { border-left-color:var(--choco); border-right-color:var(--choco); }
+  .tc.h.now { background:var(--choco); }
+  .tc.last.now { border-bottom-color:var(--choco); }
+  .siw { height:46px; display:flex; align-items:flex-end; }
+  .sib { width:100%; border-radius:3px 3px 0 0; background:#DDD1C8; }
+  .sib.hi { background:var(--berry); } .sib.mid { background:#F19BBE; }
+  .siv { font-size:12.5px; font-weight:900; text-align:center; margin-top:4px;
+         font-variant-numeric:tabular-nums; color:#A8938A; }
+  .siv.hi { color:var(--berry); } .siv.mid { color:#C25680; }
+  .mgv { font-size:11px; font-weight:800; text-align:center; color:#A8938A; }
+  .mgv.on { color:var(--berry); font-weight:900; } .mgv.mid { color:#5C463D; }
+  .tev { list-style:none; }
+  .tev li { position:relative; padding-left:8px; margin-bottom:4px; font-size:11px;
+            line-height:1.4; font-weight:700; color:var(--choco); }
+  .tev li:last-child { margin-bottom:0; }
+  .tev li:before { content:''; position:absolute; left:0; top:6px; width:3px; height:3px;
+                   border-radius:50%; background:#C9B3A6; }
+  .tev li.key { color:var(--berry); } .tev li.key:before { background:var(--berry); }
+  .tev li em { font-style:normal; font-weight:500; font-size:9.5px; color:#8a6f63; }
+  .tev li.key em { color:#D4708F; }
+  .tsp { display:flex; flex-wrap:wrap; gap:3px; }
+  .tsp span { background:#FBEDF2; color:#9A3760; font-size:9.5px; font-weight:800;
+              padding:2px 5px; border-radius:3px; }
+  .ttpo { font-size:11px; line-height:1.45; color:#5C463D; border-left:2px solid #F0B9CE; padding-left:7px; }
+  .tsf { background:#FBF3E1; border-radius:6px; padding:7px 8px; font-size:10.5px;
+         line-height:1.45; font-weight:700; color:#7A5E14; }
+  .tsf b { display:block; font-size:8px; letter-spacing:.08em; color:#B69746; margin-bottom:2px; font-weight:900; }
+  .tsf em { font-style:normal; font-weight:900; color:#5E4708; }
+  .rlab { font-size:10.5px; font-weight:800; color:#B09A8C; margin:0 0 7px; letter-spacing:.02em; }
+  .legend2 { display:flex; gap:14px; font-size:11.5px; color:#8a6f63; margin-bottom:10px; flex-wrap:wrap; }
+  .legend2 span { display:flex; align-items:center; gap:5px; }
+  .legend2 i { width:10px; height:10px; border-radius:2px; display:inline-block; }
+  footer { margin-top:18px; font-size:11.5px; color:#8a6f63; line-height:1.8; }
+  /* gate */
+  .sgate { position:fixed; inset:0; display:grid; place-items:center;
+           background:radial-gradient(120% 80% at 50% 0%, #fff 0%, #FAFAFA 60%); z-index:99; }
+  .sgate .box { background:#fff; border:1px solid var(--line); border-radius:16px;
+                padding:32px 34px; width:min(92vw,360px); text-align:center; }
+  .sgate h2 { font-size:18px; margin-bottom:16px; }
+  .sgate input { width:100%; padding:11px 13px; font-size:16px; text-align:center;
+                 border:1.5px solid var(--line); border-radius:10px; font-family:inherit; }
+  .sgate button { margin-top:12px; width:100%; padding:11px; border:none; border-radius:10px;
+                  background:var(--berry); color:#fff; font-family:inherit; font-size:14px;
+                  font-weight:800; cursor:pointer; }
+  .sgate .back { background:#fff; color:#8a6f63; border:1.5px solid var(--line); margin-top:8px; }
+  .sgate .err { color:var(--berry); font-size:12px; min-height:16px; margin-top:8px; font-weight:700; }
+</style>
+</head>
+<body class="locked">
+
+<div class="sgate" id="sgate">
+  <div class="box">
+    <h2>2026 THEME 분석</h2>
+    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
+    <div class="err" id="sErr"></div>
+    <button id="sBtn">열기</button>
+    <button class="back" id="sBack">매출 페이지로</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="backbar" id="backbar"><a href="br-sales.html"><span>←</span> 매출 · FOM &amp; IP 캘린더</a></div>
+  <header>
+    <h1>2026 THEME <em>· TPO 분석</em></h1>
+    <span class="sub-h">시즌성 지수 × 월별 TPO × 제철 원료 · 지수 기준 2019.01–2025.12</span>
+  </header>
+
+  <div class="smark first"><i>&gt;</i> Seasonality<small>마감 84개월 기준 · 100 = 7년 월평균 743억</small></div>
+
+  <div class="agrid">
+    <div class="acard">
+      <div class="aeb">01 &nbsp;PEAK &amp; TROUGH</div>
+      <div class="ahd"><b>42<i>p</i></b><span>12월(119) − 11월(77) 격차</span></div>
+      <div class="anote">연중 <b>최고와 최저가 붙어 있다</b>. 12월 대비 11월은 매출이 <b>35% 낮다</b>.</div>
+    </div>
+    <div class="acard">
+      <div class="aeb">02 &nbsp;SUMMER GAP</div>
+      <div class="ahd"><b>112</b><span>여름(6–8월) 지수 · 1분기 <em>91</em></span></div>
+      <div class="anote">여름은 두면 팔린다. TPO가 실제로 필요한 구간은 <b>지수 100 미만 7개월</b>이다.</div>
+    </div>
+    <div class="acard">
+      <div class="aeb">03 &nbsp;MISMATCH</div>
+      <div class="ahd"><b>5–6<i>월</i></b><span>MEGA HIT 9건 집중 · 지수 <em>111 / 102</em></span></div>
+      <div class="anote">굿즈 히트는 5–6월인데 매출 성수기는 <b>8·12월</b>이다. 최대 트래픽 달에 최강 굿즈가 없다.</div>
+    </div>
+  </div>
+
+  <div class="smark"><i>&gt;</i> 2026 TPO 캘린더<small>Sensing the Moment</small></div>
+
+  <div class="thero"><b>Sensing the Moment</b><span>나의 상황과 기분<em>(TPO)</em>에 먹고 싶은 플레이버 = <em>FOM을 먹고 싶은 이유</em>를 만들어주기</span></div>
+
+  <div class="legend2">
+    <span><i style="background:#E8447A"></i>지수 110+</span>
+    <span><i style="background:#F19BBE"></i>100–110</span>
+    <span><i style="background:#DDD1C8"></i>100 미만</span>
+    <span style="color:#A8988B;">← 좌우 스크롤 →</span>
+  </div>
+
+  <div class="rlab">행 순서 : 시즌성 지수 · MEGA HIT 건수 · 이벤트 · 센싱 포인트 · TPO · 제철 원료</div>
+  <div class="tscroll">
+    <div class="ttab"><div class="tc h">1월</div><div class="tc h">2월</div><div class="tc h">3월</div><div class="tc h">4월</div><div class="tc h">5월</div><div class="tc h">6월</div><div class="tc h">7월</div><div class="tc h now">8월<em>NOW</em></div><div class="tc h">9월</div><div class="tc h">10월</div><div class="tc h">11월</div><div class="tc h">12월</div><div class="tc"><div class="siw" title="1월 7년 평균 723억"><div class="sib lo" style="height:50%"></div></div><div class="siv lo">97</div></div><div class="tc"><div class="siw" title="2월 7년 평균 636억"><div class="sib lo" style="height:28%"></div></div><div class="siv lo">86</div></div><div class="tc"><div class="siw" title="3월 7년 평균 677억"><div class="sib lo" style="height:38%"></div></div><div class="siv lo">91</div></div><div class="tc"><div class="siw" title="4월 7년 평균 668억"><div class="sib lo" style="height:36%"></div></div><div class="siv lo">90</div></div><div class="tc"><div class="siw" title="5월 7년 평균 825억"><div class="sib hi" style="height:75%"></div></div><div class="siv hi">111</div></div><div class="tc"><div class="siw" title="6월 7년 평균 759억"><div class="sib mid" style="height:58%"></div></div><div class="siv mid">102</div></div><div class="tc"><div class="siw" title="7월 7년 평균 861억"><div class="sib hi" style="height:84%"></div></div><div class="siv hi">116</div></div><div class="tc now"><div class="siw" title="8월 7년 평균 878억"><div class="sib hi" style="height:88%"></div></div><div class="siv hi">118</div></div><div class="tc"><div class="siw" title="9월 7년 평균 737억"><div class="sib lo" style="height:53%"></div></div><div class="siv lo">99</div></div><div class="tc"><div class="siw" title="10월 7년 평균 692억"><div class="sib lo" style="height:42%"></div></div><div class="siv lo">93</div></div><div class="tc"><div class="siw" title="11월 7년 평균 572억"><div class="sib lo" style="height:13%"></div></div><div class="siv lo">77</div></div><div class="tc"><div class="siw" title="12월 7년 평균 885억"><div class="sib hi" style="height:89%"></div></div><div class="siv hi">119</div></div><div class="tc"><div class="mgv zero">–</div></div><div class="tc"><div class="mgv zero">–</div></div><div class="tc"><div class="mgv zero">–</div></div><div class="tc"><div class="mgv mid">1건</div></div><div class="tc"><div class="mgv on">4건</div></div><div class="tc"><div class="mgv on">5건</div></div><div class="tc"><div class="mgv zero">–</div></div><div class="tc now"><div class="mgv mid">1건</div></div><div class="tc"><div class="mgv mid">1건</div></div><div class="tc"><div class="mgv on">3건</div></div><div class="tc"><div class="mgv zero">–</div></div><div class="tc"><div class="mgv mid">1건</div></div><div class="tc"><ul class="tev"><li class="">신정, 신년</li><li class="key">K헤리티지<em>(궁중떡)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">구정<em>(달항아리 케이크)</em></li><li class="">발렌타인</li></ul></div><div class="tc"><ul class="tev"><li class="">신학기</li><li class="">강아지의날<em>(3/23, 플루토IP)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">벚꽃</li><li class="key">세계 펭귄의날<em>(4/25, 펭귄북스IP)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">야구시즌 절정기</li><li class="">가정의달<em>(어린이날, 어버이날)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">토이스토리 개봉</li><li class="key">2026 피파월드컵<em>(6/11~7/19)</em></li><li class="">배라 41주년<em>(6/7)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">워터밤 페스티벌</li><li class="key">인류최초 달착륙의 날 Moonday<em>(7/20)</em></li></ul></div><div class="tc now"><ul class="tev"><li class="">여름휴가시즌</li><li class="key">고양이의날<em>(8/8, 모프샌드IP)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">추석<em>(9/24~26)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">캠핑/마라톤 시즌</li><li class="key">한글날<em>(10/9, 배숙희&라빈수 이름마케팅)</em></li><li class="">그래이맛</li></ul></div><div class="tc"><ul class="tev"><li class="">빼빼로데이<em>(11/11)</em></li><li class="">수능<em>(11/19)</em></li><li class="">블랙프라이데이<em>(11/27)</em></li></ul></div><div class="tc"><ul class="tev"><li class="">크리스마스</li><li class="">연말연시</li></ul></div><div class="tc"><div class="tsp"><span>새로운 시작</span><span>희망</span><span>기대</span></div></div><div class="tc"><div class="tsp"><span>로맨틱</span><span>관계적 따뜻함</span></div></div><div class="tc"><div class="tsp"><span>설렘</span><span>활기</span><span>유대감</span></div></div><div class="tc"><div class="tsp"><span>설레임</span><span>여유감</span><span>낭만</span></div></div><div class="tc"><div class="tsp"><span>응원</span><span>활기</span><span>가족애</span></div></div><div class="tc"><div class="tsp"><span>즐거움</span><span>몰입감</span><span>유대감</span></div></div><div class="tc"><div class="tsp"><span>에너제틱</span><span>해방감</span><span>청량감</span></div></div><div class="tc now"><div class="tsp"><span>모험심</span><span>자유</span><span>즐거움</span></div></div><div class="tc"><div class="tsp"><span>그리움</span><span>따뜻함</span><span>전통적 위로</span></div></div><div class="tc"><div class="tsp"><span>모험심</span><span>힐링</span></div></div><div class="tc"><div class="tsp"><span>해방감</span><span>스트레스 해소</span></div></div><div class="tc"><div class="tsp"><span>로맨틱</span><span>축제</span><span>나눔</span><span>따뜻함</span></div></div><div class="tc"><div class="ttpo">신년 해돋이를 보며 새해를 다짐하는 순간</div></div><div class="tc"><div class="ttpo">사랑하는 사람과 도란도란 이야기하는 순간</div></div><div class="tc"><div class="ttpo">신학기 방과 후 친구들과 함께 하교하는 순간</div></div><div class="tc"><div class="ttpo">키티</div></div><div class="tc"><div class="ttpo">가족과 야구장에서 직관하는 순간</div></div><div class="tc"><div class="ttpo">친구들과 함께 영화를 보는 순간</div></div><div class="tc"><div class="ttpo">워터밤 페스티벌에 가서 물벼락 맞는 순간</div></div><div class="tc now"><div class="ttpo">넓은 바다에서 바캉스를 즐기는 순간</div></div><div class="tc"><div class="ttpo">고향에 가족들이 모두 함께 모이는 순간</div></div><div class="tc"><div class="ttpo">깊은 숲속에서 캠핑을 즐기는 순간</div></div><div class="tc"><div class="ttpo">찬바람 불기 시작하니 겨울 군것질 하고 싶은 순간</div></div><div class="tc"><div class="ttpo">크리스마스를 축하하며 사랑하는 사람들과 함께하는 순간</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>딸기</em> · 한라봉, 밤, 단호박</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>딸기</em> · 레드향·천혜향, 금귤, 유자</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>딸기</em> · 쑥, 한라봉</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>참외</em> · 벚꽃(식용), 딸기 끝물</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>오디</em> · 앵두, 매실, 참외, 수박</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>체리·자두</em> · 살구, 매실, 복분자, 초당옥수수</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>복숭아(백도)</em> · 블루베리, 수박, 자두, 초당옥수수</div></div><div class="tc now last"><div class="tsf"><b>제철 원료</b><em>포도(캠벨·샤인머스캣)</em> · 복숭아(황도), 무화과, 자두</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>무화과</em> · 샤인머스캣, 배, 밤, 사과(홍로)</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>단감·홍시</em> · 밤, 대추, 고구마, 단호박</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>유자</em> · 곶감, 귤, 팥, 고구마</div></div><div class="tc last"><div class="tsf"><b>제철 원료</b><em>귤</em> · 유자, 한라봉, 팥, 밤</div></div></div>
+  </div>
+
+  <div class="srcbar2"><button class="tgl" type="button" aria-expanded="false" aria-controls="tsrc"
+    data-open="출처 · 산출 기준" data-close="닫기"><i>▶</i><span class="tglt">출처 · 산출 기준</span></button></div>
+  <div class="lead" id="tsrc" hidden>
+    <b>시즌성 지수</b> = 해당 월 7년(2019–2025) 평균 매출 ÷ 84개월 전체 평균 743억 × 100.
+    2026년은 미마감·부분 데이터가 섞여 지수 산출에서 제외했다. 원자료는 POS 실매출액(시재) 월별 집계.<br>
+    <b>MEGA HIT</b> = 판매 개시 3일 이내 전량 소진. 2019–2025년 151건 중 16건이며 출처는
+    「19–25년 굿즈 프로모션 진행 件」(채마팀).<br>
+    <b>TPO · 센싱 포인트 · 이벤트</b> 출처: BR 마케팅 전략 지니어스 팀 「2026 THEME」 ·
+    <span style="color:#E8447A;font-weight:700;">분홍</span> 표기는 IP·앵커 이벤트.<br>
+    <b>제철 원료</b>는 원본 「2026 THEME」에 없는 항목으로, 국내 출하 성수기 기준 별도 정리다.
+    아이스크림·샤베트 가공이 가능한 품목만 추렸고 굵은 글씨가 해당 월 메인이며,
+    시설재배·품종·산지에 따라 1개월 내외 편차가 있다.
+  </div>
+
+  <footer>BRK Genius · 내부 검토용</footer>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('.tgl[aria-controls]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var w = document.getElementById(b.getAttribute('aria-controls'));
+      if (!w) return;
+      var opening = w.hasAttribute('hidden');
+      if (opening) w.removeAttribute('hidden'); else w.setAttribute('hidden','');
+      b.setAttribute('aria-expanded', opening ? 'true' : 'false');
+      var t = b.querySelector('.tglt');
+      if (t) t.textContent = opening ? (b.dataset.close || '접기') : (b.dataset.open || '펼치기');
+    });
+  });
+})();
+</script>
+
+<script>
+var SALES_CODE = "3131";
+(function(){
+  var SKEY = "br_sales_ok";
+  function ok(){ try { return sessionStorage.getItem(SKEY) === "1"; } catch(e){ return false; } }
+  function unlock(){ try { sessionStorage.setItem(SKEY,"1"); } catch(e){}
+                     document.body.classList.remove("locked"); }
+  function attempt(){
+    var el = document.getElementById("sCode"), v = (el && el.value) || "";
+    if (v === SALES_CODE) unlock();
+    else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
+           if (el) { el.value=""; el.focus(); } }
+  }
+  if (ok()) document.body.classList.remove("locked");
+  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
+  document.getElementById("sBtn").addEventListener("click", attempt);
+  document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key==="Enter") attempt(); });
+  document.getElementById("sBack").addEventListener("click", function(){ window.location.href = "br-sales.html"; });
+})();
+</script>
+</body>
+</html>
