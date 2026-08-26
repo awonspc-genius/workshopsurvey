@@ -102,6 +102,26 @@
          flex-wrap:wrap; gap:8px; padding:0 clamp(18px,4vw,44px) 24px;
          font-size:12px; color:var(--mute);}
 
+  /* ---------- on-site field note strip ---------- */
+  .onsite{display:flex; align-items:center; gap:18px; text-decoration:none; color:inherit;
+          margin:0 clamp(18px,4vw,44px) clamp(14px,2vw,20px); padding:17px 22px;
+          background:var(--paper); border:1.5px solid var(--line); border-left:4px solid #EC0089;
+          border-radius:16px; transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;}
+  .onsite:hover{border-color:#EC0089; box-shadow:0 10px 26px -18px rgba(35,42,74,.55); transform:translateY(-1px);}
+  .onsite:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
+  .onsite .cam{font-size:23px; line-height:1; flex:none;}
+  .onsite .txt{flex:1; min-width:0;}
+  .onsite .kick{font-family:'Fredoka',sans-serif; font-weight:600; font-size:10.5px;
+                letter-spacing:.16em; color:#EC0089; display:block; margin-bottom:4px;}
+  .onsite .ttl{font-weight:900; font-size:16.5px; letter-spacing:-.025em; display:block;}
+  .onsite .sub{font-size:12.5px; color:var(--mute); display:block; margin-top:3px;}
+  .onsite .cta{flex:none; font-weight:700; font-size:13px; padding:9px 17px; border-radius:12px;
+               background:var(--ink); color:#fff;}
+  @media (max-width:560px){
+    .onsite{flex-wrap:wrap; gap:12px;}
+    .onsite .cta{width:100%; text-align:center;}
+  }
+
   @media (max-width:860px){
     .fork{flex-direction:column; gap:14px;}
     .gate{min-height:0;}
@@ -137,7 +157,7 @@
 <main class="fork">
 
   <a class="gate survey" href="surveys.html">
-    <span class="acc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><span data-t="a1">사내 · 비밀번호</span></span>
+    <span class="acc" data-t="a1">사내 공개</span>
     <div class="art">
       <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
         <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
@@ -196,6 +216,16 @@
 
 </main>
 
+<a class="onsite" href="br-store-report.html">
+  <span class="cam" aria-hidden="true">📷</span>
+  <span class="txt">
+    <span class="kick" data-t="ok">FIELD NOTE</span>
+    <span class="ttl" data-t="ot">ON-SITE 매장 사진 리포트</span>
+    <span class="sub" data-t="od">외부 · 내부 · 디핑구 · 메뉴보드 4컷을 기록하고 A4로 출력해요</span>
+  </span>
+  <span class="cta" data-t="og">기록 시작 →</span>
+</a>
+
 <footer>
   <span data-t="ft">© Baskin-Robbins Korea · 마케팅전략실</span>
   <span id="today"></span>
@@ -211,12 +241,15 @@
 /* ---- KO / EN ---- */
 var EN = {
   sub:'Marketing Strategy · Genius Team',
-  a1:'Internal · passcode', a2:'Confidential · passcode',
+  a1:'Internal', a2:'Confidential · passcode',
   t1:'Surveys', t2:'BR Total POS Sales',
   d1:'Store visitor feedback, brand health tracking, and FOM concept pre-tests.',
   d2:'90 months of monthly revenue, mapped against the FOM &amp; IP campaign calendar.',
   s1a:'running', s1b:'closed', s1c:'stores',
   s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
+  ok:'FIELD NOTE', ot:'ON-SITE Store Photo Report',
+  od:'Capture exterior, interior, dipping cabinet and menu board — then print to A4.',
+  og:'Start a report →',
   g1:'Open survey site', g2:'Open sales timeline',
   ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };

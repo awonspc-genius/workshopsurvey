@@ -54,6 +54,17 @@ input,textarea{font-family:inherit}
 .gate-box button{width:100%;margin-top:10px;padding:13px;border:0;border-radius:10px;background:var(--ink);color:#fff;font-size:14px;font-weight:700}
 .gate-err{color:var(--pink);font-size:12px;margin-top:10px;min-height:16px;font-weight:600}
 
+/* ── 상단 내비 (허브와 동일한 위치·톤) ──────────────────── */
+.topnav{display:flex;align-items:center;gap:12px;padding:18px 0 0}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.brand .mark{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--blue);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:0 0 auto}
+.brand .bn{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.brand .bs{font-size:10.5px;color:var(--ink-60);letter-spacing:-.01em}
+.navlinks{margin-left:auto;display:flex;gap:7px}
+.navlinks a{border:1px solid var(--line-hard);background:#fff;border-radius:20px;padding:8px 14px;font-size:12px;font-weight:700;color:var(--ink-60);text-decoration:none;transition:border-color .15s,color .15s}
+.navlinks a:hover{color:var(--ink);border-color:var(--ink-30)}
+@media (max-width:520px){.brand .bs{display:none}.navlinks a{padding:8px 11px;font-size:11.5px}}
+
 /* ── 헤더 ────────────────────────────────────────────────── */
 .wrap{max-width:940px;margin:0 auto;padding:0 20px}
 header{padding:34px 0 22px}
@@ -214,6 +225,18 @@ h1.title .on{color:var(--pink)}
 
 <!-- ══ 본문 ══════════════════════════════════════════════ -->
 <div class="wrap">
+  <!-- 상단 내비 — 허브(surveys.html) / 게이트웨이(index.html)로 복귀 -->
+  <nav class="topnav">
+    <a class="brand" href="index.html">
+      <span class="mark">31</span>
+      <span><span class="bn">BRK Genius</span><br><span class="bs">서베이 시스템 · 마케팅전략실</span></span>
+    </a>
+    <span class="navlinks">
+      <a href="surveys.html">← 설문 조사</a>
+      <a href="index.html">BRK Genius</a>
+    </span>
+  </nav>
+
   <header>
     <div class="eyebrow-row">
       <span class="pill">FIELD NOTE</span>
@@ -260,8 +283,9 @@ h1.title .on{color:var(--pink)}
    PASSCODE  : 설문 허브와 동일한 코드
    SESSION_KEY: 허브(surveys.html)와 같은 키를 쓰면 한 번만 입력하면 됩니다.
    ═════════════════════════════════════════════════════════ */
-var PASSCODE    = "2607";
-var SESSION_KEY = "brk_hub_session";
+var PASSCODE    = "2607";                 // 설문 허브와 동일한 코드
+var SESSION_KEY = "br_report_ok";         // br-sales.html의 br_sales_ok 와 같은 방식
+var TRUST_KEYS  = ["br_surveys_ok", "br_admin_ok"];  // 이미 통과한 세션이면 재입력 생략
 var STORE_KEY   = "brk_store_reports_v1";
 var MAX_EDGE    = 1600;   // 업로드 사진 최대 변 길이(px)
 var JPEG_Q      = 0.82;
@@ -298,8 +322,15 @@ function timeNow(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('
 
 /* ─ 잠금 ─ */
 var gate=document.getElementById('gate');
+function ssGet(k){ try{ return window.sessionStorage.getItem(k); }catch(e){ return null; } }
+function ssSet(k,v){ try{ window.sessionStorage.setItem(k,v); }catch(e){} }
+function alreadyIn(){
+  if(ssGet(SESSION_KEY)==='1') return true;
+  for(var i=0;i<TRUST_KEYS.length;i++){ if(ssGet(TRUST_KEYS[i])==='1') return true; }
+  return false;
+}
 function unlock(){ gate.style.display='none'; render(); }
-if(lsGet(SESSION_KEY)==='ok'){ unlock(); }
+if(alreadyIn()){ unlock(); }
 else{
   document.getElementById('gate-go').addEventListener('click', tryUnlock);
   document.getElementById('gate-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
@@ -307,7 +338,7 @@ else{
 }
 function tryUnlock(){
   var v=document.getElementById('gate-pw').value.trim();
-  if(v===PASSCODE){ lsSet(SESSION_KEY,'ok'); unlock(); }
+  if(v===PASSCODE){ ssSet(SESSION_KEY,'1'); unlock(); }
   else{ document.getElementById('gate-err').textContent='코드가 맞지 않아요. 다시 입력해 주세요.'; document.getElementById('gate-pw').value=''; document.getElementById('gate-pw').focus(); }
 }
 
