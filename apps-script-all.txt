@@ -1,0 +1,226 @@
+/* ============================================================
+   BRK Genius — Google Apps Script (설문 + ON-SITE 매장 리포트 통합본)
+
+   ▶ 이 파일 하나면 끝납니다
+   지금 쓰고 있는 설문 수집 코드에 매장 리포트 저장 기능만 얹은 것입니다.
+   기존 설문 동작은 그대로이고, URL도 바뀌지 않습니다.
+
+   ▶ 적용 방법 (5분, 한 번만)
+   1. 설문 응답이 쌓이는 구글 시트 열기 → 확장 프로그램 → Apps Script
+   2. 기존 코드를 전부 지우고 이 파일 내용을 붙여넣기
+   3. 저장 → 배포 → 배포 관리 → 편집(연필 아이콘) → 버전: 새 버전 → 배포
+      ★ "새 배포"가 아니라 기존 배포의 "새 버전"입니다.
+        새 배포를 하면 주소가 바뀌어서 설문 페이지까지 전부 고쳐야 해요.
+   4. 끝. br-store-report.html은 이미 이 주소를 바라보고 있습니다.
+
+   ▶ 무엇이 어디에 저장되나요
+   · 설문 응답    → 시트의 'Responses' 탭 (기존 그대로)
+   · 매장 리포트  → 시트의 'OnSite' 탭 (없으면 자동 생성)
+   · 매장 사진    → 내 드라이브 > 'BR ONSITE 매장리포트 사진' 폴더
+                    (매장·날짜별 하위 폴더로 정리, 링크가 시트에 기록)
+   ============================================================ */
+
+var SHEET_NAME  = 'Responses';                 // 설문 응답 탭 (기존)
+var STARTS_KEY  = 'starts';
+var ONSITE_NAME = 'OnSite';                    // 매장 리포트 탭 (신규)
+var FOLDER_NAME = 'BR ONSITE 매장리포트 사진';   // 사진 폴더
+var ONSITE_HEADERS = ['sentAt','id','store','date','author','hour','oneline','survey','notes','photos',
+                      '① 전경','② 외창','③ 메뉴보드','④ 디핑구','⑤ MD장','⑥ 포스'];
+var IMG_COL_START  = 11;   // '① 전경' 컬럼 (1부터 셈)
+var IMG_COUNT      = 6;
+var IMG_W          = 150;  // 시트에 표시할 썸네일 크기(px)
+var IMG_H          = 105;
+
+/* ── 공통 ─────────────────────────────────────────────── */
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(SHEET_NAME);
+  return sh;
+}
+
+function getOnsiteSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(ONSITE_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(ONSITE_NAME);
+    sh.getRange(1, 1, 1, ONSITE_HEADERS.length).setValues([ONSITE_HEADERS]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+    for (var c = 0; c < IMG_COUNT; c++) sh.setColumnWidth(IMG_COL_START + c, IMG_W + 10);
+  }
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, ONSITE_HEADERS.length).setValues([ONSITE_HEADERS]).setFontWeight('bold');
+  }
+  return sh;
+}
+
+function getFolder_(name, parent) {
+  var it = parent ? parent.getFoldersByName(name) : DriveApp.getFoldersByName(name);
+  if (it.hasNext()) return it.next();
+  return parent ? parent.createFolder(name) : DriveApp.createFolder(name);
+}
+
+/* ── 저장 ─────────────────────────────────────────────── */
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(30000);
+  try {
+    var body = JSON.parse(e.postData.contents);
+
+    /* ---- 설문: 시작 카운트 (기존) ---- */
+    if (body.type === 'start') {
+      var p = PropertiesService.getScriptProperties();
+      p.setProperty(STARTS_KEY, String((parseInt(p.getProperty(STARTS_KEY) || '0', 10)) + 1));
+      return ContentService.createTextOutput('ok');
+    }
+
+    /* ---- 설문: 응답 저장 (기존) ---- */
+    if (body.type === 'response') {
+      var sh = getSheet_();
+      var data = body.data || {};
+      var lastCol = sh.getLastColumn();
+      var headers = lastCol > 0 ? sh.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+      Object.keys(data).forEach(function (k) {
+        if (headers.indexOf(k) === -1) {
+          headers.push(k);
+          sh.getRange(1, headers.length).setValue(k);
+        }
+      });
+      var row = headers.map(function (hd) {
+        var v = data[hd];
+        if (Array.isArray(v)) v = v.join(' ; ');
+        return v === undefined || v === null ? '' : v;
+      });
+      sh.appendRow(row);
+      return ContentService.createTextOutput('ok');
+    }
+
+    /* ---- 매장 리포트 저장 (신규) ---- */
+    if (body.type === 'onsite') {
+      var store = String(body.store || '무제').replace(/[\\\/:*?"<>|]/g, '_');
+      var date  = String(body.date || '').slice(0, 10);
+      var folder = getFolder_(date + ' ' + store, getFolder_(FOLDER_NAME));
+
+      var urls = [];
+      (body.photos || []).forEach(function (ph, i) {
+        var parts = String(ph.data).split(',');
+        var bytes = Utilities.base64Decode(parts[1]);
+        var name  = date + '_' + store + '_' + (i + 1) + '_' + (ph.slot || 'photo') + '.jpg';
+        var old = folder.getFilesByName(name);
+        while (old.hasNext()) old.next().setTrashed(true);   // 재저장이면 교체
+        var file = folder.createFile(Utilities.newBlob(bytes, 'image/jpeg', name));
+        try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (err) {}
+        urls.push('https://drive.google.com/thumbnail?id=' + file.getId() + '&sz=w600');
+      });
+
+      var sv = body.survey || {};
+      var orow = [
+        new Date().toISOString(), body.id || '', body.store || '', body.date || '',
+        sv.author || '', sv.hour || '', sv.oneline || '',
+        JSON.stringify(sv), JSON.stringify(body.notes || {}), JSON.stringify(urls)
+      ];
+
+      var osh = getOnsiteSheet_();
+      var ids = osh.getLastRow() > 1
+        ? osh.getRange(2, 2, osh.getLastRow() - 1, 1).getValues().map(function (x) { return x[0]; })
+        : [];
+      var at = ids.indexOf(body.id);
+      var rowNum;
+      if (at > -1) { rowNum = at + 2; osh.getRange(rowNum, 1, 1, orow.length).setValues([orow]); }
+      else { osh.appendRow(orow); rowNum = osh.getLastRow(); }
+
+      /* 시트 안에서 사진이 바로 보이도록 IMAGE 수식을 넣습니다.
+         (파일은 드라이브에 있고 시트에는 수식만 — 용량은 늘지 않습니다) */
+      for (var c = 0; c < IMG_COUNT; c++) {
+        var cell = osh.getRange(rowNum, IMG_COL_START + c);
+        if (urls[c]) cell.setFormula('=IMAGE("' + urls[c] + '", 4, ' + IMG_H + ', ' + IMG_W + ')');
+        else cell.clearContent();
+      }
+      osh.setRowHeight(rowNum, IMG_H + 10);
+
+      return ContentService.createTextOutput('ok');
+    }
+
+    return ContentService.createTextOutput('ignored');
+  } catch (err) {
+    return ContentService.createTextOutput('error: ' + err);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ── 읽기 (JSONP) ─────────────────────────────────────── */
+function doGet(e) {
+  var action = (e.parameter && e.parameter.action) || '';
+  var cb = (e.parameter && e.parameter.callback) || 'cb';
+  var out;
+
+  /* ---- 설문 응답 목록 (기존) ---- */
+  if (action === 'list') {
+    var sh = getSheet_();
+    var values = sh.getDataRange().getValues();
+    var responses = [];
+    if (values.length > 1) {
+      var headers = values[0];
+      for (var i = 1; i < values.length; i++) {
+        var rec = {};
+        headers.forEach(function (hd, j) {
+          var v = values[i][j];
+          if (v === '' || v === null) return;
+          if (typeof v === 'string' && v.indexOf(' ; ') > -1) v = v.split(' ; ');
+          rec[hd] = v;
+        });
+        responses.push(rec);
+      }
+    }
+    var starts = parseInt(PropertiesService.getScriptProperties().getProperty(STARTS_KEY) || '0', 10);
+    out = { responses: responses, starts: starts };
+
+  /* ---- 매장 리포트 목록 (신규) ---- */
+  } else if (action === 'onsite_list') {
+    var osh = getOnsiteSheet_();
+    var rows = [];
+    if (osh.getLastRow() > 1) {
+      var vals = osh.getRange(2, 1, osh.getLastRow() - 1, 10).getValues();   // 앞 10개 컬럼만 (뒤는 이미지 수식)
+      rows = vals.map(function (v) {
+        var photos = [];
+        try { photos = JSON.parse(v[9] || '[]'); } catch (err) {}
+        return {
+          sentAt: v[0] instanceof Date ? v[0].toISOString() : String(v[0]),
+          id: v[1], store: v[2],
+          date: v[3] instanceof Date ? Utilities.formatDate(v[3], 'Asia/Seoul', 'yyyy-MM-dd') : String(v[3]),
+          author: v[4], hour: v[5], oneline: v[6], photos: photos
+        };
+      });
+    }
+    out = { rows: rows };
+
+  } else {
+    out = { ok: true };
+  }
+
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(out) + ')')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+/* ============================================================
+   ▶ 설문 결과 초기화 (필요할 때만)
+   'Responses' 탭에서 2행부터 끝까지 행 삭제(1행 헤더는 유지),
+   시작 카운트는 아래 resetStarts 실행.
+
+   ▶ 알아두실 점
+   · 시트의 '① 전경' ~ '⑥ 포스' 컬럼에는 =IMAGE() 수식이 들어가서
+     시트 안에서 사진이 바로 보입니다. 파일 자체는 드라이브에 있고
+     시트에는 수식만 있어서 용량은 늘지 않아요. 사진이 회색 상자로
+     보이면 잠시 후 새로고침해 보세요(구글이 썸네일을 만드는 중입니다).
+
+   · 매장 사진은 "링크가 있는 모든 사용자 보기"로 공유됩니다.
+     페이지에서 썸네일을 보여주려면 필요한 설정이에요. 걱정되면
+     setSharing 줄을 지우세요(대신 썸네일이 안 보입니다).
+   · 촬영 시 인물 얼굴이 들어가지 않도록 하는 안내를 지켰는지
+     확인해 주세요. 드라이브에 남는 자료입니다.
+   ============================================================ */
+function resetStarts() {
+  PropertiesService.getScriptProperties().setProperty(STARTS_KEY, '0');
+}

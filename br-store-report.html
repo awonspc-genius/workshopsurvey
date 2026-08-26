@@ -357,15 +357,7 @@ h1.title .on{color:var(--pink)}
     <div class="rule"></div>
   </header>
 
-  <div class="notice" id="nolink">
-    <span class="nt-icon" aria-hidden="true">⚠</span>
-    <span class="nt-body">
-      <b>팀 저장이 아직 연결되지 않았어요.</b>
-      지금 저장을 누르면 <b>이 기기 안에만</b> 남습니다. 링크로 들어온 다른 사람에게는 보이지 않고,
-      브라우저 데이터를 지우면 사라져요. 작성 후에는 <b>PPTX 다운로드</b>로 결과물을 꼭 받아두세요.
-      <span class="nt-sub">관리자: onsite-apps-script.txt를 배포하고 이 파일 상단 UPLOAD_ENDPOINT에 주소를 넣으면 팀 시트로 바로 저장됩니다.</span>
-    </span>
-  </div>
+  <div class="notice" id="nolink" hidden></div>
 
   <div class="actionbar">
     <button class="btn btn-primary" id="add-btn">+ 매장 추가</button>
@@ -419,15 +411,18 @@ var STORE_KEY   = "brk_store_reports_v1";
 
 /* ── 팀 아카이브(누적 저장) ────────────────────────────────
    Apps Script 웹앱 URL을 넣으면 "팀에 제출" 버튼이 활성화됩니다.
-   배포 방법은 함께 드린 onsite-apps-script.txt 참고.
+   배포 방법은 함께 드린 apps-script-all.txt 참고.
    비워두면 이 브라우저 저장 + 백업 파일만 동작합니다.        */
-var UPLOAD_ENDPOINT = "";
+/* 설문 시스템이 이미 쓰고 있는 Apps Script 주소입니다.
+   apps-script-all.txt 를 그 프로젝트에 붙여넣고 "새 버전"으로 배포하면
+   이 주소 그대로 매장 리포트도 저장됩니다. */
+var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbySfHS9GSsKL7FXR4UHEZYJTX5pdkm3qLv00YrVPm6nKWHOt_trtl0vit1wf7Vm3gXU/exec";
 
 /* 아래 두 개는 "자료" 탭의 바로가기 버튼입니다. 비워두면 버튼이 숨겨져요.
    SHEET_URL  : 설문 데이터가 들어 있는 구글 스프레드시트 주소
                 (제출한 매장 기록은 그 파일의 'OnSite' 탭에 쌓입니다)
    DRIVE_URL  : 제출한 사진이 저장되는 구글 드라이브 폴더 주소 */
-var SHEET_URL = "";
+var SHEET_URL = "";   // 설문 스프레드시트 주소를 넣으면 "자료" 탭 버튼이 살아납니다
 var DRIVE_URL = "";
 
 var tabState  = {};  // 카드별로 열려 있는 탭 (저장되지 않는 화면 상태)
@@ -1182,7 +1177,7 @@ function dataPane(r){
   var howto = (UPLOAD_ENDPOINT && SHEET_URL)
     ? '<p>저장 버튼을 누르면 사진은 드라이브 폴더에, 답변은 시트의 <code>OnSite</code> 탭에 한 줄로 들어갑니다. 같은 매장을 다시 저장하면 새 줄이 아니라 그 줄이 갱신돼요.</p>'
     : '<ol class="dsteps">'
-      +'<li>함께 받은 <code>onsite-apps-script.txt</code>를 설문 스프레드시트에 배포합니다.</li>'
+      +'<li>함께 받은 <code>apps-script-all.txt</code>를 설문 스프레드시트에 배포합니다.</li>'
       +'<li>나온 웹앱 주소를 이 파일 상단 <code>UPLOAD_ENDPOINT</code>에 넣습니다.</li>'
       +'<li>시트 주소와 드라이브 폴더 주소를 <code>SHEET_URL</code> · <code>DRIVE_URL</code>에 넣습니다.</li>'
       +'<li>그때부터 저장 버튼이 곧 팀 시트 업로드가 됩니다.</li>'
@@ -1213,7 +1208,7 @@ function stamp(iso){
 function saveBar(r){
   var cls='', txt;
   if(r.sentAt){ cls=' ok'; txt='팀 아카이브에 저장됨 · '+stamp(r.sentAt); }
-  else if(UPLOAD_ENDPOINT){ cls=' warn'; txt='아직 팀에 저장되지 않았어요' + (r.savedAt ? ' (이 기기 임시 저장 '+stamp(r.savedAt)+')' : ''); }
+  else if(UPLOAD_ENDPOINT && serverReady !== false){ cls=' warn'; txt='아직 팀에 저장되지 않았어요' + (r.savedAt ? ' (이 기기 임시 저장 '+stamp(r.savedAt)+')' : ''); }
   else { txt = r.savedAt ? '이 브라우저에 저장됨 · '+stamp(r.savedAt) : '작성 중 — 저장 버튼을 눌러 주세요'; }
   return '<div class="savebar">'
     +'<span class="sv-status'+cls+'">'+txt+'</span>'
@@ -1224,10 +1219,10 @@ function saveOne(r, btn){
   r.savedAt = new Date().toISOString();
   var ok = flushSave();
   if(!ok){ alert('이 기기의 저장 공간이 가득 찼어요. 사진을 몇 장 지우거나 다 쓴 매장 카드를 삭제해 주세요.'); render(); return; }
-  if(UPLOAD_ENDPOINT){ submitReport(r, btn); }
+  if(UPLOAD_ENDPOINT && serverReady !== false){ submitReport(r, btn); }
   else{
-    btn.textContent='저장됨 ✓';
-    setTimeout(function(){ render(); }, 1200);
+    btn.textContent='이 기기에만 저장됨';
+    setTimeout(function(){ render(); }, 1600);
   }
 }
 function submitBtn(r){
@@ -1276,14 +1271,42 @@ function submitReport(r, btn){
   });
 }
 
+var serverReady = null;   // null=확인 중, true=저장 가능, false=스크립트 업데이트 필요
+function notice(state){
+  var el=document.getElementById('nolink');
+  if(state==='ok'){ el.hidden=true; return; }
+  el.hidden=false;
+  if(state==='update'){
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>저장 서버에 매장 리포트 기능이 아직 없어요.</b> 지금 저장하면 이 기기에만 남고 팀에는 올라가지 않습니다.'
+      +'<span class="nt-sub">관리자: 설문 스프레드시트의 Apps Script에 <b>apps-script-all.txt</b>를 붙여넣고 '
+      +'배포 관리 → 편집 → <b>새 버전</b>으로 배포하면 바로 켜집니다. 주소는 그대로예요.</span></span>';
+  } else {
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>저장 서버에 연결하지 못했어요.</b> 네트워크를 확인해 주세요. 작성한 내용은 이 기기에 남아 있습니다.'
+      +'</span>';
+  }
+}
+
 function loadArchive(){
   var sec=document.getElementById('arch'), body=document.getElementById('arch-body');
   if(!UPLOAD_ENDPOINT){ sec.hidden=true; return; }
   sec.hidden=false;
   body.innerHTML='<div class="arch-msg">불러오는 중…</div>';
   jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
-    if(err){ body.innerHTML='<div class="arch-msg">아카이브를 불러오지 못했어요. 새로고침을 눌러 다시 시도해 주세요.</div>'; return; }
-    var rows=(data&&data.rows)||[];
+    if(err){
+      serverReady=false; notice('offline');
+      body.innerHTML='<div class="arch-msg">아카이브를 불러오지 못했어요. 새로고침을 눌러 다시 시도해 주세요.</div>';
+      return;
+    }
+    if(!data || !data.rows){          // 옛 스크립트는 rows 를 돌려주지 않음
+      serverReady=false; notice('update');
+      body.innerHTML='<div class="arch-msg">저장 서버가 아직 매장 리포트를 받을 준비가 되지 않았어요.</div>';
+      render();
+      return;
+    }
+    serverReady=true; notice('ok');
+    var rows=data.rows;
     if(!rows.length){ body.innerHTML='<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>'; return; }
     rows.sort(function(a,b){ return (b.sentAt||'').localeCompare(a.sentAt||''); });
     body.innerHTML = rows.map(function(x){
@@ -1299,7 +1322,6 @@ function loadArchive(){
     }).join('');
   });
 }
-if(UPLOAD_ENDPOINT) document.getElementById('nolink').hidden = true;
 document.getElementById('arch-refresh').addEventListener('click', loadArchive);
 loadArchive();
 
