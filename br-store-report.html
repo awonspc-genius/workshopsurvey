@@ -112,6 +112,37 @@ h1.title .on{color:var(--pink)}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .chip.blue[aria-pressed="true"]{background:var(--blue);border-color:var(--blue)}
 
+/* 탭 */
+.tabs{display:flex;gap:2px;padding:0 18px;border-bottom:1px solid var(--line);background:#FDFBFC}
+.tab{border:0;background:transparent;padding:12px 14px;font-size:13px;font-weight:700;color:var(--ink-30);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--pink)}
+.tab .cnt{font-family:var(--mono);font-size:10px;font-weight:600;margin-left:5px;color:var(--ink-30)}
+.pane[hidden]{display:none}
+
+/* 질문지 */
+.qwrap{padding:6px 18px 18px}
+.qsec{border-top:1px solid var(--line);padding:15px 0 4px}
+.qsec:first-child{border-top:0}
+.qhead{display:flex;align-items:baseline;gap:8px;margin-bottom:11px}
+.qnum{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--ink);min-width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;align-self:center}
+.qt{font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+.qnote{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink-30);margin-left:auto;text-align:right}
+.qrow{display:grid;grid-template-columns:132px 1fr;gap:10px;align-items:baseline;padding:6px 0}
+@media (max-width:640px){.qrow{grid-template-columns:1fr;gap:5px}}
+.ql{font-size:12.5px;font-weight:600;color:var(--ink-60);line-height:1.4}
+.ql em{display:block;font-style:normal;font-size:10.5px;color:var(--ink-30);font-weight:500;margin-top:2px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line-hard);background:#fff;border-radius:18px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--ink-60);transition:all .12s}
+.opt:hover{border-color:var(--ink-30)}
+.opt[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:#fff}
+.qtext{width:100%;border:0;border-bottom:1px solid var(--line-hard);background:transparent;font-size:12.5px;padding:5px 2px}
+.qtext:focus{outline:none;border-bottom-color:var(--pink)}
+.qnum-in{width:78px;border:1px solid var(--line-hard);border-radius:8px;padding:6px 9px;font-size:12.5px}
+.qunit{font-size:11.5px;color:var(--ink-30);margin-left:6px}
+.qarea{width:100%;border:1px solid var(--line);border-radius:10px;background:#FDFBFC;font-size:12.5px;line-height:1.6;padding:9px 11px;resize:none;overflow:hidden;min-height:52px}
+.qarea:focus{outline:none;border-color:var(--pink);background:#fff}
+.qguide{margin:14px 18px 0;padding:11px 14px;background:#FFF4FA;border-radius:10px;font-size:11.5px;line-height:1.7;color:var(--ink-60)}
+
 /* 슬롯 그리드 */
 .slots{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:18px}
 @media (max-width:640px){.slots{grid-template-columns:1fr}}
@@ -164,7 +195,7 @@ h1.title .on{color:var(--pink)}
 }
 .sheet{width:210mm;min-height:297mm;padding:14mm 14mm 12mm;background:#fff;position:relative;page-break-after:always;font-family:var(--sans);color:#141014}
 .sheet:last-child{page-break-after:auto}
-.sheet .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.sheet .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
 .sheet .ph{width:100%;object-fit:cover;display:block;background:#F3F3F3}
 .sheet .ph-empty{display:flex;align-items:center;justify-content:center;font-size:9pt;color:#BBB;background:#F7F7F7}
 
@@ -176,16 +207,16 @@ h1.title .on{color:var(--pink)}
 .sheet.field h2 .on{color:#EC0089}
 .sheet.field h2 .kr{font-size:15pt;font-weight:700}
 .sheet.field .fn-sub{font-family:var(--mono);font-size:7pt;letter-spacing:.11em;color:#ADA6B0;margin-top:3mm;text-transform:uppercase}
-.sheet.field .fn-meta{display:grid;grid-template-columns:1.35fr 1fr;gap:5mm;margin:7mm 0 6mm}
+.sheet.field .fn-meta{display:grid;grid-template-columns:1.35fr 1fr;gap:5mm;margin:5mm 0 4mm}
 .sheet.field .fn-box{border:1px solid #EDE7EC;border-radius:10px;padding:4mm 5mm;display:flex;align-items:baseline;gap:5mm}
 .sheet.field .fn-box .k{font-size:8.5pt;font-weight:700}
 .sheet.field .fn-box .v{font-size:10.5pt;font-weight:600;border-bottom:1px solid #E4DDE3;flex:1;padding-bottom:1mm}
-.sheet.field .fn-card{border:1px solid #EDE7EC;border-radius:12px;padding:4mm}
+.sheet.field .fn-card{border:1px solid #EDE7EC;border-radius:12px;padding:3mm}
 .sheet.field .fn-ch{display:flex;align-items:center;gap:3mm;margin-bottom:3mm}
 .sheet.field .fn-n{background:#EC0089;color:#fff;font-family:var(--mono);font-size:7pt;font-weight:600;width:6mm;height:6mm;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .sheet.field .fn-ko{font-size:11pt;font-weight:700}
 .sheet.field .fn-en{margin-left:auto;font-family:var(--mono);font-size:6.5pt;letter-spacing:.12em;color:#ADA6B0}
-.sheet.field .ph{height:52mm;border-radius:8px}
+.sheet.field .ph{height:38mm;border-radius:8px}
 .sheet.field .fn-cap{font-family:var(--mono);font-size:6.5pt;font-weight:600;letter-spacing:.13em;color:#1B4CA1;margin:3mm 0 1.5mm}
 .sheet.field .fn-note{font-size:8.5pt;line-height:1.6;border-bottom:1px solid #E4DDE3;min-height:5mm;padding-bottom:1.5mm;white-space:pre-wrap}
 .sheet.field .fn-foot{position:absolute;left:14mm;right:14mm;bottom:10mm}
@@ -193,6 +224,30 @@ h1.title .on{color:var(--pink)}
 .sheet.field .fn-foot-row .l{color:#EC0089}
 .sheet.field .fn-foot-row .r{color:#ADA6B0}
 .sheet.field .fn-bar{height:2px;background:#EC0089}
+
+/* 관찰 리포트 포맷 */
+.sheet.obs{padding:11mm 12mm 10mm; font-size:8pt;}
+.sheet.obs .ob-kick{font-family:var(--mono);font-size:6.5pt;letter-spacing:.1em;color:#6B6570}
+.sheet.obs h2{margin:2mm 0 1.5mm;font-size:15pt;font-weight:800;letter-spacing:-.03em}
+.sheet.obs h2 .on{color:#EC0089}
+.sheet.obs .ob-lead{font-size:7pt;color:#6B6570;margin-bottom:3mm}
+.sheet.obs .ob-meta{display:flex;gap:6mm;border-top:1.5px solid #141014;border-bottom:1px solid #C9C9C9;padding:2mm 0;margin-bottom:3mm;font-size:8.5pt}
+.sheet.obs .ob-meta b{font-weight:700;margin-right:2mm}
+.sheet.obs .ob-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;margin-bottom:3mm}
+.sheet.obs .ob-strip figure{margin:0}
+.sheet.obs .ob-strip .ph{height:21mm;border-radius:4px}
+.sheet.obs .ob-strip figcaption{font-size:5.8pt;color:#6B6570;margin-top:.8mm;white-space:nowrap}
+.sheet.obs .ob-sec{break-inside:avoid;margin-bottom:2.5mm}
+.sheet.obs .ob-sh{display:flex;align-items:center;gap:2mm;border-bottom:1px solid #141014;padding-bottom:1mm;margin-bottom:1.5mm}
+.sheet.obs .ob-n{background:#141014;color:#fff;font-family:var(--mono);font-size:6pt;width:4.4mm;height:4.4mm;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sheet.obs .ob-st{font-size:9pt;font-weight:700}
+.sheet.obs .ob-sn{margin-left:auto;font-size:6.5pt;color:#ADA6B0}
+.sheet.obs .ob-r{display:grid;grid-template-columns:34mm 1fr;gap:2mm;padding:.9mm 0;border-bottom:1px dotted #E4DDE3}
+.sheet.obs .ob-r:last-child{border-bottom:0}
+.sheet.obs .ob-k{color:#6B6570}
+.sheet.obs .ob-v{font-weight:600;white-space:pre-wrap}
+.sheet.obs .ob-v.empty{color:#C9C2C8;font-weight:400}
+.sheet.obs .ob-foot{position:absolute;left:12mm;right:12mm;bottom:8mm;border-top:1px solid #C9C9C9;padding-top:1.8mm;font-size:6.5pt;color:#6B6570;display:flex;justify-content:space-between}
 
 /* 심플 포맷 */
 .sheet.plain h2{margin:0;font-size:16pt;font-weight:800;letter-spacing:-.02em}
@@ -204,7 +259,7 @@ h1.title .on{color:var(--pink)}
 .sheet.plain .pl-card{border:1px solid #C9C9C9}
 .sheet.plain .pl-ch{background:#1B4CA1;color:#fff;font-size:9pt;font-weight:700;padding:2mm 3mm;display:flex;gap:2.5mm;align-items:center}
 .sheet.plain .pl-n{font-family:var(--mono);font-size:7.5pt;opacity:.85}
-.sheet.plain .ph{height:78mm}
+.sheet.plain .ph{height:52mm}
 .sheet.plain .pl-note{font-size:8.5pt;line-height:1.55;padding:2.5mm 3mm;border-top:1px solid #E2E2E2;white-space:pre-wrap;min-height:4mm}
 .sheet.plain .pl-foot{position:absolute;left:14mm;right:14mm;bottom:10mm;border-top:1px solid #C9C9C9;padding-top:2.5mm;font-size:7.5pt;color:#6B6570}
 </style>
@@ -294,7 +349,61 @@ var SLOTS = [
   {id:"exterior", n:"01", ko:"외부",    en:"EXTERIOR",        cap:"FIRST IMPRESSION",  ph:"외관 · 사인 · 진입 동선"},
   {id:"interior", n:"02", ko:"내부",    en:"INTERIOR",        cap:"SPACE & FLOW",      ph:"좌석 · 동선 · 분위기"},
   {id:"dipping",  n:"03", ko:"디핑구",  en:"DIPPING CABINET", cap:"PRODUCT VISIBILITY",ph:"플레이버 배열 · 청결 · 가시성"},
-  {id:"menu",     n:"04", ko:"메뉴보드",en:"MENU BOARD",      cap:"CHOICE & CLARITY",  ph:"가독성 · 추천 메뉴 노출"}
+  {id:"menu",     n:"04", ko:"메뉴보드",en:"MENU BOARD",      cap:"CHOICE & CLARITY",  ph:"가독성 · 추천 메뉴 노출"},
+  {id:"md",       n:"05", ko:"MD장",    en:"MD DISPLAY",      cap:"MERCH APPEAL",      ph:"굿즈·MD 진열 · 재고 상태"},
+  {id:"pos",      n:"06", ko:"포스 주변",en:"POS AREA",        cap:"CHECKOUT FLOW",     ph:"계산대 · 키오스크 · 대기 동선"}
+];
+
+/* ─ 관찰 리포트 문항 (BR_ONSITE_매장관찰리포트_A4_1p 기준) ─ */
+var SURVEY = [
+ {n:"1", t:"기본 정보", f:[
+   {k:"author",  l:"작성자",    type:"text", ph:"이름"},
+   {k:"hour",    l:"방문 시각", type:"text", ph:"예: 15시"},
+   {k:"loc",     l:"입지 유형", type:"one", o:["로드샵","주거상권","오피스상권","몰·백화점","역세권","특수입지"]},
+   {k:"size",    l:"매장 규모", type:"one", o:["테이크아웃 위주","소형(10석 이하)","중대형"]},
+   {k:"guests",  l:"방문 시 매장 내 고객 수", type:"one", o:["0명","1–3명","4–7명","8명 이상"]}
+ ]},
+ {n:"2", t:"외부 EXTERIOR", note:"사진 ① 매장 전경 · ② 외창 정면", f:[
+   {k:"winWork",  l:"외창 시공물", type:"one", o:["당월 최신물","전월 이하 구물","없음"]},
+   {k:"winState", l:"외창 상태",   type:"one", o:["양호","보통","훼손·들뜸·오염"]},
+   {k:"signage",  l:"사이니지 점등 · 입구 POP", type:"one", o:["둘 다 양호","한쪽 미흡","둘 다 미흡"]}
+ ]},
+ {n:"3", t:"메뉴보드 & 진열", note:"사진 ③ 메뉴보드 전체", f:[
+   {k:"menuUpd",   l:"메뉴보드 최신화", type:"one", o:["당월 신제품·FOM 반영","일부 누락","구버전"]},
+   {k:"fomPath",   l:"FOM 인지 동선", hint:"입구에서 몇 초 만에 눈에 들어오는가", type:"one", o:["3초 이내","매장 안까지 들어와야","못 찾음"]},
+   {k:"promo",     l:"프로모션 존 · MD 진열", type:"one", o:["양호","보통","미흡"]},
+   {k:"promoNote", l:"특이사항", type:"text", ph:"미흡하면 구체적으로"}
+ ]},
+ {n:"4", t:"디핑구 DIPPING CASE", note:"★ 핵심 · 사진 ④ 디핑구 정면", f:[
+   {k:"flavors", l:"진열 수", type:"num", unit:"종"},
+   {k:"outOf",   l:"결품 수", type:"num", unit:"개"},
+   {k:"surface", l:"표면 상태", type:"one", o:["균일·풍성","보통","파임·성에·녹음"]},
+   {k:"nametag", l:"네임택 정확도", type:"one", o:["전부 일치","일부 불일치"]},
+   {k:"golden",  l:"FOM 골든존 배치", type:"one", o:["O","X"]}
+ ]},
+ {n:"5", t:"키오스크 & 운영", f:[
+   {k:"kiosk",   l:"키오스크 작동", type:"one", o:["전체 정상","일부 오류","미운영"]},
+   {k:"order",   l:"주문 체감",     type:"one", o:["원활","막힘"]},
+   {k:"clean",   l:"청결 · 직원 캠페인 착장", type:"one", o:["둘 다 양호","한쪽 미흡","둘 다 미흡"]},
+   {k:"segment", l:"주 고객층", hint:"복수 선택", type:"many", o:["가족","10–20대","30–40대","50대+"]},
+   {k:"bought",  l:"구매 品", type:"text", ph:"목격한 구매 품목"}
+ ]},
+ {n:"6", t:"인사이트 INSIGHT", note:"이 섹션이 활동의 목적입니다", f:[
+   {k:"good",    l:"① 잘 되어 있던 것",   hint:"다른 매장에 확산할 만한 것", type:"area"},
+   {k:"bad",     l:"② 가장 아쉬웠던 것",   hint:"브랜드 경험을 깎아먹는 지점", type:"area"},
+   {k:"action",  l:"③ 우리 팀 액션 제안", hint:"다음 IMC · 시공물 · 스페셜티 반영 아이디어", type:"area"},
+   {k:"oneline", l:"한 줄 요약", type:"text", ph:"이 매장은 …… 한 매장이다"}
+ ]}
+];
+
+/* 관찰 리포트에서의 사진 순서·명칭 (사진 탭의 4슬롯을 그대로 사용) */
+var OBS_PHOTOS = [
+  {id:"exterior", n:"①", ko:"매장 전경"},
+  {id:"interior", n:"②", ko:"외창 정면"},
+  {id:"menu",     n:"③", ko:"메뉴보드 전체"},
+  {id:"dipping",  n:"④", ko:"디핑구 정면"},
+  {id:"md",       n:"⑤", ko:"MD장"},
+  {id:"pos",      n:"⑥", ko:"포스 주변"}
 ];
 
 /* ─ 저장소 (실패해도 메모리로 계속 동작) ─ */
@@ -307,6 +416,15 @@ try{
   var raw = lsGet(STORE_KEY);
   if(raw){ var p = JSON.parse(raw); if(p && p.reports) state.reports = p.reports; }
 }catch(e){}
+
+/* 이전 버전에서 저장된 리포트에 새 슬롯(MD장·포스 주변)을 채워 넣음 */
+function ensureSlots(r){
+  if(!r.shots) r.shots = {};
+  SLOTS.forEach(function(s){ if(!r.shots[s.id]) r.shots[s.id] = { img:'', note:'' }; });
+  if(!r.survey) r.survey = {};
+  return r;
+}
+state.reports.forEach(ensureSlots);
 
 var saveTimer=null;
 function save(){
@@ -346,7 +464,7 @@ function tryUnlock(){
 function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function today(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function newReport(){
-  var r={ id:uid(), store:'', date:today(), format:'field', shots:{} };
+  var r={ id:uid(), store:'', date:today(), format:'field', shots:{}, survey:{} };
   SLOTS.forEach(function(s){ r.shots[s.id]={ img:'', note:'' }; });
   return r;
 }
@@ -413,7 +531,7 @@ function render(){
   state.reports.forEach(function(r,i){
     var el=document.createElement('div');
     el.className='report';
-    var isPlain = r.format==='plain';
+    var noteOff = r.format !== 'field';
 
     var slotsHtml = SLOTS.map(function(s){
       var sh=r.shots[s.id]||{img:'',note:''};
@@ -428,11 +546,48 @@ function render(){
       return '<div class="slot">'
         +'<div class="slot-head"><span class="slot-num">'+s.n+'</span><span class="slot-ko">'+s.ko+'</span><span class="slot-en">'+s.en+'</span></div>'
         +'<div class="drop'+(sh.img?' has':'')+'" data-drop="'+r.id+'|'+s.id+'" tabindex="0" role="button" aria-label="'+s.ko+' 사진 올리기">'+inner+'</div>'
-        +'<div class="note-wrap'+(isPlain?'':'')+'">'
-        +'<div class="note-cap'+(isPlain?' note-off':'')+'">'+s.cap+(isPlain?' · 심플 포맷에는 인쇄되지 않음':'')+'</div>'
+        +'<div class="note-wrap">'
+        +'<div class="note-cap'+(noteOff?' note-off':'')+'">'+s.cap+(noteOff?' · 이 포맷에는 인쇄되지 않음':'')+'</div>'
         +'<textarea class="note" data-r="'+r.id+'" data-s="'+s.id+'" rows="1" placeholder="'+s.ph+'">'+esc(sh.note)+'</textarea>'
         +'</div></div>';
     }).join('');
+
+    var sv = r.survey || (r.survey = {});
+    var answered = 0, totalQ = 0;
+    SURVEY.forEach(function(s){ s.f.forEach(function(f){
+      totalQ++;
+      var v = sv[f.k];
+      if (f.type==='many') { if (v && v.length) answered++; }
+      else if (v !== undefined && v !== '') answered++;
+    }); });
+
+    var surveyHtml = SURVEY.map(function(s){
+      var rows = s.f.map(function(f){
+        var v = sv[f.k], body;
+        if(f.type==='one'){
+          body = '<span class="opts">'+f.o.map(function(op){
+            return '<button class="opt" data-act="qone" data-r="'+r.id+'" data-k="'+f.k+'" data-v="'+esc(op)+'" aria-pressed="'+(v===op)+'">'+op+'</button>';
+          }).join('')+'</span>';
+        } else if(f.type==='many'){
+          var arr = v || [];
+          body = '<span class="opts">'+f.o.map(function(op){
+            return '<button class="opt" data-act="qmany" data-r="'+r.id+'" data-k="'+f.k+'" data-v="'+esc(op)+'" aria-pressed="'+(arr.indexOf(op)>-1)+'">'+op+'</button>';
+          }).join('')+'</span>';
+        } else if(f.type==='num'){
+          body = '<input class="qnum-in q-in" type="number" min="0" inputmode="numeric" data-r="'+r.id+'" data-k="'+f.k+'" value="'+esc(v===undefined?'':String(v))+'" aria-label="'+f.l+'"><span class="qunit">'+(f.unit||'')+'</span>';
+        } else if(f.type==='area'){
+          body = '<textarea class="qarea q-in" rows="1" data-r="'+r.id+'" data-k="'+f.k+'" placeholder="'+(f.ph||'')+'" aria-label="'+f.l+'">'+esc(v||'')+'</textarea>';
+        } else {
+          body = '<input class="qtext q-in" type="text" data-r="'+r.id+'" data-k="'+f.k+'" value="'+esc(v||'')+'" placeholder="'+(f.ph||'')+'" aria-label="'+f.l+'">';
+        }
+        return '<div class="qrow"><span class="ql">'+f.l+(f.hint?'<em>'+f.hint+'</em>':'')+'</span><span>'+body+'</span></div>';
+      }).join('');
+      return '<div class="qsec"><div class="qhead"><span class="qnum">'+s.n+'</span><span class="qt">'+s.t+'</span>'
+        +(s.note?'<span class="qnote">'+s.note+'</span>':'')+'</div>'+rows+'</div>';
+    }).join('');
+
+    var shotCount = SLOTS.filter(function(s){ return (r.shots[s.id]||{}).img; }).length;
+    var activeTab = tabState[r.id] || 'photos';
 
     el.innerHTML =
       '<div class="rep-head">'
@@ -444,18 +599,30 @@ function render(){
       +'<button class="icon-btn" data-act="dup" data-r="'+r.id+'">복제</button>'
       +'<button class="icon-btn danger" data-act="del" data-r="'+r.id+'">삭제</button>'
       +'</span></div>'
+      +'<div class="tabs" role="tablist">'
+      +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="photos" aria-selected="'+(activeTab==='photos')+'">사진 '+SLOTS.length+'컷<span class="cnt">'+shotCount+'/'+SLOTS.length+'</span></button>'
+      +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="survey" aria-selected="'+(activeTab==='survey')+'">관찰 질문지<span class="cnt">'+answered+'/'+totalQ+'</span></button>'
+      +'</div>'
+      +'<div class="pane"'+(activeTab==='photos'?'':' hidden')+'>'
       +'<div class="fmt">'
       +'<span class="fmt-label">OUTPUT FORMAT</span>'
-      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="field" aria-pressed="'+(!isPlain)+'">FIELD NOTE</button>'
-      +'<button class="chip blue" data-act="fmt" data-r="'+r.id+'" data-v="plain" aria-pressed="'+isPlain+'">심플</button>'
+      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="field" aria-pressed="'+(r.format==='field')+'">FIELD NOTE</button>'
+      +'<button class="chip blue" data-act="fmt" data-r="'+r.id+'" data-v="plain" aria-pressed="'+(r.format==='plain')+'">심플</button>'
+      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="obs" aria-pressed="'+(r.format==='obs')+'">관찰 리포트</button>'
       +'</div>'
-      +'<div class="slots">'+slotsHtml+'</div>';
+      +'<div class="slots">'+slotsHtml+'</div>'
+      +'</div>'
+      +'<div class="pane"'+(activeTab==='survey'?'':' hidden')+'>'
+      +'<div class="qwrap">'+surveyHtml+'</div>'
+      +'<div class="qguide">사진 4컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다. 작성 후 사진과 함께 팀 채널에 올려주세요.</div>'
+      +'</div>';
 
     list.appendChild(el);
   });
 
-  document.querySelectorAll('.note').forEach(autosize);
+  document.querySelectorAll('.note, .qarea').forEach(autosize);
 }
+var tabState = {};
 function autosize(t){ t.style.height='auto'; t.style.height=(t.scrollHeight)+'px'; }
 
 /* ─ 이벤트 위임 ─ */
@@ -463,6 +630,15 @@ document.addEventListener('input', function(e){
   var t=e.target;
   if(t.classList.contains('f-store')){ var r=find(t.dataset.r); if(r){ r.store=t.value; save(); } }
   else if(t.classList.contains('f-date')){ var r2=find(t.dataset.r); if(r2){ r2.date=t.value; save(); } }
+  else if(t.classList.contains('q-in')){
+    var r4=find(t.dataset.r);
+    if(r4){
+      var val = t.value;
+      if(t.type==='number') val = (val==='' ? '' : Number(val));
+      r4.survey[t.dataset.k]=val; save();
+    }
+    if(t.tagName==='TEXTAREA') autosize(t);
+  }
   else if(t.classList.contains('note')){
     var r3=find(t.dataset.r); if(r3){ r3.shots[t.dataset.s].note=t.value; save(); }
     autosize(t);
@@ -474,6 +650,17 @@ document.addEventListener('click', function(e){
   var zone=e.target.closest('[data-drop]');
   if(b){
     var act=b.dataset.act, r=find(b.dataset.r);
+    if(act==='tab' && r){ tabState[r.id]=b.dataset.v; render(); return; }
+    if(act==='qone' && r){
+      r.survey[b.dataset.k] = (r.survey[b.dataset.k]===b.dataset.v) ? '' : b.dataset.v;
+      save(); render(); return;
+    }
+    if(act==='qmany' && r){
+      var cur = r.survey[b.dataset.k] || [];
+      var at = cur.indexOf(b.dataset.v);
+      if(at>-1) cur.splice(at,1); else cur.push(b.dataset.v);
+      r.survey[b.dataset.k]=cur; save(); render(); return;
+    }
     if(act==='fmt' && r){ r.format=b.dataset.v; save(); render(); return; }
     if(act==='del' && r){
       if(confirm((r.store||'이 매장')+' 리포트를 삭제할까요? 되돌릴 수 없어요.')){
@@ -588,10 +775,46 @@ function sheetPlain(r){
     +'<div class="pl-foot">Baskin-Robbins Korea · Genius Team · ON-SITE Store Photo Report</div>'
     +'</div>';
 }
+function sheetObs(r){
+  var sv = r.survey || {};
+  var strip = OBS_PHOTOS.map(function(p){
+    var sh = r.shots[p.id] || {};
+    return '<figure>'+photoTag(sh.img,'',p.ko)+'<figcaption>'+p.n+' '+p.ko+'</figcaption></figure>';
+  }).join('');
+  var secs = SURVEY.map(function(s){
+    var rows = s.f.map(function(f){
+      var v = sv[f.k];
+      if(f.type==='many') v = (v && v.length) ? v.join(' · ') : '';
+      if(f.type==='num')  v = (v===''||v===undefined) ? '' : v+' '+(f.unit||'');
+      var empty = (v===undefined || v==='');
+      return '<div class="ob-r"><span class="ob-k">'+f.l+'</span>'
+        +'<span class="ob-v'+(empty?' empty':'')+'">'+(empty?'—':esc(String(v)))+'</span></div>';
+    }).join('');
+    return '<div class="ob-sec"><div class="ob-sh"><span class="ob-n">'+s.n+'</span><span class="ob-st">'+s.t+'</span>'
+      +(s.note?'<span class="ob-sn">'+s.note+'</span>':'')+'</div>'+rows+'</div>';
+  }).join('');
+  return '<div class="sheet obs">'
+    +'<div class="ob-kick">BASKIN-ROBBINS KOREA · GENIUS TEAM · ON-SITE STORE OBSERVATION REPORT</div>'
+    +'<h2>BASKIN-ROBBINS <span class="on">ON-SITE</span> 매장 관찰 리포트</h2>'
+    +'<div class="ob-lead">지니어스팀 현장 활동 · 집 근처 매장 1곳 방문 | 소요 10분 | 사진 4컷</div>'
+    +'<div class="ob-meta">'
+      +'<span><b>지점명</b>'+esc(r.store||'—')+'</span>'
+      +'<span><b>방문일자</b>'+fmtDate(r.date)+(sv.hour?' '+esc(sv.hour):'')+'</span>'
+      +'<span><b>작성자</b>'+esc(sv.author||'—')+'</span>'
+    +'</div>'
+    +'<div class="ob-strip">'+strip+'</div>'
+    +secs
+    +'<div class="ob-foot"><span>사진 4컷 — 가로 촬영 · 무보정 · 인물 얼굴 미포함</span><span>지적이 아니라 관찰이 목적</span></div>'
+    +'</div>';
+}
 function printReports(rs){
   if(!rs.length){ alert('인쇄할 매장이 없어요. 먼저 매장을 추가해 주세요.'); return; }
   var root=document.getElementById('print-root');
-  root.innerHTML = rs.map(function(r){ return r.format==='plain' ? sheetPlain(r) : sheetField(r); }).join('');
+  root.innerHTML = rs.map(function(r){
+    if(r.format==='plain') return sheetPlain(r);
+    if(r.format==='obs')   return sheetObs(r);
+    return sheetField(r);
+  }).join('');
   setTimeout(function(){ window.print(); }, 120);
 }
 document.getElementById('print-all').addEventListener('click', function(){ printReports(state.reports); });
@@ -618,7 +841,7 @@ restoreInput.addEventListener('change', function(){
       if(!p || !p.reports) throw 0;
       var mode = state.reports.length ? confirm('기존 '+state.reports.length+'개에 이어붙일까요?\n[취소]를 누르면 파일 내용으로 교체합니다.') : true;
       state.reports = mode ? state.reports.concat(p.reports) : p.reports;
-      state.reports.forEach(function(r){ if(!r.id) r.id=uid(); });
+      state.reports.forEach(function(x){ if(!x.id) x.id=uid(); ensureSlots(x); });
       save(); render();
     }catch(e){ alert('이 파일은 읽을 수 없어요. 백업 저장으로 만든 JSON 파일을 선택해 주세요.'); }
     restoreInput.value='';
