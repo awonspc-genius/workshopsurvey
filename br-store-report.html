@@ -190,24 +190,6 @@ h1.title .on{color:var(--pink)}
 .note:focus{outline:none;border-bottom-color:var(--pink)}
 .note-off{opacity:.42}
 
-/* 자료 탭 */
-.dwrap{padding:16px 18px 18px}
-.dcard{border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:11px}
-.dcard h4{margin:0 0 5px;font-size:13px;font-weight:700;letter-spacing:-.01em}
-.dcard p{margin:0;font-size:12px;line-height:1.65;color:var(--ink-60)}
-.dstate{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;margin-bottom:9px}
-.dstate .dd{width:8px;height:8px;border-radius:50%;background:var(--ink-30);flex:0 0 auto}
-.dstate.ok .dd{background:#3BB273}
-.dstate.ok{color:#2F9E63}
-.dstate.warn .dd{background:#E8A020}
-.dstate.warn{color:#C77700}
-.dlinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
-.dlink{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-hard);background:#fff;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--ink);text-decoration:none}
-.dlink:hover{border-color:var(--pink);color:var(--pink)}
-.dlink.off{opacity:.45;pointer-events:none}
-.dsteps{margin:0;padding-left:17px;font-size:12px;line-height:1.8;color:var(--ink-60)}
-.dsteps code{font-family:var(--mono);font-size:11px;background:#F4EFF3;padding:1px 5px;border-radius:4px}
-
 /* 카드별 저장 바 */
 .savebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);background:#FDFBFC}
 .sv-status{font-size:12px;color:var(--ink-30);flex:1;min-width:140px}
@@ -434,12 +416,6 @@ var STORE_KEY   = "brk_store_reports_v1";
    https://script.google.com/macros/s/....../exec 주소가 나옵니다. */
 var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbwPWM_2vjaTMq3AkYh5FgmcrxObgxBQ8-tR_affkOwpVlgWoTnKisJBBMIdyGtmmpNcuw/exec";
 
-/* 아래 두 개는 "자료" 탭의 바로가기 버튼입니다. 비워두면 버튼이 숨겨져요.
-   SHEET_URL  : 설문 데이터가 들어 있는 구글 스프레드시트 주소
-                (제출한 매장 기록은 그 파일의 'OnSite' 탭에 쌓입니다)
-   DRIVE_URL  : 제출한 사진이 저장되는 구글 드라이브 폴더 주소 */
-var SHEET_URL = "https://docs.google.com/spreadsheets/d/1iZDgsnpZjKk_gYejZO_YDv9K0GzWVava3shC6Gu0uOw/edit";
-var DRIVE_URL = "";
 
 var tabState  = {};  // 카드별로 열려 있는 탭 (저장되지 않는 화면 상태)
 var collapsed = {};  // 접혀 있는 카드
@@ -733,7 +709,6 @@ function render(){
       +'<div class="tabs" role="tablist">'
       +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="photos" aria-selected="'+(activeTab==='photos')+'">사진 '+SLOTS.length+'컷<span class="cnt">'+shotCount+'/'+SLOTS.length+'</span></button>'
       +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="survey" aria-selected="'+(activeTab==='survey')+'">관찰 질문지<span class="cnt">'+answered+'/'+totalQ+'</span></button>'
-      +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="data" aria-selected="'+(activeTab==='data')+'">자료</button>'
       +'</div>'
       +'<div class="pane"'+(activeTab==='photos'?'':' hidden')+'>'
       +'<div class="slots">'+slotsHtml+'</div>'
@@ -742,7 +717,6 @@ function render(){
       +'<div class="qwrap">'+surveyHtml+'</div>'
       +'<div class="qguide">사진 6컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다.</div>'
       +'</div>'
-      +'<div class="pane"'+(activeTab==='data'?'':' hidden')+'>'+dataPane(r)+'</div>'
       +saveBar(r);
 
     list.appendChild(el);
@@ -1187,42 +1161,6 @@ function jsonp(url, cb){
   setTimeout(function(){ if(!done){ cleanup(); cb(new Error('응답 없음')); } }, 15000);
 }
 
-function dataPane(r){
-  var st, cls;
-  if(r.sentAt){ cls=' ok'; st='팀 시트에 반영됨 · '+stamp(r.sentAt); }
-  else if(UPLOAD_ENDPOINT){ cls=' warn'; st='아직 팀 시트에 올라가지 않았어요'; }
-  else { cls=''; st='팀 시트 연결이 아직 설정되지 않았어요'; }
-
-  var links =
-    '<a class="dlink'+(SHEET_URL?'':' off')+'" href="'+(SHEET_URL||'#')+'" target="_blank" rel="noopener">📊 설문 데이터 시트 열기</a>'
-   +'<a class="dlink'+(DRIVE_URL?'':' off')+'" href="'+(DRIVE_URL||'#')+'" target="_blank" rel="noopener">🗂 사진 폴더 열기</a>';
-
-  var howto = (UPLOAD_ENDPOINT && SHEET_URL)
-    ? '<p>저장 버튼을 누르면 사진은 드라이브 폴더에, 답변은 시트의 <code>OnSite</code> 탭에 한 줄로 들어갑니다. 같은 매장을 다시 저장하면 새 줄이 아니라 그 줄이 갱신돼요.</p>'
-    : '<ol class="dsteps">'
-      +'<li>함께 받은 <code>onsite-apps-script.txt</code>를 설문 스프레드시트에 배포합니다.</li>'
-      +'<li>나온 웹앱 주소를 이 파일 상단 <code>UPLOAD_ENDPOINT</code>에 넣습니다.</li>'
-      +'<li>시트 주소와 드라이브 폴더 주소를 <code>SHEET_URL</code> · <code>DRIVE_URL</code>에 넣습니다.</li>'
-      +'<li>그때부터 저장 버튼이 곧 팀 시트 업로드가 됩니다.</li>'
-      +'</ol>';
-
-  return '<div class="dwrap">'
-    +'<div class="dcard">'
-      +'<div class="dstate'+cls+'"><span class="dd"></span>'+st+'</div>'
-      + howto
-      +'<div class="dlinks">'+links+'</div>'
-    +'</div>'
-    +'<div class="dcard">'
-      +'<h4>이 기록에 무엇이 담기나요</h4>'
-      +'<p>매장명 · 방문일자 · 작성자, 관찰 질문지 6섹션 답변, 사진 6컷과 각 사진 코멘트가 함께 올라갑니다. '
-      +'사진은 긴 변 1600px JPEG로 줄여서 보내요.</p>'
-    +'</div>'
-    +'<div class="dcard">'
-      +'<h4>인쇄물</h4>'
-      +'<p><b>PPTX 다운로드</b>는 마전실 매장조사 양식 그대로 2장(사진판 + 체크리스트)으로 받습니다. '
-      +'액션바의 <b>전체 인쇄 · PDF</b>는 A4 한 장짜리 요약본이에요.</p>'
-    +'</div></div>';
-}
 function stamp(iso){
   if(!iso) return '';
   var d=new Date(iso), p=function(n){return (n<10?'0':'')+n;};
