@@ -178,6 +178,13 @@ h1.title .on{color:var(--pink)}
 .note:focus{outline:none;border-bottom-color:var(--pink)}
 .note-off{opacity:.42}
 
+/* 카드별 저장 바 */
+.savebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);background:#FDFBFC}
+.sv-status{font-size:12px;color:var(--ink-30);flex:1;min-width:140px}
+.sv-status.ok{color:#2F9E63;font-weight:600}
+.sv-status.warn{color:#C77700;font-weight:600}
+.sv-btn{min-width:104px}
+
 /* 팀 아카이브 */
 .arch{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
 .arch-head{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}
@@ -322,7 +329,7 @@ h1.title .on{color:var(--pink)}
 
   <div class="actionbar">
     <button class="btn btn-primary" id="add-btn">+ 매장 추가</button>
-    <button class="btn" id="save-btn">저장</button>
+    <button class="btn" id="save-btn">전체 저장</button>
     <button class="btn" id="print-all">전체 인쇄 · PDF</button>
     <button class="btn btn-ghost" id="backup">백업 파일로 내려받기</button>
     <button class="btn btn-ghost" id="restore">백업 불러오기</button>
@@ -651,7 +658,6 @@ function render(){
       +'<input class="f-store" data-r="'+r.id+'" value="'+esc(r.store)+'" placeholder="매장명 입력" aria-label="매장명">'
       +'<input class="f-date" type="date" data-r="'+r.id+'" value="'+esc(r.date)+'" aria-label="방문일자">'
       +'<span class="rep-actions">'
-      +submitBtn(r)
       +'<button class="icon-btn" data-act="print" data-r="'+r.id+'">인쇄 · PDF</button>'
       +'<button class="icon-btn" data-act="dup" data-r="'+r.id+'">복제</button>'
       +'<button class="icon-btn danger" data-act="del" data-r="'+r.id+'">삭제</button>'
@@ -671,8 +677,9 @@ function render(){
       +'</div>'
       +'<div class="pane"'+(activeTab==='survey'?'':' hidden')+'>'
       +'<div class="qwrap">'+surveyHtml+'</div>'
-      +'<div class="qguide">사진 4컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다. 작성 후 사진과 함께 팀 채널에 올려주세요.</div>'
-      +'</div>';
+      +'<div class="qguide">사진 6컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다.</div>'
+      +'</div>'
+      +saveBar(r);
 
     list.appendChild(el);
   });
@@ -727,6 +734,7 @@ document.addEventListener('click', function(e){
       var c=JSON.parse(JSON.stringify(r)); c.id=uid(); c.store=(r.store||'')+' (복사)';
       state.reports.push(c); save(); render(); return;
     }
+    if(act==='save1' && r){ saveOne(r, b); return; }
     if(act==='send' && r){ submitReport(r, b); return; }
     if(act==='print' && r){ printReports([r]); return; }
     if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img=''; save(); render(); } return; }
@@ -935,6 +943,31 @@ function jsonp(url, cb){
   setTimeout(function(){ if(!done){ cleanup(); cb(new Error('응답 없음')); } }, 15000);
 }
 
+function stamp(iso){
+  if(!iso) return '';
+  var d=new Date(iso), p=function(n){return (n<10?'0':'')+n;};
+  return p(d.getMonth()+1)+'.'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function saveBar(r){
+  var cls='', txt;
+  if(r.sentAt){ cls=' ok'; txt='팀 아카이브에 저장됨 · '+stamp(r.sentAt); }
+  else if(UPLOAD_ENDPOINT){ cls=' warn'; txt='아직 팀에 저장되지 않았어요' + (r.savedAt ? ' (이 기기 임시 저장 '+stamp(r.savedAt)+')' : ''); }
+  else { txt = r.savedAt ? '이 브라우저에 저장됨 · '+stamp(r.savedAt) : '작성 중 — 저장 버튼을 눌러 주세요'; }
+  return '<div class="savebar">'
+    +'<span class="sv-status'+cls+'">'+txt+'</span>'
+    +'<button class="btn btn-primary sv-btn" data-act="save1" data-r="'+r.id+'">'
+    + (r.sentAt ? '다시 저장' : '저장') + '</button></div>';
+}
+function saveOne(r, btn){
+  r.savedAt = new Date().toISOString();
+  var ok = flushSave();
+  if(!ok){ alert('이 기기의 저장 공간이 가득 찼어요. 사진을 몇 장 지우거나 백업 파일로 내려받아 주세요.'); render(); return; }
+  if(UPLOAD_ENDPOINT){ submitReport(r, btn); }
+  else{
+    btn.textContent='저장됨 ✓';
+    setTimeout(function(){ render(); }, 1200);
+  }
+}
 function submitBtn(r){
   if(!UPLOAD_ENDPOINT) return '';
   var sent = !!r.sentAt;
