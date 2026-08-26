@@ -54,27 +54,24 @@
 
   .prog{margin-top:38px; max-width:760px;}
   .track{height:9px; border-radius:9px; background:#DFE3ED; overflow:hidden;}
-  .fill{height:100%; border-radius:9px; background:var(--live); width:70%;}
+  .fill{height:100%; border-radius:9px; background:var(--live); width:100%;}
   .pmeta{display:flex; justify-content:space-between; align-items:center; margin-top:14px;
          flex-wrap:wrap; gap:12px; font-size:14px;}
   .pmeta .grp{display:flex; gap:22px;}
   .pmeta b{font-weight:700; margin-left:6px;}
   .pdot{display:inline-flex; align-items:center; gap:8px; color:var(--mute);}
   .pdot i{width:9px; height:9px; border-radius:50%; background:var(--live);}
-  .pdot.done i{background:var(--faint);}
 
   .shead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
          margin:clamp(46px,6vw,74px) 0 0; flex-wrap:wrap;}
   .shead .lhs{display:flex; gap:15px; align-items:flex-start;}
   .shead .bul{width:13px; height:13px; border-radius:50%; background:var(--live); margin-top:8px; flex:none;}
-  .shead.arch .bul{background:var(--faint);}
   .shead h2{font-size:clamp(22px,2.6vw,27px); font-weight:700; letter-spacing:-.02em;}
   .shead p{font-size:13.5px; color:var(--mute); margin-top:5px;}
   .pill{font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:11px;
         background:var(--blue); color:#fff;}
   .pill.grey{background:#E3E7F0; color:var(--mute);}
   .rule{height:2px; background:var(--live); border-radius:2px; margin:16px 0 26px;}
-  .rule.grey{background:var(--line); height:1px;}
 
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:22px;}
   .card{background:var(--paper); border-radius:20px; overflow:hidden; display:flex; flex-direction:column;
@@ -104,33 +101,6 @@
   .a2{font-size:13.5px; font-weight:700; text-decoration:none; padding:12px 17px; border-radius:12px;
       background:var(--blue-soft); color:var(--blue-deep); transition:background .16s ease;}
   .a2:hover{background:#D5DCF6;}
-  .a0{font-size:13.5px; font-weight:700; padding:12px 17px; border-radius:12px;
-      background:#EDEFF5; color:var(--faint); cursor:not-allowed;}
-
-  /* prep card (no banner) */
-  .card.prep{border-top:5px solid var(--faint);}
-  .card.prep .body{padding-top:24px;}
-  .prep .ph{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
-  .prep .emoji{font-size:30px; line-height:1;}
-  .prep .st{font-size:11.5px; font-weight:700; color:var(--live); display:inline-flex;
-            align-items:center; gap:7px;}
-  .prep .st i{width:7px; height:7px; border-radius:50%; background:var(--live);}
-  .prep h3{font-size:20px;}
-
-  /* archive rows */
-  .arch-list{background:var(--paper); border-radius:20px; overflow:hidden;
-             box-shadow:0 12px 30px -22px rgba(35,42,74,.6);}
-  .row{display:flex; align-items:center; gap:16px; padding:20px 24px; text-decoration:none; color:inherit;
-       transition:background .15s ease;}
-  .row + .row{border-top:1px solid var(--line);}
-  .row:hover{background:#F7F9FC;}
-  .row .emoji{font-size:22px; flex:none;}
-  .row .tt{flex:1; min-width:0;}
-  .row .tt b{font-size:15.5px; font-weight:700;}
-  .row .tt span{font-size:12.5px; color:var(--faint); margin-left:10px;}
-  .row .n{font-size:13.5px; font-weight:700; color:var(--mute); white-space:nowrap;}
-  .row .go{font-size:13.5px; font-weight:700; color:var(--blue); white-space:nowrap;
-           display:inline-flex; align-items:center; gap:7px;}
 
   footer{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
          max-width:1180px; margin:0 auto; width:100%;
@@ -138,8 +108,6 @@
 
   @media (max-width:600px){
     .grid{grid-template-columns:1fr;}
-    .row{flex-wrap:wrap; gap:10px;}
-    .row .tt{flex:1 0 100%;}
     .id .nm small{display:none;}
   }
   @media (prefers-reduced-motion:reduce){ *{transition-duration:.01ms !important;} }
@@ -232,10 +200,9 @@
     <div class="track"><div class="fill"></div></div>
     <div class="pmeta">
       <div class="grp">
-        <span class="pdot"><i></i>진행 중<b>7</b></span>
-        <span class="pdot done"><i></i>완료<b>3</b></span>
+        <span class="pdot"><i></i>진행 중<b>6</b></span>
       </div>
-      <span class="pdot" style="color:var(--mute)">전체<b style="color:var(--ink)">10</b></span>
+      <span class="pdot" style="color:var(--mute)">직영 매장<b style="color:var(--ink)">6</b></span>
     </div>
   </div>
 
@@ -255,22 +222,12 @@
     <div class="lhs"><span class="bul"></span>
       <div><h2>진행 중 설문</h2><p>지금 응답을 받고 있어요</p></div>
     </div>
-    <span class="pill">7개 진행</span>
+    <span class="pill">6개 진행</span>
   </div>
   <div class="rule"></div>
 
   <div class="grid" id="live"></div>
 
-  <!-- ================= 완료 ================= -->
-  <div class="shead arch">
-    <div class="lhs"><span class="bul"></span>
-      <div><h2>완료된 설문</h2><p>종료 · 보관된 결과</p></div>
-    </div>
-    <span class="pill grey">3개 보관</span>
-  </div>
-  <div class="rule grey"></div>
-
-  <div class="arch-list" id="arch"></div>
 </main>
 
 <footer>
@@ -384,29 +341,6 @@ document.getElementById('live').innerHTML = STORES.map(function(s){
         + '<a class="a2" href="br-survey-admin.html?store='+s.slug+'">결과 분석</a>'
       + '</div>'
     + '</div></article>';
-}).join("")
-+ '<article class="card prep">'
-  + '<div class="body">'
-    + '<div class="ph"><span class="emoji">🎯</span><span class="st"><i></i>진행 중</span></div>'
-    + '<h3>9월 FOM IMC 컨셉 사전 반응 조사</h3>'
-    + '<p class="d">몬치치 콜라보 \'엄마의 친구, 너의 31\' 컨셉 사전 선호도 테스트.</p>'
-    + '<p class="m">2026.07 예정 · 국문 · 약 4분 · 준비 중</p>'
-    + '<div class="acts"><span class="a0">링크 미연결</span></div>'
-  + '</div></article>';
-
-/* ---- 완료된 설문 ---- */
-var ARCHIVE = [
-  { emoji:"📊", title:"BR 브랜드 헬스 트래킹 — 2026 상반기", meta:"2026.01 – 2026.03 · 국문", n:"1,284" },
-  { emoji:"🍨", title:"시그니처 매시업 시식 테스트",          meta:"2025.11 · 국문",             n:"612" },
-  { emoji:"📱", title:"1020 타깃 SNS 선호도 조사",            meta:"2025.09 · 국문",             n:"938" }
-];
-document.getElementById('arch').innerHTML = ARCHIVE.map(function(a){
-  return '<a class="row" href="br-survey-admin.html">'
-    + '<span class="emoji">'+a.emoji+'</span>'
-    + '<span class="tt"><b>'+a.title+'</b><span>'+a.meta+'</span></span>'
-    + '<span class="n">응답 '+a.n+'</span>'
-    + '<span class="go">결과 보기 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-  + '</a>';
 }).join("");
 
 /* ---- 오늘 날짜 ---- */
@@ -420,8 +354,7 @@ var EN = {
   "설문 조사":"Surveys",
   "배스킨라빈스 마케팅 전략실 지니어스팀 진행 설문 사이트":"Surveys run by the Genius Team, Baskin-Robbins Marketing Strategy",
   "진행 중 설문":"Running", "지금 응답을 받고 있어요":"Collecting responses now",
-  "완료된 설문":"Closed", "종료 · 보관된 결과":"Archived results",
-  "7개 진행":"7 running", "3개 보관":"3 archived",
+  "6개 진행":"6 running", "직영 매장":"stores",
   "ON-SITE 매장 리포트":"ON-SITE Store Report",
   "사진 6컷 + 관찰 질문지 · A4 출력과 팀 아카이브까지":"6 photos + observation checklist \u00b7 A4 export and team archive",
   "기록 시작 →":"Start a report \u2192",
