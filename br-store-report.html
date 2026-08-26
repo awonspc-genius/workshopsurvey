@@ -231,6 +231,27 @@ h1.title .on{color:var(--pink)}
 .arch-sub{font-size:11.5px;color:var(--ink-30);margin-top:3px}
 .arch-one{font-size:12px;color:var(--ink-60);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon-btn.sent{color:#3BB273;border-color:#BFE6CE}
+.arch-item{cursor:pointer;transition:border-color .15s}
+.arch-item:hover{border-color:var(--ink-30)}
+.arch-item.open{border-color:var(--pink)}
+.arch-chev{flex:0 0 auto;font-size:11px;color:var(--ink-30);margin-left:6px}
+.arch-item.open .arch-chev{color:var(--pink)}
+.arch-detail{background:#fff;border:1px solid var(--pink);border-top:0;border-radius:0 0 12px 12px;
+             margin:-11px 0 0;padding:16px 18px 18px}
+.arch-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;margin-bottom:14px}
+.arch-photos a{display:block;position:relative}
+.arch-photos img{width:100%;height:105px;object-fit:cover;border-radius:8px;background:#F3EFF2;display:block}
+.arch-photos span{display:block;font-size:10.5px;color:var(--ink-30);margin-top:4px;text-align:center}
+.arch-meta-row{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--ink-60);margin-bottom:12px}
+.arch-meta-row b{color:var(--ink);font-weight:600}
+.arch-qa{border-top:1px solid var(--line);padding-top:12px}
+.arch-qsec{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--blue);margin:10px 0 5px}
+.arch-qsec:first-child{margin-top:0}
+.arch-qrow{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:3px 0;font-size:12px}
+.arch-qk{color:var(--ink-30)}
+.arch-qv{color:var(--ink);white-space:pre-wrap}
+.arch-none{font-size:12px;color:var(--ink-30);line-height:1.7}
+@media (max-width:640px){.arch-qrow{grid-template-columns:1fr;gap:2px}}
 @media (max-width:560px){.arch-thumbs img{width:30px;height:30px}}
 
 /* 하단 상태바 */
@@ -416,7 +437,7 @@ var STORE_KEY   = "brk_store_reports_v1";
 /* ★ 배포 후 여기에 웹 앱 주소를 넣어주세요.
    onsite-apps-script.txt 를 매장조사 시트에 붙여넣고 웹 앱으로 배포하면
    https://script.google.com/macros/s/....../exec 주소가 나옵니다. */
-var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbxqkHrFzIwOyhaHGvATnFouH6tIpgdqrbjE6Y3hw9nJlVFy-70kzhHAAikEkWIyqPUFqA/exec";
+var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbyR1zp1JNUuATSd3vs-fGZ90-F-l_SJAYvRYIfo25gKXKFGCvKF6gEH1Q9bECtC0q3dfw/exec";
 
 /* 아래 두 개는 "자료" 탭의 바로가기 버튼입니다. 비워두면 버튼이 숨겨져요.
    SHEET_URL  : 설문 데이터가 들어 있는 구글 스프레드시트 주소
@@ -757,6 +778,13 @@ document.addEventListener('input', function(e){
 });
 
 document.addEventListener('click', function(e){
+  var at=e.target.closest('[data-act="archtoggle"]');
+  if(at){
+    var id=at.dataset.id;
+    archOpen[id] = !archOpen[id];
+    renderArchive();
+    return;
+  }
   var b=e.target.closest('[data-act]');
   var zone=e.target.closest('[data-drop]');
   if(b){
@@ -1315,19 +1343,81 @@ function loadArchive(){
     var rows=data.rows;
     if(!rows.length){ body.innerHTML='<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>'; return; }
     rows.sort(function(a,b){ return (b.sentAt||'').localeCompare(a.sentAt||''); });
-    body.innerHTML = rows.map(function(x){
-      var urls=(x.photos||[]).slice(0,6);
-      var thumbs=urls.map(function(u){ return '<img src="'+u+'" alt="" loading="lazy">'; }).join('');
-      return '<div class="arch-item">'
-        +'<span class="arch-thumbs">'+thumbs+'</span>'
-        +'<span class="arch-meta">'
-          +'<span class="arch-store">'+esc(x.store||'(매장명 없음)')+'</span>'
-          +'<span class="arch-sub">'+fmtDate(x.date)+(x.author?' · '+esc(x.author):'')+' · 사진 '+((x.photos||[]).length)+'컷</span>'
-          +(x.oneline?'<span class="arch-one">'+esc(x.oneline)+'</span>':'')
-        +'</span></div>';
-    }).join('');
+    archRows = rows;
+    renderArchive();
   });
 }
+
+var archRows = [], archOpen = {};
+
+function driveView(thumbUrl){
+  var m = String(thumbUrl).match(/[?&]id=([^&]+)/);
+  return m ? 'https://drive.google.com/file/d/' + m[1] + '/view' : thumbUrl;
+}
+
+function archDetail(x){
+  var photos = x.photos || [];
+  var grid = photos.length
+    ? '<div class="arch-photos">' + photos.map(function(u,i){
+        var lab = OBS_PHOTOS[i] ? OBS_PHOTOS[i].n + ' ' + OBS_PHOTOS[i].ko : ('사진 ' + (i+1));
+        return '<a href="'+driveView(u)+'" target="_blank" rel="noopener" title="원본 열기">'
+             + '<img src="'+u+'" alt="'+lab+'" loading="lazy"><span>'+lab+'</span></a>';
+      }).join('') + '</div>'
+    : '<div class="arch-none">올라온 사진이 없어요.</div>';
+
+  var meta = '<div class="arch-meta-row">'
+    + '<span>방문 <b>'+fmtDate(x.date)+(x.hour?' '+esc(x.hour):'')+'</b></span>'
+    + (x.author ? '<span>작성 <b>'+esc(x.author)+'</b></span>' : '')
+    + (x.sentAt ? '<span>제출 <b>'+stamp(x.sentAt)+'</b></span>' : '')
+    + (x.oneline ? '<span>한 줄 요약 <b>'+esc(x.oneline)+'</b></span>' : '')
+    + '</div>';
+
+  var qa = '';
+  var sv = x.survey;
+  if(sv && typeof sv === 'object'){
+    qa = SURVEY.map(function(sec){
+      var rowsHtml = sec.f.map(function(f){
+        var v = sv[f.k];
+        if(f.type==='many') v = (v && v.length) ? v.join(' · ') : '';
+        if(f.type==='num')  v = (v===''||v===undefined) ? '' : v + ' ' + (f.unit||'');
+        if(v===undefined || v==='') return '';
+        return '<div class="arch-qrow"><span class="arch-qk">'+f.l+'</span>'
+             + '<span class="arch-qv">'+esc(String(v))+'</span></div>';
+      }).join('');
+      return rowsHtml ? '<div class="arch-qsec">'+sec.n+'. '+sec.t+'</div>'+rowsHtml : '';
+    }).join('');
+    if(qa) qa = '<div class="arch-qa">'+qa+'</div>';
+  } else {
+    qa = '<div class="arch-qa"><div class="arch-none">질문지 답변은 스크립트를 새 버전으로 배포하면 여기에 함께 표시됩니다. '
+       + '사진과 요약은 지금도 그대로 볼 수 있어요.</div></div>';
+  }
+  return '<div class="arch-detail">'+meta+grid+qa+'</div>';
+}
+
+function renderArchive(){
+  var body = document.getElementById('arch-body');
+  if(!archRows.length){
+    body.innerHTML = '<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>';
+    return;
+  }
+  body.innerHTML = archRows.map(function(x){
+    var open = !!archOpen[x.id];
+    var thumbs = (x.photos||[]).slice(0,6).map(function(u){
+      return '<img src="'+u+'" alt="" loading="lazy">';
+    }).join('');
+    return '<div class="arch-item'+(open?' open':'')+'" data-act="archtoggle" data-id="'+esc(x.id)+'" role="button" tabindex="0">'
+      +'<span class="arch-thumbs">'+thumbs+'</span>'
+      +'<span class="arch-meta">'
+        +'<span class="arch-store">'+esc(x.store||'(매장명 없음)')+'</span>'
+        +'<span class="arch-sub">'+fmtDate(x.date)+(x.author?' · '+esc(x.author):'')+' · 사진 '+((x.photos||[]).length)+'컷</span>'
+        +(x.oneline?'<span class="arch-one">'+esc(x.oneline)+'</span>':'')
+      +'</span>'
+      +'<span class="arch-chev">'+(open?'▲ 접기':'▼ 펼치기')+'</span>'
+      +'</div>'
+      + (open ? archDetail(x) : '');
+  }).join('');
+}
+
 document.getElementById('arch-refresh').addEventListener('click', loadArchive);
 loadArchive();
 
