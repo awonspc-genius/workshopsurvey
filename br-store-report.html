@@ -411,18 +411,18 @@ var STORE_KEY   = "brk_store_reports_v1";
 
 /* ── 팀 아카이브(누적 저장) ────────────────────────────────
    Apps Script 웹앱 URL을 넣으면 "팀에 제출" 버튼이 활성화됩니다.
-   배포 방법은 함께 드린 apps-script-all.txt 참고.
+   배포 방법은 함께 드린 onsite-apps-script.txt 참고.
    비워두면 이 브라우저 저장 + 백업 파일만 동작합니다.        */
-/* 설문 시스템이 이미 쓰고 있는 Apps Script 주소입니다.
-   apps-script-all.txt 를 그 프로젝트에 붙여넣고 "새 버전"으로 배포하면
-   이 주소 그대로 매장 리포트도 저장됩니다. */
-var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbySfHS9GSsKL7FXR4UHEZYJTX5pdkm3qLv00YrVPm6nKWHOt_trtl0vit1wf7Vm3gXU/exec";
+/* ★ 배포 후 여기에 웹 앱 주소를 넣어주세요.
+   onsite-apps-script.txt 를 매장조사 시트에 붙여넣고 웹 앱으로 배포하면
+   https://script.google.com/macros/s/....../exec 주소가 나옵니다. */
+var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbxqkHrFzIwOyhaHGvATnFouH6tIpgdqrbjE6Y3hw9nJlVFy-70kzhHAAikEkWIyqPUFqA/exec";
 
 /* 아래 두 개는 "자료" 탭의 바로가기 버튼입니다. 비워두면 버튼이 숨겨져요.
    SHEET_URL  : 설문 데이터가 들어 있는 구글 스프레드시트 주소
                 (제출한 매장 기록은 그 파일의 'OnSite' 탭에 쌓입니다)
    DRIVE_URL  : 제출한 사진이 저장되는 구글 드라이브 폴더 주소 */
-var SHEET_URL = "";   // 설문 스프레드시트 주소를 넣으면 "자료" 탭 버튼이 살아납니다
+var SHEET_URL = "https://docs.google.com/spreadsheets/d/1iZDgsnpZjKk_gYejZO_YDv9K0GzWVava3shC6Gu0uOw/edit";
 var DRIVE_URL = "";
 
 var tabState  = {};  // 카드별로 열려 있는 탭 (저장되지 않는 화면 상태)
@@ -1177,7 +1177,7 @@ function dataPane(r){
   var howto = (UPLOAD_ENDPOINT && SHEET_URL)
     ? '<p>저장 버튼을 누르면 사진은 드라이브 폴더에, 답변은 시트의 <code>OnSite</code> 탭에 한 줄로 들어갑니다. 같은 매장을 다시 저장하면 새 줄이 아니라 그 줄이 갱신돼요.</p>'
     : '<ol class="dsteps">'
-      +'<li>함께 받은 <code>apps-script-all.txt</code>를 설문 스프레드시트에 배포합니다.</li>'
+      +'<li>함께 받은 <code>onsite-apps-script.txt</code>를 설문 스프레드시트에 배포합니다.</li>'
       +'<li>나온 웹앱 주소를 이 파일 상단 <code>UPLOAD_ENDPOINT</code>에 넣습니다.</li>'
       +'<li>시트 주소와 드라이브 폴더 주소를 <code>SHEET_URL</code> · <code>DRIVE_URL</code>에 넣습니다.</li>'
       +'<li>그때부터 저장 버튼이 곧 팀 시트 업로드가 됩니다.</li>'
@@ -1279,8 +1279,14 @@ function notice(state){
   if(state==='update'){
     el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
       +'<b>저장 서버에 매장 리포트 기능이 아직 없어요.</b> 지금 저장하면 이 기기에만 남고 팀에는 올라가지 않습니다.'
-      +'<span class="nt-sub">관리자: 설문 스프레드시트의 Apps Script에 <b>apps-script-all.txt</b>를 붙여넣고 '
+      +'<span class="nt-sub">관리자: 설문 스프레드시트의 Apps Script에 <b>onsite-apps-script.txt</b>를 붙여넣고 '
       +'배포 관리 → 편집 → <b>새 버전</b>으로 배포하면 바로 켜집니다. 주소는 그대로예요.</span></span>';
+  } else if(state==='setup'){
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>팀 저장이 아직 켜지지 않았어요.</b> 지금 저장하면 이 기기에만 남습니다. '
+      +'작성 후 <b>PPTX 다운로드</b>로 결과물을 꼭 받아두세요.'
+      +'<span class="nt-sub">관리자: <b>onsite-apps-script.txt</b>를 매장조사 시트에 붙여넣고 웹 앱으로 배포한 뒤, '
+      +'나온 주소를 이 파일 상단 UPLOAD_ENDPOINT에 넣으면 켜집니다.</span></span>';
   } else {
     el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
       +'<b>저장 서버에 연결하지 못했어요.</b> 네트워크를 확인해 주세요. 작성한 내용은 이 기기에 남아 있습니다.'
@@ -1290,7 +1296,7 @@ function notice(state){
 
 function loadArchive(){
   var sec=document.getElementById('arch'), body=document.getElementById('arch-body');
-  if(!UPLOAD_ENDPOINT){ sec.hidden=true; return; }
+  if(!UPLOAD_ENDPOINT){ sec.hidden=true; notice('setup'); return; }
   sec.hidden=false;
   body.innerHTML='<div class="arch-msg">불러오는 중…</div>';
   jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
