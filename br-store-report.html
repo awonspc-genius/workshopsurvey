@@ -178,6 +178,24 @@ h1.title .on{color:var(--pink)}
 .note:focus{outline:none;border-bottom-color:var(--pink)}
 .note-off{opacity:.42}
 
+/* 팀 아카이브 */
+.arch{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
+.arch-head{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}
+.arch-kick{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.15em;color:var(--blue)}
+.arch-title{margin:4px 0 0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.arch-head .btn{margin-left:auto}
+.arch-body{display:flex;flex-direction:column;gap:10px}
+.arch-msg{font-size:12.5px;color:var(--ink-30);padding:16px 0}
+.arch-item{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.arch-thumbs{display:flex;gap:4px;flex:0 0 auto}
+.arch-thumbs img{width:38px;height:38px;object-fit:cover;border-radius:6px;background:#F3EFF2}
+.arch-meta{flex:1;min-width:0}
+.arch-store{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.arch-sub{font-size:11.5px;color:var(--ink-30);margin-top:3px}
+.arch-one{font-size:12px;color:var(--ink-60);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn.sent{color:#3BB273;border-color:#BFE6CE}
+@media (max-width:560px){.arch-thumbs img{width:30px;height:30px}}
+
 /* 하단 상태바 */
 .statusbar{position:fixed;left:0;right:0;bottom:0;background:rgba(250,247,249,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:11px 20px;display:flex;align-items:center;gap:12px;z-index:50}
 .statusbar .dot{width:7px;height:7px;border-radius:50%;background:#3BB273;flex:0 0 auto}
@@ -304,8 +322,9 @@ h1.title .on{color:var(--pink)}
 
   <div class="actionbar">
     <button class="btn btn-primary" id="add-btn">+ 매장 추가</button>
+    <button class="btn" id="save-btn">저장</button>
     <button class="btn" id="print-all">전체 인쇄 · PDF</button>
-    <button class="btn btn-ghost" id="backup">백업 저장</button>
+    <button class="btn btn-ghost" id="backup">백업 파일로 내려받기</button>
     <button class="btn btn-ghost" id="restore">백업 불러오기</button>
     <span class="count" id="count"></span>
   </div>
@@ -317,6 +336,17 @@ h1.title .on{color:var(--pink)}
     <p>매장을 추가하면 외부 · 내부 · 디핑구 · 메뉴보드 4컷과 코멘트를 기록할 수 있어요.<br>기록한 내용은 FIELD NOTE / 심플 두 포맷으로 인쇄됩니다.</p>
     <button class="btn btn-primary" id="add-btn-2">+ 매장 추가</button>
   </div>
+
+  <section class="arch" id="arch" hidden>
+    <div class="arch-head">
+      <div>
+        <span class="arch-kick">TEAM ARCHIVE</span>
+        <h2 class="arch-title">팀에 누적된 리포트</h2>
+      </div>
+      <button class="btn btn-ghost" id="arch-refresh">새로고침</button>
+    </div>
+    <div id="arch-body" class="arch-body"></div>
+  </section>
 </div>
 
 <div class="statusbar">
@@ -340,8 +370,14 @@ h1.title .on{color:var(--pink)}
    ═════════════════════════════════════════════════════════ */
 var PASSCODE    = "2607";                 // 설문 허브와 동일한 코드
 var SESSION_KEY = "br_report_ok";         // br-sales.html의 br_sales_ok 와 같은 방식
-var TRUST_KEYS  = ["br_surveys_ok", "br_admin_ok"];  // 이미 통과한 세션이면 재입력 생략
+var TRUST_KEYS  = ["br_survey_ok", "br_admin_ok", "br_sales_ok"];  // 이미 통과한 세션이면 재입력 생략
 var STORE_KEY   = "brk_store_reports_v1";
+
+/* ── 팀 아카이브(누적 저장) ────────────────────────────────
+   Apps Script 웹앱 URL을 넣으면 "팀에 제출" 버튼이 활성화됩니다.
+   배포 방법은 함께 드린 onsite-apps-script.txt 참고.
+   비워두면 이 브라우저 저장 + 백업 파일만 동작합니다.        */
+var UPLOAD_ENDPOINT = "";
 var MAX_EDGE    = 1600;   // 업로드 사진 최대 변 길이(px)
 var JPEG_Q      = 0.82;
 
@@ -595,6 +631,7 @@ function render(){
       +'<input class="f-store" data-r="'+r.id+'" value="'+esc(r.store)+'" placeholder="매장명 입력" aria-label="매장명">'
       +'<input class="f-date" type="date" data-r="'+r.id+'" value="'+esc(r.date)+'" aria-label="방문일자">'
       +'<span class="rep-actions">'
+      +submitBtn(r)
       +'<button class="icon-btn" data-act="print" data-r="'+r.id+'">인쇄 · PDF</button>'
       +'<button class="icon-btn" data-act="dup" data-r="'+r.id+'">복제</button>'
       +'<button class="icon-btn danger" data-act="del" data-r="'+r.id+'">삭제</button>'
@@ -671,6 +708,7 @@ document.addEventListener('click', function(e){
       var c=JSON.parse(JSON.stringify(r)); c.id=uid(); c.store=(r.store||'')+' (복사)';
       state.reports.push(c); save(); render(); return;
     }
+    if(act==='send' && r){ submitReport(r, b); return; }
     if(act==='print' && r){ printReports([r]); return; }
     if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img=''; save(); render(); } return; }
     if(act==='replace'){ pending={rid:b.dataset.r, sid:b.dataset.s}; fileInput.click(); return; }
@@ -848,6 +886,107 @@ restoreInput.addEventListener('change', function(){
   };
   rd.readAsText(f);
 });
+
+/* ═══ 저장 · 팀 아카이브 ═════════════════════════════════ */
+function flushSave(){
+  clearTimeout(saveTimer);
+  var ok = lsSet(STORE_KEY, JSON.stringify(state));
+  var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
+  if(ok){ memOnly=false; dot.className='dot'; msg.textContent='이 브라우저에 저장됨 · '+timeNow(); }
+  else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 백업 파일로 내려받으세요'; }
+  return ok;
+}
+document.getElementById('save-btn').addEventListener('click', function(){
+  var b=this, ok=flushSave();
+  var was=b.textContent;
+  b.textContent = ok ? '저장됨 ✓' : '저장 실패';
+  setTimeout(function(){ b.textContent=was; }, 1600);
+});
+
+/* JSONP 읽기 — Apps Script doGet(action=onsite_list) */
+function jsonp(url, cb){
+  var name='__brk_cb_'+Math.random().toString(36).slice(2);
+  var s=document.createElement('script');
+  var done=false;
+  window[name]=function(data){ done=true; cleanup(); cb(null,data); };
+  function cleanup(){ try{ delete window[name]; }catch(e){ window[name]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); }
+  s.onerror=function(){ if(!done){ cleanup(); cb(new Error('연결 실패')); } };
+  s.src = url + (url.indexOf('?')>-1 ? '&' : '?') + 'callback=' + name;
+  document.body.appendChild(s);
+  setTimeout(function(){ if(!done){ cleanup(); cb(new Error('응답 없음')); } }, 15000);
+}
+
+function submitBtn(r){
+  if(!UPLOAD_ENDPOINT) return '';
+  var sent = !!r.sentAt;
+  return '<button class="icon-btn'+(sent?' sent':'')+'" data-act="send" data-r="'+r.id+'">'
+    + (sent ? '재제출' : '팀에 제출') + '</button>';
+}
+
+function submitReport(r, btn){
+  if(!UPLOAD_ENDPOINT){ alert('제출 주소가 설정되지 않았어요. 파일 상단 UPLOAD_ENDPOINT에 Apps Script 웹앱 URL을 넣어주세요.'); return; }
+  if(!r.store){ alert('먼저 매장명을 입력해 주세요.'); return; }
+  var photos = SLOTS.filter(function(s){ return (r.shots[s.id]||{}).img; })
+                    .map(function(s){ return { slot:s.id, label:s.ko, data:r.shots[s.id].img }; });
+  var notes = {};
+  SLOTS.forEach(function(s){ var n=(r.shots[s.id]||{}).note; if(n) notes[s.id]=n; });
+
+  var payload = {
+    type:'onsite', id:r.id, store:r.store, date:r.date,
+    survey:r.survey || {}, notes:notes, photos:photos, sentFrom:(r.survey&&r.survey.author)||''
+  };
+  var label = btn ? btn.textContent : '';
+  if(btn){ btn.disabled=true; btn.textContent='전송 중…'; }
+
+  fetch(UPLOAD_ENDPOINT, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).then(function(){
+    /* no-cors라 응답을 읽을 수 없어서, 목록을 다시 읽어 확인 */
+    setTimeout(function(){
+      jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
+        var found = !err && data && data.rows && data.rows.some(function(x){ return x.id===r.id; });
+        if(found){
+          r.sentAt = new Date().toISOString();
+          flushSave(); loadArchive(); render();
+        } else {
+          if(btn){ btn.disabled=false; btn.textContent=label; }
+          alert('전송은 됐지만 아카이브에서 확인되지 않았어요.\n잠시 후 새로고침을 눌러 확인해 주세요. 계속 안 보이면 Apps Script 배포 상태를 확인해 주세요.');
+        }
+      });
+    }, 2500);
+  }).catch(function(){
+    if(btn){ btn.disabled=false; btn.textContent=label; }
+    alert('전송에 실패했어요. 네트워크를 확인하고 다시 시도해 주세요.');
+  });
+}
+
+function loadArchive(){
+  var sec=document.getElementById('arch'), body=document.getElementById('arch-body');
+  if(!UPLOAD_ENDPOINT){ sec.hidden=true; return; }
+  sec.hidden=false;
+  body.innerHTML='<div class="arch-msg">불러오는 중…</div>';
+  jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
+    if(err){ body.innerHTML='<div class="arch-msg">아카이브를 불러오지 못했어요. 새로고침을 눌러 다시 시도해 주세요.</div>'; return; }
+    var rows=(data&&data.rows)||[];
+    if(!rows.length){ body.innerHTML='<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>'; return; }
+    rows.sort(function(a,b){ return (b.sentAt||'').localeCompare(a.sentAt||''); });
+    body.innerHTML = rows.map(function(x){
+      var urls=(x.photos||[]).slice(0,6);
+      var thumbs=urls.map(function(u){ return '<img src="'+u+'" alt="" loading="lazy">'; }).join('');
+      return '<div class="arch-item">'
+        +'<span class="arch-thumbs">'+thumbs+'</span>'
+        +'<span class="arch-meta">'
+          +'<span class="arch-store">'+esc(x.store||'(매장명 없음)')+'</span>'
+          +'<span class="arch-sub">'+fmtDate(x.date)+(x.author?' · '+esc(x.author):'')+' · 사진 '+((x.photos||[]).length)+'컷</span>'
+          +(x.oneline?'<span class="arch-one">'+esc(x.oneline)+'</span>':'')
+        +'</span></div>';
+    }).join('');
+  });
+}
+document.getElementById('arch-refresh').addEventListener('click', loadArchive);
+loadArchive();
 
 if(gate.style.display==='none') render();
 })();
