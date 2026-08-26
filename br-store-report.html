@@ -221,7 +221,7 @@ h1.title .on{color:var(--pink)}
 .arch-kick{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.15em;color:var(--blue)}
 .arch-title{margin:4px 0 0;font-size:17px;font-weight:800;letter-spacing:-.02em}
 .arch-head .btn{margin-left:auto}
-.arch-body{display:flex;flex-direction:column;gap:10px}
+.arch-body{display:flex;flex-direction:column;gap:0}
 .arch-msg{font-size:12.5px;color:var(--ink-30);padding:16px 0}
 .arch-item{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .arch-thumbs{display:flex;gap:4px;flex:0 0 auto}
@@ -231,11 +231,6 @@ h1.title .on{color:var(--pink)}
 .arch-sub{font-size:11.5px;color:var(--ink-30);margin-top:3px}
 .arch-one{font-size:12px;color:var(--ink-60);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon-btn.sent{color:#3BB273;border-color:#BFE6CE}
-.arch-item{cursor:pointer;transition:border-color .15s}
-.arch-item:hover{border-color:var(--ink-30)}
-.arch-item.open{border-color:var(--pink)}
-.arch-chev{flex:0 0 auto;font-size:11px;color:var(--ink-30);margin-left:6px}
-.arch-item.open .arch-chev{color:var(--pink)}
 .arch-detail{background:#fff;border:1px solid var(--pink);border-top:0;border-radius:0 0 12px 12px;
              margin:-11px 0 0;padding:16px 18px 18px}
 .arch-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;margin-bottom:14px}
@@ -778,12 +773,12 @@ document.addEventListener('input', function(e){
 });
 
 document.addEventListener('click', function(e){
-  var at=e.target.closest('[data-act="archtoggle"]');
-  if(at){
-    var id=at.dataset.id;
-    archOpen[id] = !archOpen[id];
-    renderArchive();
-    return;
+  var av=e.target.closest('[data-act="archfold"], [data-act="archtab"], [data-act="archpptx"]');
+  if(av){
+    var aid=av.dataset.id, aact=av.dataset.act;
+    if(aact==='archfold'){ archOpen[aid] = !archOpen[aid]; renderArchive(); return; }
+    if(aact==='archtab'){ archTab[aid] = av.dataset.v; renderArchive(); return; }
+    if(aact==='archpptx'){ archPptx(aid, av); return; }
   }
   var b=e.target.closest('[data-act]');
   var zone=e.target.closest('[data-drop]');
@@ -1348,50 +1343,95 @@ function loadArchive(){
   });
 }
 
-var archRows = [], archOpen = {};
+var archRows = [], archOpen = {}, archTab = {};
 
-function driveView(thumbUrl){
-  var m = String(thumbUrl).match(/[?&]id=([^&]+)/);
-  return m ? 'https://drive.google.com/file/d/' + m[1] + '/view' : thumbUrl;
+function normPhotos(list){
+  return (list||[]).map(function(q,idx){
+    if(typeof q === 'string'){
+      var m = String(q).match(/[?&]id=([^&]+)/);
+      return { slot:(OBS_PHOTOS[idx]||{}).id||'', url:q, id:(m?m[1]:'') };
+    }
+    return q;
+  });
 }
+function photoBySlot(list, slot){
+  var arr = normPhotos(list);
+  for(var i=0;i<arr.length;i++) if(arr[i].slot===slot) return arr[i];
+  return null;
+}
+function driveView(p){ return p && p.id ? 'https://drive.google.com/file/d/'+p.id+'/view' : (p?p.url:'#'); }
 
-function archDetail(x){
-  var photos = x.photos || [];
-  var grid = photos.length
-    ? '<div class="arch-photos">' + photos.map(function(u,i){
-        var lab = OBS_PHOTOS[i] ? OBS_PHOTOS[i].n + ' ' + OBS_PHOTOS[i].ko : ('사진 ' + (i+1));
-        return '<a href="'+driveView(u)+'" target="_blank" rel="noopener" title="원본 열기">'
-             + '<img src="'+u+'" alt="'+lab+'" loading="lazy"><span>'+lab+'</span></a>';
-      }).join('') + '</div>'
-    : '<div class="arch-none">올라온 사진이 없어요.</div>';
+/* 위 매장 카드와 같은 형식으로 그립니다 (읽기 전용) */
+function archCard(x, i){
+  var open = !!archOpen[x.id];
+  var tab  = archTab[x.id] || 'photos';
+  var photos = normPhotos(x.photos);
+  var sv = (x.survey && typeof x.survey === 'object') ? x.survey : null;
 
-  var meta = '<div class="arch-meta-row">'
-    + '<span>방문 <b>'+fmtDate(x.date)+(x.hour?' '+esc(x.hour):'')+'</b></span>'
-    + (x.author ? '<span>작성 <b>'+esc(x.author)+'</b></span>' : '')
-    + (x.sentAt ? '<span>제출 <b>'+stamp(x.sentAt)+'</b></span>' : '')
-    + (x.oneline ? '<span>한 줄 요약 <b>'+esc(x.oneline)+'</b></span>' : '')
-    + '</div>';
+  var answered = 0, totalQ = 0;
+  SURVEY.forEach(function(sec){ sec.f.forEach(function(f){
+    totalQ++;
+    if(!sv) return;
+    var v = sv[f.k];
+    if(f.type==='many'){ if(v && v.length) answered++; }
+    else if(v !== undefined && v !== '') answered++;
+  }); });
 
-  var qa = '';
-  var sv = x.survey;
-  if(sv && typeof sv === 'object'){
-    qa = SURVEY.map(function(sec){
-      var rowsHtml = sec.f.map(function(f){
+  var head = '<div class="rep-head'+(open?'':' folded')+'">'
+    +'<span class="idx">'+(i+1)+'</span>'
+    +'<input class="f-store" value="'+esc(x.store||'')+'" readonly aria-label="매장명">'
+    +'<input class="f-date" type="date" value="'+esc(x.date||'')+'" readonly aria-label="방문일자">'
+    +'<span class="rep-actions">'
+      +'<button class="icon-btn fold" data-act="archfold" data-id="'+esc(x.id)+'" aria-expanded="'+(!open)+'">'+(open?'접기':'펼치기')+'</button>'
+      +'<button class="icon-btn" data-act="archpptx" data-id="'+esc(x.id)+'">PPTX 다운로드</button>'
+    +'</span></div>';
+
+  if(!open) return '<div class="report">'+head+'</div>';
+
+  var slotsHtml = SLOTS.map(function(sl){
+    var p = photoBySlot(photos, sl.id);
+    var note = (x.notes && x.notes[sl.id]) || '';
+    var inner = p
+      ? '<a href="'+driveView(p)+'" target="_blank" rel="noopener" title="원본 열기"><img src="'+p.url+'" alt="'+sl.ko+'" loading="lazy"></a>'
+      : '<span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>'
+        +'<div class="drop-hint">사진 없음</div>';
+    return '<div class="slot">'
+      +'<div class="slot-head"><span class="slot-num">'+sl.n+'</span><span class="slot-ko">'+sl.ko+'</span><span class="slot-en">'+sl.en+'</span></div>'
+      +'<div class="drop'+(p?' has':'')+'">'+inner+'</div>'
+      +'<div class="note-wrap"><div class="note-cap">'+sl.cap+'</div>'
+      +'<div class="arch-qv" style="font-size:12.5px;min-height:18px;padding:5px 2px">'+(note?esc(note):'<span class="arch-qk">—</span>')+'</div>'
+      +'</div></div>';
+  }).join('');
+
+  var qHtml;
+  if(sv){
+    qHtml = SURVEY.map(function(sec){
+      var rows = sec.f.map(function(f){
         var v = sv[f.k];
         if(f.type==='many') v = (v && v.length) ? v.join(' · ') : '';
-        if(f.type==='num')  v = (v===''||v===undefined) ? '' : v + ' ' + (f.unit||'');
-        if(v===undefined || v==='') return '';
-        return '<div class="arch-qrow"><span class="arch-qk">'+f.l+'</span>'
-             + '<span class="arch-qv">'+esc(String(v))+'</span></div>';
+        if(f.type==='num')  v = (v===''||v===undefined) ? '' : v+' '+(f.unit||'');
+        var empty = (v===undefined || v==='');
+        return '<div class="qrow"><span class="ql">'+f.l+'</span>'
+          +'<span class="'+(empty?'arch-qk':'arch-qv')+'" style="font-size:12.5px">'+(empty?'—':esc(String(v)))+'</span></div>';
       }).join('');
-      return rowsHtml ? '<div class="arch-qsec">'+sec.n+'. '+sec.t+'</div>'+rowsHtml : '';
+      return '<div class="qsec"><div class="qhead"><span class="qnum">'+sec.n+'</span><span class="qt">'+sec.t+'</span>'
+        +(sec.note?'<span class="qnote">'+sec.note+'</span>':'')+'</div>'+rows+'</div>';
     }).join('');
-    if(qa) qa = '<div class="arch-qa">'+qa+'</div>';
   } else {
-    qa = '<div class="arch-qa"><div class="arch-none">질문지 답변은 스크립트를 새 버전으로 배포하면 여기에 함께 표시됩니다. '
-       + '사진과 요약은 지금도 그대로 볼 수 있어요.</div></div>';
+    qHtml = '<div class="arch-none">질문지 답변이 함께 저장되기 전에 올라온 기록이에요. 사진은 그대로 보실 수 있습니다.</div>';
   }
-  return '<div class="arch-detail">'+meta+grid+qa+'</div>';
+
+  return '<div class="report">'+head
+    +'<div class="tabs" role="tablist">'
+    +'<button class="tab" role="tab" data-act="archtab" data-id="'+esc(x.id)+'" data-v="photos" aria-selected="'+(tab==='photos')+'">사진 '+SLOTS.length+'컷<span class="cnt">'+photos.length+'/'+SLOTS.length+'</span></button>'
+    +'<button class="tab" role="tab" data-act="archtab" data-id="'+esc(x.id)+'" data-v="survey" aria-selected="'+(tab==='survey')+'">관찰 질문지<span class="cnt">'+answered+'/'+totalQ+'</span></button>'
+    +'</div>'
+    +'<div class="pane"'+(tab==='photos'?'':' hidden')+'><div class="slots">'+slotsHtml+'</div></div>'
+    +'<div class="pane"'+(tab==='survey'?'':' hidden')+'><div class="qwrap">'+qHtml+'</div></div>'
+    +'<div class="savebar"><span class="sv-status ok">'
+      +(x.author?esc(x.author)+' · ':'')+'제출 '+stamp(x.sentAt)
+      +(x.oneline?'  |  '+esc(x.oneline):'')+'</span></div>'
+    +'</div>';
 }
 
 function renderArchive(){
@@ -1400,22 +1440,26 @@ function renderArchive(){
     body.innerHTML = '<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>';
     return;
   }
-  body.innerHTML = archRows.map(function(x){
-    var open = !!archOpen[x.id];
-    var thumbs = (x.photos||[]).slice(0,6).map(function(u){
-      return '<img src="'+u+'" alt="" loading="lazy">';
-    }).join('');
-    return '<div class="arch-item'+(open?' open':'')+'" data-act="archtoggle" data-id="'+esc(x.id)+'" role="button" tabindex="0">'
-      +'<span class="arch-thumbs">'+thumbs+'</span>'
-      +'<span class="arch-meta">'
-        +'<span class="arch-store">'+esc(x.store||'(매장명 없음)')+'</span>'
-        +'<span class="arch-sub">'+fmtDate(x.date)+(x.author?' · '+esc(x.author):'')+' · 사진 '+((x.photos||[]).length)+'컷</span>'
-        +(x.oneline?'<span class="arch-one">'+esc(x.oneline)+'</span>':'')
-      +'</span>'
-      +'<span class="arch-chev">'+(open?'▲ 접기':'▼ 펼치기')+'</span>'
-      +'</div>'
-      + (open ? archDetail(x) : '');
-  }).join('');
+  body.innerHTML = archRows.map(archCard).join('');
+}
+
+/* 아카이브 → PPTX : 원본 사진을 서버에서 다시 받아 만듭니다 */
+function archPptx(id, btn){
+  if(typeof PptxGenJS === 'undefined'){ alert('PPTX 생성기를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.'); return; }
+  var was = btn.textContent;
+  btn.disabled = true; btn.textContent = '사진 받는 중…';
+  jsonp(UPLOAD_ENDPOINT+'?action=onsite_get&id='+encodeURIComponent(id), function(err, data){
+    btn.disabled = false; btn.textContent = was;
+    if(err){ alert('사진을 받아오지 못했어요. 네트워크를 확인해 주세요.'); return; }
+    if(!data || !data.row){
+      alert('이 기능은 스크립트를 새 버전으로 배포한 뒤에 동작해요.\n배포 후 다시 시도해 주세요.');
+      return;
+    }
+    var row = data.row, shots = {};
+    SLOTS.forEach(function(sl){ shots[sl.id] = { img:'', note:(row.notes&&row.notes[sl.id])||'' }; });
+    (row.photos||[]).forEach(function(p){ if(shots[p.slot]) shots[p.slot].img = p.data; });
+    downloadPptx({ id:row.id, store:row.store, date:row.date, survey:row.survey||{}, shots:shots }, btn);
+  });
 }
 
 document.getElementById('arch-refresh').addEventListener('click', loadArchive);
