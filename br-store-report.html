@@ -434,8 +434,8 @@ window.addEventListener('error', function(ev){
   bar.textContent = '페이지 오류: ' + (ev.message || '알 수 없음')
     + '\n이 문구를 그대로 알려주시면 원인을 찾을 수 있어요.';
 });
-var MAX_EDGE    = 1600;   // 업로드 사진 최대 변 길이(px)
-var JPEG_Q      = 0.82;
+var MAX_EDGE    = 1400;   // 업로드 사진 최대 변 길이(px)
+var JPEG_Q      = 0.75;
 
 var SLOTS = [
   {id:"exterior", n:"01", ko:"외부",    en:"EXTERIOR",        cap:"FIRST IMPRESSION",  ph:"외관 · 사인 · 진입 동선"},
@@ -498,6 +498,67 @@ var OBS_PHOTOS = [
   {id:"pos",      n:"⑥", ko:"포스 주변"}
 ];
 
+/* ─ 사진 저장소 (IndexedDB) ───────────────────────────────
+   사진은 용량이 커서 localStorage(5MB)에 넣으면 금방 가득 찹니다.
+   그래서 사진만 IndexedDB에 따로 두고, 텍스트만 localStorage에 둡니다. */
+var IDB_NAME = 'brk_onsite', IDB_STORE = 'photos', idb = null, idbReady = null;
+
+function idbOpen(){
+  if(idbReady) return idbReady;
+  idbReady = new Promise(function(resolve){
+    try{
+      if(!window.indexedDB){ resolve(null); return; }
+      var req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = function(){
+        var db = req.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = function(){ idb = req.result; resolve(idb); };
+      req.onerror   = function(){ resolve(null); };
+    }catch(e){ resolve(null); }
+  });
+  return idbReady;
+}
+function idbPut(key, val){
+  return idbOpen().then(function(db){
+    if(!db) return false;
+    return new Promise(function(resolve){
+      try{
+        var tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(val, key);
+        tx.oncomplete = function(){ resolve(true); };
+        tx.onerror = tx.onabort = function(){ resolve(false); };
+      }catch(e){ resolve(false); }
+    });
+  });
+}
+function idbDel(key){
+  return idbOpen().then(function(db){
+    if(!db) return;
+    try{ db.transaction(IDB_STORE,'readwrite').objectStore(IDB_STORE)['delete'](key); }catch(e){}
+  });
+}
+function idbAll(){
+  return idbOpen().then(function(db){
+    if(!db) return {};
+    return new Promise(function(resolve){
+      var out = {};
+      try{
+        var tx = db.transaction(IDB_STORE, 'readonly');
+        var st = tx.objectStore(IDB_STORE);
+        var cur = st.openCursor();
+        cur.onsuccess = function(){
+          var c = cur.result;
+          if(c){ out[c.key] = c.value; c['continue'](); }
+        };
+        tx.oncomplete = function(){ resolve(out); };
+        tx.onerror = tx.onabort = function(){ resolve(out); };
+      }catch(e){ resolve(out); }
+    });
+  });
+}
+function shotKey(rid, sid){ return rid + '|' + sid; }
+
 /* ─ 저장소 (실패해도 메모리로 계속 동작) ─ */
 var memOnly = false;
 function lsGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ return null; } }
@@ -520,14 +581,28 @@ function ensureSlots(r){
 state.reports.forEach(ensureSlots);
 state.reports.forEach(function(r){ collapsed[r.id] = true; });  // 첫 화면은 접힌 목록
 
+/* 사진(img)은 IndexedDB에 있으므로 localStorage 사본에서는 제외합니다 */
+function serialize(){
+  return JSON.stringify({
+    reports: state.reports.map(function(r){
+      var shots = {};
+      Object.keys(r.shots||{}).forEach(function(k){
+        shots[k] = { img:'', note:(r.shots[k]||{}).note || '' };
+      });
+      return { id:r.id, store:r.store, date:r.date, format:r.format,
+               survey:r.survey, shots:shots, savedAt:r.savedAt, sentAt:r.sentAt };
+    })
+  });
+}
+
 var saveTimer=null;
 function save(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(function(){
-    var ok = lsSet(STORE_KEY, JSON.stringify(state));
+    var ok = lsSet(STORE_KEY, serialize());
     var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
     if(ok && !memOnly){ dot.className='dot'; msg.textContent='이 브라우저에 자동 저장됨 · '+timeNow(); }
-    else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 백업 저장으로 파일을 내려받으세요'; }
+    else{ memOnly=true; dot.className='dot warn'; msg.textContent='이 기기 저장 공간이 부족해요. 다 쓴 매장 카드를 삭제해 주세요'; }
   },350);
 }
 function timeNow(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
@@ -609,7 +684,13 @@ function handleFile(file, rid, sid){
   compress(file, function(dataUrl){
     if(!dataUrl){ alert('사진을 불러오지 못했어요. 다른 파일로 시도해 주세요.'); render(); return; }
     var r=find(rid); if(!r) return;
-    r.shots[sid].img=dataUrl; save(); render();
+    if(!r.shots[sid]) r.shots[sid]={img:'',note:''};
+    r.shots[sid].img=dataUrl;
+    render();
+    idbPut(shotKey(rid, sid), dataUrl).then(function(ok){
+      if(!ok) alert('사진을 이 기기에 저장하지 못했어요. 화면에는 남아 있으니 저장 버튼을 눌러 팀 시트로 올려주세요.');
+      save();
+    });
   });
 }
 function find(id){ for(var i=0;i<state.reports.length;i++) if(state.reports[i].id===id) return state.reports[i]; return null; }
@@ -773,18 +854,25 @@ document.addEventListener('click', function(e){
     if(act==='fmt' && r){ r.format=b.dataset.v; save(); render(); return; }
     if(act==='del' && r){
       if(confirm((r.store||'이 매장')+' 리포트를 삭제할까요? 되돌릴 수 없어요.')){
+        SLOTS.forEach(function(sl){ idbDel(shotKey(r.id, sl.id)); });
         state.reports=state.reports.filter(function(x){return x.id!==r.id;}); save(); render();
       } return;
     }
     if(act==='dup' && r){
       var c=JSON.parse(JSON.stringify(r)); c.id=uid(); c.store=(r.store||'')+' (복사)';
+      c.savedAt=''; c.sentAt='';
+      SLOTS.forEach(function(sl){
+        var img=(c.shots[sl.id]||{}).img;
+        if(img) idbPut(shotKey(c.id, sl.id), img);
+      });
       state.reports.push(c); save(); render(); return;
     }
     if(act==='save1' && r){ saveOne(r, b); return; }
     if(act==='send' && r){ submitReport(r, b); return; }
     if(act==='pptx' && r){ downloadPptx(r, b); return; }
     if(act==='print' && r){ printReports([r]); return; }
-    if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img=''; save(); render(); } return; }
+    if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img='';
+        idbDel(shotKey(rr.id, b.dataset.s)); save(); render(); } return; }
     if(act==='replace'){ pending={rid:b.dataset.r, sid:b.dataset.s}; fileInput.click(); return; }
   }
   if(zone && !e.target.closest('.shot-tools')){
@@ -1141,7 +1229,7 @@ window.addEventListener('afterprint', function(){ document.getElementById('print
 /* ═══ 저장 · 팀 아카이브 ═════════════════════════════════ */
 function flushSave(){
   clearTimeout(saveTimer);
-  var ok = lsSet(STORE_KEY, JSON.stringify(state));
+  var ok = lsSet(STORE_KEY, serialize());
   var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
   if(ok){ memOnly=false; dot.className='dot'; msg.textContent='이 브라우저에 저장됨 · '+timeNow(); }
   else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 오래된 매장 카드를 삭제해 주세요'; }
@@ -1179,7 +1267,7 @@ function saveBar(r){
 function saveOne(r, btn){
   r.savedAt = new Date().toISOString();
   var ok = flushSave();
-  if(!ok){ alert('이 기기의 저장 공간이 가득 찼어요. 사진을 몇 장 지우거나 다 쓴 매장 카드를 삭제해 주세요.'); render(); return; }
+  if(!ok){ alert('이 기기 저장 공간이 부족해요. 이미 팀에 올린 매장 카드를 삭제하면 공간이 확보됩니다.'); render(); return; }
   if(UPLOAD_ENDPOINT && serverReady !== false){ submitReport(r, btn); }
   else{
     btn.textContent='이 기기에만 저장됨';
@@ -1402,6 +1490,18 @@ function archPptx(id, btn){
 
 document.getElementById('arch-refresh').addEventListener('click', loadArchive);
 loadArchive();
+
+/* 저장해둔 사진을 IndexedDB에서 되살린 뒤 화면을 그립니다 */
+idbAll().then(function(map){
+  var n = 0;
+  state.reports.forEach(function(r){
+    SLOTS.forEach(function(sl){
+      var v = map[shotKey(r.id, sl.id)];
+      if(v){ if(!r.shots[sl.id]) r.shots[sl.id]={img:'',note:''}; r.shots[sl.id].img = v; n++; }
+    });
+  });
+  if(n) render();
+});
 
 initGate();
 })();
