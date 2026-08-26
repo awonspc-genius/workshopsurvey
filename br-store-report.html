@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ON-SITE 매장 사진 리포트 · BRK Genius</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   BRK Genius — ON-SITE 매장 사진 리포트
+   입력 1회 → 출력 2포맷(FIELD NOTE / 심플)
+   데이터는 이 브라우저(localStorage)에만 저장됩니다.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --pink:#EC0089;
+  --pink-soft:#FF4FB0;
+  --blue:#1B4CA1;
+  --ink:#141014;
+  --ink-60:#6B6570;
+  --ink-30:#ADA6B0;
+  --paper:#FAF7F9;
+  --card:#FFFFFF;
+  --line:#EDE7EC;
+  --line-hard:#DED6DD;
+  --radius:14px;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  background:var(--paper);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:80px;
+}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--pink);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── 잠금 화면 ───────────────────────────────────────────── */
+#gate{position:fixed;inset:0;background:var(--paper);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-box{width:100%;max-width:320px;text-align:center}
+.gate-box .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--pink);font-weight:600;margin-bottom:14px}
+.gate-box h1{font-size:19px;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
+.gate-box p{font-size:12.5px;color:var(--ink-60);margin:0 0 22px}
+.gate-box input{width:100%;padding:13px 14px;border:1px solid var(--line-hard);border-radius:10px;font-size:17px;text-align:center;letter-spacing:.4em;background:#fff}
+.gate-box button{width:100%;margin-top:10px;padding:13px;border:0;border-radius:10px;background:var(--ink);color:#fff;font-size:14px;font-weight:700}
+.gate-err{color:var(--pink);font-size:12px;margin-top:10px;min-height:16px;font-weight:600}
+
+/* ── 헤더 ────────────────────────────────────────────────── */
+.wrap{max-width:940px;margin:0 auto;padding:0 20px}
+header{padding:34px 0 22px}
+.eyebrow-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.pill{display:inline-block;background:var(--pink);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;padding:6px 13px;border-radius:20px}
+.meta{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--blue)}
+h1.title{margin:0;font-size:clamp(26px,5.4vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+h1.title .on{color:var(--pink)}
+.sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-30);margin-top:9px;text-transform:uppercase}
+.rule{height:2px;background:var(--pink);margin:22px 0 0;border-radius:2px}
+
+/* ── 액션 바 ─────────────────────────────────────────────── */
+.actionbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:20px 0 6px}
+.btn{border:1px solid var(--line-hard);background:#fff;color:var(--ink);padding:10px 15px;border-radius:10px;font-size:13px;font-weight:600;transition:border-color .15s,transform .1s}
+.btn:hover{border-color:var(--ink-30)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--pink);border-color:var(--pink);color:#fff}
+.btn-primary:hover{background:#d1007b;border-color:#d1007b}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--ink-60)}
+.btn-ghost:hover{color:var(--ink);border-color:var(--line)}
+.count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-30);letter-spacing:.08em}
+
+/* ── 빈 상태 ─────────────────────────────────────────────── */
+.empty{border:1.5px dashed var(--line-hard);border-radius:var(--radius);padding:52px 24px;text-align:center;margin-top:16px;background:#fff}
+.empty h2{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.empty p{margin:0 0 18px;font-size:13px;color:var(--ink-60);line-height:1.6}
+
+/* ── 리포트 카드 ─────────────────────────────────────────── */
+.report{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-top:16px;overflow:hidden}
+.rep-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.idx{font-family:var(--mono);font-size:11px;font-weight:600;color:#fff;background:var(--ink);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.f-store{flex:1 1 200px;min-width:150px;border:0;border-bottom:1.5px solid var(--line-hard);padding:7px 2px;font-size:16px;font-weight:700;letter-spacing:-.01em;background:transparent}
+.f-store::placeholder{color:var(--ink-30);font-weight:500}
+.f-store:focus{border-bottom-color:var(--pink);outline:none}
+.f-date{border:1px solid var(--line-hard);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink-60);background:#fff}
+.rep-actions{display:flex;gap:6px;margin-left:auto}
+.icon-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;color:var(--ink-60)}
+.icon-btn:hover{color:var(--ink);border-color:var(--ink-30)}
+.icon-btn.danger:hover{color:var(--pink);border-color:var(--pink)}
+
+/* 포맷 선택 */
+.fmt{display:flex;gap:7px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line);background:#FDFBFC}
+.fmt-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;color:var(--ink-30);margin-right:3px}
+.chip{border:1px solid var(--line-hard);background:#fff;border-radius:20px;padding:6px 13px;font-size:11.5px;font-weight:600;color:var(--ink-60)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.blue[aria-pressed="true"]{background:var(--blue);border-color:var(--blue)}
+
+/* 슬롯 그리드 */
+.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:18px}
+@media (max-width:640px){.slots{grid-template-columns:1fr}}
+.slot{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.slot-head{display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.slot-num{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:var(--pink);width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.slot-ko{font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+.slot-en{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--ink-30)}
+
+/* 드롭존 — 코너 브래킷이 시그니처 */
+.drop{position:relative;aspect-ratio:4/3.2;margin:12px;border-radius:10px;background:#F7F4F6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:background .15s}
+.drop:hover{background:#F2EDF1}
+.drop.over{background:#FFEAF6;box-shadow:inset 0 0 0 2px var(--pink)}
+.drop .brk{position:absolute;width:13px;height:13px;border:1.5px solid var(--ink-30);pointer-events:none;transition:border-color .15s}
+.drop .brk.tl{top:9px;left:9px;border-right:0;border-bottom:0}
+.drop .brk.tr{top:9px;right:9px;border-left:0;border-bottom:0}
+.drop .brk.bl{bottom:9px;left:9px;border-right:0;border-top:0}
+.drop .brk.br{bottom:9px;right:9px;border-left:0;border-top:0}
+.drop.over .brk{border-color:var(--pink)}
+.drop-hint{font-size:12px;color:var(--ink-30);font-weight:600}
+.drop-sub{font-size:10.5px;color:var(--ink-30)}
+.drop img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+.drop.has .brk{display:none}
+.shot-tools{position:absolute;right:8px;bottom:8px;display:flex;gap:5px}
+.shot-tools button{border:0;background:rgba(20,16,20,.78);color:#fff;font-size:10.5px;font-weight:600;padding:5px 9px;border-radius:6px;backdrop-filter:blur(6px)}
+.shot-tools button:hover{background:rgba(20,16,20,.92)}
+.busy{position:absolute;inset:0;background:rgba(255,255,255,.82);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-60);border-radius:10px}
+
+.note-wrap{padding:0 12px 13px}
+.note-cap{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.13em;color:var(--blue);margin-bottom:5px}
+.note{width:100%;border:0;border-bottom:1px solid var(--line-hard);background:transparent;font-size:12.5px;line-height:1.65;padding:5px 2px 6px;resize:none;overflow:hidden;min-height:30px;color:var(--ink)}
+.note::placeholder{color:var(--ink-30)}
+.note:focus{outline:none;border-bottom-color:var(--pink)}
+.note-off{opacity:.42}
+
+/* 하단 상태바 */
+.statusbar{position:fixed;left:0;right:0;bottom:0;background:rgba(250,247,249,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:11px 20px;display:flex;align-items:center;gap:12px;z-index:50}
+.statusbar .dot{width:7px;height:7px;border-radius:50%;background:#3BB273;flex:0 0 auto}
+.statusbar .dot.warn{background:#E8A020}
+.statusbar span{font-size:11.5px;color:var(--ink-60)}
+.statusbar .right{margin-left:auto;display:flex;gap:8px}
+
+/* ═══ 인쇄 시트 ═══════════════════════════════════════════ */
+#print-root{display:none}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff;padding:0}
+  body > *:not(#print-root){display:none!important}
+  #print-root{display:block!important}
+}
+.sheet{width:210mm;min-height:297mm;padding:14mm 14mm 12mm;background:#fff;position:relative;page-break-after:always;font-family:var(--sans);color:#141014}
+.sheet:last-child{page-break-after:auto}
+.sheet .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.sheet .ph{width:100%;object-fit:cover;display:block;background:#F3F3F3}
+.sheet .ph-empty{display:flex;align-items:center;justify-content:center;font-size:9pt;color:#BBB;background:#F7F7F7}
+
+/* FIELD NOTE 포맷 */
+.sheet.field .fn-pill{display:inline-block;background:#EC0089;color:#fff;font-family:var(--mono);font-size:7.5pt;font-weight:600;letter-spacing:.14em;padding:4px 11px;border-radius:20px}
+.sheet.field .fn-top{display:flex;justify-content:space-between;align-items:center}
+.sheet.field .fn-team{font-family:var(--mono);font-size:7.5pt;font-weight:600;letter-spacing:.1em;color:#1B4CA1}
+.sheet.field h2{margin:7mm 0 0;font-size:21pt;font-weight:800;letter-spacing:-.03em}
+.sheet.field h2 .on{color:#EC0089}
+.sheet.field h2 .kr{font-size:15pt;font-weight:700}
+.sheet.field .fn-sub{font-family:var(--mono);font-size:7pt;letter-spacing:.11em;color:#ADA6B0;margin-top:3mm;text-transform:uppercase}
+.sheet.field .fn-meta{display:grid;grid-template-columns:1.35fr 1fr;gap:5mm;margin:7mm 0 6mm}
+.sheet.field .fn-box{border:1px solid #EDE7EC;border-radius:10px;padding:4mm 5mm;display:flex;align-items:baseline;gap:5mm}
+.sheet.field .fn-box .k{font-size:8.5pt;font-weight:700}
+.sheet.field .fn-box .v{font-size:10.5pt;font-weight:600;border-bottom:1px solid #E4DDE3;flex:1;padding-bottom:1mm}
+.sheet.field .fn-card{border:1px solid #EDE7EC;border-radius:12px;padding:4mm}
+.sheet.field .fn-ch{display:flex;align-items:center;gap:3mm;margin-bottom:3mm}
+.sheet.field .fn-n{background:#EC0089;color:#fff;font-family:var(--mono);font-size:7pt;font-weight:600;width:6mm;height:6mm;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sheet.field .fn-ko{font-size:11pt;font-weight:700}
+.sheet.field .fn-en{margin-left:auto;font-family:var(--mono);font-size:6.5pt;letter-spacing:.12em;color:#ADA6B0}
+.sheet.field .ph{height:52mm;border-radius:8px}
+.sheet.field .fn-cap{font-family:var(--mono);font-size:6.5pt;font-weight:600;letter-spacing:.13em;color:#1B4CA1;margin:3mm 0 1.5mm}
+.sheet.field .fn-note{font-size:8.5pt;line-height:1.6;border-bottom:1px solid #E4DDE3;min-height:5mm;padding-bottom:1.5mm;white-space:pre-wrap}
+.sheet.field .fn-foot{position:absolute;left:14mm;right:14mm;bottom:10mm}
+.sheet.field .fn-foot-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:7pt;font-weight:600;letter-spacing:.08em;padding-bottom:2mm}
+.sheet.field .fn-foot-row .l{color:#EC0089}
+.sheet.field .fn-foot-row .r{color:#ADA6B0}
+.sheet.field .fn-bar{height:2px;background:#EC0089}
+
+/* 심플 포맷 */
+.sheet.plain h2{margin:0;font-size:16pt;font-weight:800;letter-spacing:-.02em}
+.sheet.plain h2 .on{color:#EC0089}
+.sheet.plain .pl-meta{display:grid;grid-template-columns:26mm 1fr 26mm 1fr;margin:5mm 0 5mm;border:1px solid #C9C9C9}
+.sheet.plain .pl-meta > div{padding:2.6mm 3mm;font-size:9pt;border-right:1px solid #C9C9C9}
+.sheet.plain .pl-meta > div:last-child{border-right:0}
+.sheet.plain .pl-meta .k{background:#F3F3F3;font-weight:700}
+.sheet.plain .pl-card{border:1px solid #C9C9C9}
+.sheet.plain .pl-ch{background:#1B4CA1;color:#fff;font-size:9pt;font-weight:700;padding:2mm 3mm;display:flex;gap:2.5mm;align-items:center}
+.sheet.plain .pl-n{font-family:var(--mono);font-size:7.5pt;opacity:.85}
+.sheet.plain .ph{height:78mm}
+.sheet.plain .pl-note{font-size:8.5pt;line-height:1.55;padding:2.5mm 3mm;border-top:1px solid #E2E2E2;white-space:pre-wrap;min-height:4mm}
+.sheet.plain .pl-foot{position:absolute;left:14mm;right:14mm;bottom:10mm;border-top:1px solid #C9C9C9;padding-top:2.5mm;font-size:7.5pt;color:#6B6570}
+</style>
+</head>
+<body>
+
+<!-- ══ 잠금 ══════════════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="eyebrow">GENIUS TEAM / INTERNAL</div>
+    <h1>ON-SITE 매장 사진 리포트</h1>
+    <p>설문 허브 코드를 입력하세요.</p>
+    <input id="gate-pw" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="접근 코드">
+    <button id="gate-go">들어가기</button>
+    <div class="gate-err" id="gate-err"></div>
+  </div>
+</div>
+
+<!-- ══ 본문 ══════════════════════════════════════════════ -->
+<div class="wrap">
+  <header>
+    <div class="eyebrow-row">
+      <span class="pill">FIELD NOTE</span>
+      <span class="meta">GENIUS TEAM / 2026</span>
+    </div>
+    <h1 class="title">BASKIN-ROBBINS <span class="on">ON-SITE</span> 매장 사진 리포트</h1>
+    <div class="sub">Store experience snapshot / Look, capture, share</div>
+    <div class="rule"></div>
+  </header>
+
+  <div class="actionbar">
+    <button class="btn btn-primary" id="add-btn">+ 매장 추가</button>
+    <button class="btn" id="print-all">전체 인쇄 · PDF</button>
+    <button class="btn btn-ghost" id="backup">백업 저장</button>
+    <button class="btn btn-ghost" id="restore">백업 불러오기</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="empty" id="empty">
+    <h2>아직 등록한 매장이 없어요</h2>
+    <p>매장을 추가하면 외부 · 내부 · 디핑구 · 메뉴보드 4컷과 코멘트를 기록할 수 있어요.<br>기록한 내용은 FIELD NOTE / 심플 두 포맷으로 인쇄됩니다.</p>
+    <button class="btn btn-primary" id="add-btn-2">+ 매장 추가</button>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span class="dot" id="save-dot"></span>
+  <span id="save-msg">이 브라우저에 자동 저장됩니다</span>
+  <span class="right"></span>
+</div>
+
+<div id="print-root"></div>
+
+<input type="file" id="file-input" accept="image/*" style="display:none">
+<input type="file" id="restore-input" accept="application/json,.json" style="display:none">
+
+<script>
+(function(){
+'use strict';
+
+/* ═══ 설정 ══════════════════════════════════════════════════
+   PASSCODE  : 설문 허브와 동일한 코드
+   SESSION_KEY: 허브(surveys.html)와 같은 키를 쓰면 한 번만 입력하면 됩니다.
+   ═════════════════════════════════════════════════════════ */
+var PASSCODE    = "2607";
+var SESSION_KEY = "brk_hub_session";
+var STORE_KEY   = "brk_store_reports_v1";
+var MAX_EDGE    = 1600;   // 업로드 사진 최대 변 길이(px)
+var JPEG_Q      = 0.82;
+
+var SLOTS = [
+  {id:"exterior", n:"01", ko:"외부",    en:"EXTERIOR",        cap:"FIRST IMPRESSION",  ph:"외관 · 사인 · 진입 동선"},
+  {id:"interior", n:"02", ko:"내부",    en:"INTERIOR",        cap:"SPACE & FLOW",      ph:"좌석 · 동선 · 분위기"},
+  {id:"dipping",  n:"03", ko:"디핑구",  en:"DIPPING CABINET", cap:"PRODUCT VISIBILITY",ph:"플레이버 배열 · 청결 · 가시성"},
+  {id:"menu",     n:"04", ko:"메뉴보드",en:"MENU BOARD",      cap:"CHOICE & CLARITY",  ph:"가독성 · 추천 메뉴 노출"}
+];
+
+/* ─ 저장소 (실패해도 메모리로 계속 동작) ─ */
+var memOnly = false;
+function lsGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ window.localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+
+var state = { reports: [] };
+try{
+  var raw = lsGet(STORE_KEY);
+  if(raw){ var p = JSON.parse(raw); if(p && p.reports) state.reports = p.reports; }
+}catch(e){}
+
+var saveTimer=null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    var ok = lsSet(STORE_KEY, JSON.stringify(state));
+    var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
+    if(ok && !memOnly){ dot.className='dot'; msg.textContent='이 브라우저에 자동 저장됨 · '+timeNow(); }
+    else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 백업 저장으로 파일을 내려받으세요'; }
+  },350);
+}
+function timeNow(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+
+/* ─ 잠금 ─ */
+var gate=document.getElementById('gate');
+function unlock(){ gate.style.display='none'; render(); }
+if(lsGet(SESSION_KEY)==='ok'){ unlock(); }
+else{
+  document.getElementById('gate-go').addEventListener('click', tryUnlock);
+  document.getElementById('gate-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
+  setTimeout(function(){ document.getElementById('gate-pw').focus(); },120);
+}
+function tryUnlock(){
+  var v=document.getElementById('gate-pw').value.trim();
+  if(v===PASSCODE){ lsSet(SESSION_KEY,'ok'); unlock(); }
+  else{ document.getElementById('gate-err').textContent='코드가 맞지 않아요. 다시 입력해 주세요.'; document.getElementById('gate-pw').value=''; document.getElementById('gate-pw').focus(); }
+}
+
+/* ─ 리포트 생성 ─ */
+function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function today(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function newReport(){
+  var r={ id:uid(), store:'', date:today(), format:'field', shots:{} };
+  SLOTS.forEach(function(s){ r.shots[s.id]={ img:'', note:'' }; });
+  return r;
+}
+function addReport(){
+  state.reports.push(newReport()); save(); render();
+  var els=document.querySelectorAll('.f-store'); if(els.length) els[els.length-1].focus();
+  window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+}
+document.getElementById('add-btn').addEventListener('click', addReport);
+document.getElementById('add-btn-2').addEventListener('click', addReport);
+
+/* ─ 이미지 압축 ─ */
+function compress(file, cb){
+  var reader=new FileReader();
+  reader.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.width, h=img.height, scale=Math.min(1, MAX_EDGE/Math.max(w,h));
+      var c=document.createElement('canvas');
+      c.width=Math.round(w*scale); c.height=Math.round(h*scale);
+      var ctx=c.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+      ctx.drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg', JPEG_Q));
+    };
+    img.onerror=function(){ cb(null); };
+    img.src=reader.result;
+  };
+  reader.onerror=function(){ cb(null); };
+  reader.readAsDataURL(file);
+}
+
+/* ─ 파일 선택 ─ */
+var fileInput=document.getElementById('file-input');
+var pending=null;
+fileInput.addEventListener('change', function(){
+  var f=fileInput.files && fileInput.files[0];
+  if(f && pending) handleFile(f, pending.rid, pending.sid);
+  fileInput.value=''; pending=null;
+});
+function handleFile(file, rid, sid){
+  if(!/^image\//.test(file.type)){ alert('이미지 파일만 올릴 수 있어요.'); return; }
+  var zone=document.querySelector('[data-drop="'+rid+'|'+sid+'"]');
+  if(zone){ var b=document.createElement('div'); b.className='busy'; b.textContent='PROCESSING'; zone.appendChild(b); }
+  compress(file, function(dataUrl){
+    if(!dataUrl){ alert('사진을 불러오지 못했어요. 다른 파일로 시도해 주세요.'); render(); return; }
+    var r=find(rid); if(!r) return;
+    r.shots[sid].img=dataUrl; save(); render();
+  });
+}
+function find(id){ for(var i=0;i<state.reports.length;i++) if(state.reports[i].id===id) return state.reports[i]; return null; }
+
+/* ─ 렌더 ─ */
+function esc(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+function render(){
+  var list=document.getElementById('list');
+  var empty=document.getElementById('empty');
+  var n=state.reports.length;
+  empty.style.display = n ? 'none' : 'block';
+  document.getElementById('count').textContent = n ? n+' STORE'+(n>1?'S':'') : '';
+  list.innerHTML='';
+
+  state.reports.forEach(function(r,i){
+    var el=document.createElement('div');
+    el.className='report';
+    var isPlain = r.format==='plain';
+
+    var slotsHtml = SLOTS.map(function(s){
+      var sh=r.shots[s.id]||{img:'',note:''};
+      var inner = sh.img
+        ? '<img src="'+sh.img+'" alt="'+s.ko+' 사진">'
+          +'<div class="shot-tools">'
+          +'<button data-act="replace" data-r="'+r.id+'" data-s="'+s.id+'">교체</button>'
+          +'<button data-act="remove" data-r="'+r.id+'" data-s="'+s.id+'">삭제</button></div>'
+        : '<span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>'
+          +'<div class="drop-hint">사진 올리기</div>'
+          +'<div class="drop-sub">클릭 · 드래그 · 붙여넣기</div>';
+      return '<div class="slot">'
+        +'<div class="slot-head"><span class="slot-num">'+s.n+'</span><span class="slot-ko">'+s.ko+'</span><span class="slot-en">'+s.en+'</span></div>'
+        +'<div class="drop'+(sh.img?' has':'')+'" data-drop="'+r.id+'|'+s.id+'" tabindex="0" role="button" aria-label="'+s.ko+' 사진 올리기">'+inner+'</div>'
+        +'<div class="note-wrap'+(isPlain?'':'')+'">'
+        +'<div class="note-cap'+(isPlain?' note-off':'')+'">'+s.cap+(isPlain?' · 심플 포맷에는 인쇄되지 않음':'')+'</div>'
+        +'<textarea class="note" data-r="'+r.id+'" data-s="'+s.id+'" rows="1" placeholder="'+s.ph+'">'+esc(sh.note)+'</textarea>'
+        +'</div></div>';
+    }).join('');
+
+    el.innerHTML =
+      '<div class="rep-head">'
+      +'<span class="idx">'+(i+1)+'</span>'
+      +'<input class="f-store" data-r="'+r.id+'" value="'+esc(r.store)+'" placeholder="매장명 입력" aria-label="매장명">'
+      +'<input class="f-date" type="date" data-r="'+r.id+'" value="'+esc(r.date)+'" aria-label="방문일자">'
+      +'<span class="rep-actions">'
+      +'<button class="icon-btn" data-act="print" data-r="'+r.id+'">인쇄 · PDF</button>'
+      +'<button class="icon-btn" data-act="dup" data-r="'+r.id+'">복제</button>'
+      +'<button class="icon-btn danger" data-act="del" data-r="'+r.id+'">삭제</button>'
+      +'</span></div>'
+      +'<div class="fmt">'
+      +'<span class="fmt-label">OUTPUT FORMAT</span>'
+      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="field" aria-pressed="'+(!isPlain)+'">FIELD NOTE</button>'
+      +'<button class="chip blue" data-act="fmt" data-r="'+r.id+'" data-v="plain" aria-pressed="'+isPlain+'">심플</button>'
+      +'</div>'
+      +'<div class="slots">'+slotsHtml+'</div>';
+
+    list.appendChild(el);
+  });
+
+  document.querySelectorAll('.note').forEach(autosize);
+}
+function autosize(t){ t.style.height='auto'; t.style.height=(t.scrollHeight)+'px'; }
+
+/* ─ 이벤트 위임 ─ */
+document.addEventListener('input', function(e){
+  var t=e.target;
+  if(t.classList.contains('f-store')){ var r=find(t.dataset.r); if(r){ r.store=t.value; save(); } }
+  else if(t.classList.contains('f-date')){ var r2=find(t.dataset.r); if(r2){ r2.date=t.value; save(); } }
+  else if(t.classList.contains('note')){
+    var r3=find(t.dataset.r); if(r3){ r3.shots[t.dataset.s].note=t.value; save(); }
+    autosize(t);
+  }
+});
+
+document.addEventListener('click', function(e){
+  var b=e.target.closest('[data-act]');
+  var zone=e.target.closest('[data-drop]');
+  if(b){
+    var act=b.dataset.act, r=find(b.dataset.r);
+    if(act==='fmt' && r){ r.format=b.dataset.v; save(); render(); return; }
+    if(act==='del' && r){
+      if(confirm((r.store||'이 매장')+' 리포트를 삭제할까요? 되돌릴 수 없어요.')){
+        state.reports=state.reports.filter(function(x){return x.id!==r.id;}); save(); render();
+      } return;
+    }
+    if(act==='dup' && r){
+      var c=JSON.parse(JSON.stringify(r)); c.id=uid(); c.store=(r.store||'')+' (복사)';
+      state.reports.push(c); save(); render(); return;
+    }
+    if(act==='print' && r){ printReports([r]); return; }
+    if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img=''; save(); render(); } return; }
+    if(act==='replace'){ pending={rid:b.dataset.r, sid:b.dataset.s}; fileInput.click(); return; }
+  }
+  if(zone && !e.target.closest('.shot-tools')){
+    var p=zone.dataset.drop.split('|');
+    pending={rid:p[0], sid:p[1]}; fileInput.click();
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('[data-drop]')){
+    e.preventDefault();
+    var p=e.target.dataset.drop.split('|');
+    pending={rid:p[0], sid:p[1]}; fileInput.click();
+  }
+});
+
+/* ─ 드래그앤드롭 ─ */
+['dragenter','dragover'].forEach(function(ev){
+  document.addEventListener(ev, function(e){
+    var z=e.target.closest && e.target.closest('[data-drop]');
+    if(z){ e.preventDefault(); z.classList.add('over'); }
+  });
+});
+document.addEventListener('dragleave', function(e){
+  var z=e.target.closest && e.target.closest('[data-drop]');
+  if(z) z.classList.remove('over');
+});
+document.addEventListener('drop', function(e){
+  var z=e.target.closest && e.target.closest('[data-drop]');
+  if(!z) return;
+  e.preventDefault(); z.classList.remove('over');
+  var f=e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f){ var p=z.dataset.drop.split('|'); handleFile(f,p[0],p[1]); }
+});
+
+/* ─ 붙여넣기: 마지막으로 포커스한 슬롯에 ─ */
+var lastZone=null;
+document.addEventListener('focusin', function(e){ var z=e.target.closest && e.target.closest('[data-drop]'); if(z) lastZone=z; });
+document.addEventListener('mousedown', function(e){ var z=e.target.closest && e.target.closest('[data-drop]'); if(z) lastZone=z; });
+document.addEventListener('paste', function(e){
+  if(!lastZone || !e.clipboardData) return;
+  var items=e.clipboardData.items||[];
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.indexOf('image')===0){
+      var f=items[i].getAsFile();
+      if(f){ var p=lastZone.dataset.drop.split('|'); handleFile(f,p[0],p[1]); e.preventDefault(); }
+      break;
+    }
+  }
+});
+
+/* ─ 인쇄 ─ */
+function fmtDate(v){
+  if(!v) return '2026. ____ . ____ .';
+  var p=v.split('-'); if(p.length!==3) return v;
+  return p[0]+'. '+parseInt(p[1],10)+'. '+parseInt(p[2],10)+'.';
+}
+function photoTag(src, cls, label){
+  return src
+    ? '<img class="ph '+cls+'" src="'+src+'" alt="'+label+'">'
+    : '<div class="ph '+cls+' ph-empty">사진</div>';
+}
+function sheetField(r){
+  var cards = SLOTS.map(function(s){
+    var sh=r.shots[s.id]||{};
+    return '<div class="fn-card">'
+      +'<div class="fn-ch"><span class="fn-n">'+s.n+'</span><span class="fn-ko">'+s.ko+'</span><span class="fn-en">'+s.en+'</span></div>'
+      +photoTag(sh.img,'',s.ko)
+      +'<div class="fn-cap">'+s.cap+'</div>'
+      +'<div class="fn-note">'+esc(sh.note||'')+'</div>'
+      +'</div>';
+  }).join('');
+  return '<div class="sheet field">'
+    +'<div class="fn-top"><span class="fn-pill">FIELD NOTE</span><span class="fn-team">GENIUS TEAM / 2026</span></div>'
+    +'<h2>BASKIN-ROBBINS <span class="on">ON-SITE</span> <span class="kr">매장 사진 리포트</span></h2>'
+    +'<div class="fn-sub">Store experience snapshot / Look, capture, share</div>'
+    +'<div class="fn-meta">'
+      +'<div class="fn-box"><span class="k">매장명</span><span class="v">'+esc(r.store||'')+'</span></div>'
+      +'<div class="fn-box"><span class="k">방문일자</span><span class="v">'+fmtDate(r.date)+'</span></div>'
+    +'</div>'
+    +'<div class="ph-grid">'+cards+'</div>'
+    +'<div class="fn-foot"><div class="fn-foot-row"><span class="l">BASKIN-ROBBINS KOREA</span><span class="r">ON-SITE STORE PHOTO REPORT</span></div><div class="fn-bar"></div></div>'
+    +'</div>';
+}
+function sheetPlain(r){
+  var cards = SLOTS.map(function(s,i){
+    var sh=r.shots[s.id]||{};
+    var note = sh.note ? '<div class="pl-note">'+esc(sh.note)+'</div>' : '';
+    return '<div class="pl-card">'
+      +'<div class="pl-ch"><span class="pl-n">'+(i+1)+'</span><span>'+s.ko+'</span></div>'
+      +photoTag(sh.img,'',s.ko)+note+'</div>';
+  }).join('');
+  return '<div class="sheet plain">'
+    +'<h2>BASKIN-ROBBINS <span class="on">ON-SITE</span> 매장 사진 리포트</h2>'
+    +'<div class="pl-meta">'
+      +'<div class="k">매장명</div><div>'+esc(r.store||'')+'</div>'
+      +'<div class="k">방문일자</div><div>'+fmtDate(r.date)+'</div>'
+    +'</div>'
+    +'<div class="ph-grid">'+cards+'</div>'
+    +'<div class="pl-foot">Baskin-Robbins Korea · Genius Team · ON-SITE Store Photo Report</div>'
+    +'</div>';
+}
+function printReports(rs){
+  if(!rs.length){ alert('인쇄할 매장이 없어요. 먼저 매장을 추가해 주세요.'); return; }
+  var root=document.getElementById('print-root');
+  root.innerHTML = rs.map(function(r){ return r.format==='plain' ? sheetPlain(r) : sheetField(r); }).join('');
+  setTimeout(function(){ window.print(); }, 120);
+}
+document.getElementById('print-all').addEventListener('click', function(){ printReports(state.reports); });
+window.addEventListener('afterprint', function(){ document.getElementById('print-root').innerHTML=''; });
+
+/* ─ 백업 / 복원 ─ */
+document.getElementById('backup').addEventListener('click', function(){
+  if(!state.reports.length){ alert('백업할 내용이 없어요.'); return; }
+  var blob=new Blob([JSON.stringify(state)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='BR_ONSITE_매장리포트_'+today()+'.json';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+});
+var restoreInput=document.getElementById('restore-input');
+document.getElementById('restore').addEventListener('click', function(){ restoreInput.click(); });
+restoreInput.addEventListener('change', function(){
+  var f=restoreInput.files && restoreInput.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var p=JSON.parse(rd.result);
+      if(!p || !p.reports) throw 0;
+      var mode = state.reports.length ? confirm('기존 '+state.reports.length+'개에 이어붙일까요?\n[취소]를 누르면 파일 내용으로 교체합니다.') : true;
+      state.reports = mode ? state.reports.concat(p.reports) : p.reports;
+      state.reports.forEach(function(r){ if(!r.id) r.id=uid(); });
+      save(); render();
+    }catch(e){ alert('이 파일은 읽을 수 없어요. 백업 저장으로 만든 JSON 파일을 선택해 주세요.'); }
+    restoreInput.value='';
+  };
+  rd.readAsText(f);
+});
+
+if(gate.style.display==='none') render();
+})();
+</script>
+</body>
+</html>
