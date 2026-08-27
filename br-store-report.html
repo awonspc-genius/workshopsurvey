@@ -87,6 +87,15 @@ h1.title .on{color:var(--pink)}
 .btn-ghost:hover{color:var(--ink);border-color:var(--line)}
 .count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-30);letter-spacing:.08em}
 
+/* ── 팀 저장 미연결 안내 ─────────────────────────────────── */
+.notice{display:flex;gap:12px;align-items:flex-start;margin:20px 0 2px;padding:14px 17px;
+        background:#FFF6E5;border:1px solid #F0DCB4;border-radius:12px}
+.notice[hidden]{display:none}
+.nt-icon{font-size:15px;line-height:1.5;flex:0 0 auto;color:#B87400}
+.nt-body{font-size:12.5px;line-height:1.75;color:#6B5326}
+.nt-body b{color:#8A5A00}
+.nt-sub{display:block;margin-top:5px;font-size:11.5px;color:#9A8358}
+
 /* ── 빈 상태 ─────────────────────────────────────────────── */
 .empty{border:1.5px dashed var(--line-hard);border-radius:var(--radius);padding:52px 24px;text-align:center;margin-top:16px;background:#fff}
 .empty h2{margin:0 0 6px;font-size:16px;font-weight:700;letter-spacing:-.01em}
@@ -101,6 +110,9 @@ h1.title .on{color:var(--pink)}
 .f-store:focus{border-bottom-color:var(--pink);outline:none}
 .f-date{border:1px solid var(--line-hard);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink-60);background:#fff}
 .rep-actions{display:flex;gap:6px;margin-left:auto}
+.rep-head.folded{border-bottom:0}
+.icon-btn.fold{border-color:var(--line-hard);color:var(--ink)}
+.icon-btn.fold[aria-expanded="false"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .icon-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;color:var(--ink-60)}
 .icon-btn:hover{color:var(--ink);border-color:var(--ink-30)}
 .icon-btn.danger:hover{color:var(--pink);border-color:var(--pink)}
@@ -178,13 +190,21 @@ h1.title .on{color:var(--pink)}
 .note:focus{outline:none;border-bottom-color:var(--pink)}
 .note-off{opacity:.42}
 
+/* 카드별 저장 바 */
+.savebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);background:#FDFBFC}
+.sv-status{font-size:12px;color:var(--ink-30);flex:1;min-width:140px}
+.sv-status.ok{color:#2F9E63;font-weight:600}
+.sv-status.warn{color:#C77700;font-weight:600}
+.sv-btn{min-width:104px}
+
 /* 팀 아카이브 */
 .arch{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
 .arch-head{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}
 .arch-kick{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.15em;color:var(--blue)}
 .arch-title{margin:4px 0 0;font-size:17px;font-weight:800;letter-spacing:-.02em}
-.arch-head .btn{margin-left:auto}
-.arch-body{display:flex;flex-direction:column;gap:10px}
+.arch-head .btn{margin-left:8px}
+.arch-head #arch-all-pptx{margin-left:auto}
+.arch-body{display:flex;flex-direction:column;gap:0}
 .arch-msg{font-size:12.5px;color:var(--ink-30);padding:16px 0}
 .arch-item{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .arch-thumbs{display:flex;gap:4px;flex:0 0 auto}
@@ -194,6 +214,22 @@ h1.title .on{color:var(--pink)}
 .arch-sub{font-size:11.5px;color:var(--ink-30);margin-top:3px}
 .arch-one{font-size:12px;color:var(--ink-60);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon-btn.sent{color:#3BB273;border-color:#BFE6CE}
+.arch-detail{background:#fff;border:1px solid var(--pink);border-top:0;border-radius:0 0 12px 12px;
+             margin:-11px 0 0;padding:16px 18px 18px}
+.arch-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;margin-bottom:14px}
+.arch-photos a{display:block;position:relative}
+.arch-photos img{width:100%;height:105px;object-fit:cover;border-radius:8px;background:#F3EFF2;display:block}
+.arch-photos span{display:block;font-size:10.5px;color:var(--ink-30);margin-top:4px;text-align:center}
+.arch-meta-row{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--ink-60);margin-bottom:12px}
+.arch-meta-row b{color:var(--ink);font-weight:600}
+.arch-qa{border-top:1px solid var(--line);padding-top:12px}
+.arch-qsec{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--blue);margin:10px 0 5px}
+.arch-qsec:first-child{margin-top:0}
+.arch-qrow{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:3px 0;font-size:12px}
+.arch-qk{color:var(--ink-30)}
+.arch-qv{color:var(--ink);white-space:pre-wrap}
+.arch-none{font-size:12px;color:var(--ink-30);line-height:1.7}
+@media (max-width:640px){.arch-qrow{grid-template-columns:1fr;gap:2px}}
 @media (max-width:560px){.arch-thumbs img{width:30px;height:30px}}
 
 /* 하단 상태바 */
@@ -320,12 +356,12 @@ h1.title .on{color:var(--pink)}
     <div class="rule"></div>
   </header>
 
+  <div class="notice" id="nolink" hidden></div>
+
   <div class="actionbar">
     <button class="btn btn-primary" id="add-btn">+ 매장 추가</button>
-    <button class="btn" id="save-btn">저장</button>
+    <button class="btn" id="pptx-all">전체 PPTX 다운로드</button>
     <button class="btn" id="print-all">전체 인쇄 · PDF</button>
-    <button class="btn btn-ghost" id="backup">백업 파일로 내려받기</button>
-    <button class="btn btn-ghost" id="restore">백업 불러오기</button>
     <span class="count" id="count"></span>
   </div>
 
@@ -343,6 +379,7 @@ h1.title .on{color:var(--pink)}
         <span class="arch-kick">TEAM ARCHIVE</span>
         <h2 class="arch-title">팀에 누적된 리포트</h2>
       </div>
+      <button class="btn" id="arch-all-pptx">전체 PPTX 다운로드</button>
       <button class="btn btn-ghost" id="arch-refresh">새로고침</button>
     </div>
     <div id="arch-body" class="arch-body"></div>
@@ -358,8 +395,8 @@ h1.title .on{color:var(--pink)}
 <div id="print-root"></div>
 
 <input type="file" id="file-input" accept="image/*" style="display:none">
-<input type="file" id="restore-input" accept="application/json,.json" style="display:none">
 
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script>
 (function(){
 'use strict';
@@ -370,16 +407,40 @@ h1.title .on{color:var(--pink)}
    ═════════════════════════════════════════════════════════ */
 var PASSCODE    = "2607";                 // 설문 허브와 동일한 코드
 var SESSION_KEY = "br_report_ok";         // br-sales.html의 br_sales_ok 와 같은 방식
-var TRUST_KEYS  = ["br_survey_ok", "br_admin_ok", "br_sales_ok"];  // 이미 통과한 세션이면 재입력 생략
+var TRUST_KEYS  = ["br_survey_ok", "br_admin_ok", "br_sales_ok"];
+var ADMIN_CODE  = "3131";                 // 팀 아카이브 삭제용
+var ADMIN_KEY   = "br_onsite_admin_ok";  // 이미 통과한 세션이면 재입력 생략
 var STORE_KEY   = "brk_store_reports_v1";
 
 /* ── 팀 아카이브(누적 저장) ────────────────────────────────
    Apps Script 웹앱 URL을 넣으면 "팀에 제출" 버튼이 활성화됩니다.
    배포 방법은 함께 드린 onsite-apps-script.txt 참고.
    비워두면 이 브라우저 저장 + 백업 파일만 동작합니다.        */
-var UPLOAD_ENDPOINT = "";
-var MAX_EDGE    = 1600;   // 업로드 사진 최대 변 길이(px)
-var JPEG_Q      = 0.82;
+/* ★ 배포 후 여기에 웹 앱 주소를 넣어주세요.
+   onsite-apps-script.txt 를 매장조사 시트에 붙여넣고 웹 앱으로 배포하면
+   https://script.google.com/macros/s/....../exec 주소가 나옵니다. */
+var UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbwPWM_2vjaTMq3AkYh5FgmcrxObgxBQ8-tR_affkOwpVlgWoTnKisJBBMIdyGtmmpNcuw/exec";
+
+
+var tabState  = {};  // 카드별로 열려 있는 탭 (저장되지 않는 화면 상태)
+var collapsed = {};  // 접혀 있는 카드
+
+/* 스크립트가 조용히 멈추면 버튼이 전부 먹통이 됩니다.
+   그런 상황을 화면에 드러내서 원인을 바로 알 수 있게 합니다. */
+window.addEventListener('error', function(ev){
+  var bar = document.getElementById('errbar');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'errbar';
+    bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:999;background:#B3003C;color:#fff;'
+      + 'font:600 12px/1.5 ui-monospace,Menlo,monospace;padding:10px 16px;white-space:pre-wrap';
+    document.body.appendChild(bar);
+  }
+  bar.textContent = '페이지 오류: ' + (ev.message || '알 수 없음')
+    + '\n이 문구를 그대로 알려주시면 원인을 찾을 수 있어요.';
+});
+var MAX_EDGE    = 1400;   // 업로드 사진 최대 변 길이(px)
+var JPEG_Q      = 0.75;
 
 var SLOTS = [
   {id:"exterior", n:"01", ko:"외부",    en:"EXTERIOR",        cap:"FIRST IMPRESSION",  ph:"외관 · 사인 · 진입 동선"},
@@ -442,6 +503,67 @@ var OBS_PHOTOS = [
   {id:"pos",      n:"⑥", ko:"포스 주변"}
 ];
 
+/* ─ 사진 저장소 (IndexedDB) ───────────────────────────────
+   사진은 용량이 커서 localStorage(5MB)에 넣으면 금방 가득 찹니다.
+   그래서 사진만 IndexedDB에 따로 두고, 텍스트만 localStorage에 둡니다. */
+var IDB_NAME = 'brk_onsite', IDB_STORE = 'photos', idb = null, idbReady = null;
+
+function idbOpen(){
+  if(idbReady) return idbReady;
+  idbReady = new Promise(function(resolve){
+    try{
+      if(!window.indexedDB){ resolve(null); return; }
+      var req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = function(){
+        var db = req.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = function(){ idb = req.result; resolve(idb); };
+      req.onerror   = function(){ resolve(null); };
+    }catch(e){ resolve(null); }
+  });
+  return idbReady;
+}
+function idbPut(key, val){
+  return idbOpen().then(function(db){
+    if(!db) return false;
+    return new Promise(function(resolve){
+      try{
+        var tx = db.transaction(IDB_STORE, 'readwrite');
+        tx.objectStore(IDB_STORE).put(val, key);
+        tx.oncomplete = function(){ resolve(true); };
+        tx.onerror = tx.onabort = function(){ resolve(false); };
+      }catch(e){ resolve(false); }
+    });
+  });
+}
+function idbDel(key){
+  return idbOpen().then(function(db){
+    if(!db) return;
+    try{ db.transaction(IDB_STORE,'readwrite').objectStore(IDB_STORE)['delete'](key); }catch(e){}
+  });
+}
+function idbAll(){
+  return idbOpen().then(function(db){
+    if(!db) return {};
+    return new Promise(function(resolve){
+      var out = {};
+      try{
+        var tx = db.transaction(IDB_STORE, 'readonly');
+        var st = tx.objectStore(IDB_STORE);
+        var cur = st.openCursor();
+        cur.onsuccess = function(){
+          var c = cur.result;
+          if(c){ out[c.key] = c.value; c['continue'](); }
+        };
+        tx.oncomplete = function(){ resolve(out); };
+        tx.onerror = tx.onabort = function(){ resolve(out); };
+      }catch(e){ resolve(out); }
+    });
+  });
+}
+function shotKey(rid, sid){ return rid + '|' + sid; }
+
 /* ─ 저장소 (실패해도 메모리로 계속 동작) ─ */
 var memOnly = false;
 function lsGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ return null; } }
@@ -458,18 +580,34 @@ function ensureSlots(r){
   if(!r.shots) r.shots = {};
   SLOTS.forEach(function(s){ if(!r.shots[s.id]) r.shots[s.id] = { img:'', note:'' }; });
   if(!r.survey) r.survey = {};
+  r.format = 'obs';   // 출력은 관찰 리포트 한 가지로 통일
   return r;
 }
 state.reports.forEach(ensureSlots);
+state.reports.forEach(function(r){ collapsed[r.id] = true; });  // 첫 화면은 접힌 목록
+
+/* 사진(img)은 IndexedDB에 있으므로 localStorage 사본에서는 제외합니다 */
+function serialize(){
+  return JSON.stringify({
+    reports: state.reports.map(function(r){
+      var shots = {};
+      Object.keys(r.shots||{}).forEach(function(k){
+        shots[k] = { img:'', note:(r.shots[k]||{}).note || '' };
+      });
+      return { id:r.id, store:r.store, date:r.date, format:r.format,
+               survey:r.survey, shots:shots, savedAt:r.savedAt, sentAt:r.sentAt };
+    })
+  });
+}
 
 var saveTimer=null;
 function save(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(function(){
-    var ok = lsSet(STORE_KEY, JSON.stringify(state));
+    var ok = lsSet(STORE_KEY, serialize());
     var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
     if(ok && !memOnly){ dot.className='dot'; msg.textContent='이 브라우저에 자동 저장됨 · '+timeNow(); }
-    else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 백업 저장으로 파일을 내려받으세요'; }
+    else{ memOnly=true; dot.className='dot warn'; msg.textContent='이 기기 저장 공간이 부족해요. 다 쓴 매장 카드를 삭제해 주세요'; }
   },350);
 }
 function timeNow(){ var d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
@@ -484,8 +622,11 @@ function alreadyIn(){
   return false;
 }
 function unlock(){ gate.style.display='none'; render(); }
-if(alreadyIn()){ unlock(); }
-else{
+/* 초기 언락은 모든 버튼 핸들러가 등록된 뒤(스크립트 맨 끝) initGate()에서 실행합니다.
+   여기서 바로 render()를 부르면, 저장된 리포트가 있을 때 아직 정의되지 않은
+   값을 읽다가 스크립트가 중단돼 "매장 추가" 버튼이 죽습니다. */
+function initGate(){
+  if(alreadyIn()){ unlock(); return; }
   document.getElementById('gate-go').addEventListener('click', tryUnlock);
   document.getElementById('gate-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
   setTimeout(function(){ document.getElementById('gate-pw').focus(); },120);
@@ -500,7 +641,7 @@ function tryUnlock(){
 function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function today(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function newReport(){
-  var r={ id:uid(), store:'', date:today(), format:'field', shots:{}, survey:{} };
+  var r={ id:uid(), store:'', date:today(), format:'obs', shots:{}, survey:{} };
   SLOTS.forEach(function(s){ r.shots[s.id]={ img:'', note:'' }; });
   return r;
 }
@@ -548,7 +689,13 @@ function handleFile(file, rid, sid){
   compress(file, function(dataUrl){
     if(!dataUrl){ alert('사진을 불러오지 못했어요. 다른 파일로 시도해 주세요.'); render(); return; }
     var r=find(rid); if(!r) return;
-    r.shots[sid].img=dataUrl; save(); render();
+    if(!r.shots[sid]) r.shots[sid]={img:'',note:''};
+    r.shots[sid].img=dataUrl;
+    render();
+    idbPut(shotKey(rid, sid), dataUrl).then(function(ok){
+      if(!ok) alert('사진을 이 기기에 저장하지 못했어요. 화면에는 남아 있으니 저장 버튼을 눌러 팀 시트로 올려주세요.');
+      save();
+    });
   });
 }
 function find(id){ for(var i=0;i<state.reports.length;i++) if(state.reports[i].id===id) return state.reports[i]; return null; }
@@ -567,7 +714,7 @@ function render(){
   state.reports.forEach(function(r,i){
     var el=document.createElement('div');
     el.className='report';
-    var noteOff = r.format !== 'field';
+    var noteOff = false;
 
     var slotsHtml = SLOTS.map(function(s){
       var sh=r.shots[s.id]||{img:'',note:''};
@@ -583,7 +730,7 @@ function render(){
         +'<div class="slot-head"><span class="slot-num">'+s.n+'</span><span class="slot-ko">'+s.ko+'</span><span class="slot-en">'+s.en+'</span></div>'
         +'<div class="drop'+(sh.img?' has':'')+'" data-drop="'+r.id+'|'+s.id+'" tabindex="0" role="button" aria-label="'+s.ko+' 사진 올리기">'+inner+'</div>'
         +'<div class="note-wrap">'
-        +'<div class="note-cap'+(noteOff?' note-off':'')+'">'+s.cap+(noteOff?' · 이 포맷에는 인쇄되지 않음':'')+'</div>'
+        +'<div class="note-cap'+(noteOff?' note-off':'')+'">'+s.cap+'</div>'
         +'<textarea class="note" data-r="'+r.id+'" data-s="'+s.id+'" rows="1" placeholder="'+s.ph+'">'+esc(sh.note)+'</textarea>'
         +'</div></div>';
     }).join('');
@@ -624,42 +771,45 @@ function render(){
 
     var shotCount = SLOTS.filter(function(s){ return (r.shots[s.id]||{}).img; }).length;
     var activeTab = tabState[r.id] || 'photos';
+    var isCol = !!collapsed[r.id];
 
-    el.innerHTML =
-      '<div class="rep-head">'
+    var head =
+      '<div class="rep-head'+(isCol?' folded':'')+'">'
       +'<span class="idx">'+(i+1)+'</span>'
       +'<input class="f-store" data-r="'+r.id+'" value="'+esc(r.store)+'" placeholder="매장명 입력" aria-label="매장명">'
       +'<input class="f-date" type="date" data-r="'+r.id+'" value="'+esc(r.date)+'" aria-label="방문일자">'
       +'<span class="rep-actions">'
-      +submitBtn(r)
-      +'<button class="icon-btn" data-act="print" data-r="'+r.id+'">인쇄 · PDF</button>'
+      +'<button class="icon-btn fold" data-act="fold" data-r="'+r.id+'" aria-expanded="'+(!isCol)+'">'+(isCol?'펼치기':'접기')+'</button>'
+      +'<button class="icon-btn" data-act="pptx" data-r="'+r.id+'">PPTX 다운로드</button>'
       +'<button class="icon-btn" data-act="dup" data-r="'+r.id+'">복제</button>'
       +'<button class="icon-btn danger" data-act="del" data-r="'+r.id+'">삭제</button>'
-      +'</span></div>'
+      +'</span></div>';
+
+    if(isCol){
+      el.innerHTML = head;
+      list.appendChild(el);
+      return;
+    }
+
+    el.innerHTML = head
       +'<div class="tabs" role="tablist">'
       +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="photos" aria-selected="'+(activeTab==='photos')+'">사진 '+SLOTS.length+'컷<span class="cnt">'+shotCount+'/'+SLOTS.length+'</span></button>'
       +'<button class="tab" role="tab" data-act="tab" data-r="'+r.id+'" data-v="survey" aria-selected="'+(activeTab==='survey')+'">관찰 질문지<span class="cnt">'+answered+'/'+totalQ+'</span></button>'
       +'</div>'
       +'<div class="pane"'+(activeTab==='photos'?'':' hidden')+'>'
-      +'<div class="fmt">'
-      +'<span class="fmt-label">OUTPUT FORMAT</span>'
-      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="field" aria-pressed="'+(r.format==='field')+'">FIELD NOTE</button>'
-      +'<button class="chip blue" data-act="fmt" data-r="'+r.id+'" data-v="plain" aria-pressed="'+(r.format==='plain')+'">심플</button>'
-      +'<button class="chip" data-act="fmt" data-r="'+r.id+'" data-v="obs" aria-pressed="'+(r.format==='obs')+'">관찰 리포트</button>'
-      +'</div>'
       +'<div class="slots">'+slotsHtml+'</div>'
       +'</div>'
       +'<div class="pane"'+(activeTab==='survey'?'':' hidden')+'>'
       +'<div class="qwrap">'+surveyHtml+'</div>'
-      +'<div class="qguide">사진 4컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다. 작성 후 사진과 함께 팀 채널에 올려주세요.</div>'
-      +'</div>';
+      +'<div class="qguide">사진 6컷 — 가로 촬영, 무보정, 인물 얼굴 미포함 · 촬영 전 매장 직원에게 사유를 안내하세요. 지적이 아니라 관찰이 목적이므로 잘된 점을 최소 1개 적습니다.</div>'
+      +'</div>'
+      +saveBar(r);
 
     list.appendChild(el);
   });
 
   document.querySelectorAll('.note, .qarea').forEach(autosize);
 }
-var tabState = {};
 function autosize(t){ t.style.height='auto'; t.style.height=(t.scrollHeight)+'px'; }
 
 /* ─ 이벤트 위임 ─ */
@@ -683,10 +833,19 @@ document.addEventListener('input', function(e){
 });
 
 document.addEventListener('click', function(e){
+  var av=e.target.closest('[data-act="archfold"], [data-act="archtab"], [data-act="archpptx"], [data-act="archdel"]');
+  if(av){
+    var aid=av.dataset.id, aact=av.dataset.act;
+    if(aact==='archfold'){ archOpen[aid] = !archOpen[aid]; renderArchive(); return; }
+    if(aact==='archtab'){ archTab[aid] = av.dataset.v; renderArchive(); return; }
+    if(aact==='archpptx'){ archPptx(aid, av); return; }
+    if(aact==='archdel'){ archDelete(aid, av); return; }
+  }
   var b=e.target.closest('[data-act]');
   var zone=e.target.closest('[data-drop]');
   if(b){
     var act=b.dataset.act, r=find(b.dataset.r);
+    if(act==='fold' && r){ collapsed[r.id] = !collapsed[r.id]; render(); return; }
     if(act==='tab' && r){ tabState[r.id]=b.dataset.v; render(); return; }
     if(act==='qone' && r){
       r.survey[b.dataset.k] = (r.survey[b.dataset.k]===b.dataset.v) ? '' : b.dataset.v;
@@ -701,16 +860,25 @@ document.addEventListener('click', function(e){
     if(act==='fmt' && r){ r.format=b.dataset.v; save(); render(); return; }
     if(act==='del' && r){
       if(confirm((r.store||'이 매장')+' 리포트를 삭제할까요? 되돌릴 수 없어요.')){
+        SLOTS.forEach(function(sl){ idbDel(shotKey(r.id, sl.id)); });
         state.reports=state.reports.filter(function(x){return x.id!==r.id;}); save(); render();
       } return;
     }
     if(act==='dup' && r){
       var c=JSON.parse(JSON.stringify(r)); c.id=uid(); c.store=(r.store||'')+' (복사)';
+      c.savedAt=''; c.sentAt='';
+      SLOTS.forEach(function(sl){
+        var img=(c.shots[sl.id]||{}).img;
+        if(img) idbPut(shotKey(c.id, sl.id), img);
+      });
       state.reports.push(c); save(); render(); return;
     }
+    if(act==='save1' && r){ saveOne(r, b); return; }
     if(act==='send' && r){ submitReport(r, b); return; }
+    if(act==='pptx' && r){ downloadPptx(r, b); return; }
     if(act==='print' && r){ printReports([r]); return; }
-    if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img=''; save(); render(); } return; }
+    if(act==='remove'){ var rr=find(b.dataset.r); if(rr){ rr.shots[b.dataset.s].img='';
+        idbDel(shotKey(rr.id, b.dataset.s)); save(); render(); } return; }
     if(act==='replace'){ pending={rid:b.dataset.r, sid:b.dataset.s}; fileInput.click(); return; }
   }
   if(zone && !e.target.closest('.shot-tools')){
@@ -813,6 +981,247 @@ function sheetPlain(r){
     +'<div class="pl-foot">Baskin-Robbins Korea · Genius Team · ON-SITE Store Photo Report</div>'
     +'</div>';
 }
+/* ═══ PPTX 내보내기 (템플릿: _마전실__매장조사.pptx) ═══════ */
+var buildDeck = (function () {
+
+  var NAVY = '002060';
+  var LINE = 'BFBFBF';
+  var HEADFONT = '페이퍼로지 6 SemiBold';
+  var BODY = 'Malgun Gothic';
+
+  function boxes(opts, chosen) {
+    return opts.map(function (o) { return (o === chosen ? '■ ' : '□ ') + o; }).join('  ');
+  }
+  function multi(opts, arr) {
+    arr = arr || [];
+    return opts.map(function (o) { return (arr.indexOf(o) > -1 ? '■ ' : '□ ') + o; }).join('  ');
+  }
+  function fmtDate(v) {
+    if (!v) return '';
+    var p = String(v).split('-');
+    return p.length === 3 ? p[0] + '. ' + (+p[1]) + '. ' + (+p[2]) + '.' : String(v);
+  }
+  function stripData(u) { return String(u).replace(/^data:/, ''); }
+
+  /* ── 1p 사진판 ─────────────────────────────────────── */
+  function slidePhotos(pres, r, shots) {
+    var s = pres.addSlide();
+    var head = [
+      { t: '날짜   ' + fmtDate(r.date) + (r.survey.hour ? '  ' + r.survey.hour : ''), x: 0.385, w: 2.666 },
+      { t: '매장 :  ' + (r.store || ''), x: 3.125, w: 4.500 },
+      { t: '확인자   ' + (r.survey.author || ''), x: 7.679, w: 3.593 }
+    ];
+    head.forEach(function (h) {
+      s.addText(h.t, {
+        isTextBox: true, x: h.x, y: 0.281, w: h.w, h: 0.510,
+        fontFace: HEADFONT, fontSize: 12, color: '000000', valign: 'middle', margin: 6,
+        line: { color: NAVY, width: 1 }
+      });
+    });
+
+    [{ t: '외부', x: 0.385 }, { t: '내부', x: 6.010 }].forEach(function (p) {
+      s.addText(p.t, {
+        isTextBox: true, shape: pres.ShapeType.roundRect, rectRadius: 0.18,
+        x: p.x, y: 1.104, w: 1.062, h: 0.365, fill: { color: NAVY },
+        fontFace: HEADFONT, fontSize: 11, color: 'FFFFFF', align: 'center', valign: 'middle', margin: 0
+      });
+    });
+
+    function place(sh, x, y, w, h) {
+      if (sh && sh.img) {
+        s.addImage({ data: stripData(sh.img), x: x, y: y, w: w, h: h, sizing: { type: 'cover', w: w, h: h } });
+      } else {
+        s.addText('사진 없음', {
+          isTextBox: true, x: x, y: y, w: w, h: h, fill: { color: 'F2F2F2' },
+          line: { color: LINE, width: 0.75, dashType: 'dash' },
+          fontFace: BODY, fontSize: 9, color: '9A9A9A', align: 'center', valign: 'middle', margin: 0
+        });
+      }
+      return h;
+    }
+    function cap(t, x, y, w) {
+      s.addText(t, {
+        isTextBox: true, x: x, y: y, w: w, h: 0.24,
+        fontFace: BODY, fontSize: 9, color: '404040', align: 'center', valign: 'top', margin: 0
+      });
+    }
+
+    /* 외부 2컷 — 왼쪽 열에 세로로 */
+    var L = 0.385, LW = 5.30, ph = 2.55, pw = 3.40, lx = L + (LW - pw) / 2;
+    [shots[0], shots[1]].forEach(function (sh, i) {
+      var y = 1.68 + i * (ph + 0.42);
+      place(sh, lx, y, pw, ph);
+      cap(sh.n + ' ' + sh.ko, lx, y + ph + 0.04, pw);
+    });
+
+    /* 내부 4컷 — 오른쪽 2x2 */
+    var R = 6.010, cw = 2.48, chh = 2.25;
+    [shots[2], shots[3], shots[4], shots[5]].forEach(function (sh, i) {
+      var x = R + (i % 2) * (cw + 0.30);
+      var y = 1.68 + Math.floor(i / 2) * (chh + 0.55);
+      place(sh, x, y, cw, chh);
+      cap(sh.n + ' ' + sh.ko, x, y + chh + 0.04, cw);
+    });
+
+    s.addText('외부 외창부터 내부 키오스크, 메뉴보드, 냉동디핑고, 케이크 쇼케이스 등 고객 동선 별 커뮤니케이션 관점 체크', {
+      isTextBox: true, x: 3.705, y: 7.686, w: 7.947, h: 0.303,
+      fontFace: BODY, fontSize: 9, color: '404040', margin: 0
+    });
+    return s;
+  }
+
+  /* ── 2p 체크리스트 ─────────────────────────────────── */
+  function slideChecklist(pres, r) {
+    var s = pres.addSlide();
+    var sv = r.survey || {};
+
+    s.addText('체크리스트', {
+      isTextBox: true, shape: pres.ShapeType.roundRect, rectRadius: 0.3,
+      x: 0.42, y: 0.32, w: 1.55, h: 0.62, fill: { color: NAVY },
+      fontFace: HEADFONT, fontSize: 12, color: 'FFFFFF', align: 'center', valign: 'middle', margin: 0
+    });
+
+    var rows = [], heights = [];
+    var LBL = 2.05, VAL = 6.85;
+
+    function section(title, note) {
+      rows.push([
+        { text: title, options: { fill: { color: NAVY }, color: 'FFFFFF', bold: true, fontSize: 10, align: 'left', valign: 'middle', margin: [2, 6, 2, 6] } },
+        { text: note || '', options: { fill: { color: NAVY }, color: 'D9E2F3', fontSize: 7.5, align: 'right', valign: 'middle', margin: [2, 8, 2, 4] } }
+      ]);
+      heights.push(0.26);
+    }
+    function row(label, value, h, bold, tint) {
+      rows.push([
+        { text: label, options: { fill: { color: tint ? 'F2F2F2' : 'FFFFFF' }, bold: !!bold, fontSize: 8, valign: 'middle', margin: [2, 5, 2, 5] } },
+        { text: value, options: { fill: { color: 'FFFFFF' }, fontSize: 8, valign: 'middle', margin: [2, 5, 2, 5] } }
+      ]);
+      heights.push(h || 0.24);
+    }
+    function wide(label, h, tint) {
+      rows.push([{
+        text: label, options: {
+          colspan: 2, fill: { color: tint ? 'F2F2F2' : 'FFFFFF' }, bold: !!tint,
+          fontSize: 8, valign: 'top', margin: [4, 6, 4, 6]
+        }
+      }]);
+      heights.push(h);
+    }
+
+    section('1. 기본 정보');
+    row('입지 유형', boxes(['로드샵', '주거상권', '오피스상권', '몰·백화점', '역세권', '특수입지'], sv.loc));
+    row('매장 규모', boxes(['테이크아웃 위주', '소형(10석 이하)', '중대형'], sv.size));
+    row('방문 시 매장 내 고객 수', boxes(['0명', '1–3명', '4–7명', '8명 이상'], sv.guests));
+
+    section('2. 외부 EXTERIOR', '사진 ① 매장 전경 ② 외창 정면');
+    row('외창 시공물', boxes(['당월 최신물', '전월 이하 구물', '없음'], sv.winWork), 0.24, true);
+    row('외창 상태', boxes(['양호', '보통', '훼손·들뜸·오염'], sv.winState));
+    row('사이니지 점등 · 입구 POP', boxes(['둘 다 양호', '한쪽 미흡', '둘 다 미흡'], sv.signage));
+
+    section('3. 메뉴보드 & 진열', '사진 ③ 메뉴보드 전체');
+    row('메뉴보드 최신화', boxes(['당월 신제품·FOM 반영', '일부 누락', '구버전'], sv.menuUpd), 0.24, true);
+    row('FOM 인지 동선', boxes(['3초 이내', '매장 안까지 들어와야', '못 찾음'], sv.fomPath));
+    row('프로모션 존 · MD 진열', boxes(['양호', '보통', '미흡'], sv.promo) + (sv.promoNote ? '   → ' + sv.promoNote : ''));
+
+    section('4. 디핑구 DIPPING CASE', '★ 핵심 · 사진 ④ 디핑구 정면');
+    row('진열 수 / 결품 수', (sv.flavors !== undefined && sv.flavors !== '' ? sv.flavors : '____') + ' 종  /  '
+      + (sv.outOf !== undefined && sv.outOf !== '' ? sv.outOf : '____') + ' 개');
+    row('표면 상태', boxes(['균일·풍성', '보통', '파임·성에·녹음'], sv.surface), 0.24, true);
+    row('네임택 정확도 / FOM 골든존', boxes(['전부 일치', '일부 불일치'], sv.nametag) + '   |   골든존 ' + boxes(['O', 'X'], sv.golden));
+
+    section('5. 키오스크 & 운영');
+    row('키오스크 작동 / 주문 체감', boxes(['전체 정상', '일부 오류', '미운영'], sv.kiosk) + '   |   ' + boxes(['원활', '막힘'], sv.order));
+    row('청결 · 직원 캠페인 착장', boxes(['둘 다 양호', '한쪽 미흡', '둘 다 미흡'], sv.clean));
+    row('주 고객층 / 구매 品', multi(['가족', '10–20대', '30–40대', '50대+'], sv.segment) + (sv.bought ? '   ' + sv.bought : ''));
+
+    section('6. 인사이트 INSIGHT', '이 섹션이 활동의 목적입니다');
+    wide('① 잘 되어 있던 것 — 다른 매장에 확산할 만한 것', 0.23, true);
+    wide(sv.good || '', 0.44);
+    wide('② 가장 아쉬웠던 것 — 브랜드 경험을 깎아먹는 지점', 0.23, true);
+    wide(sv.bad || '', 0.44);
+    wide('③ 우리 팀 액션 제안 — 다음 IMC · 시공물 · 스페셜티 반영 아이디어', 0.23, true);
+    wide(sv.action || '', 0.44);
+    wide('한 줄 요약  |  이 매장은 ' + (sv.oneline || '________________________________') + ' 한 매장이다.', 0.28, true);
+
+    s.addTable(rows, {
+      x: 2.40, y: 0.32, w: LBL + VAL, colW: [LBL, VAL], rowH: heights,
+      border: { type: 'solid', color: LINE, pt: 0.5 },
+      fontFace: BODY, color: '1A1A1A', autoPage: false
+    });
+    return s;
+  }
+
+  /* r 은 리포트 하나 또는 배열 — 배열이면 매장마다 2장씩 이어붙입니다 */
+  return function buildDeck(PptxGen, r, SLOT_ORDER) {
+    var list = Object.prototype.toString.call(r) === '[object Array]' ? r : [r];
+    var first = list[0] || { survey: {} };
+    var pres = new PptxGen();
+    pres.defineLayout({ name: 'A4LAND', width: 11.69, height: 8.27 });
+    pres.layout = 'A4LAND';
+    pres.author = (first.survey && first.survey.author) || 'Genius Team';
+    pres.title = list.length > 1
+      ? 'ON-SITE 매장 관찰 리포트 (' + list.length + '개 매장)'
+      : (first.store || '매장') + ' 매장 관찰 리포트';
+
+    list.forEach(function (one) {
+      if (!one.survey) one.survey = {};
+      var shots = SLOT_ORDER.map(function (p) {
+        var sh = (one.shots && one.shots[p.id]) || {};
+        return { id: p.id, n: p.n, ko: p.ko, img: sh.img || '', note: sh.note || '' };
+      });
+      slidePhotos(pres, one, shots);
+      slideChecklist(pres, one);
+    });
+    return pres;
+  };
+})();
+
+function pptxName(list){
+  if(list.length === 1){
+    var r = list[0];
+    return 'BR_ONSITE_' + (r.store || '매장').replace(/[\\/:*?"<>|]/g,'_') + '_' + (r.date || '') + '.pptx';
+  }
+  return 'BR_ONSITE_매장조사_' + list.length + '개매장_' + today() + '.pptx';
+}
+
+function makeDeck(list, btn, doneLabel){
+  if(typeof PptxGenJS === 'undefined'){
+    alert('PPTX 생성기를 불러오지 못했어요. 네트워크를 확인하고 새로고침해 주세요.');
+    return;
+  }
+  var was = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = doneLabel || '만드는 중…'; }
+  try{
+    var deck = buildDeck(PptxGenJS, list, OBS_PHOTOS);
+    deck.writeFile({ fileName: pptxName(list) }).then(function(){
+      if(btn){ btn.disabled=false; btn.textContent = was; }
+    })['catch'](function(){
+      if(btn){ btn.disabled=false; btn.textContent = was; }
+      alert('PPTX를 만들지 못했어요. 사진이 너무 많거나 큰 경우일 수 있어요.');
+    });
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent = was; }
+    alert('PPTX를 만들지 못했어요: ' + e.message);
+  }
+}
+
+function downloadAllPptx(btn){
+  var list = state.reports.filter(function(r){
+    if(r.store) return true;
+    return SLOTS.some(function(sl){ return (r.shots[sl.id]||{}).img; });
+  });
+  if(!list.length){ alert('내려받을 매장이 없어요. 먼저 매장을 추가하고 내용을 입력해 주세요.'); return; }
+  makeDeck(list, btn, '만드는 중… (' + list.length + '개)');
+}
+
+function downloadPptx(r, btn){
+  if(typeof PptxGenJS === 'undefined'){
+    alert('PPTX 생성기를 불러오지 못했어요. 네트워크를 확인하고 새로고침해 주세요.');
+    return;
+  }
+  makeDeck([r], btn);
+}
+
 function sheetObs(r){
   var sv = r.survey || {};
   var strip = OBS_PHOTOS.map(function(p){
@@ -848,60 +1257,22 @@ function sheetObs(r){
 function printReports(rs){
   if(!rs.length){ alert('인쇄할 매장이 없어요. 먼저 매장을 추가해 주세요.'); return; }
   var root=document.getElementById('print-root');
-  root.innerHTML = rs.map(function(r){
-    if(r.format==='plain') return sheetPlain(r);
-    if(r.format==='obs')   return sheetObs(r);
-    return sheetField(r);
-  }).join('');
+  root.innerHTML = rs.map(function(r){ return sheetObs(r); }).join('');
   setTimeout(function(){ window.print(); }, 120);
 }
+document.getElementById('pptx-all').addEventListener('click', function(){ downloadAllPptx(this); });
 document.getElementById('print-all').addEventListener('click', function(){ printReports(state.reports); });
 window.addEventListener('afterprint', function(){ document.getElementById('print-root').innerHTML=''; });
-
-/* ─ 백업 / 복원 ─ */
-document.getElementById('backup').addEventListener('click', function(){
-  if(!state.reports.length){ alert('백업할 내용이 없어요.'); return; }
-  var blob=new Blob([JSON.stringify(state)],{type:'application/json'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='BR_ONSITE_매장리포트_'+today()+'.json';
-  a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
-});
-var restoreInput=document.getElementById('restore-input');
-document.getElementById('restore').addEventListener('click', function(){ restoreInput.click(); });
-restoreInput.addEventListener('change', function(){
-  var f=restoreInput.files && restoreInput.files[0]; if(!f) return;
-  var rd=new FileReader();
-  rd.onload=function(){
-    try{
-      var p=JSON.parse(rd.result);
-      if(!p || !p.reports) throw 0;
-      var mode = state.reports.length ? confirm('기존 '+state.reports.length+'개에 이어붙일까요?\n[취소]를 누르면 파일 내용으로 교체합니다.') : true;
-      state.reports = mode ? state.reports.concat(p.reports) : p.reports;
-      state.reports.forEach(function(x){ if(!x.id) x.id=uid(); ensureSlots(x); });
-      save(); render();
-    }catch(e){ alert('이 파일은 읽을 수 없어요. 백업 저장으로 만든 JSON 파일을 선택해 주세요.'); }
-    restoreInput.value='';
-  };
-  rd.readAsText(f);
-});
 
 /* ═══ 저장 · 팀 아카이브 ═════════════════════════════════ */
 function flushSave(){
   clearTimeout(saveTimer);
-  var ok = lsSet(STORE_KEY, JSON.stringify(state));
+  var ok = lsSet(STORE_KEY, serialize());
   var dot=document.getElementById('save-dot'), msg=document.getElementById('save-msg');
   if(ok){ memOnly=false; dot.className='dot'; msg.textContent='이 브라우저에 저장됨 · '+timeNow(); }
-  else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 백업 파일로 내려받으세요'; }
+  else{ memOnly=true; dot.className='dot warn'; msg.textContent='저장 공간이 가득 찼어요. 오래된 매장 카드를 삭제해 주세요'; }
   return ok;
 }
-document.getElementById('save-btn').addEventListener('click', function(){
-  var b=this, ok=flushSave();
-  var was=b.textContent;
-  b.textContent = ok ? '저장됨 ✓' : '저장 실패';
-  setTimeout(function(){ b.textContent=was; }, 1600);
-});
 
 /* JSONP 읽기 — Apps Script doGet(action=onsite_list) */
 function jsonp(url, cb){
@@ -916,6 +1287,31 @@ function jsonp(url, cb){
   setTimeout(function(){ if(!done){ cleanup(); cb(new Error('응답 없음')); } }, 15000);
 }
 
+function stamp(iso){
+  if(!iso) return '';
+  var d=new Date(iso), p=function(n){return (n<10?'0':'')+n;};
+  return p(d.getMonth()+1)+'.'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function saveBar(r){
+  var cls='', txt;
+  if(r.sentAt){ cls=' ok'; txt='팀 아카이브에 저장됨 · '+stamp(r.sentAt); }
+  else if(UPLOAD_ENDPOINT && serverReady !== false){ cls=' warn'; txt='아직 팀에 저장되지 않았어요' + (r.savedAt ? ' (이 기기 임시 저장 '+stamp(r.savedAt)+')' : ''); }
+  else { txt = r.savedAt ? '이 브라우저에 저장됨 · '+stamp(r.savedAt) : '작성 중 — 저장 버튼을 눌러 주세요'; }
+  return '<div class="savebar">'
+    +'<span class="sv-status'+cls+'">'+txt+'</span>'
+    +'<button class="btn btn-primary sv-btn" data-act="save1" data-r="'+r.id+'">'
+    + (r.sentAt ? '다시 저장' : '저장') + '</button></div>';
+}
+function saveOne(r, btn){
+  r.savedAt = new Date().toISOString();
+  var ok = flushSave();
+  if(!ok){ alert('이 기기 저장 공간이 부족해요. 이미 팀에 올린 매장 카드를 삭제하면 공간이 확보됩니다.'); render(); return; }
+  if(UPLOAD_ENDPOINT && serverReady !== false){ submitReport(r, btn); }
+  else{
+    btn.textContent='이 기기에만 저장됨';
+    setTimeout(function(){ render(); }, 1600);
+  }
+}
 function submitBtn(r){
   if(!UPLOAD_ENDPOINT) return '';
   var sent = !!r.sentAt;
@@ -962,33 +1358,273 @@ function submitReport(r, btn){
   });
 }
 
+var serverReady = null;   // null=확인 중, true=저장 가능, false=스크립트 업데이트 필요
+function notice(state){
+  var el=document.getElementById('nolink');
+  if(state==='ok'){ el.hidden=true; return; }
+  el.hidden=false;
+  if(state==='update'){
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>저장 서버에 매장 리포트 기능이 아직 없어요.</b> 지금 저장하면 이 기기에만 남고 팀에는 올라가지 않습니다.'
+      +'<span class="nt-sub">관리자: 설문 스프레드시트의 Apps Script에 <b>onsite-apps-script.txt</b>를 붙여넣고 '
+      +'배포 관리 → 편집 → <b>새 버전</b>으로 배포하면 바로 켜집니다. 주소는 그대로예요.</span></span>';
+  } else if(state==='setup'){
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>팀 저장이 아직 켜지지 않았어요.</b> 지금 저장하면 이 기기에만 남습니다. '
+      +'작성 후 <b>PPTX 다운로드</b>로 결과물을 꼭 받아두세요.'
+      +'<span class="nt-sub">관리자: <b>onsite-apps-script.txt</b>를 매장조사 시트에 붙여넣고 웹 앱으로 배포한 뒤, '
+      +'나온 주소를 이 파일 상단 UPLOAD_ENDPOINT에 넣으면 켜집니다.</span></span>';
+  } else {
+    el.innerHTML='<span class="nt-icon">⚠</span><span class="nt-body">'
+      +'<b>저장 서버에 연결하지 못했어요.</b> 네트워크를 확인해 주세요. 작성한 내용은 이 기기에 남아 있습니다.'
+      +'</span>';
+  }
+}
+
 function loadArchive(){
   var sec=document.getElementById('arch'), body=document.getElementById('arch-body');
-  if(!UPLOAD_ENDPOINT){ sec.hidden=true; return; }
+  if(!UPLOAD_ENDPOINT){ sec.hidden=true; notice('setup'); return; }
   sec.hidden=false;
   body.innerHTML='<div class="arch-msg">불러오는 중…</div>';
   jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
-    if(err){ body.innerHTML='<div class="arch-msg">아카이브를 불러오지 못했어요. 새로고침을 눌러 다시 시도해 주세요.</div>'; return; }
-    var rows=(data&&data.rows)||[];
+    if(err){
+      serverReady=false; notice('offline');
+      body.innerHTML='<div class="arch-msg">아카이브를 불러오지 못했어요. 새로고침을 눌러 다시 시도해 주세요.</div>';
+      return;
+    }
+    if(!data || !data.rows){          // 옛 스크립트는 rows 를 돌려주지 않음
+      serverReady=false; notice('update');
+      body.innerHTML='<div class="arch-msg">저장 서버가 아직 매장 리포트를 받을 준비가 되지 않았어요.</div>';
+      render();
+      return;
+    }
+    serverReady=true; notice('ok');
+    var rows=data.rows;
     if(!rows.length){ body.innerHTML='<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>'; return; }
     rows.sort(function(a,b){ return (b.sentAt||'').localeCompare(a.sentAt||''); });
-    body.innerHTML = rows.map(function(x){
-      var urls=(x.photos||[]).slice(0,6);
-      var thumbs=urls.map(function(u){ return '<img src="'+u+'" alt="" loading="lazy">'; }).join('');
-      return '<div class="arch-item">'
-        +'<span class="arch-thumbs">'+thumbs+'</span>'
-        +'<span class="arch-meta">'
-          +'<span class="arch-store">'+esc(x.store||'(매장명 없음)')+'</span>'
-          +'<span class="arch-sub">'+fmtDate(x.date)+(x.author?' · '+esc(x.author):'')+' · 사진 '+((x.photos||[]).length)+'컷</span>'
-          +(x.oneline?'<span class="arch-one">'+esc(x.oneline)+'</span>':'')
-        +'</span></div>';
-    }).join('');
+    archRows = rows;
+    renderArchive();
   });
 }
+
+var archRows = [], archOpen = {}, archTab = {};
+
+function normPhotos(list){
+  return (list||[]).map(function(q,idx){
+    if(typeof q === 'string'){
+      var m = String(q).match(/[?&]id=([^&]+)/);
+      return { slot:(OBS_PHOTOS[idx]||{}).id||'', url:q, id:(m?m[1]:'') };
+    }
+    return q;
+  });
+}
+function photoBySlot(list, slot){
+  var arr = normPhotos(list);
+  for(var i=0;i<arr.length;i++) if(arr[i].slot===slot) return arr[i];
+  return null;
+}
+function driveView(p){ return p && p.id ? 'https://drive.google.com/file/d/'+p.id+'/view' : (p?p.url:'#'); }
+
+/* 위 매장 카드와 같은 형식으로 그립니다 (읽기 전용) */
+function archCard(x, i){
+  var open = !!archOpen[x.id];
+  var tab  = archTab[x.id] || 'photos';
+  var photos = normPhotos(x.photos);
+  var sv = (x.survey && typeof x.survey === 'object') ? x.survey : null;
+
+  var answered = 0, totalQ = 0;
+  SURVEY.forEach(function(sec){ sec.f.forEach(function(f){
+    totalQ++;
+    if(!sv) return;
+    var v = sv[f.k];
+    if(f.type==='many'){ if(v && v.length) answered++; }
+    else if(v !== undefined && v !== '') answered++;
+  }); });
+
+  var head = '<div class="rep-head'+(open?'':' folded')+'">'
+    +'<span class="idx">'+(i+1)+'</span>'
+    +'<input class="f-store" value="'+esc(x.store||'')+'" readonly aria-label="매장명">'
+    +'<input class="f-date" type="date" value="'+esc(x.date||'')+'" readonly aria-label="방문일자">'
+    +'<span class="rep-actions">'
+      +'<button class="icon-btn fold" data-act="archfold" data-id="'+esc(x.id)+'" aria-expanded="'+(!open)+'">'+(open?'접기':'펼치기')+'</button>'
+      +'<button class="icon-btn" data-act="archpptx" data-id="'+esc(x.id)+'">PPTX 다운로드</button>'
+      +'<button class="icon-btn danger" data-act="archdel" data-id="'+esc(x.id)+'">삭제</button>'
+    +'</span></div>';
+
+  if(!open) return '<div class="report">'+head+'</div>';
+
+  var slotsHtml = SLOTS.map(function(sl){
+    var p = photoBySlot(photos, sl.id);
+    var note = (x.notes && x.notes[sl.id]) || '';
+    var inner = p
+      ? '<a href="'+driveView(p)+'" target="_blank" rel="noopener" title="원본 열기"><img src="'+p.url+'" alt="'+sl.ko+'" loading="lazy"></a>'
+      : '<span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>'
+        +'<div class="drop-hint">사진 없음</div>';
+    return '<div class="slot">'
+      +'<div class="slot-head"><span class="slot-num">'+sl.n+'</span><span class="slot-ko">'+sl.ko+'</span><span class="slot-en">'+sl.en+'</span></div>'
+      +'<div class="drop'+(p?' has':'')+'">'+inner+'</div>'
+      +'<div class="note-wrap"><div class="note-cap">'+sl.cap+'</div>'
+      +'<div class="arch-qv" style="font-size:12.5px;min-height:18px;padding:5px 2px">'+(note?esc(note):'<span class="arch-qk">—</span>')+'</div>'
+      +'</div></div>';
+  }).join('');
+
+  var qHtml;
+  if(sv){
+    qHtml = SURVEY.map(function(sec){
+      var rows = sec.f.map(function(f){
+        var v = sv[f.k];
+        if(f.type==='many') v = (v && v.length) ? v.join(' · ') : '';
+        if(f.type==='num')  v = (v===''||v===undefined) ? '' : v+' '+(f.unit||'');
+        var empty = (v===undefined || v==='');
+        return '<div class="qrow"><span class="ql">'+f.l+'</span>'
+          +'<span class="'+(empty?'arch-qk':'arch-qv')+'" style="font-size:12.5px">'+(empty?'—':esc(String(v)))+'</span></div>';
+      }).join('');
+      return '<div class="qsec"><div class="qhead"><span class="qnum">'+sec.n+'</span><span class="qt">'+sec.t+'</span>'
+        +(sec.note?'<span class="qnote">'+sec.note+'</span>':'')+'</div>'+rows+'</div>';
+    }).join('');
+  } else {
+    qHtml = '<div class="arch-none">질문지 답변이 함께 저장되기 전에 올라온 기록이에요. 사진은 그대로 보실 수 있습니다.</div>';
+  }
+
+  return '<div class="report">'+head
+    +'<div class="tabs" role="tablist">'
+    +'<button class="tab" role="tab" data-act="archtab" data-id="'+esc(x.id)+'" data-v="photos" aria-selected="'+(tab==='photos')+'">사진 '+SLOTS.length+'컷<span class="cnt">'+photos.length+'/'+SLOTS.length+'</span></button>'
+    +'<button class="tab" role="tab" data-act="archtab" data-id="'+esc(x.id)+'" data-v="survey" aria-selected="'+(tab==='survey')+'">관찰 질문지<span class="cnt">'+answered+'/'+totalQ+'</span></button>'
+    +'</div>'
+    +'<div class="pane"'+(tab==='photos'?'':' hidden')+'><div class="slots">'+slotsHtml+'</div></div>'
+    +'<div class="pane"'+(tab==='survey'?'':' hidden')+'><div class="qwrap">'+qHtml+'</div></div>'
+    +'<div class="savebar"><span class="sv-status ok">'
+      +(x.author?esc(x.author)+' · ':'')+'제출 '+stamp(x.sentAt)
+      +(x.oneline?'  |  '+esc(x.oneline):'')+'</span></div>'
+    +'</div>';
+}
+
+function renderArchive(){
+  var body = document.getElementById('arch-body');
+  if(!archRows.length){
+    body.innerHTML = '<div class="arch-msg">아직 제출된 리포트가 없어요. 첫 기록을 올려보세요.</div>';
+    return;
+  }
+  body.innerHTML = archRows.map(archCard).join('');
+}
+
+/* 아카이브 삭제 — 관리자 코드 확인 후 시트 줄과 드라이브 사진을 함께 지웁니다 */
+function adminOk(){
+  if(ssGet(ADMIN_KEY) === '1') return true;
+  var v = prompt('팀 아카이브에서 지우려면 관리자 코드를 입력하세요.');
+  if(v === null) return false;
+  if(v.trim() === ADMIN_CODE){ ssSet(ADMIN_KEY, '1'); return true; }
+  alert('코드가 맞지 않아요.');
+  return false;
+}
+
+function archDelete(id, btn){
+  var row = null;
+  for(var i=0;i<archRows.length;i++) if(archRows[i].id===id) row = archRows[i];
+  if(!adminOk()) return;
+  var name = (row && row.store) ? row.store : '이 리포트';
+  if(!confirm(name + ' 기록을 팀 아카이브에서 지울까요?\n시트의 줄과 드라이브 사진이 함께 삭제되고 되돌릴 수 없어요.')) return;
+
+  var was = btn.textContent;
+  btn.disabled = true; btn.textContent = '지우는 중…';
+  fetch(UPLOAD_ENDPOINT, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ type:'onsite_delete', id:id, code:ADMIN_CODE })
+  }).then(function(){
+    setTimeout(function(){
+      jsonp(UPLOAD_ENDPOINT+'?action=onsite_list', function(err, data){
+        btn.disabled = false; btn.textContent = was;
+        if(err || !data || !data.rows){ alert('삭제 결과를 확인하지 못했어요. 새로고침을 눌러 확인해 주세요.'); return; }
+        var still = data.rows.some(function(x){ return x.id === id; });
+        if(still){
+          alert('아직 지워지지 않았어요. 스크립트를 새 버전으로 배포했는지 확인해 주세요.');
+          return;
+        }
+        archRows = data.rows;
+        delete archOpen[id];
+        renderArchive();
+      });
+    }, 2000);
+  })['catch'](function(){
+    btn.disabled = false; btn.textContent = was;
+    alert('삭제 요청에 실패했어요. 네트워크를 확인해 주세요.');
+  });
+}
+
+/* 아카이브 전체 → PPTX : 사진이 드라이브에 있어 한 건씩 받아옵니다 */
+function fetchRow(id){
+  return new Promise(function(resolve){
+    jsonp(UPLOAD_ENDPOINT+'?action=onsite_get&id='+encodeURIComponent(id), function(err, data){
+      resolve((!err && data && data.row) ? data.row : null);
+    });
+  });
+}
+function rowToReport(row){
+  var shots = {};
+  SLOTS.forEach(function(sl){ shots[sl.id] = { img:'', note:(row.notes&&row.notes[sl.id])||'' }; });
+  (row.photos||[]).forEach(function(p){ if(shots[p.slot]) shots[p.slot].img = p.data; });
+  return { id:row.id, store:row.store, date:row.date, survey:row.survey||{}, shots:shots };
+}
+
+function archAllPptx(btn){
+  if(!archRows.length){ alert('아카이브에 내려받을 리포트가 없어요.'); return; }
+  if(typeof PptxGenJS === 'undefined'){ alert('PPTX 생성기를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.'); return; }
+  var was = btn.textContent;
+  btn.disabled = true;
+  var ids = archRows.map(function(x){ return x.id; }), out = [], i = 0;
+
+  function step(){
+    if(i >= ids.length){
+      btn.disabled = false; btn.textContent = was;
+      if(!out.length){
+        alert('사진을 받아오지 못했어요.\n스크립트를 새 버전으로 배포했는지 확인해 주세요.');
+        return;
+      }
+      makeDeck(out, btn, '파일 만드는 중…');
+      return;
+    }
+    btn.textContent = '사진 받는 중… ' + (i+1) + '/' + ids.length;
+    fetchRow(ids[i]).then(function(row){
+      if(row) out.push(rowToReport(row));
+      i++; step();
+    });
+  }
+  step();
+}
+
+/* 아카이브 → PPTX : 원본 사진을 서버에서 다시 받아 만듭니다 */
+function archPptx(id, btn){
+  if(typeof PptxGenJS === 'undefined'){ alert('PPTX 생성기를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.'); return; }
+  var was = btn.textContent;
+  btn.disabled = true; btn.textContent = '사진 받는 중…';
+  fetchRow(id).then(function(row){
+    btn.disabled = false; btn.textContent = was;
+    if(!row){
+      alert('이 기능은 스크립트를 새 버전으로 배포한 뒤에 동작해요.\n배포 후 다시 시도해 주세요.');
+      return;
+    }
+    downloadPptx(rowToReport(row), btn);
+  });
+}
+
+document.getElementById('arch-all-pptx').addEventListener('click', function(){ archAllPptx(this); });
 document.getElementById('arch-refresh').addEventListener('click', loadArchive);
 loadArchive();
 
-if(gate.style.display==='none') render();
+/* 저장해둔 사진을 IndexedDB에서 되살린 뒤 화면을 그립니다 */
+idbAll().then(function(map){
+  var n = 0;
+  state.reports.forEach(function(r){
+    SLOTS.forEach(function(sl){
+      var v = map[shotKey(r.id, sl.id)];
+      if(v){ if(!r.shots[sl.id]) r.shots[sl.id]={img:'',note:''}; r.shots[sl.id].img = v; n++; }
+    });
+  });
+  if(n) render();
+});
+
+initGate();
 })();
 </script>
 </body>
