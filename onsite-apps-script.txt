@@ -1,113 +1,109 @@
 /* ============================================================
-   BR ONSITE 매장 리포트 — Google Apps Script (매장조사 전용 시트용)
+   BR ONSITE 매장 리포트 — Google Apps Script (누적 저장용)
 
-   붙일 시트:
-   https://docs.google.com/spreadsheets/d/1iZDgsnpZjKk_gYejZO_YDv9K0GzWVava3shC6Gu0uOw/edit
+   ▶ 무엇을 하나요?
+   br-store-report.html에서 "팀에 제출"을 누르면
+   · 사진은 구글 드라이브 폴더에 매장·날짜별로 저장
+   · 문항 답변과 사진 링크는 스프레드시트 한 줄로 기록
+   되고, 같은 페이지 하단 "팀에 누적된 리포트"에서 모두가 봅니다.
 
-   ▶ 이 스크립트가 하는 일
-   · 사진   → 내 드라이브 > 'BR ONSITE 매장리포트 사진' 폴더에 JPG로 저장
-   · 답변   → 이 시트의 'OnSite' 탭에 한 줄로 기록
-   · 사진 표시 → 시트 뒤쪽 6개 컬럼에 =IMAGE() 수식이 들어가 시트 안에서 바로 보임
-   설문 스크립트와는 완전히 분리돼 있어서 설문 수집에 영향을 주지 않습니다.
-
-   ▶ 배포 (5분, 한 번만)
-   1. 위 스프레드시트 열기 → 확장 프로그램 → Apps Script
-   2. 있는 코드 전부 지우고 이 파일 내용 붙여넣기 → 저장
-   3. 오른쪽 위 배포 → 새 배포 → 유형(톱니바퀴) → 웹 앱
-        설명       : ONSITE
-        실행 사용자 : 나
-        액세스 권한 : 링크가 있는 모든 사용자  (또는 회사 도메인 내 모든 사용자)
+   ▶ 배포 (10분, 한 번만)
+   1. drive.google.com → 새로 만들기 → Google 스프레드시트
+      이름 예: "BR ONSITE 매장 리포트"
+   2. 확장 프로그램 → Apps Script → 기존 코드 전부 지우고 이 파일 붙여넣기
+   3. 저장 → 배포 → 새 배포 → 유형 "웹 앱"
+        실행 사용자: 나
+        액세스 권한: 회사 도메인 내 모든 사용자 (또는 링크가 있는 모든 사용자)
       → 배포 → 권한 승인
-      ※ 이 시트는 새 시트라 "새 배포"가 맞습니다. 설문 스크립트와 별개예요.
-   4. 나온 웹 앱 URL(https://script.google.com/macros/s/.../exec)을 복사해서
-      br-store-report.html 상단
-        var UPLOAD_ENDPOINT = "";
-      안에 붙여넣고 다시 올리면 끝입니다.
+   4. 나오는 웹 앱 URL(.../exec)을 복사해서
+      br-store-report.html 상단의  var UPLOAD_ENDPOINT = "";  안에 붙여넣기
+   5. 페이지 새로고침 → 매장 카드에 "팀에 제출" 버튼이 생깁니다.
+
+   ▶ 이미 설문용 Apps Script를 쓰고 있다면
+   같은 프로젝트에 붙이지 말고 새 스프레드시트 + 새 배포로 분리하세요.
+   설문 응답과 사진 리포트는 성격이 달라서 섞이면 나중에 정리가 어렵습니다.
    ============================================================ */
 
-var ONSITE_NAME = 'OnSite';                    // 기록이 쌓이는 탭
-var FOLDER_NAME = 'BR ONSITE 매장리포트 사진';   // 사진 폴더
-var ONSITE_HEADERS = ['sentAt','id','store','date','author','hour','oneline','survey','notes','photos',
-                      '① 전경','② 외창','③ 메뉴보드','④ 디핑구','⑤ MD장','⑥ 포스'];
-var IMG_COL_START  = 11;   // '① 전경' 컬럼 (1부터 셈)
-var IMG_COUNT      = 6;
-var IMG_W          = 150;  // 시트에 표시할 썸네일 크기(px)
-var IMG_H          = 105;
+var SHEET_NAME  = 'OnSite';                    // 기록이 쌓이는 탭
+var FOLDER_NAME = 'BR ONSITE 매장리포트 사진';   // 드라이브 폴더 이름
+var HEADERS = ['sentAt','id','store','date','author','hour','oneline','survey','notes','photos'];
 
-function getOnsiteSheet_() {
+/* ── 저장소 준비 ───────────────────────────────────────── */
+function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(ONSITE_NAME);
+  var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
-    sh = ss.insertSheet(ONSITE_NAME);
-    sh.getRange(1, 1, 1, ONSITE_HEADERS.length).setValues([ONSITE_HEADERS]).setFontWeight('bold');
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
     sh.setFrozenRows(1);
-    for (var c = 0; c < IMG_COUNT; c++) sh.setColumnWidth(IMG_COL_START + c, IMG_W + 10);
   }
   if (sh.getLastRow() === 0) {
-    sh.getRange(1, 1, 1, ONSITE_HEADERS.length).setValues([ONSITE_HEADERS]).setFontWeight('bold');
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
   }
   return sh;
 }
 
-function getFolder_(name, parent) {
-  var it = parent ? parent.getFoldersByName(name) : DriveApp.getFoldersByName(name);
-  if (it.hasNext()) return it.next();
-  return parent ? parent.createFolder(name) : DriveApp.createFolder(name);
+function getFolder_() {
+  var it = DriveApp.getFoldersByName(FOLDER_NAME);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(FOLDER_NAME);
 }
 
-/* ── 저장 ─────────────────────────────────────────────── */
+function getSubFolder_(parent, name) {
+  var it = parent.getFoldersByName(name);
+  return it.hasNext() ? it.next() : parent.createFolder(name);
+}
+
+/* ── 제출 받기 ─────────────────────────────────────────── */
 function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.tryLock(30000);
   try {
     var body = JSON.parse(e.postData.contents);
-    /* ---- 매장 리포트 저장  ---- */
-    if (body.type === 'onsite') {
-      var store = String(body.store || '무제').replace(/[\\\/:*?"<>|]/g, '_');
-      var date  = String(body.date || '').slice(0, 10);
-      var folder = getFolder_(date + ' ' + store, getFolder_(FOLDER_NAME));
+    if (body.type !== 'onsite') return ContentService.createTextOutput('ignored');
 
-      var urls = [];
-      (body.photos || []).forEach(function (ph, i) {
-        var parts = String(ph.data).split(',');
-        var bytes = Utilities.base64Decode(parts[1]);
-        var name  = date + '_' + store + '_' + (i + 1) + '_' + (ph.slot || 'photo') + '.jpg';
-        var old = folder.getFilesByName(name);
-        while (old.hasNext()) old.next().setTrashed(true);   // 재저장이면 교체
-        var file = folder.createFile(Utilities.newBlob(bytes, 'image/jpeg', name));
-        try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (err) {}
-        urls.push('https://drive.google.com/thumbnail?id=' + file.getId() + '&sz=w600');
-      });
+    var store = String(body.store || '무제').replace(/[\\\/:*?"<>|]/g, '_');
+    var date  = String(body.date || '').slice(0, 10);
+    var folder = getSubFolder_(getFolder_(), date + ' ' + store);
 
-      var sv = body.survey || {};
-      var orow = [
-        new Date().toISOString(), body.id || '', body.store || '', body.date || '',
-        sv.author || '', sv.hour || '', sv.oneline || '',
-        JSON.stringify(sv), JSON.stringify(body.notes || {}), JSON.stringify(urls)
-      ];
+    // 사진 저장 — 같은 id로 다시 제출하면 기존 파일을 대체
+    var urls = [];
+    (body.photos || []).forEach(function (p, i) {
+      var parts = String(p.data).split(',');
+      var bytes = Utilities.base64Decode(parts[1]);
+      var name  = date + '_' + store + '_' + (i + 1) + '_' + (p.slot || 'photo') + '.jpg';
+      var old = folder.getFilesByName(name);
+      while (old.hasNext()) old.next().setTrashed(true);
+      var blob = Utilities.newBlob(bytes, 'image/jpeg', name);
+      var file = folder.createFile(blob);
+      // 링크가 있으면 볼 수 있게 — 조직 정책에 따라 실패할 수 있어 무시 처리
+      try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (err) {}
+      urls.push('https://drive.google.com/thumbnail?id=' + file.getId() + '&sz=w600');
+    });
 
-      var osh = getOnsiteSheet_();
-      var ids = osh.getLastRow() > 1
-        ? osh.getRange(2, 2, osh.getLastRow() - 1, 1).getValues().map(function (x) { return x[0]; })
-        : [];
-      var at = ids.indexOf(body.id);
-      var rowNum;
-      if (at > -1) { rowNum = at + 2; osh.getRange(rowNum, 1, 1, orow.length).setValues([orow]); }
-      else { osh.appendRow(orow); rowNum = osh.getLastRow(); }
+    var sv = body.survey || {};
+    var row = [
+      new Date().toISOString(),
+      body.id || '',
+      body.store || '',
+      body.date || '',
+      sv.author || '',
+      sv.hour || '',
+      sv.oneline || '',
+      JSON.stringify(sv),
+      JSON.stringify(body.notes || {}),
+      JSON.stringify(urls)
+    ];
 
-      /* 시트 안에서 사진이 바로 보이도록 IMAGE 수식을 넣습니다.
-         (파일은 드라이브에 있고 시트에는 수식만 — 용량은 늘지 않습니다) */
-      for (var c = 0; c < IMG_COUNT; c++) {
-        var cell = osh.getRange(rowNum, IMG_COL_START + c);
-        if (urls[c]) cell.setFormula('=IMAGE("' + urls[c] + '", 4, ' + IMG_H + ', ' + IMG_W + ')');
-        else cell.clearContent();
-      }
-      osh.setRowHeight(rowNum, IMG_H + 10);
+    // 같은 id가 있으면 덮어쓰기(재제출), 없으면 새 줄
+    var sh = getSheet_();
+    var ids = sh.getLastRow() > 1
+      ? sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues().map(function (r) { return r[0]; })
+      : [];
+    var at = ids.indexOf(body.id);
+    if (at > -1) sh.getRange(at + 2, 1, 1, row.length).setValues([row]);
+    else sh.appendRow(row);
 
-      return ContentService.createTextOutput('ok');
-    }
-
-    return ContentService.createTextOutput('ignored');
+    return ContentService.createTextOutput('ok');
   } catch (err) {
     return ContentService.createTextOutput('error: ' + err);
   } finally {
@@ -115,33 +111,28 @@ function doPost(e) {
   }
 }
 
-/* ── 읽기 (JSONP) ─────────────────────────────────────── */
+/* ── 아카이브 읽기 (JSONP) ─────────────────────────────── */
 function doGet(e) {
   var action = (e.parameter && e.parameter.action) || '';
   var cb = (e.parameter && e.parameter.callback) || 'cb';
-  var out;
+  var out = { rows: [] };
 
-  /* ---- 매장 리포트 목록  ---- */
   if (action === 'onsite_list') {
-    var osh = getOnsiteSheet_();
-    var rows = [];
-    if (osh.getLastRow() > 1) {
-      var vals = osh.getRange(2, 1, osh.getLastRow() - 1, 10).getValues();   // 앞 10개 컬럼만 (뒤는 이미지 수식)
-      rows = vals.map(function (v) {
+    var sh = getSheet_();
+    if (sh.getLastRow() > 1) {
+      var values = sh.getRange(2, 1, sh.getLastRow() - 1, HEADERS.length).getValues();
+      out.rows = values.map(function (v) {
         var photos = [];
         try { photos = JSON.parse(v[9] || '[]'); } catch (err) {}
         return {
           sentAt: v[0] instanceof Date ? v[0].toISOString() : String(v[0]),
           id: v[1], store: v[2],
           date: v[3] instanceof Date ? Utilities.formatDate(v[3], 'Asia/Seoul', 'yyyy-MM-dd') : String(v[3]),
-          author: v[4], hour: v[5], oneline: v[6], photos: photos
+          author: v[4], hour: v[5], oneline: v[6],
+          photos: photos
         };
       });
     }
-    out = { rows: rows };
-
-  } else {
-    out = { ok: true };
   }
 
   return ContentService
@@ -152,18 +143,15 @@ function doGet(e) {
 /* ============================================================
    ▶ 알아두실 점
 
-   · 시트의 '① 전경' ~ '⑥ 포스' 컬럼에는 =IMAGE() 수식이 들어가서
-     시트 안에서 사진이 바로 보입니다. 파일 자체는 드라이브에 있고
-     시트에는 수식만 있어서 용량은 늘지 않아요. 사진이 회색 상자로
-     보이면 잠시 후 새로고침해 보세요(구글이 썸네일을 만드는 중입니다).
+   · 사진은 "링크가 있는 모든 사용자 보기"로 공유됩니다. 페이지에서
+     썸네일을 보여주려면 필요한 설정이에요. 매장 내부 사진이라
+     외부 유출이 걱정되면 setSharing 줄을 지우고, 아카이브는
+     링크만 남기는 방식으로 바꿔서 쓰세요. (썸네일은 안 보입니다)
 
-   · 매장 사진은 "링크가 있는 모든 사용자 보기"로 공유됩니다.
-     페이지와 시트에서 썸네일을 보여주려면 필요한 설정이에요. 걱정되면
-     setSharing 줄을 지우세요(대신 썸네일이 안 보입니다).
+   · 사진 촬영 시 인물 얼굴이 들어가지 않도록 안내문을 지켰는지
+     제출 전에 한 번 더 확인해 주세요. 드라이브에 남는 자료입니다.
 
-   · 촬영 시 인물 얼굴이 들어가지 않도록 하는 안내를 지켰는지
-     확인해 주세요. 드라이브에 남는 자료입니다.
-
-   · 코드를 고친 뒤에는 "배포 관리 → 편집(연필) → 새 버전 → 배포"로
-     기존 배포의 버전을 올리세요. 그래야 주소가 그대로 유지됩니다.
+   · 코드를 고친 뒤에는 반드시 "배포 관리 → 편집(연필) → 새 버전 → 배포"
+     로 기존 배포의 버전을 올리세요. "새 배포"를 하면 URL이 바뀌어서
+     HTML의 UPLOAD_ENDPOINT도 같이 고쳐야 합니다.
    ============================================================ */
