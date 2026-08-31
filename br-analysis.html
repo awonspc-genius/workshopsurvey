@@ -179,43 +179,85 @@
   .sgate .back { background:#fff; color:#8a6f63; border:1.5px solid var(--line); margin-top:8px; }
   .sgate .err { color:var(--berry); font-size:12px; min-height:16px; margin-top:8px; font-weight:700; }
 
-  /* ===== Tabs (added) ===== */
-  .tabs { display:flex; gap:8px; flex-wrap:wrap; margin:20px 0 0; border-bottom:2px solid var(--choco); }
+  /* ===== Tabs ===== */
+  .tabs { display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 0; border-bottom:2px solid var(--choco); }
   .tabs button { font-family:inherit; font-size:14px; font-weight:800; letter-spacing:-0.3px;
                  background:#fff; color:#8a6f63; border:1.5px solid var(--line); border-bottom:none;
-                 border-radius:8px 8px 0 0; padding:11px 20px; cursor:pointer; position:relative; top:2px;
-                 transition:.16s; }
+                 border-radius:8px 8px 0 0; padding:11px 22px; cursor:pointer; position:relative; top:2px; transition:.16s; }
   .tabs button:hover { color:var(--berry); border-color:var(--berry); }
   .tabs button[aria-selected="true"] { background:var(--choco); color:#fff; border-color:var(--choco); }
   .tpanel { padding-top:4px; }
 
-  /* ===== Diagnosis panel (added) ===== */
-  .dx { max-width:940px; }
-  .dx p { font-size:14.5px; line-height:1.85; margin:0 0 13px; }
-  .dx ul { margin:0 0 16px; padding-left:19px; font-size:14.5px; line-height:1.85; }
-  .dx li { margin-bottom:7px; }
-  .dx b { font-weight:800; }
+  /* ===== Report typography ===== */
+  .dx { max-width:1000px; }
+  .dx p { font-size:15px; line-height:1.9; margin:0 0 15px; color:#24282D; }
+  .dx ul { margin:0 0 18px; padding-left:20px; font-size:15px; line-height:1.9; color:#24282D; }
+  .dx li { margin-bottom:9px; }
+  .dx li::marker { color:var(--berry); }
+  .dx b { font-weight:800; color:var(--choco); }
   .dx .hl { color:var(--berry); font-weight:800; }
-  .dx h3 { font-size:15.5px; font-weight:800; margin:28px 0 8px; }
-  .dxpull { border-left:4px solid var(--berry); background:var(--soft); padding:16px 20px;
-            margin:20px 0; font-size:17px; font-weight:800; line-height:1.65; }
-  .dxnote { border:1px solid var(--line); background:#FDF7F3; border-radius:10px; padding:14px 17px;
-            margin:18px 0; font-size:13px; color:#8a6f63; line-height:1.8; }
-  .dxnote b { color:var(--choco); }
-  .dxfig { margin:24px 0; background:#FBF8F6; border:1px solid var(--line); border-radius:10px; padding:18px 16px 12px; }
-  .dxfig svg { display:block; width:100%; height:auto; font-family:inherit; }
-  .dxfig figcaption { font-size:12.5px; color:#8a6f63; text-align:center; margin-top:10px; }
-  .dxtb { width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
-  .dxtb th, .dxtb td { text-align:left; padding:10px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
-  .dxtb th { font-weight:800; border-bottom:1.5px solid var(--choco); font-size:12.5px; }
 
-  .dxsum { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:8px 0 34px; }
-  .dxsum > div { border-top:3px solid var(--berry); padding:12px 0 0; }
-  .dxsum b { font-family:Georgia,serif; font-style:italic; font-size:15px; color:var(--berry); }
-  .dxsum h4 { font-size:14.5px; font-weight:800; margin:4px 0 6px; letter-spacing:-0.3px; }
-  .dxsum p { font-size:12.5px; line-height:1.7; color:#8a6f63; margin:0; }
-  @media (max-width:900px){ .dxsum { grid-template-columns:repeat(2,1fr); } }
-  .dxsrc { font-size:11.5px; color:#8a6f63; line-height:1.9; }
+  .dxlead { font-size:16.5px; line-height:1.85; color:#24282D; margin:22px 0 26px;
+            padding-left:16px; border-left:3px solid var(--berry); }
+  .dxlead b { color:var(--choco); }
+
+  /* section header */
+  .dxh { display:flex; align-items:baseline; gap:14px; margin:70px 0 22px; padding-bottom:11px;
+         border-bottom:2px solid var(--choco); }
+  .dxh:first-of-type { margin-top:26px; }
+  .dxh .n { font-family:Georgia,serif; font-style:italic; font-size:25px; color:var(--berry); line-height:1; }
+  .dxh h2 { font-size:24px; font-weight:900; letter-spacing:-0.6px; color:var(--choco); margin:0; }
+  .dxh small { margin-left:auto; font-size:12px; font-weight:500; color:#8a6f63; letter-spacing:0; text-align:right; }
+
+  .dx h3 { font-size:17.5px; font-weight:800; letter-spacing:-0.3px; color:var(--choco);
+           margin:36px 0 10px; }
+
+  /* summary cards */
+  .dxsum { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:6px 0 8px; }
+  .dxsum > div { background:#FAFAFB; border:1px solid var(--line); border-radius:10px; padding:18px 18px 20px; }
+  .dxsum b { display:inline-block; width:26px; height:26px; line-height:26px; text-align:center;
+             background:var(--berry); color:#fff; border-radius:50%; font-family:Georgia,serif;
+             font-size:13px; font-style:normal; margin-bottom:10px; }
+  .dxsum h4 { font-size:15.5px; font-weight:800; margin:0 0 8px; letter-spacing:-0.3px; line-height:1.45; }
+  .dxsum p { font-size:13px; line-height:1.7; color:#6B6F76; margin:0; }
+  @media (max-width:920px){ .dxsum { grid-template-columns:repeat(2,1fr); } }
+
+  /* pull quote */
+  .dxpull { background:var(--soft); padding:20px 24px; margin:24px 0; border-radius:10px;
+            font-size:18px; font-weight:800; line-height:1.65; color:#8A1B41; }
+
+  /* verbatim quotes */
+  .dxq { border:1px solid var(--line); border-radius:10px; padding:6px 22px 14px; margin:22px 0; }
+  .dxq .qlab { display:inline-block; background:var(--choco); color:#fff; font-size:11px; font-weight:800;
+               padding:4px 10px; border-radius:0 0 6px 6px; margin-bottom:12px; }
+  .dxq dl { margin:0; }
+  .dxq dt { font-size:15px; font-weight:800; color:var(--berry); margin:14px 0 4px; }
+  .dxq dd { margin:0; font-size:13.5px; line-height:1.75; color:#6B6F76; }
+
+  /* note */
+  .dxnote { border:1px solid var(--line); background:#FBFAF9; border-radius:10px;
+            padding:6px 22px 16px; margin:22px 0; }
+  .dxnote .nlab { display:inline-block; background:#8a6f63; color:#fff; font-size:11px; font-weight:800;
+                  padding:4px 10px; border-radius:0 0 6px 6px; margin-bottom:12px; }
+  .dxnote p { font-size:13.5px; line-height:1.85; color:#5F646B; margin:0 0 9px; }
+  .dxnote p:last-child { margin-bottom:0; }
+  .dxnote b { color:var(--choco); }
+
+  /* figure */
+  .dxfig { margin:26px 0; background:#FBF9F8; border:1px solid var(--line); border-radius:10px; padding:20px 18px 14px; }
+  .dxfig svg { display:block; width:100%; height:auto; font-family:inherit; }
+  .dxfig figcaption { font-size:13px; color:#6B6F76; text-align:center; margin-top:12px; }
+
+  /* tables */
+  .dxtb { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px; }
+  .dxtb th { background:var(--choco); color:#fff; font-weight:800; font-size:12.5px;
+             text-align:left; padding:11px 12px; letter-spacing:-0.2px; }
+  .dxtb td { padding:12px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.65; color:#24282D; }
+  .dxtb tbody tr:nth-child(even) td { background:#FAFAFB; }
+  .dxtb td:first-child { font-weight:800; color:var(--choco); white-space:nowrap; }
+  .dxtb .num { font-family:Georgia,serif; font-weight:700; }
+
+  .dxsrc { font-size:12px; color:#8a6f63; line-height:1.9; }
 </style>
 </head>
 <body class="locked">
@@ -238,7 +280,8 @@
 
   <div class="tabs" role="tablist">
     <button type="button" role="tab" id="t-matrix" aria-controls="p-matrix" aria-selected="true">기준 매트릭스 &amp; IP 히스토리</button>
-    <button type="button" role="tab" id="t-diag" aria-controls="p-diag" aria-selected="false">브랜드 진단 및 FOM 역할 규정</button>
+    <button type="button" role="tab" id="t-kr" aria-controls="p-kr" aria-selected="false">브랜드 진단 및 FOM 역할 규정</button>
+    <button type="button" role="tab" id="t-jp" aria-controls="p-jp" aria-selected="false">일본 사례</button>
   </div>
 
   <section class="tpanel" id="p-matrix" role="tabpanel" aria-labelledby="t-matrix">
@@ -296,23 +339,29 @@
 
   </section>
 
-  <section class="tpanel" id="p-diag" role="tabpanel" aria-labelledby="t-diag" hidden>
+  <section class="tpanel" id="p-kr" role="tabpanel" aria-labelledby="t-kr" hidden>
   <div class="dx">
 
   <div class="dxsum">
-    <div><b>1</b><h4>몰라서 안 사는 게 아님</h4><p>존재도 한 달 한정도 이미 앎.<br>이번 달 맛이 <b>안 궁금할</b> 뿐.</p></div>
-    <div><b>2</b><h4>오는 이유는 좋아하는 맛</h4><p>좋아하는 맛 <b>45</b><br>새로운 맛 21.5</p></div>
-    <div><b>3</b><h4>이달의 맛은 객단가 도구</h4><p>성능이 아니라<br><b>객수 도구로 쓴 배치</b>가 문제</p></div>
-    <div><b>4</b><h4>일본과의 차이는 반복</h4><p>같은 IP를 같은 달에.<br><b>오래 팔고 많이 바꿈</b></p></div>
+    <div><b>1</b><h4>6월부터 객수가 꺾였다</h4><p>1~5월 고객 +6.1%<br>6~7월 −2.6%</p></div>
+    <div><b>2</b><h4>꺾인 것은 콘컵이다</h4><p>고객수와 콘컵 r=+0.886<br>이달의 맛 출하율은 +0.303</p></div>
+    <div><b>3</b><h4>오는 이유는 좋아하는 맛</h4><p>좋아하는 맛 45<br>새로운 맛 21.5</p></div>
+    <div><b>4</b><h4>이달의 맛은 객단가 도구</h4><p>성능이 아니라<br>객수 도구로 쓴 배치가 문제</p></div>
   </div>
 
-  <div class="smark first"><i>&gt;</i> 1. 진단 <small>브랜드가 미움받는 게 아니라, 나를 위한 것이 아니게 된 것</small></div>
+  <p class="dxlead">매출은 늘었는데 <b>오는 사람은 줄었습니다.</b>
+  줄어든 것은 매장에서 한 개 먹고 가는 방문이고, 그 자리를 팩 구매가 메우고 있습니다.
+  이달의 맛은 그 흐름을 되돌리는 도구가 아니었는데 객수 목표에 붙어 있었습니다.</p>
+
+  <div class="dxh"><span class="n">1</span><h2>누가, 왜 안 오나</h2><small>브랜드가 미움받는 게 아니라 나를 위한 것이 아니게 된 것</small></div>
 
   <table class="dxtb">
-    <tr><th>누구</th><th>지금 상태</th><th>왜 관심이 없나</th></tr>
+    <thead><tr><th>누구</th><th>지금 상태</th><th>왜 관심이 없나</th></tr></thead>
+    <tbody>
     <tr><td>10~20대</td><td>올 이유가 없음</td><td>요아정·젤라또·체험형 전문점이 자리를 25% 대체</td></tr>
     <tr><td>30~40대</td><td>대리구매자</td><td>내가 먹을 게 아니니 자기 감정이 개입되지 않음</td></tr>
     <tr><td>실제로 먹는 아이</td><td>브랜드 미인식</td><td>제품은 먹지만 ‘배라’라는 인식이 없음</td></tr>
+    </tbody>
   </table>
 
   <p>광고를 늘려도, IP를 붙여도, 신제품을 내도 안 움직임. 세 가지 모두 <span class="hl">이미 살 사람</span>에게 거는 도구이기 때문.</p>
@@ -320,7 +369,10 @@
   <div class="dxpull">심드렁함의 반대는 호감이 아니라 ‘의견’임.<br>
   브랜드가 어떤 입장도 없으면 소비자도 할 말이 없음.</div>
 
-  <div class="smark"><i>&gt;</i> 2. 이달의 맛 <small>몰라서가 아니라 안 궁금해서</small></div>
+  <p>이야깃거리가 되는 조건은 다섯 가지임 — <b>못 구하거나, 의견이 갈리거나, 나만 알거나, 곧 사라지거나, 이해가 안 되거나.</b>
+  현재 커뮤니케이션은 하나도 충족하지 못함.</p>
+
+  <div class="dxh"><span class="n">2</span><h2>몰라서가 아니라 안 궁금해서</h2><small>이달의 맛 인지 구조</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="가정한 순서와 가설 기반 실제 순서">
@@ -363,18 +415,23 @@
   <p>궁금증은 <b>답을 예측할 수 없을 때만</b> 생김. 무엇이 나오든 “새로운 맛 하나”이므로 질문 자체가 생기지 않음.
   같은 이유로 <span class="hl">예측 가능한 한정은 한정이 아님.</span></p>
 
-  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
-    aria-controls="dx-778" data-open="숫자 하나는 해석에 주의 — 77.8%" data-close="닫기"><i>&#9654;</i><span class="tglt">숫자 하나는 해석에 주의 — 77.8%</span></button></div>
-  <div id="dx-778" hidden>
+  <div class="dxq"><span class="qlab">좌담회 · 2026.8.26</span>
+    <dl>
+      <dt>“룰이니까”</dt><dd>이달의 맛을 놓치면 어떠냐는 질문에 — “아쉽지만 어쩔 수 없는” · “없어지는 게 어쩔 수 없는 거라는 걸 아니까”</dd>
+      <dt>“계획해서 갈 만큼 특별하진 않아요”</dt><dd>지나가다 매장 포스터를 보고 들어감. 계획 방문을 만드는 것은 아이스크림 케이크뿐 — “케이크는 전자, 아이스크림 맛은 후자요”</dd>
+      <dt>“얘를 선택해야 되는 마음이 희미해졌어요”</dt><dd>“기억 속에서 희미해지진 않아요. 배스킨라빈스 하면 딱 바로 기억나니까.”</dd>
+    </dl>
+  </div>
+  <div style="margin:6px 0 20px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="kr-778" data-open="숫자 하나는 해석에 주의 — 77.8%" data-close="닫기"><i>&#9654;</i><span class="tglt">숫자 하나는 해석에 주의 — 77.8%</span></button></div>
+  <div id="kr-778" hidden>
     <div class="lead">
       “당월 인지 시 구매 전환 77.8%”는 강력한 수치지만, 당월 이달의 맛을 아는 사람은
       <b>원래 살 마음이 있어 찾아본 사람</b>일 가능성이 큼. 그러면 알아서 산 게 아니라 살 사람이라서 안 것임.
-      이 숫자를 “알리기만 하면 78%가 산다”로 읽으면 앞에서 기각한 ‘더 알리자’로 되돌아감.
+      “알리기만 하면 78%가 산다”로 읽으면 앞에서 기각한 ‘더 알리자’로 되돌아감.
     </div>
   </div>
-
-
-  <div class="smark"><i>&gt;</i> 3. 오는 이유 <small>새로움이 아니라 좋아하는 맛 · 회원 200명 · 2026.06</small></div>
+  <div class="dxh"><span class="n">3</span><h2>오는 이유는 좋아하는 맛</h2><small>회원 200명 · 2026.06 · 복수응답</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="매장 방문 빈도를 늘리는 요소">
@@ -430,7 +487,208 @@
   선택지에 없던 답을 직접 적었고, 특정 맛 이름을 지목했으며, 새 맛이 아니라 <b>사라진 맛</b>을 요구했음.
   존재 여부를 검증할 단계가 아니라 <b>규모를 잴 단계</b>임.</p>
 
-  <div class="smark"><i>&gt;</i> 4. 일본은 어떻게 하나 <small>IP 배치 · 자리 고정 · 진열 회전</small></div>
+  <div class="dxq"><span class="qlab">좌담회 — 좋아하는 맛과 재출시</span>
+    <dl>
+      <dt>“그 맛이 땡길 때는 배라를 가야 되니까”</dt><dd>“제 스테디셀러가 있어가지고” (20대) · “민초는 대체가 안 된다고 생각해가지고 그것 때문에 가고” (30대)</dd>
+      <dt>“돌아왔다는 소식을 접하는 방법이 없어서”</dt><dd>재출시는 이미 하고 있는데 알리지 않아 놓치고 있음 — “위대한 비쵸비, 저거 제발”</dd>
+      <dt>“1등인데도 그거를 안 뽑은 거예요?”</dt><dd>엄마는외계인 이름 짓기에서 1위 미채택 — “본인들이 만들어 놓고서 내친 느낌이 너무 강해서”</dd>
+      <dt>“콘테스트 때는 꼭 가서 먹는데”</dt><dd>같은 사람이 이어서 — “브랜드에서 자체적으로 내는 이달의 맛은 조금 피로하다고 느꼈어요” (30대)</dd>
+      <dt>“하나를 먹을 바에는 하겐다즈를 먹자”</dt><dd>1인 소비의 이탈. 20대 6명 중 배라에서 커피를 마시는 사람 0명</dd>
+      <dt>“술 먹으면 꼭 엄마는외계인을”</dt><dd>남아 있는 1인 방문 하나 — “그 시간에 하는 아이스크림 가게가 배라밖에 없기도 하고 루틴화가 됐다”</dd>
+    </dl>
+  </div>
+  <div class="dxh"><span class="n">4</span><h2>자사 POS 7개월</h2><small>2026년 1~7월 · 전사 · 제품군별 일매출 현황</small></div>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="2026년 월별 고객수와 콘컵 전년비 추이">
+      <text x="0" y="18" font-size="13.5" font-weight="800" fill="#17191C">2026년 월별 전년비 (%) — 고객수와 콘컵</text>
+      <line x1="70" y1="79.6" x2="892" y2="79.6" stroke="#EDEFF1" stroke-width="1"/>
+      <text x="60" y="83.6" font-size="11" fill="#8a6f63" text-anchor="end">+10</text>
+      <line x1="70" y1="135.6" x2="892" y2="135.6" stroke="#B9BEC4" stroke-width="1.4"/>
+      <text x="60" y="139.6" font-size="11" fill="#8a6f63" text-anchor="end">+0</text>
+      <line x1="70" y1="191.6" x2="892" y2="191.6" stroke="#EDEFF1" stroke-width="1"/>
+      <text x="60" y="195.6" font-size="11" fill="#8a6f63" text-anchor="end">-10</text>
+      
+      <rect x="674" y="30" width="290" height="212" fill="#F6C0D2" opacity=".28"/>
+      <text x="806" y="46" font-size="11.5" font-weight="700" fill="#C1123F" text-anchor="middle">6월부터 꺾임</text>
+      <polyline points="80,187.1 212,57.2 344,102.0 476,66.7 608,93.6 740,160.8 872,139.5" fill="none" stroke="#E8447A" stroke-width="2.6"/>
+      <polyline points="80,186.0 212,57.2 344,90.8 476,74.0 608,90.8 740,202.8 872,225.2" fill="none" stroke="#0F6E56" stroke-width="2.6" stroke-dasharray="6 4"/>
+      <circle cx="80" cy="187.1" r="4.5" fill="#E8447A"/><circle cx="80" cy="186.0" r="4.5" fill="#0F6E56"/><circle cx="212" cy="57.2" r="4.5" fill="#E8447A"/><circle cx="212" cy="57.2" r="4.5" fill="#0F6E56"/><circle cx="344" cy="102.0" r="4.5" fill="#E8447A"/><circle cx="344" cy="90.8" r="4.5" fill="#0F6E56"/><circle cx="476" cy="66.7" r="4.5" fill="#E8447A"/><circle cx="476" cy="74.0" r="4.5" fill="#0F6E56"/><circle cx="608" cy="93.6" r="4.5" fill="#E8447A"/><circle cx="608" cy="90.8" r="4.5" fill="#0F6E56"/><circle cx="740" cy="160.8" r="4.5" fill="#E8447A"/><circle cx="740" cy="202.8" r="4.5" fill="#0F6E56"/><circle cx="872" cy="139.5" r="4.5" fill="#E8447A"/><circle cx="872" cy="225.2" r="4.5" fill="#0F6E56"/><text x="80" y="176.1" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">-9.2</text><text x="80" y="205.0" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">-9</text><text x="212" y="46.2" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">+14.0</text><text x="212" y="76.2" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">+14</text><text x="344" y="91.0" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">+6.0</text><text x="344" y="109.8" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">+8</text><text x="476" y="55.7" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">+12.3</text><text x="476" y="93.0" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">+11</text><text x="608" y="82.6" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">+7.5</text><text x="608" y="109.8" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">+8</text><text x="740" y="149.8" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">-4.5</text><text x="740" y="221.8" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">-12</text><text x="872" y="128.5" font-size="10.5" font-weight="700" fill="#E8447A" text-anchor="middle">-0.7</text><text x="872" y="244.2" font-size="10.5" font-weight="700" fill="#0F6E56" text-anchor="middle">-16</text>
+      <text x="80" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">1월</text><text x="212" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">2월</text><text x="344" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">3월</text><text x="476" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">4월</text><text x="608" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">5월</text><text x="740" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">6월</text><text x="872" y="266" font-size="12" fill="#8a6f63" text-anchor="middle">7월</text>
+      <rect x="80" y="282" width="13" height="4" fill="#E8447A"/><text x="100" y="288" font-size="11.5" fill="#8a6f63">고객수</text>
+      <rect x="170" y="282" width="13" height="4" fill="#0F6E56"/><text x="190" y="288" font-size="11.5" fill="#8a6f63">콘컵 수량</text>
+      <text x="330" y="288" font-size="11.5" fill="#17191C">1~5월 평균 고객 +6.1% · 콘컵 +6.4%  →  6~7월 고객 −2.6% · 콘컵 −14.0%</text>
+    </svg>
+    <figcaption>7월만의 현상이 아니라 6월부터 두 달째 이어지는 흐름임</figcaption>
+  </figure>
+
+  <p><b>6월이 변곡점임.</b> 고객수는 1~5월 평균 +6.1%였다가 6~7월 −2.6%로 꺾였고,
+  콘컵은 +6.4%에서 <b>−14.0%</b>로 더 크게 빠짐. 7월 −16%는 여름 특수가 아니라 <b>두 달째 이어지는 흐름</b>임.</p>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 258" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="고객수와 각 지표의 상관계수">
+      <text x="0" y="18" font-size="13.5" font-weight="800" fill="#17191C">고객수와 무엇이 함께 움직이나 (2026년 1~7월 · 전년비 기준)</text>
+      <text x="0" y="69" font-size="13.5" fill="#17191C" font-weight="700">콘컵 수량</text><rect x="200" y="52" width="567" height="24" fill="#0F6E56"/><text x="779" y="69" font-size="13" font-weight="700" fill="#0F6E56">r = +0.886</text><text x="0" y="115" font-size="13.5" fill="#17191C" font-weight="400">음료 수량</text><rect x="200" y="98" width="452" height="24" fill="#7FA69A"/><text x="664" y="115" font-size="13" font-weight="700" fill="#0F6E56">r = +0.706</text><text x="0" y="161" font-size="13.5" fill="#17191C" font-weight="400">케이크</text><rect x="200" y="144" width="446" height="24" fill="#7FA69A"/><text x="658" y="161" font-size="13" font-weight="700" fill="#0F6E56">r = +0.697</text><text x="0" y="207" font-size="13.5" fill="#17191C" font-weight="700">이달의 맛 출하율</text><rect x="200" y="190" width="194" height="24" fill="#B9BEC4"/><text x="406" y="207" font-size="13" font-weight="700" fill="#8a6f63">r = +0.303</text>
+      <line x1="200" y1="240" x2="840" y2="240" stroke="#DCD3CB"/>
+      <text x="200" y="256" font-size="12" fill="#8a6f63">매장에서 먹는 품목은 객수와 함께 움직이고, 이달의 맛 출하율은 거의 무관함 (7개월 표본)</text>
+    </svg>
+    <figcaption>콘컵은 객수의 대리지표로 쓸 수 있고, 이달의 맛은 객수를 설명하지 못함</figcaption>
+  </figure>
+
+  <ul>
+    <li><b>콘컵은 객수의 대리지표로 쓸 수 있음.</b> 고객수와의 상관이 r=+0.886으로 매출(+0.908)에 거의 맞먹음.
+    6월 콘컵이 먼저 꺾이고 고객수가 따라 내려갔으므로 선행 신호로 볼 여지도 있음.</li>
+    <li><b>음료·케이크도 같은 방향</b>(+0.706, +0.697). <span class="hl">매장에서 먹는 품목이 객수와 함께 움직임.</span>
+    음료는 7개월 중 6개월이 마이너스임.</li>
+    <li><b>이달의 맛 출하율은 객수와 거의 무관</b>(r=+0.303). 84개월 분석의 r=−0.018과 같은 결론이 단기에서도 재현됨.</li>
+  </ul>
+
+  <div class="dxnote"><span class="nlab">읽을 때 주의</span>
+    <p><b>4월과 6월이 양 끝임.</b> 4월은 고객 +12.3%에 객단가 −4.4%, 6월은 고객 −4.5%에 객단가 +6.1%. 다만 7개월 전체로 보면 객수와 객단가의 상관은 <b>r=−0.057로 사실상 0</b>이므로, 두 축이 체계적으로 상충한다기보다 <b>월별로 어느 쪽이 이기느냐가 갈리는 구조</b>로 읽는 것이 정확함.</p>
+    <p><b>가장 건강했던 달은 5월</b> — 고객 +7.5%, 객단가 +2.7%, 콘컵 +8%, 음료가 7개월 중 유일하게 +6%. 매장 취식과 팩 구매가 함께 늘어난 달임.</p>
+    <p><b>확인 필요</b> — 6월 전환이 추세인지 전년 기저효과인지는 이 데이터만으로 가릴 수 없음. 2~3년치 콘컵 시계열이 필요함.</p>
+  </div>
+
+  <h3>하반기 신제품이 무너졌음</h3>
+  <table class="dxtb">
+    <thead><tr><th>시기</th><th>이달의 맛</th><th>출하율 · 전년비</th></tr></thead>
+    <tbody>
+    <tr><td>3월</td><td>두바이에서 온 엄마는 외계인</td><td>12.8% · <b>+175%</b></td></tr>
+    <tr><td>4월</td><td>두바이 크런치 봉봉</td><td>7.8% · +43%</td></tr>
+    <tr><td>6월</td><td>우디의 후르츠 어드벤처 / 버즈의 애플 리치 빔</td><td>2.9% · <b>−60%</b> / 2.8% · <b>−61%</b></td></tr>
+    <tr><td>7월</td><td>쵸파의 코튼캔디 크런치 / 고무고무 블루베리 마카롱</td><td>4.0% · −14% / 4.3% · <b>−60%</b></td></tr>
+    </tbody>
+  </table>
+  <p>3~4월은 두바이라는 <b>원료 트렌드</b>였고 6~7월은 전부 <b>캐릭터 IP</b>였음.
+  좌담회의 “이게 아이스크림 광고인지 원피스 광고인지 모르겠다”와 같은 방향으로 읽힘.</p>
+
+  <div class="dxh"><span class="n">5</span><h2>매장 집중도</h2><small>가맹점 1,708개 · 2026년 7월 실매출</small></div>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="가맹점 매출 집중도">
+      <text x="0" y="18" font-size="13.5" font-weight="800" fill="#17191C">상위 매장 비율별 누적 매출 점유율 — 1,708개 · 2026년 7월</text>
+      <polyline points="90,221.0 170,202.0 250,183.0 330,164.0 410,145.0 490,126.0 570,107.0 650,88.0 730,69.0 810,50.0" fill="none" stroke="#B9BEC4" stroke-width="2" stroke-dasharray="5 4"/>
+      <polyline points="90,207.5 170,181.7 250,158.9 330,137.8 410,118.6 490,101.3 570,85.3 650,70.9 730,58.6 810,50.0" fill="none" stroke="#E8447A" stroke-width="2.8"/>
+      <text x="650" y="57" font-size="11.5" font-weight="700" fill="#E8447A">실제</text>
+      <text x="490" y="148" font-size="11.5" font-weight="700" fill="#8a6f63">완전 균등선</text>
+      <line x1="170" y1="181.7" x2="170" y2="240" stroke="#E8447A" stroke-width="1" stroke-dasharray="3 3"/>
+      <circle cx="170" cy="181.7" r="5" fill="#E8447A"/>
+      <text x="182" y="176" font-size="12.5" font-weight="700" fill="#E8447A">상위 20%가 매출의 30.7%</text>
+      <text x="90" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">10%</text><text x="170" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">20%</text><text x="250" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">30%</text><text x="330" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">40%</text><text x="410" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">50%</text><text x="490" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">60%</text><text x="570" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">70%</text><text x="650" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">80%</text><text x="730" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">90%</text><text x="810" y="262" font-size="11" fill="#8a6f63" text-anchor="middle">100%</text>
+      <text x="0" y="286" font-size="12" fill="#8a6f63">지니계수 0.197 · 상위 10%와 하위 10%의 평균 격차는 3.8배뿐 · 매출 절반에 도달하려면 상위 623개 필요</text>
+    </svg>
+    <figcaption>80/20이 아니라 30/20. 상위 300개를 바꿔도 구매 경험의 27.5%에만 닿음</figcaption>
+  </figure>
+
+  <p><b>파레토가 아님.</b> 평균 4,936만원과 중앙값 4,735만원이 거의 같고, 지니계수는 0.197로 집중 기준(0.4)의 절반임.
+  상위 10%와 하위 10%의 격차도 3.8배에 그침.</p>
+
+  <table class="dxtb">
+    <thead><tr><th>대상</th><th>점포 비중</th><th>매출 커버리지</th><th>이 그룹만으로 전사 +3.16% 달성 시 필요 성장률</th></tr></thead>
+    <tbody>
+    <tr><td>상위 200개</td><td>11.7%</td><td>19.5%</td><td class="num">+16.2%</td></tr>
+    <tr><td>상위 300개</td><td>17.6%</td><td><b>27.5%</b></td><td class="num">+11.5%</td></tr>
+    <tr><td>상위 500개</td><td>29.3%</td><td>41.9%</td><td class="num">+7.5%</td></tr>
+    <tr><td>전 매장 균등</td><td>100%</td><td>100%</td><td class="num">+3.16%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="dxnote"><span class="nlab">전제가 성립하지 않음</span>
+    <p><b>“상위 200~300개만 바꾸면 브랜드 전체가 바뀐 것처럼 보인다”는 이 데이터로는 성립하지 않음.</b> 상위 300개를 리뉴얼해도 구매 경험의 27.5%에만 닿고, 점일평균 95→98명(+3.16%)을 그 그룹만으로 달성하려면 <b>+11.5% 성장</b>이 필요해 한 자릿수 목표가 두 자릿수 과제로 바뀜.</p>
+    <p>입지로도 설명되지 않음 — 역·터미널 5,311만 vs 로드사이드 5,010만으로 6% 차이, 팀별 격차도 10% 안쪽임. <b>격차를 만드는 변수가 이 데이터 안에 거의 없다는 것은 개별 점포 특성보다 브랜드 공통 요인이 지배적이라는 신호</b>이며, 그렇다면 처방도 전 매장에 동시에 얹히는 브랜드 층위의 장치여야 함.</p>
+    <p><b>단, 리뉴얼을 접자는 뜻은 아님.</b> 리뉴얼은 다년 계획으로 별도 편성하고, 우선순위는 매출 순위가 아니라 노후도와 상권 성격으로 잡아야 함.</p>
+    <p><b>확인 필요</b> — 이 파일에는 객수가 없어 객단가 차이인지 객수 차이인지 구분되지 않음.</p>
+  </div>
+  <div class="dxh"><span class="n">6</span><h2>FOM 역할 규정</h2><small>도구를 목표에 맞게 재배치</small></div>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="현재 배치와 일본 배치 비교">
+      <text x="0" y="16" font-size="13.5" font-weight="800" fill="#8a6f63">지금 — 하나가 둘을 떠맡음</text>
+      <g font-size="13.5">
+        <rect x="0" y="60" width="180" height="44" fill="#E8447A"/>
+        <text x="90" y="87" text-anchor="middle" font-weight="800" fill="#fff">이달의 맛</text>
+        <path d="M188 72 L318 44" stroke="#DCD3CB" stroke-width="2" stroke-dasharray="5 4"/>
+        <path d="M188 92 L318 118" stroke="#E8447A" stroke-width="2"/>
+        <path d="M318 118 l-10 -3 v9 z" fill="#E8447A"/>
+        <rect x="326" y="24" width="250" height="42" fill="#fff" stroke="#DCD3CB"/>
+        <text x="451" y="50" text-anchor="middle" fill="#B0A79F">오는 사람 수 늘리기(객수)</text>
+        <text x="596" y="50" font-size="12.5" fill="#B0A79F">작동하지 않음</text>
+        <rect x="326" y="98" width="250" height="42" fill="#fff" stroke="#E8447A" stroke-width="1.5"/>
+        <text x="451" y="124" text-anchor="middle" fill="#E8447A">쓰는 돈 늘리기(객단가)</text>
+        <text x="596" y="124" font-size="12.5" fill="#E8447A">여기서는 작동 중</text>
+      </g>
+      <line x1="0" y1="168" x2="940" y2="168" stroke="#EBD9CD"/>
+      <text x="0" y="196" font-size="13.5" font-weight="800" fill="#0F6E56">일본 — 둘로 나눠 둠</text>
+      <g font-size="13.5">
+        <rect x="0" y="210" width="180" height="40" fill="#fff" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="90" y="235" text-anchor="middle" fill="#0F6E56">방문 적립</text>
+        <path d="M188 230 h56" stroke="#0F6E56" stroke-width="2"/>
+        <path d="M244 230 l-9 -5 v10 z" fill="#0F6E56"/>
+        <text x="254" y="235" fill="#000">객수 상승</text>
+        <rect x="470" y="210" width="180" height="40" fill="#fff" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="560" y="235" text-anchor="middle" fill="#0F6E56">구매 적립</text>
+        <path d="M658 230 h56" stroke="#0F6E56" stroke-width="2"/>
+        <path d="M714 230 l-9 -5 v10 z" fill="#0F6E56"/>
+        <text x="724" y="235" fill="#000">객단가 상승</text>
+      </g>
+    </svg>
+    <figcaption>일본은 방문 횟수에 주는 보상과 금액에 주는 보상을 분리해 둠</figcaption>
+  </figure>
+
+  <table class="dxtb">
+    <thead><tr><th>목표</th><th>여기에 맞는 도구</th></tr></thead>
+    <tbody>
+    <tr><td>객단가 상승<br><span style="font-weight:400;color:#8a6f63;font-size:12.5px;">한 명이 쓰는 돈</span></td>
+        <td>이달의 맛, IP·캐릭터 협업, 신제품, 구매 금액 적립, 비싼 상품군</td></tr>
+    <tr><td>객수 상승<br><span style="font-weight:400;color:#8a6f63;font-size:12.5px;">오는 사람 수</span></td>
+        <td>방문 횟수 적립, 좋아하는 맛 장치(투표·재출시·기록), 기념일·가족 쿠폰, 판매 거점 확대, 1인 방문 명분</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>이달의 맛을 객단가 축으로 옮기는 것은 강등이 아니라 원위치임.</b>
+  문제는 성능이 아니라 <span class="hl">객수 도구로 쓴 배치</span>였음.
+  판정 기준은 도구의 종류가 아니라 하나임 — <b>새로운 방문 이유를 만드는가, 이미 온 사람의 장바구니를 키우는가.</b></p>
+
+  <p><b>아직 비어 있는 자리 — 어른이 혼자 갈 이유가 없음.</b> 퇴근길, 야근 후, 주말 오후.
+  이 자리는 현재 편의점과 카페가 가져갔음.</p>
+
+  <div class="dxh"><span class="n">7</span><h2>다음 단계</h2></div>
+
+  <ul>
+    <li><b>콘컵 2~3년 시계열 확보</b> — 6월 전환이 추세인지 전년 기저효과인지 판별. 지금 진단의 가장 큰 미확인 지점</li>
+    <li><b>점포별 POS 객수 결합</b> — 매출만으로는 객수 집중도를 알 수 없음</li>
+    <li><b>콘컵을 객수 선행 지표로 월간 트래킹</b> — 상관 r=+0.886, 6월에 먼저 꺾임</li>
+    <li><b>재출시 고지 체계부터</b> — 이미 하고 있는데 알리지 않아 놓치고 있음. 가장 비용이 낮은 항목</li>
+    <li><b>투표 결과 집행 원칙 명문화</b> — 1위 미채택 전례가 있어 소비자 투표형 장치의 전제조건임</li>
+    <li>객수를 올리는 방법을 실행 단위로 구체화 — 방문 횟수 적립 · 관계형 쿠폰 · 1인 방문 명분</li>
+    <li>신규 유입을 잴 수 있는 조사 설계 — 현 조사는 지난달 방문자만 대상이라 원리적으로 측정 불가</li>
+  </ul>
+
+  <div style="margin:6px 0 20px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="kr-src" data-open="출처" data-close="닫기"><i>&#9654;</i><span class="tglt">출처</span></button></div>
+  <div id="kr-src" hidden>
+    <div class="lead"><span class="dxsrc">제품군별 일매출 현황(MKT) 2026.01~07 마감 ·
+    BR 가맹점 월매출 현황 2026.07(1,708개) · 배스킨라빈스 코리아 고객 구매 행태 조사(회원 200명, 2026.6.17) ·
+    한국리서치 2026년 정기조사 정성 좌담회(2026.8.26, 20대 대학생 6명 / 30대 직장인 6명)</span></div>
+  </div>
+  </div>
+  </section>
+
+  <section class="tpanel" id="p-jp" role="tabpanel" aria-labelledby="t-jp" hidden>
+  <div class="dx">
+
+  <div class="dxsum">
+    <div><b>1</b><h4>IP는 몰아 쓴다</h4><p>IP가 주인공인 달은 6~9월 넉 달<br>나머지는 자기 맛으로 버팀</p></div>
+    <div><b>2</b><h4>자리를 고정한다</h4><p>8월은 8년째 포켓몬<br>기간은 한 달로 우리와 같음</p></div>
+    <div><b>3</b><h4>오래 팔고 많이 바꾼다</h4><p>늘 파는 맛 21칸<br>매달 바뀌는 맛 10칸</p></div>
+    <div><b>4</b><h4>적립을 둘로 나눈다</h4><p>온 횟수에 주는 보상과<br>쓴 금액에 주는 보상을 분리</p></div>
+  </div>
+
+  <p class="dxlead">일본에서 가져올 것은 <b>개별 성과가 아니라 설계</b>입니다.
+  기능별 효과 수치는 공개된 적이 없고, 같은 기간에 IP 협업·전 매장 리뉴얼·가격 인상이 함께 진행됐습니다.
+  인용해야 할 것은 <b>객수 장치와 객단가 장치를 따로 두었다는 구조</b>입니다.</p>
+
+  <div class="dxh"><span class="n">1</span><h2>IP를 몰아 쓴다</h2><small>연간 배치 비교 · 일본 2026 vs 한국 2025</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="일본과 한국의 연간 IP 배치 비교">
@@ -513,16 +771,41 @@
   </figure>
 
   <p><b>IP를 안 쓰는 게 아니라 역할을 나눔.</b> IP 이름이 캠페인 이름이 되는 달은 6~9월 네 달뿐이고,
-  1~5월·10월은 딸기·사쿠라·세계 스위츠·총선거·할로윈을 자기 맛으로 굴림.
-  우리는 92개월 중 <b>78개월이 외부 IP가 주인공</b>임.</p>
+  1~5월·10월은 딸기·사쿠라·세계 스위츠·총선거·할로윈을 자기 맛으로 굴림.</p>
 
-  <div class="dxnote">
-    <b>총선거형 시도는 이미 국내에 있었음.</b> 2025년 10월 말차다미아는 <b>소비자 참여 맛 콘테스트 입상작</b>임.
-    2025년 열두 달 중 우리 맛이 주인공이었던 유일한 달이고, 그 한 달이 <b>소비자가 뽑은 맛</b>이었음.
-    일본 총선거와 같은 계열의 장치가 이미 작동한 전례가 있다는 뜻이며,
-    새로 만들 것이 아니라 <span class="hl">연 1회 행사로 자리를 고정하고 재출시까지 잇는 문제</span>임.
-    <br><span class="dxsrc">※ 콘테스트 공식 명칭과 회차·응모 규모는 내부 자료로 확인 필요.</span>
+  <ul>
+    <li><b>주인공 — 6·7·8·9월.</b> 캠페인 이름 자체가 IP 이름. 새 맛·선데이·드링크·케이크·굿즈가 전부 그 IP로 묶임.</li>
+    <li><b>조연 — 11~12월.</b> 주인공은 크리스마스이고 IP는 아이스크림 케이크 한 품목에만 얹힘.</li>
+    <li><b>없음 — 1~5월·10월.</b> 배라 자기 맛으로 굴림.</li>
+  </ul>
+
+  <div class="dxnote"><span class="nlab">한국과의 대비</span>
+    <p>우리는 92개월 중 외부 IP가 붙지 않은 ‘자체’ 달이 <b>14개월뿐</b>임(옆 탭 IP 히스토리). 나머지 78개월은 캐릭터·원료·셀럽이 매달 주인공 자리를 차지함. <b>IP를 몰아 쓰는 게 아니라 늘 쓰고 있고, 그래서 우리 맛이 주인공이 되는 달이 거의 없음.</b></p>
+    <p><b>총선거형 시도는 이미 국내에 있었음</b> — 2025년 10월 말차다미아는 소비자 참여 맛 콘테스트 입상작이며, 우리 맛이 주인공이었던 유일한 달임. 새로 만들 것이 아니라 연 1회 행사로 자리를 고정하고 재출시까지 잇는 문제. <span class="dxsrc">※ 콘테스트 공식 명칭·회차·응모 규모는 내부 자료로 확인 필요.</span></p>
   </div>
+  <div style="margin:6px 0 20px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="jp-cal" data-open="2026년 캠페인 목록 · 캠페인 이름의 성격" data-close="닫기"><i>&#9654;</i><span class="tglt">2026년 캠페인 목록 · 캠페인 이름의 성격</span></button></div>
+  <div id="jp-cal" hidden>
+    <table class="dxtb">
+      <thead><tr><th>시기</th><th>2026년 캠페인</th><th>유형</th></tr></thead>
+      <tbody>
+      <tr><td>1월</td><td>스트로베리 &amp; 초콜릿 컬렉션 (1.9~2.18) · 후쿠부쿠로</td><td>배라 자체 기획</td></tr>
+      <tr><td>2~3월</td><td>사쿠라사쿠라 (2.19~3.31)</td><td>배라 자체 기획</td></tr>
+      <tr><td>4월</td><td>플레이버 총선거 (4.2~4.30) · 스프링&amp;서머 크레페</td><td>배라 자체 맛으로 만든 행사</td></tr>
+      <tr><td>5월</td><td>세계의 스위츠 플레이버즈 (5.8~5.31)</td><td>배라 자체 기획</td></tr>
+      <tr><td>6월</td><td>드래곤퀘스트 40주년 (6.1~6.30)</td><td>외부 IP</td></tr>
+      <tr><td>7월</td><td>동물의 숲 (7.1~) ※2025년은 슈퍼마리오</td><td>외부 IP</td></tr>
+      <tr><td>8월</td><td>포켓몬 “31포케나츠” (8.1~8.31)</td><td>외부 IP · 8년차</td></tr>
+      <tr><td>9월</td><td>밀키(후지야) “milky Wonderland” (9.1~)</td><td>외부 IP · 식품 브랜드</td></tr>
+      <tr><td>10월</td><td>할로윈 한정 플레이버·선데이</td><td>배라 자체 기획</td></tr>
+      <tr><td>11~12월</td><td>크리스마스 (11.1~12.25) · 캐릭터 아이스케이크</td><td>배라 자체 기획 · IP는 케이크에만</td></tr>
+      </tbody>
+    </table>
+    <div class="lead">“31포케나츠”, “세계의 스위츠 플레이버즈”, “사쿠라사쿠라”는 모두 <b>제품명이 아니라 캠페인명</b>이고,
+    그 안에 새 맛·선데이·드링크·케이크·굿즈가 함께 들어감.
+    일본의 캠페인명은 <b>매년 돌아오는 그릇</b>이고 우리의 이달의 맛 이름은 <b>매달 사라지는 제품</b>임.</div>
+  </div>
+  <div class="dxh"><span class="n">2</span><h2>자리는 고정하고 타이틀만 바꾼다</h2><small>여름 두 달의 4년치</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="여름 슬롯 고정 구조">
@@ -547,7 +830,10 @@
     <figcaption>자리를 고정하니 IP가 뉴스가 아니라 매년 돌아오는 행사가 됨</figcaption>
   </figure>
 
-  <p>자리를 고정하니 “여름이면 배라에 포켓몬”이 학습됨. 4월 총선거, 10월 할로윈, 11~12월 크리스마스도 매년 같은 자리임.</p>
+  <p>캠페인 기간은 <b>한 달로 우리와 다르지 않음.</b> 마리오 2025는 7/1~7/31, 포켓몬은 8/1~8/31.
+  차이는 길이가 아니라 <span class="hl">반복</span>임. 4월 총선거, 10월 할로윈, 11~12월 크리스마스도 매년 같은 자리.</p>
+
+  <div class="dxh"><span class="n">3</span><h2>오래 팔고 많이 바꾼다</h2><small>쇼케이스 31칸 구성</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="쇼케이스 31칸 구성 비교">
@@ -629,8 +915,15 @@
     <figcaption>일본은 오래 팔면서 많이 바꾸고, 우리는 빨리 없애면서 조금만 바꿈</figcaption>
   </figure>
 
+  <ul>
+    <li><b>일본</b> — 늘 파는 맛 21칸 + 매달 바뀌는 맛 10칸. 새 맛은 매달 1일에 나와 <b>몇 달간 계속 팜.</b></li>
+    <li><b>한국</b> — 이달의 맛 월 1종, <b>당월 한 달만.</b></li>
+  </ul>
+
   <p>새로 나오는 맛 개수는 월 1종 내외로 비슷함. 다른 것은 <b>얼마나 오래 파는가</b>와 <b>갈 때마다 몇 칸이 바뀌는가</b>.
   일본은 서두르게 만드는 대신 <span class="hl">고를 게 많게</span> 해서 다시 오게 함.</p>
+
+  <div class="dxh"><span class="n">4</span><h2>취향을 순환시킨다</h2><small>기록 → 순위 → 재출시</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="취향 순환 구조">
@@ -656,34 +949,17 @@
     <figcaption>취향을 말하게 하고, 순위를 매기고, 이긴 맛을 되살림</figcaption>
   </figure>
 
-  <p>2025년 총선거 1위 러브포션31은 12월 27일 강화판으로 출시됐고, 기간한정 상위 4위까지 2026년 순차 판매가 발표됨.
-  투표한 사람이 <b>“내가 뽑은 게 진짜로 나왔다”</b>를 확인하게 됨.</p>
+  <ul>
+    <li>가장 많이 팔린 맛은 늘 <b>늘 파는 기본 맛</b>이었음. 포핑샤워가 2008~2021년 13년 연속 매출 1위.</li>
+    <li><b>맛 인기투표</b>를 매년 개최. 2026년 5회차에 <b>70만 5,971표</b>(전년 58만표). 1위 러브포션31이 6만 9,318표로 3연패.</li>
+    <li>전 세계 1,400종 넘는 맛 중 100종이 후보로 오르고, <b>없어진 한정 맛 상위 3종은 다음 해 재출시.</b></li>
+    <li>2025년 1위 러브포션31은 12월 27일 강화판으로 출시됐고, 기간한정 상위 4위까지 2026년 순차 판매가 함께 발표됨.</li>
+  </ul>
 
-  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
-    aria-controls="dx-jpcal" data-open="2026년 캠페인 목록 · 캠페인 이름의 성격" data-close="닫기"><i>&#9654;</i><span class="tglt">2026년 캠페인 목록 · 캠페인 이름의 성격</span></button></div>
-  <div id="dx-jpcal" hidden>
-    <table class="dxtb">
-      <tr><th>시기</th><th>2026년 캠페인</th><th>유형</th></tr>
-      <tr><td>1월</td><td>스트로베리 &amp; 초콜릿 컬렉션 (1.9~2.18) · 후쿠부쿠로</td><td>배라 자체 기획</td></tr>
-      <tr><td>2~3월</td><td>사쿠라사쿠라 (2.19~3.31)</td><td>배라 자체 기획</td></tr>
-      <tr><td>4월</td><td><b>플레이버 총선거</b> (4.2~4.30) · 스프링&amp;서머 크레페</td><td>배라 자체 맛으로 만든 행사</td></tr>
-      <tr><td>5월</td><td>세계의 스위츠 플레이버즈 (5.8~5.31)</td><td>배라 자체 기획</td></tr>
-      <tr><td>6월</td><td>드래곤퀘스트 40주년 (6.1~6.30)</td><td><b>외부 IP</b></td></tr>
-      <tr><td>7월</td><td>동물의 숲 (7.1~) ※2025년은 슈퍼마리오</td><td><b>외부 IP</b></td></tr>
-      <tr><td>8월</td><td>포켓몬 “31포케나츠” (8.1~8.31)</td><td><b>외부 IP</b> · 8년차</td></tr>
-      <tr><td>9월</td><td>밀키(후지야) “milky Wonderland” (9.1~)</td><td><b>외부 IP</b> · 식품 브랜드</td></tr>
-      <tr><td>10월</td><td>할로윈 한정 플레이버·선데이</td><td>배라 자체 기획</td></tr>
-      <tr><td>11~12월</td><td>크리스마스 (11.1~12.25) · 캐릭터 아이스케이크</td><td>배라 자체 기획<br><span class="dxsrc">IP는 케이크에만 얹힘</span></td></tr>
-    </table>
-    <div class="lead">
-      “31포케나츠”, “세계의 스위츠 플레이버즈”, “사쿠라사쿠라”는 모두 <b>제품명이 아니라 캠페인명</b>이고,
-      그 안에 새 맛·선데이·드링크·케이크·굿즈가 함께 들어감.
-      일본의 캠페인명은 <b>매년 돌아오는 그릇</b>이고 우리의 이달의 맛 이름은 <b>매달 사라지는 제품</b>임.
-    </div>
-  </div>
+  <p>투표가 행사로 끝나지 않고 <b>다음 해 출시 일정으로 그대로 이어짐.</b>
+  투표한 사람이 <span class="hl">“내가 뽑은 게 진짜로 나왔다”</span>를 확인하게 됨.</p>
 
-
-  <div class="smark"><i>&gt;</i> 5. 일본 앱의 적립 <small>객수와 객단가를 아예 분리해 둠</small></div>
+  <div class="dxh"><span class="n">5</span><h2>적립을 둘로 나눈다</h2><small>객수와 객단가에 각각 다른 장치</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="일본 앱의 두 가지 적립 구조">
@@ -742,7 +1018,7 @@
   <p>생일 쿠폰도 같은 장치임. 2년차부터 최근 1년 구매 기록이 없으면 끊는 게 아니라
   <b>“1개 사면 1개 무료”로 낮춤</b> — 1년에 한 번은 오게 만드는 조건.</p>
 
-  <div class="smark"><i>&gt;</i> 6. 실제 효과 <small>2025년 12월기 결산 · 모두 일본 시장 수치</small></div>
+  <div class="dxh"><span class="n">6</span><h2>실제 효과</h2><small>2025년 12월기 결산 · 모두 일본 시장 수치</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="매장당 매출과 회원 매출 비중 추이">
@@ -783,6 +1059,9 @@
     <figcaption>매장을 늘려서가 아니라 매장 하나의 힘을 키워 성장했고, 그 절반 가까이가 앱 회원에게서 나옴</figcaption>
   </figure>
 
+  <p>매장 수는 4.5% 느는 동안 <b>매장당 매출이 약 60% 올랐음.</b>
+  성장의 출처는 매장 확대가 아니라 매장 하나의 생산성이고, 그 절반 가까이가 앱 회원에게서 나옴.</p>
+
   <figure class="dxfig">
     <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="기존점 성장의 객수와 객단가 분해">
       <rect x="330" y="14" width="280" height="46" fill="#000"/>
@@ -810,14 +1089,12 @@
     <figcaption>양쪽 다 늘었다는 근거는 있지만, <b>회사는 몇 대 몇인지 공개하지 않음</b></figcaption>
   </figure>
 
-  <p>매장 수는 4.5% 느는 동안 <b>매장당 매출이 약 60% 올랐음.</b> 성장의 출처는 매장 확대가 아니라 매장 하나의 생산성이고,
-  그 절반 가까이가 앱 회원에게서 나옴.</p>
-
-  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
-    aria-controls="dx-jpfig" data-open="2025년 실적 수치 전체" data-close="닫기"><i>&#9654;</i><span class="tglt">2025년 실적 수치 전체</span></button></div>
-  <div id="dx-jpfig" hidden>
+  <div style="margin:6px 0 20px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="jp-fig" data-open="2025년 실적 수치 전체" data-close="닫기"><i>&#9654;</i><span class="tglt">2025년 실적 수치 전체</span></button></div>
+  <div id="jp-fig" hidden>
     <table class="dxtb">
-      <tr><th>항목</th><th>2025년 실적</th></tr>
+      <thead><tr><th>항목</th><th>2025년 실적</th></tr></thead>
+      <tbody>
       <tr><td>일본 내 총 소매매출</td><td><b>679억엔</b> — 4년 연속 최고</td></tr>
       <tr><td>기존점 매출</td><td>전년 대비 <b>+6.8%</b></td></tr>
       <tr><td>매장당 연매출</td><td><b>6,449만엔</b> (2021년 4,040만엔)</td></tr>
@@ -826,96 +1103,34 @@
       <tr><td>회원 매출 비중</td><td>전체의 <b>43.2%</b> (전년 38.1%)</td></tr>
       <tr><td>모바일오더</td><td>매출 비중 11%, 전년 대비 +82%</td></tr>
       <tr><td>앱 온보딩</td><td>가입 첫 달 구매율 전년 대비 약 25% 개선<br>감사 알림 → 앱 재실행 약 9.8배 · 쿠폰 알림 → 사용률 약 2.5배</td></tr>
+      </tbody>
     </table>
   </div>
+  <div class="dxh"><span class="n">7</span><h2>우리에게 옮길 때</h2><small>인용의 원칙</small></div>
 
-
-  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
-    aria-controls="dx-caution" data-open="인용할 때 주의할 것 네 가지" data-close="닫기"><i>&#9654;</i><span class="tglt">인용할 때 주의할 것 네 가지</span></button></div>
-  <div id="dx-caution" hidden>
-    <div class="lead">
-      ① 회사는 <b>객수와 객단가를 나눈 수치를 공개하지 않음.</b> 기존점 +6.8%가 각각 얼마씩인지는 알 수 없음.<br>
-      ② 방문 적립·맛 기록·가족 등록의 <b>기능별 효과 수치도 비공개.</b> 공개된 것은 앱 내부 지표뿐임.<br>
-      ③ 회원 매출 비중 43.2%는 <b>회원이 차지한 몫이지 앱이 만든 증분이 아님.</b><br>
-      ④ 같은 기간 마리오·포켓몬 협업, 전 매장의 89%(952점) 리뉴얼, 판매 거점 확대(총 1,556곳)가 함께 진행됨.<br><br>
-      회사가 반기 자료에 적은 “캐릭터 협업, 디지털 광고와 앱 고지 강화, 케이크 신카테고리 호조로 내점객 수가 증가”는
-      <b>세 가지를 늘어놓고 결과를 갖다 붙인 설명</b>이지 기여도를 나눈 수치가 아님. 객수 근거로 그대로 쓰면 안 됨.<br><br>
-      참고 — 매월 31일 더블 31% 할인 “사티원의 날”은 2021년 1월 종료, 대체판도 2024년 2월 종료.
-      혜택 축을 앱 적립으로 옮긴 뒤에도 기존점이 43개월 연속 성장함. 다만 종료 사유가 매장 혼잡과 코로나 대응이었던 점은 함께 밝혀야 함.
-    </div>
+  <div class="dxnote"><span class="nlab">인용 시 반드시 함께 밝힐 것</span>
+    <p>① 회사는 <b>객수와 객단가를 나눈 수치를 공개하지 않음.</b> 기존점 +6.8%가 각각 얼마씩인지는 알 수 없음.</p>
+    <p>② 방문 적립·맛 기록·가족 등록의 <b>기능별 효과 수치도 비공개.</b> 공개된 것은 앱 내부 지표뿐임.</p>
+    <p>③ 회원 매출 비중 43.2%는 <b>회원이 차지한 몫이지 앱이 만든 증분이 아님.</b> 회원 수가 늘면 자동으로 오르는 지표임.</p>
+    <p>④ 같은 기간 마리오·포켓몬 협업, 전 매장의 89%(952점) 리뉴얼, 판매 거점 확대(총 1,556곳)가 함께 진행됨.</p>
+    <p>회사가 반기 자료에 적은 “캐릭터 협업, 디지털 광고와 앱 고지 강화, 케이크 신카테고리 호조로 내점객 수가 증가”는 <b>세 가지를 늘어놓고 결과를 갖다 붙인 설명</b>이지 기여도를 나눈 수치가 아님. 객수 근거로 그대로 쓰면 안 됨.</p>
   </div>
 
+  <p>따라서 가져올 것은 개별 성과가 아니라 <b>구조임.</b>
+  일본은 객수를 올리는 장치와 객단가를 올리는 장치를 따로 두고 각각에 별도 KPI를 붙여 관리하고 있음.
+  <span class="hl">다만 맛 인기투표의 70만 표는 예외적으로 성과로 인용 가능함</span> — 참여자 수 자체가 결과이고 58만 → 70만 추이까지 공개돼 있음.</p>
 
-  <div class="smark"><i>&gt;</i> 7. FOM 역할 규정 <small>도구를 목표에 맞게 재배치</small></div>
-
-  <figure class="dxfig">
-    <svg viewBox="0 0 940 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="현재 배치와 일본 배치 비교">
-      <text x="0" y="16" font-size="13.5" font-weight="800" fill="#8a6f63">지금 — 하나가 둘을 떠맡음</text>
-      <g font-size="13.5">
-        <rect x="0" y="60" width="180" height="44" fill="#E8447A"/>
-        <text x="90" y="87" text-anchor="middle" font-weight="800" fill="#fff">이달의 맛</text>
-        <path d="M188 72 L318 44" stroke="#DCD3CB" stroke-width="2" stroke-dasharray="5 4"/>
-        <path d="M188 92 L318 118" stroke="#E8447A" stroke-width="2"/>
-        <path d="M318 118 l-10 -3 v9 z" fill="#E8447A"/>
-        <rect x="326" y="24" width="250" height="42" fill="#fff" stroke="#DCD3CB"/>
-        <text x="451" y="50" text-anchor="middle" fill="#B0A79F">오는 사람 수 늘리기(객수)</text>
-        <text x="596" y="50" font-size="12.5" fill="#B0A79F">작동하지 않음</text>
-        <rect x="326" y="98" width="250" height="42" fill="#fff" stroke="#E8447A" stroke-width="1.5"/>
-        <text x="451" y="124" text-anchor="middle" fill="#E8447A">쓰는 돈 늘리기(객단가)</text>
-        <text x="596" y="124" font-size="12.5" fill="#E8447A">여기서는 작동 중</text>
-      </g>
-      <line x1="0" y1="168" x2="940" y2="168" stroke="#EBD9CD"/>
-      <text x="0" y="196" font-size="13.5" font-weight="800" fill="#0F6E56">일본 — 둘로 나눠 둠</text>
-      <g font-size="13.5">
-        <rect x="0" y="210" width="180" height="40" fill="#fff" stroke="#0F6E56" stroke-width="1.5"/>
-        <text x="90" y="235" text-anchor="middle" fill="#0F6E56">방문 적립</text>
-        <path d="M188 230 h56" stroke="#0F6E56" stroke-width="2"/>
-        <path d="M244 230 l-9 -5 v10 z" fill="#0F6E56"/>
-        <text x="254" y="235" fill="#000">객수 상승</text>
-        <rect x="470" y="210" width="180" height="40" fill="#fff" stroke="#0F6E56" stroke-width="1.5"/>
-        <text x="560" y="235" text-anchor="middle" fill="#0F6E56">구매 적립</text>
-        <path d="M658 230 h56" stroke="#0F6E56" stroke-width="2"/>
-        <path d="M714 230 l-9 -5 v10 z" fill="#0F6E56"/>
-        <text x="724" y="235" fill="#000">객단가 상승</text>
-      </g>
-    </svg>
-    <figcaption>일본은 방문 횟수에 주는 보상과 금액에 주는 보상을 분리해 둠</figcaption>
-  </figure>
-
-  <table class="dxtb">
-    <tr><th>목표</th><th>여기에 맞는 도구</th></tr>
-    <tr><td><b>객단가 상승</b><br>한 명이 쓰는 돈</td><td>이달의 맛, IP·캐릭터 협업, 신제품, 구매 금액 적립, 비싼 상품군</td></tr>
-    <tr><td><b>객수 상승</b><br>오는 사람 수</td><td>방문 횟수 적립, 좋아하는 맛 장치(투표·재출시·기록), 기념일·가족 쿠폰, 판매 거점 확대, 1인 방문 명분</td></tr>
-  </table>
-
-  <p><b>이달의 맛을 객단가 축으로 옮기는 것은 강등이 아니라 원위치임.</b>
-  문제는 성능이 아니라 <span class="hl">객수 도구로 쓴 배치</span>였음.
-  단, 판정 기준은 도구의 종류가 아니라 하나임 — <b>새로운 방문 이유를 만드는가, 이미 온 사람의 장바구니를 키우는가.</b>
-  IP를 방문 이유가 될 만한 반복 구조로 운용하면 객수 열로 옮겨감.</p>
-
-  <p><b>아직 비어 있는 자리 — 어른이 혼자 갈 이유가 없음.</b> 퇴근길, 야근 후, 주말 오후 혼자.
-  이 자리는 현재 편의점과 카페가 가져갔음.</p>
-
-  <div class="smark"><i>&gt;</i> 8. 다음 단계</div>
-  <ul>
-    <li>우리 쇼케이스 31칸 중 <b>실제로 도는 칸이 몇 개인지</b> 확인 — 위 31칸 그림의 빈자리</li>
-    <li>객수를 올리는 방법을 실행 단위로 구체화</li>
-    <li>이달의 맛이 전체 매출에 기여하는 정도의 산정 방법 설계</li>
-    <li>신규 유입을 잴 수 있는 조사 설계 — 현 조사는 지난달 방문자만 대상이라 유입 측정이 원리적으로 불가</li>
-    <li>재출시를 어떤 규모와 주기로 운영할지 설계</li>
-    <li>브랜드가 취향에 대해 어떤 입장을 가질지 정의</li>
-  </ul>
-
-  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
-    aria-controls="dxsrc" data-open="출처" data-close="닫기"><i>&#9654;</i><span class="tglt">출처</span></button></div>
-  <div id="dxsrc" hidden>
+  <div class="dxnote"><span class="nlab">참고 — 할인 카드를 접었음</span>
+    <p>매월 31일 더블 31% 할인 “사티원의 날”은 2021년 1월 종료, 대체판도 2024년 2월 종료. 혜택 축을 앱 적립으로 옮긴 뒤에도 기존점이 43개월 연속 성장함. 우리 조사에서 방문 빈도 1위 요소는 할인 70%이므로 <b>할인이 유일한 객수 수단은 아니라는 반례</b>로 쓸 수 있음. 다만 종료 사유가 매장 혼잡과 코로나 대응이었던 점은 함께 밝혀야 함.</p>
+  </div>
+  <div style="margin:6px 0 20px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="jp-src" data-open="출처" data-close="닫기"><i>&#9654;</i><span class="tglt">출처</span></button></div>
+  <div id="jp-src" hidden>
     <div class="lead"><span class="dxsrc">일본 배스킨라빈스 2025년 12월기 결산설명자료(2026.2.9) 및 2025년 상반기 결산설명자료 ·
     회사 IR 장기경영계획 자료 · 앱 운영사(리프로) 도입사례 및 보도자료(2023.8, 2024.8) ·
     일본 인터넷경제신문(2024.9) · 앱스토어 업데이트 이력 · 맛 인기투표 2026 결과 발표(2026.5, 오리콘·산요신문) ·
-    일본경제신문 2025년 실적 기사(2026.2) · 배스킨라빈스 코리아 고객 구매 행태 조사(회원 200명, 2026.6.17)</span></div>
+    일본경제신문 2025년 실적 기사(2026.2)</span></div>
   </div>
-
-
   </div>
   </section>
 
