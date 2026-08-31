@@ -208,6 +208,13 @@
   .dxtb { width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
   .dxtb th, .dxtb td { text-align:left; padding:10px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
   .dxtb th { font-weight:800; border-bottom:1.5px solid var(--choco); font-size:12.5px; }
+
+  .dxsum { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:8px 0 34px; }
+  .dxsum > div { border-top:3px solid var(--berry); padding:12px 0 0; }
+  .dxsum b { font-family:Georgia,serif; font-style:italic; font-size:15px; color:var(--berry); }
+  .dxsum h4 { font-size:14.5px; font-weight:800; margin:4px 0 6px; letter-spacing:-0.3px; }
+  .dxsum p { font-size:12.5px; line-height:1.7; color:#8a6f63; margin:0; }
+  @media (max-width:900px){ .dxsum { grid-template-columns:repeat(2,1fr); } }
   .dxsrc { font-size:11.5px; color:#8a6f63; line-height:1.9; }
 </style>
 </head>
@@ -292,29 +299,28 @@
   <section class="tpanel" id="p-diag" role="tabpanel" aria-labelledby="t-diag" hidden>
   <div class="dx">
 
-  <div class="smark first"><i>&gt;</i> 진단 <small>브랜드가 미움받는 게 아니라, 나를 위한 것이 아니게 된 것</small></div>
+  <div class="dxsum">
+    <div><b>1</b><h4>몰라서 안 사는 게 아님</h4><p>존재도 한 달 한정도 이미 앎.<br>이번 달 맛이 <b>안 궁금할</b> 뿐.</p></div>
+    <div><b>2</b><h4>오는 이유는 좋아하는 맛</h4><p>좋아하는 맛 <b>45</b><br>새로운 맛 21.5</p></div>
+    <div><b>3</b><h4>이달의 맛은 객단가 도구</h4><p>성능이 아니라<br><b>객수 도구로 쓴 배치</b>가 문제</p></div>
+    <div><b>4</b><h4>일본과의 차이는 반복</h4><p>같은 IP를 같은 달에.<br><b>오래 팔고 많이 바꿈</b></p></div>
+  </div>
+
+  <div class="smark first"><i>&gt;</i> 1. 진단 <small>브랜드가 미움받는 게 아니라, 나를 위한 것이 아니게 된 것</small></div>
 
   <table class="dxtb">
-    <tr><th>누구</th><th>지금 상태</th><th>왜 브랜드에 관심이 없나</th></tr>
+    <tr><th>누구</th><th>지금 상태</th><th>왜 관심이 없나</th></tr>
     <tr><td>10~20대</td><td>올 이유가 없음</td><td>요아정·젤라또·체험형 전문점이 자리를 25% 대체</td></tr>
     <tr><td>30~40대</td><td>대리구매자</td><td>내가 먹을 게 아니니 자기 감정이 개입되지 않음</td></tr>
     <tr><td>실제로 먹는 아이</td><td>브랜드 미인식</td><td>제품은 먹지만 ‘배라’라는 인식이 없음</td></tr>
   </table>
 
-  <p>그래서 <b>커뮤니케이션 볼륨을 늘려도, IP를 붙여도, 신제품을 내도 잘 안 움직임.</b>
-  세 가지 모두 <span class="hl">이미 살 사람</span>에게 거는 도구이기 때문.</p>
+  <p>광고를 늘려도, IP를 붙여도, 신제품을 내도 안 움직임. 세 가지 모두 <span class="hl">이미 살 사람</span>에게 거는 도구이기 때문.</p>
 
   <div class="dxpull">심드렁함의 반대는 호감이 아니라 ‘의견’임.<br>
-  브랜드가 어떤 입장도 없으면 소비자도 브랜드에 대해 할 말이 없음.</div>
+  브랜드가 어떤 입장도 없으면 소비자도 할 말이 없음.</div>
 
-  <p>이야깃거리가 되는 조건은 다섯 가지임. <b>못 구하거나, 의견이 갈리거나, 나만 알거나, 곧 사라지거나, 이해가 안 되거나.</b>
-  현재 커뮤니케이션은 하나도 충족하지 못함. 반박할 수 없는 안전한 말은 안전하게 잊힘.</p>
-
-  <div class="smark"><i>&gt;</i> FOM 인지 <small>몰라서가 아니라 안 궁금해서</small></div>
-
-  <p>원래 가정은 두 갈래였음. <b>이달의 맛이 있는 줄 모른다, 그리고 이번 달만 파는 줄 모른다.</b>
-  둘 다 사실이 아니었음. 소비자는 존재도 한정 판매라는 것도 이미 정확히 알고 있음.
-  모르는 것은 <b>이번 달 맛이 무엇인가</b> 하나뿐이며, 그것을 아는 비율이 48.6%에 그침.</p>
+  <div class="smark"><i>&gt;</i> 2. 이달의 맛 <small>몰라서가 아니라 안 궁금해서</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="가정한 순서와 가설 기반 실제 순서">
@@ -351,20 +357,24 @@
     <figcaption>가정 두 개는 기각됨. 아래 흐름은 남은 데이터로 세운 가설이며 검증 대상임</figcaption>
   </figure>
 
-  <p>궁금증은 <b>답을 예측할 수 없을 때만</b> 생김. 지금은 내용은 몰라도 <b>답의 성격은 이미 알고 있음.</b>
-  무엇이 나오든 “새로운 맛 하나”이므로, 알맹이는 몰라도 종류를 아는 상태에서는 질문 자체가 발생하지 않음.</p>
+  <p>가정 두 개는 기각됨. 소비자는 <b>존재도 한 달 한정도 이미 정확히 알고 있음.</b>
+  모르는 것은 이번 달 맛이 무엇인가 하나뿐이고, 그것을 아는 비율이 48.6%임.</p>
 
-  <p>같은 이유로 <b>“이번 달만 판다”도 힘이 없음.</b> 다음 달에 또 나온다는 걸 알기 때문에 이번 달을 놓쳐도 손실이 아님.
-  <span class="hl">예측 가능한 한정은 한정이 아님.</span></p>
+  <p>궁금증은 <b>답을 예측할 수 없을 때만</b> 생김. 무엇이 나오든 “새로운 맛 하나”이므로 질문 자체가 생기지 않음.
+  같은 이유로 <span class="hl">예측 가능한 한정은 한정이 아님.</span></p>
 
-  <div class="dxnote">
-    <b>숫자 하나는 해석에 주의.</b> “당월 FOM 인지 시 구매 전환 77.8%”는 강력한 수치지만,
-    당월 FOM을 아는 사람은 <b>원래 살 마음이 있어 찾아본 사람</b>일 가능성이 큼.
-    그러면 알아서 산 게 아니라 살 사람이라서 안 것임.
-    이 숫자를 “알리기만 하면 78%가 산다”로 읽으면 앞에서 기각한 ‘더 알리자’로 되돌아감.
+  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="dx-778" data-open="숫자 하나는 해석에 주의 — 77.8%" data-close="닫기"><i>&#9654;</i><span class="tglt">숫자 하나는 해석에 주의 — 77.8%</span></button></div>
+  <div id="dx-778" hidden>
+    <div class="lead">
+      “당월 인지 시 구매 전환 77.8%”는 강력한 수치지만, 당월 이달의 맛을 아는 사람은
+      <b>원래 살 마음이 있어 찾아본 사람</b>일 가능성이 큼. 그러면 알아서 산 게 아니라 살 사람이라서 안 것임.
+      이 숫자를 “알리기만 하면 78%가 산다”로 읽으면 앞에서 기각한 ‘더 알리자’로 되돌아감.
+    </div>
   </div>
 
-  <div class="smark"><i>&gt;</i> 구매 동인 <small>새로움이 아니라 애착. 회원 200명 · 2026.06.17</small></div>
+
+  <div class="smark"><i>&gt;</i> 3. 오는 이유 <small>새로움이 아니라 좋아하는 맛 · 회원 200명 · 2026.06</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="매장 방문 빈도를 늘리는 요소">
@@ -387,7 +397,7 @@
         <text x="334" y="218" font-weight="800" fill="#0F6E56">21.5</text>
       </g>
     </svg>
-    <figcaption>애착 맛(45)이 새로운 맛(21.5)의 두 배 이상. 객수 레버는 신제품이 아님</figcaption>
+    <figcaption>좋아하는 맛(45)이 새로운 맛(21.5)의 두 배 이상. 객수를 움직이는 건 신제품이 아님</figcaption>
   </figure>
 
   <figure class="dxfig">
@@ -411,45 +421,216 @@
     <figcaption>경쟁자는 타 브랜드가 아니라 자기 자신의 최애 맛</figcaption>
   </figure>
 
-  <figure class="dxfig">
-    <svg viewBox="0 0 940 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="이달의 맛을 사게 만드는 요인">
-      <text x="0" y="16" font-size="13.5" font-weight="800" fill="#000">이달의 맛을 사게 만드는 요인 (%)</text>
-      <g font-size="13.5">
-        <text x="0" y="58" fill="#000" font-weight="800">맛·재료 조합</text>
-        <rect x="200" y="44" width="560" height="22" fill="#E8447A"/>
-        <text x="772" y="61" font-weight="800" fill="#E8447A">55.5</text>
-        <text x="0" y="106" fill="#000">할인·증정</text>
-        <rect x="200" y="92" width="474" height="22" fill="#DCD3CB"/>
-        <text x="686" y="109" font-weight="800" fill="#8a6f63">47</text>
-        <text x="0" y="154" fill="#000">시즌 한정성</text>
-        <rect x="200" y="140" width="378" height="22" fill="#DCD3CB"/>
-        <text x="590" y="157" font-weight="800" fill="#8a6f63">37.5</text>
-        <text x="0" y="202" fill="#000">IP·캐릭터</text>
-        <rect x="200" y="188" width="182" height="22" fill="#0F6E56"/>
-        <text x="394" y="205" font-weight="800" fill="#0F6E56">18</text>
-      </g>
-      <text x="200" y="232" font-size="12.5" fill="#8a6f63">사는 이유도 결국 맛 자체. IP는 현재 구매를 설명하지 못함</text>
-    </svg>
-    <figcaption>안 사는 이유도 맛, 사는 이유도 맛. 세 그래프가 같은 곳을 가리킴</figcaption>
-  </figure>
+  <p>안 사는 이유 1·2위를 합치면 <b>65.9%</b>이고 둘 다 ‘맛’에 관한 이유임. 정보 부족은 6.7%.
+  사게 만드는 요인 1위도 맛·재료 조합 55.5%이고 IP는 18%임.
+  <span class="hl">경쟁자는 타 브랜드가 아니라 자기 자신의 최애 맛.</span></p>
 
   <h3>없어진 맛을 다시 찾는 요구가 자발적으로 나왔음</h3>
-  <p>방문 빈도 문항의 <b>기타 주관식</b>에서 “그린티 재출시”, “초콜릿무스 재출시”가 나왔음. 근거로서의 무게는 다음과 같음.</p>
-  <ul>
-    <li><b>보기에 없던 답임.</b> 선택지에 재출시 항목이 없었는데 직접 적어 넣은 것이므로 조사자가 심어준 응답이 아님.</li>
-    <li><b>맛 이름을 지명했음.</b> “새로운 게 나왔으면”이 아니라 특정 맛을 기억해 지목함. 애착 대상이 이름까지 유지되고 있다는 뜻임.</li>
-    <li><b>방향이 정확히 반대임.</b> 새 맛이 아니라 <span class="hl">사라진 맛</span>을 요구했음. 다른 문항에서 독립적으로 나온 같은 신호임.</li>
-    <li><b>이미 표면화된 수요임.</b> 존재 여부를 검증할 단계가 아니라 규모를 잴 단계임. 다음 조사에 “다시 나오면 살 맛” 문항을 넣으면 측정 가능.</li>
-  </ul>
+  <p>방문 빈도 문항의 <b>기타 주관식</b>에서 “그린티 재출시”, “초콜릿무스 재출시”가 나옴.
+  선택지에 없던 답을 직접 적었고, 특정 맛 이름을 지목했으며, 새 맛이 아니라 <b>사라진 맛</b>을 요구했음.
+  존재 여부를 검증할 단계가 아니라 <b>규모를 잴 단계</b>임.</p>
 
-  <div class="smark"><i>&gt;</i> 일본 사례 <small>취향 순환 구조와 적립 이원화</small></div>
+  <div class="smark"><i>&gt;</i> 4. 일본은 어떻게 하나 <small>IP 배치 · 자리 고정 · 진열 회전</small></div>
 
-  <ul>
-    <li>일본에서 가장 많이 팔린 맛은 늘 <b>기본 맛</b>이었음. 포핑샤워가 2008~2021년 13년 연속 매출 1위.</li>
-    <li><b>맛 인기투표</b>를 매년 개최. 2026년 5회차에 <b>70만 5,971표</b> 집계(전년 58만표). 1위 러브포션31이 6만 9,318표로 3연패.</li>
-    <li>전 세계 1,400종 넘는 맛 중 100종이 후보로 오르고, <b>없어진 한정 맛 상위 3종은 다음 해 재출시.</b></li>
-    <li>앱에서 좋아하는 맛을 등록하면 <b>재판매 시 알림.</b> 먹은 맛 기록·메모가 가능하고 그 기록이 모여 인기 순위가 됨.</li>
-  </ul>
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="일본과 한국의 연간 IP 배치 비교">
+      <text x="143" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">1월</text>
+      <text x="212" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">2월</text>
+      <text x="281" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">3월</text>
+      <text x="350" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">4월</text>
+      <text x="419" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">5월</text>
+      <text x="488" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">6월</text>
+      <text x="557" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">7월</text>
+      <text x="626" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">8월</text>
+      <text x="695" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">9월</text>
+      <text x="764" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">10월</text>
+      <text x="833" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">11월</text>
+      <text x="902" y="34" text-anchor="middle" font-size="11.5" fill="#8a6f63">12월</text>
+      <text x="0" y="76" font-size="13" font-weight="800" fill="#000">일본</text>
+      <text x="0" y="92" font-size="11" fill="#8a6f63">2026년</text>
+      <rect x="110" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="143.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">딸기</text>
+      <rect x="179" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="212.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">사쿠라</text>
+      <rect x="248" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="281.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">사쿠라</text>
+      <rect x="317" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="350.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">총선거</text>
+      <rect x="386" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="419.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">스위츠</text>
+      <rect x="455" y="48" width="66" height="52" fill="#E8447A"/>
+      <text x="488.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">드퀘</text>
+      <rect x="524" y="48" width="66" height="52" fill="#E8447A"/>
+      <text x="557.0" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">동물의숲</text>
+      <rect x="593" y="48" width="66" height="52" fill="#E8447A"/>
+      <text x="626.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">포켓몬</text>
+      <rect x="662" y="48" width="66" height="52" fill="#E8447A"/>
+      <text x="695.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">밀키</text>
+      <rect x="731" y="48" width="66" height="52" fill="#EFE7E0"/>
+      <text x="764.0" y="79" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7a6a5f">할로윈</text>
+      <rect x="800" y="48" width="66" height="52" fill="#F6C0D2"/>
+      <text x="833.0" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#8a3355">크리스마스</text>
+      <rect x="869" y="48" width="66" height="52" fill="#F6C0D2"/>
+      <text x="902.0" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#8a3355">크리스마스</text>
+      <text x="110" y="122" font-size="12" fill="#8a6f63">IP가 주인공 <tspan font-weight="800" fill="#E8447A">4달</tspan> · 조연 2달 · <tspan font-weight="800">배라 자기 맛 6달</tspan></text>
+
+      <line x1="0" y1="142" x2="940" y2="142" stroke="#EBD9CD"/>
+
+      <text x="0" y="190" font-size="13" font-weight="800" fill="#000">한국</text>
+      <text x="0" y="206" font-size="11" fill="#8a6f63">2025년</text>
+      <rect x="110" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="143.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">캐릭터</text>
+      <rect x="179" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="212.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <rect x="248" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="281.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">캐릭터</text>
+      <rect x="317" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="350.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <rect x="386" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="419.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">셀럽</text>
+      <rect x="455" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="488.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <rect x="524" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="557.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">셀럽</text>
+      <rect x="593" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="626.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">캐릭터</text>
+      <rect x="662" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="695.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <rect x="731" y="162" width="66" height="52" fill="#0F6E56"/>
+      <text x="764.0" y="193" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">소비자 선정</text>
+      <rect x="800" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="833.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <rect x="869" y="162" width="66" height="52" fill="#E8447A"/>
+      <text x="902.0" y="193" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">원료</text>
+      <text x="110" y="236" font-size="12" fill="#8a6f63">IP가 주인공 <tspan font-weight="800" fill="#E8447A">11달</tspan> · <tspan font-weight="800" fill="#0F6E56">소비자가 뽑은 맛 1달</tspan> (10월 말차다미아) · 배라 자체 기획 0달</text>
+    </svg>
+    <figcaption>
+      <span style="display:inline-block;width:11px;height:11px;background:#E8447A;vertical-align:-1px;margin-right:4px;"></span>IP가 주인공
+      &nbsp;&nbsp;<span style="display:inline-block;width:11px;height:11px;background:#F6C0D2;vertical-align:-1px;margin-right:4px;"></span>IP는 조연
+      &nbsp;&nbsp;<span style="display:inline-block;width:11px;height:11px;background:#EFE7E0;vertical-align:-1px;margin-right:4px;"></span>배라 자기 맛
+      &nbsp;&nbsp;<span style="display:inline-block;width:11px;height:11px;background:#0F6E56;vertical-align:-1px;margin-right:4px;"></span>소비자가 뽑은 맛
+    </figcaption>
+  </figure>
+
+  <p><b>IP를 안 쓰는 게 아니라 역할을 나눔.</b> IP 이름이 캠페인 이름이 되는 달은 6~9월 네 달뿐이고,
+  1~5월·10월은 딸기·사쿠라·세계 스위츠·총선거·할로윈을 자기 맛으로 굴림.
+  우리는 92개월 중 <b>78개월이 외부 IP가 주인공</b>임.</p>
+
+  <div class="dxnote">
+    <b>총선거형 시도는 이미 국내에 있었음.</b> 2025년 10월 말차다미아는 <b>소비자 참여 맛 콘테스트 입상작</b>임.
+    2025년 열두 달 중 우리 맛이 주인공이었던 유일한 달이고, 그 한 달이 <b>소비자가 뽑은 맛</b>이었음.
+    일본 총선거와 같은 계열의 장치가 이미 작동한 전례가 있다는 뜻이며,
+    새로 만들 것이 아니라 <span class="hl">연 1회 행사로 자리를 고정하고 재출시까지 잇는 문제</span>임.
+    <br><span class="dxsrc">※ 콘테스트 공식 명칭과 회차·응모 규모는 내부 자료로 확인 필요.</span>
+  </div>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="여름 슬롯 고정 구조">
+      <text x="0" y="18" font-size="13" font-weight="800" fill="#000">여름 두 달은 매년 같은 자리에 같은 성격의 IP가 들어옴</text>
+      <text x="0" y="58" font-size="12" font-weight="800" fill="#8a6f63">7월 슬롯</text>
+      <text x="0" y="130" font-size="12" font-weight="800" fill="#8a6f63">8월 슬롯</text>
+      <g font-size="12.5" font-weight="700">
+        <rect x="110" y="38" width="190" height="34" fill="#F6C0D2"/><text x="205" y="60" text-anchor="middle" fill="#8a3355">2023 마리오</text>
+        <rect x="310" y="38" width="190" height="34" fill="#F2A0BC"/><text x="405" y="60" text-anchor="middle" fill="#7d2a45">2024 마리오</text>
+        <rect x="510" y="38" width="190" height="34" fill="#EE7CA0"/><text x="605" y="60" text-anchor="middle" fill="#fff">2025 마리오</text>
+        <rect x="710" y="38" width="190" height="34" fill="#E8447A"/><text x="805" y="60" text-anchor="middle" fill="#fff">2026 동물의 숲</text>
+        <rect x="110" y="110" width="190" height="34" fill="#F6C0D2"/><text x="205" y="132" text-anchor="middle" fill="#8a3355">2023 포켓몬</text>
+        <rect x="310" y="110" width="190" height="34" fill="#F2A0BC"/><text x="405" y="132" text-anchor="middle" fill="#7d2a45">2024 포켓몬</text>
+        <rect x="510" y="110" width="190" height="34" fill="#EE7CA0"/><text x="605" y="132" text-anchor="middle" fill="#fff">2025 포켓몬</text>
+        <rect x="710" y="110" width="190" height="34" fill="#E8447A"/><text x="805" y="132" text-anchor="middle" fill="#fff">2026 포켓몬</text>
+      </g>
+      <text x="110" y="92" font-size="12" fill="#8a6f63">닌텐도 게임 IP 자리 — 타이틀만 바뀜</text>
+      <text x="110" y="164" font-size="12" fill="#8a6f63">8년째 같은 IP · 캠페인 이름도 “31포케나츠”로 고정</text>
+      <rect x="0" y="180" width="940" height="26" fill="#fff" stroke="#EBD9CD"/>
+      <text x="14" y="197" font-size="12.5" font-weight="700" fill="#000">소비자에게 “여름이면 배라에 포켓몬”이 학습됨 — 신제품 고지가 아니라 절기가 됨</text>
+    </svg>
+    <figcaption>자리를 고정하니 IP가 뉴스가 아니라 매년 돌아오는 행사가 됨</figcaption>
+  </figure>
+
+  <p>자리를 고정하니 “여름이면 배라에 포켓몬”이 학습됨. 4월 총선거, 10월 할로윈, 11~12월 크리스마스도 매년 같은 자리임.</p>
+
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="쇼케이스 31칸 구성 비교">
+      <text x="20" y="18" font-size="13" font-weight="800" fill="#000">일본 · 쇼케이스 31칸</text>
+      <rect x="20" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="47" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="74" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="101" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="128" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="155" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="182" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="209" y="32" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="20" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="47" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="74" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="101" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="128" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="155" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="182" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="209" y="59" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="20" y="86" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="47" y="86" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="74" y="86" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="101" y="86" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="128" y="86" width="22" height="22" fill="#EFE7E0"/>
+      <rect x="155" y="86" width="22" height="22" fill="#E8447A"/>
+      <rect x="182" y="86" width="22" height="22" fill="#E8447A"/>
+      <rect x="209" y="86" width="22" height="22" fill="#E8447A"/>
+      <rect x="20" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="47" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="74" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="101" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="128" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="155" y="113" width="22" height="22" fill="#E8447A"/>
+      <rect x="182" y="113" width="22" height="22" fill="#E8447A"/>
+      <text x="20" y="180" font-size="12.5" fill="#8a6f63"><tspan font-weight="800" fill="#7a6a5f">늘 파는 맛 21칸</tspan> + <tspan font-weight="800" fill="#E8447A">매달 바뀌는 맛 10칸</tspan></text>
+      <text x="20" y="202" font-size="12" fill="#8a6f63">갈 때마다 10칸이 달라져 있고, 한 맛은 몇 달 동안 남아 있음</text>
+
+      <line x1="470" y1="10" x2="470" y2="230" stroke="#EBD9CD"/>
+
+      <text x="520" y="18" font-size="13" font-weight="800" fill="#000">한국 · 쇼케이스 31칸</text>
+      <rect x="520" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="547" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="574" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="601" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="628" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="655" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="682" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="709" y="32" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="520" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="547" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="574" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="601" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="628" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="655" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="682" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="709" y="59" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="520" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="547" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="574" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="601" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="628" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="655" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="682" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="709" y="86" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="520" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="547" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="574" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="601" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="628" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="655" y="113" width="22" height="22" fill="#fff" stroke="#DCD3CB" stroke-dasharray="3 3"/>
+      <rect x="682" y="113" width="22" height="22" fill="#E8447A"/>
+      <text x="520" y="180" font-size="12.5" fill="#8a6f63"><tspan font-weight="800" fill="#E8447A">이달의 맛 1칸</tspan> + 나머지 30칸 구성은 내부 확인 필요</text>
+      <text x="520" y="202" font-size="12" fill="#8a6f63">확실한 것은 <tspan font-weight="700" fill="#000">한 달 뒤 그 1칸이 비고 새 맛이 들어온다</tspan>는 것뿐</text>
+
+      <rect x="0" y="222" width="940" height="26" fill="#fff" stroke="#EBD9CD"/>
+      <text x="14" y="239" font-size="12.5" font-weight="700" fill="#000">새로 나오는 맛 개수는 비슷함. 다른 것은 “얼마나 오래 파는가”와 “갈 때마다 몇 칸이 바뀌는가”</text>
+    </svg>
+    <figcaption>일본은 오래 팔면서 많이 바꾸고, 우리는 빨리 없애면서 조금만 바꿈</figcaption>
+  </figure>
+
+  <p>새로 나오는 맛 개수는 월 1종 내외로 비슷함. 다른 것은 <b>얼마나 오래 파는가</b>와 <b>갈 때마다 몇 칸이 바뀌는가</b>.
+  일본은 서두르게 만드는 대신 <span class="hl">고를 게 많게</span> 해서 다시 오게 함.</p>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="취향 순환 구조">
@@ -475,11 +656,34 @@
     <figcaption>취향을 말하게 하고, 순위를 매기고, 이긴 맛을 되살림</figcaption>
   </figure>
 
-  <p>이 구조의 효용은 둘임. <b>투표는 ‘의견이 갈린다’와 ‘취향 이야기’를 동시에 만듦.</b>
-  심드렁함의 해독제가 신제품이 아니라 투표라는 뜻임. 그리고 <b>재출시가 한정 판매를 되살림.</b>
-  사라진 맛이 투표로 돌아온다면 이번 달을 놓치는 것이 처음으로 손실이 됨.</p>
+  <p>2025년 총선거 1위 러브포션31은 12월 27일 강화판으로 출시됐고, 기간한정 상위 4위까지 2026년 순차 판매가 발표됨.
+  투표한 사람이 <b>“내가 뽑은 게 진짜로 나왔다”</b>를 확인하게 됨.</p>
 
-  <h3>앱 적립을 두 개로 나눠 둠</h3>
+  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="dx-jpcal" data-open="2026년 캠페인 목록 · 캠페인 이름의 성격" data-close="닫기"><i>&#9654;</i><span class="tglt">2026년 캠페인 목록 · 캠페인 이름의 성격</span></button></div>
+  <div id="dx-jpcal" hidden>
+    <table class="dxtb">
+      <tr><th>시기</th><th>2026년 캠페인</th><th>유형</th></tr>
+      <tr><td>1월</td><td>스트로베리 &amp; 초콜릿 컬렉션 (1.9~2.18) · 후쿠부쿠로</td><td>배라 자체 기획</td></tr>
+      <tr><td>2~3월</td><td>사쿠라사쿠라 (2.19~3.31)</td><td>배라 자체 기획</td></tr>
+      <tr><td>4월</td><td><b>플레이버 총선거</b> (4.2~4.30) · 스프링&amp;서머 크레페</td><td>배라 자체 맛으로 만든 행사</td></tr>
+      <tr><td>5월</td><td>세계의 스위츠 플레이버즈 (5.8~5.31)</td><td>배라 자체 기획</td></tr>
+      <tr><td>6월</td><td>드래곤퀘스트 40주년 (6.1~6.30)</td><td><b>외부 IP</b></td></tr>
+      <tr><td>7월</td><td>동물의 숲 (7.1~) ※2025년은 슈퍼마리오</td><td><b>외부 IP</b></td></tr>
+      <tr><td>8월</td><td>포켓몬 “31포케나츠” (8.1~8.31)</td><td><b>외부 IP</b> · 8년차</td></tr>
+      <tr><td>9월</td><td>밀키(후지야) “milky Wonderland” (9.1~)</td><td><b>외부 IP</b> · 식품 브랜드</td></tr>
+      <tr><td>10월</td><td>할로윈 한정 플레이버·선데이</td><td>배라 자체 기획</td></tr>
+      <tr><td>11~12월</td><td>크리스마스 (11.1~12.25) · 캐릭터 아이스케이크</td><td>배라 자체 기획<br><span class="dxsrc">IP는 케이크에만 얹힘</span></td></tr>
+    </table>
+    <div class="lead">
+      “31포케나츠”, “세계의 스위츠 플레이버즈”, “사쿠라사쿠라”는 모두 <b>제품명이 아니라 캠페인명</b>이고,
+      그 안에 새 맛·선데이·드링크·케이크·굿즈가 함께 들어감.
+      일본의 캠페인명은 <b>매년 돌아오는 그릇</b>이고 우리의 이달의 맛 이름은 <b>매달 사라지는 제품</b>임.
+    </div>
+  </div>
+
+
+  <div class="smark"><i>&gt;</i> 5. 일본 앱의 적립 <small>객수와 객단가를 아예 분리해 둠</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="일본 앱의 두 가지 적립 구조">
@@ -532,26 +736,13 @@
     <figcaption>같은 결제 한 번에서 두 포인트가 동시에 쌓이지만 보상하는 행동은 다름</figcaption>
   </figure>
 
-  <p>핵심은 <b>금액이 아니라 횟수 자체에 보상을 걸었다는 것.</b>
-  1만 원을 한 번 쓴 사람보다 3천 원씩 세 번 쓴 사람에게 방문 적립이 더 많이 감.
+  <p>금액이 아니라 <b>횟수 자체에 보상</b>을 검. 1만 원을 한 번 쓴 사람보다 3천 원씩 세 번 쓴 사람에게 방문 적립이 더 감.
   점일평균 95명 → 98명 목표에 정확히 대응하는 설계임.</p>
 
-  <p>생일 쿠폰에도 같은 장치가 들어 있음. 첫해는 등록만으로 지급하지만
-  <b>2년차부터는 생일 전달 20일까지 최근 1년 내 구매 기록이 있어야</b> 발급됨.
-  선물처럼 보이지만 실제로는 <b>1년에 한 번은 오게 만드는 조건</b>임.</p>
+  <p>생일 쿠폰도 같은 장치임. 2년차부터 최근 1년 구매 기록이 없으면 끊는 게 아니라
+  <b>“1개 사면 1개 무료”로 낮춤</b> — 1년에 한 번은 오게 만드는 조건.</p>
 
-  <div class="smark"><i>&gt;</i> 일본 사례의 실제 효과 <small>2025년 12월기 결산 기준 · 모두 일본 시장 수치</small></div>
-
-  <table class="dxtb">
-    <tr><th>항목</th><th>2025년 실적</th></tr>
-    <tr><td>일본 내 총 소매매출</td><td><b>679억엔</b> — 4년 연속 최고 기록</td></tr>
-    <tr><td>기존점 매출</td><td>전년 대비 <b>+6.8%</b> — 3년 연속 두 자릿수 성장에 이은 추가 성장</td></tr>
-    <tr><td>매장당 연매출</td><td><b>6,449만엔</b> — 2021년 4,040만엔 대비 약 60% 증가</td></tr>
-    <tr><td>일본 내 매장 수</td><td>1,066점 — 2021년 1,020점 대비 +4.5%</td></tr>
-    <tr><td>앱 회원</td><td>1,090만명(전년 +186만) · 2026년 목표 1,200만</td></tr>
-    <tr><td>회원 매출 비중</td><td>전체 매출의 <b>43.2%</b> (전년 38.1%, +5.1%p)</td></tr>
-    <tr><td>모바일오더</td><td>매출 비중 11%, 전년 대비 +82%</td></tr>
-  </table>
+  <div class="smark"><i>&gt;</i> 6. 실제 효과 <small>2025년 12월기 결산 · 모두 일본 시장 수치</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="매장당 매출과 회원 매출 비중 추이">
@@ -592,69 +783,70 @@
     <figcaption>매장을 늘려서가 아니라 매장 하나의 힘을 키워 성장했고, 그 절반 가까이가 앱 회원에게서 나옴</figcaption>
   </figure>
 
-  <h3>객수 쪽 효과</h3>
-  <ul>
-    <li>일본경제신문은 2025년 실적에 대해 <b>매장 취식 손님과 포장 손님의 수가 늘었다</b>고 짚음. 가격 인상만으로 만든 성장이 아니라는 외부 관측임.</li>
-    <li>장기 경영계획의 첫 전략축이 <b>“신규 고객 획득과 내점 빈도 증가”</b>임. 객수를 별도 목표로 명시하고 방문 적립을 거기에 붙여 둠.</li>
-    <li>앱 온보딩 지표 — 가입 첫 달 구매율이 2023년 6·7·8월 50%를 넘겨 <b>전년 대비 약 25% 개선.</b>
-    구매 다음 날 감사 알림은 앱 재실행률 <b>약 9.8배</b>, 쿠폰 독려 알림은 쿠폰 사용률 <b>약 2.5배</b>.</li>
-  </ul>
+  <figure class="dxfig">
+    <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="기존점 성장의 객수와 객단가 분해">
+      <rect x="330" y="14" width="280" height="46" fill="#000"/>
+      <text x="470" y="43" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">기존점 매출 +6.8%</text>
+      <path d="M420 62 L250 96" stroke="#E8447A" stroke-width="2"/><path d="M250 96 l10 -3 v9 z" fill="#E8447A"/>
+      <path d="M520 62 L690 96" stroke="#0F6E56" stroke-width="2"/><path d="M690 96 l-10 -3 v9 z" fill="#0F6E56"/>
 
-  <div class="dxnote">
-    <b>회사의 자기 귀속 문장은 객수 근거로 그대로 쓰지 말 것.</b>
-    반기 자료에는 “캐릭터 협업, 디지털 광고와 앱 고지 강화, 아이스크림 케이크 신카테고리 호조로 내점객 수가 착실히 증가”라고 적혀 있음.
-    그러나 이는 <b>세 가지를 나열하고 결과를 붙인 서술적 귀속이지 요인별 분해가 아님.</b> 각각의 기여도는 제시되지 않음.
-    이 목록에서 축이 분명한 것은 <b>앱 고지 강화</b> 하나뿐이며, 나머지 둘은 아래 기준으로 다시 판정해야 함.
+      <rect x="20" y="100" width="420" height="44" fill="#E8447A"/>
+      <text x="230" y="128" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">객수 — 오는 사람 수</text>
+      <rect x="500" y="100" width="420" height="44" fill="#0F6E56"/>
+      <text x="710" y="128" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">객단가 — 한 명이 쓰는 돈</text>
+
+      <text x="20" y="172" font-size="12.5" font-weight="800" fill="#8a6f63">확인되는 근거</text>
+      <text x="500" y="172" font-size="12.5" font-weight="800" fill="#8a6f63">확인되는 근거</text>
+      <g font-size="12.5" fill="#000">
+        <rect x="20" y="182" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="32" y="199">일본경제신문 · 매장 취식과 포장 손님 수가 늘었다</text>
+        <rect x="20" y="214" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="32" y="231">장기계획 첫 전략축 · “신규 고객 획득과 내점 빈도 증가”</text>
+        <rect x="20" y="246" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="32" y="263">앱 가입 첫 달 구매율 전년 대비 약 25% 개선</text>
+        <rect x="500" y="182" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="512" y="199">매출총이익률 49.2% → 49.6%</text>
+        <rect x="500" y="214" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="512" y="231">영업이익률 7.7% → 8.1%</text>
+        <rect x="500" y="246" width="420" height="26" fill="#fff" stroke="#EBD9CD"/><text x="512" y="263">케이크·패티스리 등 비싼 상품 비중 확대</text>
+      </g>
+      <rect x="330" y="284" width="280" height="0" fill="none"/>
+    </svg>
+    <figcaption>양쪽 다 늘었다는 근거는 있지만, <b>회사는 몇 대 몇인지 공개하지 않음</b></figcaption>
+  </figure>
+
+  <p>매장 수는 4.5% 느는 동안 <b>매장당 매출이 약 60% 올랐음.</b> 성장의 출처는 매장 확대가 아니라 매장 하나의 생산성이고,
+  그 절반 가까이가 앱 회원에게서 나옴.</p>
+
+  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="dx-jpfig" data-open="2025년 실적 수치 전체" data-close="닫기"><i>&#9654;</i><span class="tglt">2025년 실적 수치 전체</span></button></div>
+  <div id="dx-jpfig" hidden>
+    <table class="dxtb">
+      <tr><th>항목</th><th>2025년 실적</th></tr>
+      <tr><td>일본 내 총 소매매출</td><td><b>679억엔</b> — 4년 연속 최고</td></tr>
+      <tr><td>기존점 매출</td><td>전년 대비 <b>+6.8%</b></td></tr>
+      <tr><td>매장당 연매출</td><td><b>6,449만엔</b> (2021년 4,040만엔)</td></tr>
+      <tr><td>일본 내 매장 수</td><td>1,066점 (2021년 1,020점)</td></tr>
+      <tr><td>앱 회원</td><td>1,090만명 · 2026년 목표 1,200만</td></tr>
+      <tr><td>회원 매출 비중</td><td>전체의 <b>43.2%</b> (전년 38.1%)</td></tr>
+      <tr><td>모바일오더</td><td>매출 비중 11%, 전년 대비 +82%</td></tr>
+      <tr><td>앱 온보딩</td><td>가입 첫 달 구매율 전년 대비 약 25% 개선<br>감사 알림 → 앱 재실행 약 9.8배 · 쿠폰 알림 → 사용률 약 2.5배</td></tr>
+    </table>
   </div>
 
-  <h3>IP와 케이크는 어느 축인가</h3>
-  <p>표에서 IP 협업과 고단가 카테고리를 객단가로 분류했는데 일본은 같은 것을 객수 요인으로 말함.
-  어긋나 보이는 이유는 <b>축이 도구의 종류가 아니라 오케이전에 걸리기 때문임.</b></p>
-  <ul>
-    <li><b>같은 IP도 운용 방식에 따라 축이 달라짐.</b> 그 IP 때문에 <span class="hl">가야 할 이유가 새로 생기면 객수</span>,
-    이미 갈 사람이 <span class="hl">더 사게 되면 객단가</span>임.
-    우리 조사에서 IP는 구매 요인 18%, 방문 빈도 요인 16%로 <b>두 축 모두에서 약함.</b>
-    현재 우리 운용 방식에서는 객단가 도구로 두는 것이 맞음.</li>
-    <li><b>아이스크림 케이크는 두 축에 동시에 걸림.</b> 단가가 높아 객단가에 기여하지만,
-    생일·기념일이라는 <b>새 오케이전</b>을 여는 상품이므로 방문 이유도 만듦.
-    회사 장기계획이 “다양한 구매동기(오케이전)에 대한 접근”을 전략으로 명시한 것과 같은 맥락임.</li>
-  </ul>
-  <h3>차이는 캠페인 길이가 아니라 반복 주기임</h3>
-  <table class="dxtb">
-    <tr><th>일본</th><th>기간</th><th>반복</th></tr>
-    <tr><td>슈퍼마리오 “엔조이! SUPER ICE CREAM SUMMER”</td><td>2025.7.1 ~ 7.31 · <b>1개월</b></td><td><b>3회차</b> · 매년 7월 고정</td></tr>
-    <tr><td>포켓몬 “31포케나츠 캠페인”</td><td>2025.8.1 ~ 9.3 · <b>약 5주</b><br>2026년은 8.1 ~ 8.31</td><td><b>7년차</b> · 매년 8월 고정</td></tr>
-  </table>
-  <p><b>기간은 한 달로 우리와 다르지 않음.</b> 7월 마리오, 8월 포켓몬으로 여름 성수기 두 달을
-  <b>같은 IP 두 개가 매년 이어받는 구조</b>임. 그래서 소비자에게 신제품이 아니라 <span class="hl">연례 행사</span>가 됨.
-  “올해도 하겠지”라는 기대가 축적되고, 그 기대 자체가 방문 이유가 됨.</p>
-  <p>매달 다른 IP로 갈아끼우면 기대가 쌓일 자리가 없음. 이는 2장의 진단과 같은 구조임 —
-  <b>반복되지 않는 새로움은 뉴스가 되고, 반복되는 것만 시간표에서 행사로 바뀜.</b></p>
-  <div class="dxnote">
-    <b>옆 탭의 IP 히스토리에서 바로 확인됨.</b> 92개월 동안 같은 IP가 같은 달에 돌아온 사례가 없음.
-    포켓몬도 22.05·22.06에 연달아 쓰고 4년 뒤 26.05에 다시 등장함. 고정 슬롯도, 연속 반복도 없음.
-    <b>보유 IP의 문제가 아니라 운용 주기의 문제로 볼 여지가 있음.</b>
+
+  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="dx-caution" data-open="인용할 때 주의할 것 네 가지" data-close="닫기"><i>&#9654;</i><span class="tglt">인용할 때 주의할 것 네 가지</span></button></div>
+  <div id="dx-caution" hidden>
+    <div class="lead">
+      ① 회사는 <b>객수와 객단가를 나눈 수치를 공개하지 않음.</b> 기존점 +6.8%가 각각 얼마씩인지는 알 수 없음.<br>
+      ② 방문 적립·맛 기록·가족 등록의 <b>기능별 효과 수치도 비공개.</b> 공개된 것은 앱 내부 지표뿐임.<br>
+      ③ 회원 매출 비중 43.2%는 <b>회원이 차지한 몫이지 앱이 만든 증분이 아님.</b><br>
+      ④ 같은 기간 마리오·포켓몬 협업, 전 매장의 89%(952점) 리뉴얼, 판매 거점 확대(총 1,556곳)가 함께 진행됨.<br><br>
+      회사가 반기 자료에 적은 “캐릭터 협업, 디지털 광고와 앱 고지 강화, 케이크 신카테고리 호조로 내점객 수가 증가”는
+      <b>세 가지를 늘어놓고 결과를 갖다 붙인 설명</b>이지 기여도를 나눈 수치가 아님. 객수 근거로 그대로 쓰면 안 됨.<br><br>
+      참고 — 매월 31일 더블 31% 할인 “사티원의 날”은 2021년 1월 종료, 대체판도 2024년 2월 종료.
+      혜택 축을 앱 적립으로 옮긴 뒤에도 기존점이 43개월 연속 성장함. 다만 종료 사유가 매장 혼잡과 코로나 대응이었던 점은 함께 밝혀야 함.
+    </div>
   </div>
 
-  <p>따라서 아래 표는 도구의 고정 배치가 아니라 <b>현재 우리 운용 규모에서의 기본 배치</b>로 읽어야 함.
-  판정 기준은 하나임 — <b>그 도구가 새로운 방문 이유를 만드는가, 아니면 이미 온 사람의 장바구니를 키우는가.</b></p>
 
-  <h3>객단가 쪽 효과</h3>
-  <ul>
-    <li>매출총이익률 49.2% → <b>49.6%</b>, 영업이익률 7.7% → <b>8.1%</b>로 개선.</li>
-    <li>더블 소구, 아이스크림 케이크·패티스리 등 <b>고단가 카테고리 확대</b> 방향으로 상품 구성을 이동시킴.</li>
-    <li>구매 적립은 등급 혜택이 <b>그 등급에 머무는 동안 반복 사용</b>되는 구조여서 등급 유지 자체가 지출을 붙잡는 장치로 작동함.</li>
-  </ul>
-
-  <div class="dxnote">
-    <b>해석 시 주의.</b><br>
-    ① 회사는 <b>객수와 객단가를 나눈 수치를 공개하지 않음.</b> 기존점 +6.8%가 각각 얼마씩인지는 알 수 없음.<br>
-    ② 방문 적립·맛 기록·가족 등록의 <b>기능별 효과 수치도 비공개.</b> 공개된 것은 앱 내부 지표뿐임.<br>
-    ③ 회원 매출 비중 43.2%는 <b>회원이 차지한 몫이지 앱이 만든 증분이 아님.</b> 회원 수가 늘면 자동으로 오르는 지표임.<br>
-    ④ 같은 기간 마리오·포켓몬 협업, 전 매장의 89%(952점) 리뉴얼, 판매 거점 확대(총 1,556곳)가 함께 진행됨.
-  </div>
-
-  <div class="smark"><i>&gt;</i> FOM 역할 규정 <small>도구와 목표의 재배치</small></div>
+  <div class="smark"><i>&gt;</i> 7. FOM 역할 규정 <small>도구를 목표에 맞게 재배치</small></div>
 
   <figure class="dxfig">
     <svg viewBox="0 0 940 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="현재 배치와 일본 배치 비교">
@@ -692,41 +884,37 @@
 
   <table class="dxtb">
     <tr><th>목표</th><th>여기에 맞는 도구</th></tr>
-    <tr><td><b>객단가 상승</b><br>한 명이 쓰는 돈</td><td>이달의 맛, IP·캐릭터 협업, 신제품, 구매 금액 적립, 고단가 카테고리</td></tr>
-    <tr><td><b>객수 상승</b><br>오는 사람 수</td><td>방문 횟수 적립, 애착 맛 장치(투표·재출시·기록), 기념일·가족 CRM, 판매 거점 확대, 1인 방문 명분</td></tr>
+    <tr><td><b>객단가 상승</b><br>한 명이 쓰는 돈</td><td>이달의 맛, IP·캐릭터 협업, 신제품, 구매 금액 적립, 비싼 상품군</td></tr>
+    <tr><td><b>객수 상승</b><br>오는 사람 수</td><td>방문 횟수 적립, 좋아하는 맛 장치(투표·재출시·기록), 기념일·가족 쿠폰, 판매 거점 확대, 1인 방문 명분</td></tr>
   </table>
 
-  <p class="dxsrc" style="margin:-8px 0 16px;">위 배치는 도구의 고정 속성이 아니라 현재 운용 규모 기준임.
-  IP를 방문 이유가 될 만한 규모로 운용하면 객수 열로 이동함.</p>
-
   <p><b>이달의 맛을 객단가 축으로 옮기는 것은 강등이 아니라 원위치임.</b>
-  당월 인지 시 구매 전환 77.8%는 그 자리에서 이미 잘 작동하고 있다는 뜻임.
-  문제는 성능이 아니라 <span class="hl">객수 도구로 쓴 배치</span>였음.</p>
+  문제는 성능이 아니라 <span class="hl">객수 도구로 쓴 배치</span>였음.
+  단, 판정 기준은 도구의 종류가 아니라 하나임 — <b>새로운 방문 이유를 만드는가, 이미 온 사람의 장바구니를 키우는가.</b>
+  IP를 방문 이유가 될 만한 반복 구조로 운용하면 객수 열로 옮겨감.</p>
 
-  <h3>아직 비어 있는 자리</h3>
-  <p><b>어른이 혼자 갈 이유가 없음.</b> 퇴근길, 야근 후, 주말 오후 혼자.
+  <p><b>아직 비어 있는 자리 — 어른이 혼자 갈 이유가 없음.</b> 퇴근길, 야근 후, 주말 오후 혼자.
   이 자리는 현재 편의점과 카페가 가져갔음.</p>
 
-  <div class="smark"><i>&gt;</i> 다음 단계</div>
+  <div class="smark"><i>&gt;</i> 8. 다음 단계</div>
   <ul>
+    <li>우리 쇼케이스 31칸 중 <b>실제로 도는 칸이 몇 개인지</b> 확인 — 위 31칸 그림의 빈자리</li>
     <li>객수를 올리는 방법을 실행 단위로 구체화</li>
     <li>이달의 맛이 전체 매출에 기여하는 정도의 산정 방법 설계</li>
-    <li>신규 유입을 측정할 수 있는 조사 설계 — 현 조사는 <b>지난달 방문자만</b> 대상이어서 비방문자가 표본에 없음. 원리적으로 유입 측정 불가</li>
-    <li>브랜드가 취향에 대해 어떤 입장을 가질지 정의</li>
-    <li>자사 앱 적립이 객수와 객단가 중 어디에 걸려 있는지 실사</li>
+    <li>신규 유입을 잴 수 있는 조사 설계 — 현 조사는 지난달 방문자만 대상이라 유입 측정이 원리적으로 불가</li>
     <li>재출시를 어떤 규모와 주기로 운영할지 설계</li>
+    <li>브랜드가 취향에 대해 어떤 입장을 가질지 정의</li>
   </ul>
 
-  <div class="srcbar2"><button class="tgl" type="button" aria-expanded="false" aria-controls="dxsrc"
-    data-open="출처" data-close="닫기"><i>&#9654;</i><span class="tglt">출처</span></button></div>
-  <div class="lead" id="dxsrc" hidden>
-    <span class="dxsrc">일본 배스킨라빈스 2025년 12월기 결산설명자료(2026.2.9) 및 2025년 상반기 결산설명자료 ·
+  <div style="margin:4px 0 16px;"><button class="tgl" type="button" aria-expanded="false"
+    aria-controls="dxsrc" data-open="출처" data-close="닫기"><i>&#9654;</i><span class="tglt">출처</span></button></div>
+  <div id="dxsrc" hidden>
+    <div class="lead"><span class="dxsrc">일본 배스킨라빈스 2025년 12월기 결산설명자료(2026.2.9) 및 2025년 상반기 결산설명자료 ·
     회사 IR 장기경영계획 자료 · 앱 운영사(리프로) 도입사례 및 보도자료(2023.8, 2024.8) ·
-    일본 인터넷경제신문(2024.9) · 앱스토어 업데이트 이력 ·
-    맛 인기투표 2026 결과 발표(2026.5, 오리콘·산요신문) · 기본 맛 순위 기사 ·
-    일본경제신문 2025년 실적 기사(2026.2) ·
-    배스킨라빈스 코리아 고객 구매 행태 조사(회원 200명, 2026.6.17)</span>
+    일본 인터넷경제신문(2024.9) · 앱스토어 업데이트 이력 · 맛 인기투표 2026 결과 발표(2026.5, 오리콘·산요신문) ·
+    일본경제신문 2025년 실적 기사(2026.2) · 배스킨라빈스 코리아 고객 구매 행태 조사(회원 200명, 2026.6.17)</span></div>
   </div>
+
 
   </div>
   </section>
