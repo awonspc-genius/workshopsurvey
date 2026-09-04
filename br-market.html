@@ -27,28 +27,6 @@
   }
   .wrap{max-width:1000px; margin:0 auto; padding:0 clamp(16px,4vw,32px);}
 
-  /* ── 비밀번호 잠금 ── */
-  body.locked > .wrap{display:none;}
-  body.locked{padding:0;}
-  .sgate{position:fixed; inset:0; z-index:9999; display:none; place-items:center;
-         background:radial-gradient(120% 80% at 50% 0%, #fff 0%, var(--page) 60%);}
-  body.locked .sgate{display:grid;}
-  .sgate .box{width:min(380px,88vw); background:var(--paper); border:1.5px solid var(--line);
-              border-radius:20px; padding:34px 30px 28px; text-align:center;
-              box-shadow:0 30px 60px -30px rgba(35,42,74,.4);}
-  .sgate .lock{width:56px; height:56px; border-radius:50%; background:var(--gold-soft);
-               display:grid; place-items:center; margin:0 auto 16px;}
-  .sgate h2{font-size:20px; font-weight:900; letter-spacing:-.3px; margin:0; color:var(--ink);}
-  .sgate p{font-size:13px; color:var(--mute); margin-top:8px; line-height:1.55;}
-  .sgate input{width:100%; margin-top:20px; padding:14px 16px; border-radius:13px;
-               border:1.5px solid var(--line); background:var(--page); font:inherit;
-               font-size:18px; letter-spacing:.35em; text-align:center; color:var(--ink);}
-  .sgate input:focus{outline:none; border-color:var(--blue); background:#fff;}
-  .sgate .err{min-height:18px; font-size:12.5px; color:#C0392B; font-weight:700; margin-top:9px;}
-  .sgate button{width:100%; padding:14px; border:none; border-radius:13px; cursor:pointer;
-                background:var(--ink); color:#fff; font:inherit; font-weight:700; font-size:15px;}
-  .sgate button:hover{filter:brightness(1.15);}
-  .sgate .back{margin-top:10px; background:#fff; color:var(--mute); border:1.5px solid var(--line);}
   .backbar{padding:20px 0 8px;}
   .backbar a{display:inline-flex; align-items:center; gap:7px; text-decoration:none;
              color:var(--mute); font-size:13px; font-weight:500;}
@@ -114,23 +92,7 @@
   }
 </style>
 </head>
-<body class="locked">
-<div class="sgate" id="sgate">
-  <div class="box">
-    <div class="lock">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="4" y="10" width="16" height="11" rx="2.5" stroke="#C9A227" stroke-width="2"/>
-        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#C9A227" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <h2>시장 구조</h2>
-    <p>내부 자료입니다.<br>공통 열람 비밀번호를 입력해 주세요.</p>
-    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off" aria-label="비밀번호">
-    <div class="err" id="sErr"></div>
-    <button id="sBtn">열기</button>
-    <button class="back" id="sBack">처음 화면으로</button>
-  </div>
-</div>
+<body>
 <div class="wrap">
 
   <div class="backbar"><a href="index.html"><span>←</span> BRK Genius</a></div>
@@ -168,35 +130,35 @@
   <rect x="110" y="60" width="314" height="352" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
   <text x="267" y="90" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#085041">디저트 전문점</text>
   <text x="267" y="115" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#085041">3조 9,600억 · 48%</text>
-  <text x="132" y="160" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 케이크·베이커리 44% (21%)</text>
-  <text x="132" y="186" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 카페 디저트 35% (17%)</text>
-  <text x="132" y="212" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 빙수·기타 8% (4%)</text>
-  <text x="132" y="238" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 패스트푸드 7% (3%)</text>
-  <text x="132" y="264" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 도넛 6% (3%)</text>
+  <text x="132" y="160" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 케이크·베이커리 1조 7,500억 · 44% (21%)</text>
+  <text x="132" y="186" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 카페 디저트 1조 3,800억 · 35% (17%)</text>
+  <text x="132" y="212" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 빙수·기타 3,000억 · 8% (4%)</text>
+  <text x="132" y="238" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 패스트푸드 2,800억 · 7% (3%)</text>
+  <text x="132" y="264" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 도넛 2,500억 · 6% (3%)</text>
   <text x="132" y="382" dominant-baseline="central" font-size="14" font-weight="700" fill="#085041">Expansion opportunity</text>
 
   <rect x="110" y="420" width="314" height="88" rx="8" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.5"/>
   <text x="267" y="445" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#72243E">아이스크림 전문점 · 9,940억 · 12%</text>
-  <text x="132" y="475" dominant-baseline="central" font-size="12.5" fill="#993556">• 배스킨라빈스 90% (11%)</text>
-  <text x="132" y="495" dominant-baseline="central" font-size="12.5" fill="#993556">• 기타 브랜드 10% (1%)</text>
+  <text x="132" y="475" dominant-baseline="central" font-size="12.5" fill="#993556">• 배스킨라빈스 8,940억 · 90% (11%)</text>
+  <text x="132" y="495" dominant-baseline="central" font-size="12.5" fill="#993556">• 기타 브랜드 1,000억 · 10% (1%)</text>
 
   <rect x="432" y="60" width="206" height="238" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
   <text x="535" y="90" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">디저트 소매</text>
   <text x="535" y="115" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">1조 7,589억 · 21%</text>
-  <text x="452" y="160" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 40% (8%)</text>
-  <text x="452" y="186" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 27% (6%)</text>
-  <text x="452" y="212" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 16% (4%)</text>
-  <text x="452" y="238" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 9% (2%)</text>
-  <text x="452" y="264" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 7% (2%)</text>
+  <text x="452" y="160" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 6,950억 · 40% (8%)</text>
+  <text x="452" y="186" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 4,827억 · 27% (6%)</text>
+  <text x="452" y="212" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 2,888억 · 16% (4%)</text>
+  <text x="452" y="238" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 1,642억 · 9% (2%)</text>
+  <text x="452" y="264" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 1,284억 · 7% (2%)</text>
 
   <rect x="432" y="306" width="206" height="202" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
   <text x="535" y="334" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">아이스크림 소매</text>
   <text x="535" y="359" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">1조 4,923억 · 18%</text>
-  <text x="452" y="397" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 46% (8%)</text>
-  <text x="452" y="419" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 35% (6%)</text>
-  <text x="452" y="441" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 7% (1%)</text>
-  <text x="452" y="463" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 7% (1%)</text>
-  <text x="452" y="485" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 5% (1%)</text>
+  <text x="452" y="397" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 6,933억 · 46% (8%)</text>
+  <text x="452" y="419" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 5,284억 · 35% (6%)</text>
+  <text x="452" y="441" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 1,020억 · 7% (1%)</text>
+  <text x="452" y="463" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 979억 · 7% (1%)</text>
+  <text x="452" y="485" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 707억 · 5% (1%)</text>
 
   <rect x="110" y="528" width="314" height="26" rx="4" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
   <text x="267" y="541" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#444441">Specialty</text>
@@ -205,7 +167,7 @@
   <text x="535" y="541" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#444441">Retail</text>
 
   <text x="40" y="586" dominant-baseline="central" font-size="12" fill="#6E769B">칸 면적 = 시장 비중에 비례 · 총 8조 2,052억 원 · 반올림으로 합계 100% 아님</text>
-  <text x="40" y="608" dominant-baseline="central" font-size="12" fill="#6E769B">앞 % = 해당 칸 내 점유율, 괄호 안 % = 전체 시장 대비</text>
+  <text x="40" y="608" dominant-baseline="central" font-size="12" fill="#6E769B">금액 뒤 % = 해당 칸 내 점유율, 괄호 안 % = 전체 시장 대비</text>
   </svg>
   </div>
 
@@ -354,36 +316,6 @@
 (function(){
   var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
   document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
-})();
-</script>
-<script>
-/* 시장 구조는 공통 비밀번호 2701 로 열립니다.
-   분석·위치 지도 페이지와 같은 열쇠(br_all_ok)를 씁니다. */
-var ALL_CODE = "2701";
-(function(){
-  var ALLKEY = "br_all_ok";
-  var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
-  function ok(){ try { return sessionStorage.getItem(ALLKEY) === "1"; } catch(e){ return false; } }
-  function unlock(){
-    try { sessionStorage.setItem(ALLKEY, "1"); } catch(e){}
-    document.body.classList.remove("locked");
-  }
-  function attempt(){
-    var el = document.getElementById("sCode"), v = (el && el.value) || "";
-    if (v === ALL_CODE) { unlock(); }
-    else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
-           if (el) { el.value = ""; el.focus(); } }
-  }
-  if (inFrame) {
-    var bb = document.querySelector(".backbar"); if (bb) bb.style.display = "none";
-    var sb = document.getElementById("sBack");   if (sb) sb.style.display = "none";
-  }
-  if (ok()) document.body.classList.remove("locked");
-  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
-  document.getElementById("sBtn").addEventListener("click", attempt);
-  document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key === "Enter") attempt(); });
-  var back = document.getElementById("sBack");
-  if (back) back.addEventListener("click", function(){ window.location.href = "index.html"; });
 })();
 </script>
 </body>
