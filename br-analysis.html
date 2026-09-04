@@ -370,9 +370,11 @@
 </script>
 
 <script>
+/* 분석 페이지는 공통 비밀번호 2701 로 열립니다.
+   위치 지도 페이지와 같은 열쇠(br_all_ok)를 써서, 한 번 열면 서로 오갈 때 다시 안 묻습니다. */
 var ANALYSIS_CODE = "2701";
 (function(){
-  var SKEY = "br_analysis_ok";
+  var SKEY = "br_all_ok";
   function ok(){ try { return sessionStorage.getItem(SKEY) === "1"; } catch(e){ return false; } }
   function unlock(){ try { sessionStorage.setItem(SKEY,"1"); } catch(e){}
                      document.body.classList.remove("locked"); }

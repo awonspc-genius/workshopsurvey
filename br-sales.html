@@ -654,21 +654,24 @@ new Chart(document.getElementById('c'), {
 
 <script>
 /* =====================================================================
-   PASSCODE GATE  (added)
-   - SALES_CODE       : 매출 열람 비밀번호. 설문 관리자 코드와 다르게 두는 것을 권장.
+   PASSCODE GATE
+   - SALES_CODE : 이 매출 페이지 전용 비밀번호. 이걸로 열면 매출 페이지만 열립니다.
+   - ALL_CODE   : 공통 비밀번호. 이걸로 열면 위치 지도 페이지까지 같이 열립니다.
+   두 개 다 이 페이지를 엽니다.
    - TRUST_ADMIN_SESSION : true 면, 설문 관리자 대시보드를 이미 열었을 때
                            매출 탭을 다시 묻지 않고 바로 보여줍니다.
-                           매출 접근을 더 좁히려면 false 로 바꾸세요.
    ===================================================================== */
 var SALES_CODE = "3131";
+var ALL_CODE   = "2701";
 var TRUST_ADMIN_SESSION = false;
 
 (function(){
-  var SKEY = "br_sales_ok", AKEY = "br_admin_ok";
+  var SKEY = "br_sales_ok", AKEY = "br_admin_ok", ALLKEY = "br_all_ok";
   var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
 
   function ok(){
     try { return sessionStorage.getItem(SKEY) === "1" ||
+                 sessionStorage.getItem(ALLKEY) === "1" ||
                  (TRUST_ADMIN_SESSION && sessionStorage.getItem(AKEY) === "1"); }
     catch(e){ return false; }
   }
@@ -681,15 +684,16 @@ var TRUST_ADMIN_SESSION = false;
     requestAnimationFrame(go);
     setTimeout(go, 60); setTimeout(go, 300); setTimeout(go, 900);
   }
-  function unlock(){
-    try { sessionStorage.setItem(SKEY, "1"); } catch(e){}
+  function unlock(key){
+    try { sessionStorage.setItem(key, "1"); } catch(e){}
     document.body.classList.remove("locked");
     toEnd();
   }
   function attempt(){
     var el = document.getElementById("sCode");
     var v = (el && el.value) || "";
-    if (v === SALES_CODE) { unlock(); }
+    if (v === ALL_CODE)        { unlock(ALLKEY); }   /* 공통 비번 -> 지도 페이지까지 열림 */
+    else if (v === SALES_CODE) { unlock(SKEY); }     /* 매출 전용 비번 -> 이 페이지만 */
     else {
       document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
       if (el) { el.value = ""; el.focus(); }

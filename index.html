@@ -62,6 +62,8 @@
               box-shadow:0 22px 44px -28px rgba(21,27,54,.75);}
   .gate.market{background:linear-gradient(158deg,var(--green) 0%,var(--green-deep) 100%);
                box-shadow:0 22px 44px -28px rgba(8,69,47,.75);}
+  .gate.map{background:linear-gradient(158deg,#3E6FB8 0%,#1F3F70 100%);
+             grid-column:1 / -1;}
   .gate.onsite{background:linear-gradient(158deg,var(--pink) 0%,var(--pink-deep) 100%);
                box-shadow:0 22px 44px -28px rgba(158,0,96,.7);}
 
@@ -69,6 +71,7 @@
   .gate.survey:hover{box-shadow:0 32px 58px -26px rgba(30,55,149,.85);}
   .gate.sales:hover{box-shadow:0 32px 58px -26px rgba(21,27,54,.85);}
   .gate.market:hover{box-shadow:0 32px 58px -26px rgba(8,69,47,.85);}
+  .gate.map:hover{box-shadow:0 32px 58px -26px rgba(31,63,112,.85);}
   .gate.onsite:hover{box-shadow:0 32px 58px -26px rgba(158,0,96,.8);}
   .gate:focus-visible{outline:3px solid var(--gold); outline-offset:4px;}
 
@@ -79,6 +82,7 @@
   .gate.survey .acc{background:rgba(255,255,255,.16); color:#fff;}
   .gate.sales  .acc{background:var(--gold); color:#3A2C05;}
   .gate.market .acc{background:var(--gold); color:#3A2C05;}
+  .gate.map .acc{background:var(--gold); color:#3A2C05;}
   .gate.onsite .acc{background:rgba(255,255,255,.18); color:#fff;}
 
   .art{flex:1; display:grid; place-items:center; padding:16px 0 10px; min-height:96px;}
@@ -96,13 +100,14 @@
          border-top:1px solid rgba(255,255,255,.16);}
   .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; line-height:1;}
   .stat .l{font-size:11px; color:rgba(255,255,255,.62); margin-top:6px; letter-spacing:.02em;}
-  .gate.sales .stat .v, .gate.market .stat .v{color:var(--gold-soft);}
+  .gate.sales .stat .v, .gate.market .stat .v, .gate.map .stat .v{color:var(--gold-soft);}
 
   .go{display:inline-flex; align-items:center; gap:9px; margin-top:20px; align-self:flex-start;
       font-weight:700; font-size:14px; padding:12px 20px; border-radius:14px;
       background:#fff; color:var(--blue-deep); transition:gap .2s ease;}
   .gate.sales .go{background:var(--gold); color:#3A2C05;}
   .gate.market .go{background:var(--gold); color:#3A2C05;}
+  .gate.map .go{background:var(--gold); color:#3A2C05;}
   .gate.onsite .go{background:#fff; color:var(--pink-deep);}
   .gate:hover .go{gap:15px;}
   .go svg{flex:none;}
@@ -118,6 +123,7 @@
 
   @media (max-width:860px){
     .grid{grid-template-columns:minmax(0,1fr); gap:14px;}
+    .gate.map{grid-column:auto;}
     .gate{min-height:0;}
     .seam{display:none;}
     .art{min-height:0; padding:14px 0 8px;}
@@ -223,6 +229,32 @@
     </span>
   </a>
 
+  <a class="gate map" href="br-stores.html">
+    <span class="acc">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span data-t="a5">대외비 · 비밀번호</span>
+    </span>
+    <div class="art">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+        <path d="M44 20 L44 90 M76 32 L76 102" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="60" cy="52" r="9" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
+        <path d="M60 61 L60 76" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2 data-t="t5">가맹점 위치 지도</h2>
+    <div class="yr">2026.07</div>
+    <p class="desc" data-t="d5">1,708개 점포를 지도에 놓고 지역·팀·상권별로 매출을 비교해요.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
+      <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
+      <div class="stat"><div class="v">843<small style="font-size:12px">억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
+    </div>
+    <span class="go"><span data-t="g5">지도 열기</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
   <a class="gate onsite" href="br-store-report.html">
     <span class="acc" data-t="a4">사내 공개</span>
     <div class="art">
@@ -282,6 +314,9 @@ var EN = {
   s3a:'total market', s3b:'specialty share', s3c:'segments',
   s4a:'shots', s4b:'print format',
   g1:'Open survey site', g2:'Open sales timeline', g3:'Open market structure', g4:'Start a report',
+  a5:'Confidential · passcode', t5:'Franchise Store Map',
+  d5:'All 1,708 stores on a map — compare sales by region, team and trade area.',
+  s5a:'stores', s5b:'districts', s5c:'July sales', g5:'Open map',
   ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };
 var KO = {};

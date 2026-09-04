@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>BR 코리아 시장 구조 · BRK Genius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#232A4A; --ink-deep:#151B36; --mute:#6E769B;
+    --blue:#2B4CC4; --gold:#C9A227; --gold-soft:#F7EFD8;
+    --green:#0F6E56; --green-50:#E1F5EE; --green-800:#085041;
+    --pink:#D4537E; --pink-50:#FBEAF0; --pink-800:#72243E;
+    --gray-50:#F1EFE8; --gray-600:#5F5E5A; --gray-800:#444441;
+    --page:#EEF1F7; --line:#DDE2EE; --paper:#FFFFFF;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{
+    font-family:'Noto Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;
+    color:var(--ink); background:var(--page);
+    background-image:radial-gradient(circle at 1px 1px, rgba(35,42,74,.055) 1.5px, transparent 1.6px);
+    background-size:26px 26px;
+    padding:0 0 60px;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:0 clamp(16px,4vw,32px);}
+
+  /* ── 비밀번호 잠금 ── */
+  body.locked > .wrap{display:none;}
+  body.locked{padding:0;}
+  .sgate{position:fixed; inset:0; z-index:9999; display:none; place-items:center;
+         background:radial-gradient(120% 80% at 50% 0%, #fff 0%, var(--page) 60%);}
+  body.locked .sgate{display:grid;}
+  .sgate .box{width:min(380px,88vw); background:var(--paper); border:1.5px solid var(--line);
+              border-radius:20px; padding:34px 30px 28px; text-align:center;
+              box-shadow:0 30px 60px -30px rgba(35,42,74,.4);}
+  .sgate .lock{width:56px; height:56px; border-radius:50%; background:var(--gold-soft);
+               display:grid; place-items:center; margin:0 auto 16px;}
+  .sgate h2{font-size:20px; font-weight:900; letter-spacing:-.3px; margin:0; color:var(--ink);}
+  .sgate p{font-size:13px; color:var(--mute); margin-top:8px; line-height:1.55;}
+  .sgate input{width:100%; margin-top:20px; padding:14px 16px; border-radius:13px;
+               border:1.5px solid var(--line); background:var(--page); font:inherit;
+               font-size:18px; letter-spacing:.35em; text-align:center; color:var(--ink);}
+  .sgate input:focus{outline:none; border-color:var(--blue); background:#fff;}
+  .sgate .err{min-height:18px; font-size:12.5px; color:#C0392B; font-weight:700; margin-top:9px;}
+  .sgate button{width:100%; padding:14px; border:none; border-radius:13px; cursor:pointer;
+                background:var(--ink); color:#fff; font:inherit; font-weight:700; font-size:15px;}
+  .sgate button:hover{filter:brightness(1.15);}
+  .sgate .back{margin-top:10px; background:#fff; color:var(--mute); border:1.5px solid var(--line);}
+  .backbar{padding:20px 0 8px;}
+  .backbar a{display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+             color:var(--mute); font-size:13px; font-weight:500;}
+  .backbar a:hover{color:var(--blue);}
+
+  header{padding:14px 0 28px; border-bottom:1px solid var(--line); margin-bottom:28px;}
+  h1{font-size:clamp(26px,3.4vw,34px); font-weight:900; letter-spacing:-.035em;}
+  h1 em{font-style:normal; color:var(--green);}
+  .sub{font-size:14px; color:var(--mute); margin-top:8px; line-height:1.6;}
+
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0;
+        border:1px solid var(--line); border-radius:14px; background:var(--paper);
+        overflow:hidden; margin-bottom:32px;}
+  .kpi{padding:16px 18px;}
+  .kpi + .kpi{border-left:1px solid var(--line);}
+  .kpi .l{font-size:11.5px; color:var(--mute); margin-bottom:6px;}
+  .kpi .v{font-size:20px; font-weight:900; letter-spacing:-.02em;}
+  .kpi .v small{font-size:12px; font-weight:500; margin-left:1px;}
+
+  h2{font-size:19px; font-weight:700; margin:36px 0 14px; letter-spacing:-.02em;}
+  h2:first-of-type{margin-top:0;}
+  .note{font-size:12.5px; color:var(--mute); line-height:1.7; margin-bottom:14px;}
+
+  .board{background:var(--paper); border:1px solid var(--line); border-radius:16px;
+         padding:22px 18px; overflow-x:auto;}
+  .board svg{display:block; width:100%; min-width:640px; height:auto;}
+
+  table{width:100%; border-collapse:collapse; background:var(--paper);
+        border:1px solid var(--line); border-radius:14px; overflow:hidden; font-size:13.5px;}
+  thead th{background:#F6F8FC; font-weight:700; text-align:left; padding:12px 14px;
+           border-bottom:1px solid var(--line); font-size:12.5px; color:var(--ink);
+           white-space:nowrap;}
+  tbody td{padding:11px 14px; border-bottom:1px solid #EFF2F8; vertical-align:top; line-height:1.6;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.sum td{background:#F6F8FC; font-weight:700;}
+  td.num, th.num{text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  td.cat{font-weight:700; white-space:nowrap;}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:3px 8px;
+       border-radius:999px; white-space:nowrap;}
+  .tag.real{background:var(--green-50); color:var(--green-800);}
+  .tag.calc{background:#E6F1FB; color:#0C447C;}
+  .tag.est{background:var(--gold-soft); color:#633806;}
+  a.src{color:var(--blue); text-decoration:none; border-bottom:1px solid #C7D2F0;}
+  a.src:hover{border-bottom-color:var(--blue);}
+  .scroll{overflow-x:auto;}
+
+  .warn{background:var(--gold-soft); border:1px solid #E8D9A8; border-radius:14px;
+        padding:16px 18px; font-size:13px; line-height:1.8; color:#5A4207; margin-top:14px;}
+  .warn b{font-weight:700;}
+
+  footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line);
+         display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+         font-size:12px; color:var(--mute);}
+
+  @media (max-width:620px){
+    table{font-size:12.5px;}
+    thead th, tbody td{padding:9px 10px;}
+  }
+  @media print{
+    body{background:#fff; background-image:none;}
+    .backbar{display:none;}
+    .board, table, .kpis{break-inside:avoid;}
+  }
+</style>
+</head>
+<body class="locked">
+<div class="sgate" id="sgate">
+  <div class="box">
+    <div class="lock">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="16" height="11" rx="2.5" stroke="#C9A227" stroke-width="2"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#C9A227" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2>시장 구조</h2>
+    <p>내부 자료입니다.<br>공통 열람 비밀번호를 입력해 주세요.</p>
+    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off" aria-label="비밀번호">
+    <div class="err" id="sErr"></div>
+    <button id="sBtn">열기</button>
+    <button class="back" id="sBack">처음 화면으로</button>
+  </div>
+</div>
+<div class="wrap">
+
+  <div class="backbar"><a href="index.html"><span>←</span> BRK Genius</a></div>
+
+  <header>
+    <h1>BR 코리아 <em>시장 구조</em></h1>
+    <p class="sub">
+      디저트 × 아이스크림, 전문점 × 소매 네 칸의 시장 규모와 우리 위치<br>
+      기준일 2026.09.04 · 총 8조 2,052억 원
+    </p>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="l">전체 시장</div><div class="v">8조 2,052<small>억</small></div></div>
+    <div class="kpi"><div class="l">디저트 전문점</div><div class="v">3조 9,600<small>억 · 48%</small></div></div>
+    <div class="kpi"><div class="l">아이스크림 전문점</div><div class="v">9,940<small>억 · 12%</small></div></div>
+    <div class="kpi"><div class="l">배라 전문점 점유</div><div class="v">90<small>%</small></div></div>
+  </div>
+
+  <h2>시장 구조</h2>
+  <p class="note">칸 면적은 시장 비중에 비례합니다. 앞 %는 해당 칸 안에서의 점유율, 괄호 안 %는 전체 시장 대비입니다.</p>
+
+  <div class="board">
+  <svg viewBox="0 0 680 640" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>BR 코리아 시장 구조 매트릭스</title>
+  <desc>왼쪽 전문점, 오른쪽 소매. 위 디저트, 아래 아이스크림. 네 칸 면적이 시장 비중에 비례.</desc>
+
+  <rect x="40" y="60" width="62" height="352" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="71" y="236" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#085041">Dessert</text>
+
+  <rect x="40" y="420" width="62" height="88" rx="4" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.5"/>
+  <text x="71" y="455" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#72243E">Ice</text>
+  <text x="71" y="473" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#72243E">Cream</text>
+
+  <rect x="110" y="60" width="314" height="352" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="267" y="90" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#085041">디저트 전문점</text>
+  <text x="267" y="115" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#085041">3조 9,600억 · 48%</text>
+  <text x="132" y="160" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 케이크·베이커리 44% (21%)</text>
+  <text x="132" y="186" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 카페 디저트 35% (17%)</text>
+  <text x="132" y="212" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 빙수·기타 8% (4%)</text>
+  <text x="132" y="238" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 패스트푸드 7% (3%)</text>
+  <text x="132" y="264" dominant-baseline="central" font-size="12.5" fill="#0F6E56">• 도넛 6% (3%)</text>
+  <text x="132" y="382" dominant-baseline="central" font-size="14" font-weight="700" fill="#085041">Expansion opportunity</text>
+
+  <rect x="110" y="420" width="314" height="88" rx="8" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.5"/>
+  <text x="267" y="445" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#72243E">아이스크림 전문점 · 9,940억 · 12%</text>
+  <text x="132" y="475" dominant-baseline="central" font-size="12.5" fill="#993556">• 배스킨라빈스 90% (11%)</text>
+  <text x="132" y="495" dominant-baseline="central" font-size="12.5" fill="#993556">• 기타 브랜드 10% (1%)</text>
+
+  <rect x="432" y="60" width="206" height="238" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="535" y="90" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">디저트 소매</text>
+  <text x="535" y="115" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">1조 7,589억 · 21%</text>
+  <text x="452" y="160" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 40% (8%)</text>
+  <text x="452" y="186" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 27% (6%)</text>
+  <text x="452" y="212" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 16% (4%)</text>
+  <text x="452" y="238" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 9% (2%)</text>
+  <text x="452" y="264" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 7% (2%)</text>
+
+  <rect x="432" y="306" width="206" height="202" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="535" y="334" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">아이스크림 소매</text>
+  <text x="535" y="359" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#444441">1조 4,923억 · 18%</text>
+  <text x="452" y="397" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 편의점 46% (8%)</text>
+  <text x="452" y="419" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 일반슈퍼 35% (6%)</text>
+  <text x="452" y="441" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 체인슈퍼 7% (1%)</text>
+  <text x="452" y="463" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 식자재마트 7% (1%)</text>
+  <text x="452" y="485" dominant-baseline="central" font-size="12.5" fill="#5F5E5A">• 할인점 5% (1%)</text>
+
+  <rect x="110" y="528" width="314" height="26" rx="4" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="267" y="541" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#444441">Specialty</text>
+
+  <rect x="432" y="528" width="206" height="26" rx="4" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="535" y="541" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#444441">Retail</text>
+
+  <text x="40" y="586" dominant-baseline="central" font-size="12" fill="#6E769B">칸 면적 = 시장 비중에 비례 · 총 8조 2,052억 원 · 반올림으로 합계 100% 아님</text>
+  <text x="40" y="608" dominant-baseline="central" font-size="12" fill="#6E769B">앞 % = 해당 칸 내 점유율, 괄호 안 % = 전체 시장 대비</text>
+  </svg>
+  </div>
+
+  <h2>칸별 규모와 출처</h2>
+  <p class="note">
+    <span class="tag real">실측</span> 자사 데이터 또는 조사기관 원자료 &nbsp;
+    <span class="tag calc">계산</span> 공시·공개 자료를 조합해 산출 &nbsp;
+    <span class="tag est">추정</span> 가정 적용, 검증 필요
+  </p>
+
+  <div class="scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>구분</th><th>항목</th><th class="num">규모</th><th class="num">칸 내</th><th class="num">전체</th>
+        <th>상태</th><th>산출 근거 및 출처</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cat" rowspan="6">디저트<br>전문점</td>
+        <td>케이크·베이커리</td><td class="num">1조 7,500억</td><td class="num">44%</td><td class="num">21%</td>
+        <td><span class="tag calc">계산</span></td>
+        <td>제과점업 약 7조 × 케이크·디저트 25%. 제빵시장 12조에서 역산 (<a class="src" href="https://www.nongmin.com/article/20240409500019" target="_blank" rel="noopener">농민신문</a>) · 파리바게뜨 3,402개 × 7.16억, 뚜레쥬르 1,285개 × 5.17억으로 교차 검증 (<a class="src" href="https://rank.intoday.kr/488" target="_blank" rel="noopener">정보공개서</a>)</td>
+      </tr>
+      <tr>
+        <td>카페 디저트</td><td class="num">1조 3,800억</td><td class="num">35%</td><td class="num">17%</td>
+        <td><span class="tag calc">계산</span></td>
+        <td>커피전문점 9.2조 (<a class="src" href="https://ko.markethub.org/KRS25-00017" target="_blank" rel="noopener">markethub</a>) × 푸드 비중 15%. SCK컴퍼니 매출 대비 신세계푸드 납품 8.1%에서 역산 (<a class="src" href="https://www.topdaily.kr/articles/97769" target="_blank" rel="noopener">topdaily</a>)</td>
+      </tr>
+      <tr>
+        <td>빙수·기타</td><td class="num">3,000억</td><td class="num">8%</td><td class="num">4%</td>
+        <td><span class="tag est">추정</span></td>
+        <td>설빙 등 빙수 브랜드 <a class="src" href="https://franchise.ftc.go.kr" target="_blank" rel="noopener">공정위 정보공개서</a>로 확정 예정</td>
+      </tr>
+      <tr>
+        <td>패스트푸드</td><td class="num">2,800억</td><td class="num">7%</td><td class="num">3%</td>
+        <td><span class="tag est">추정</span></td>
+        <td>한국맥도날드 1조 4,310억 (<a class="src" href="https://www.g-enews.com/article/Distribution/2026/04/202604301520437133056c162803_1" target="_blank" rel="noopener">글로벌이코노믹</a>), 롯데GRS 1조 3,000억 (<a class="src" href="https://www.ceomagazine.co.kr/ko-kr/articles/33623" target="_blank" rel="noopener">CEO매거진</a>) × 디저트 비중. 디저트 매출 별도 공시 없음</td>
+      </tr>
+      <tr>
+        <td>도넛</td><td class="num">2,500억</td><td class="num">6%</td><td class="num">3%</td>
+        <td><span class="tag calc">계산</span></td>
+        <td>던킨 613개 × 2.96억, 크리스피크림 60개 × 3.61억 (<a class="src" href="https://rank.intoday.kr/488" target="_blank" rel="noopener">정보공개서</a>) + 노티드·랜디스도넛 추정</td>
+      </tr>
+      <tr class="sum">
+        <td>소계</td><td class="num">3조 9,600억</td><td class="num">100%</td><td class="num">48%</td><td></td><td></td>
+      </tr>
+
+      <tr>
+        <td class="cat" rowspan="3">아이스크림<br>전문점</td>
+        <td>배스킨라빈스</td><td class="num">8,940억</td><td class="num">90%</td><td class="num">11%</td>
+        <td><span class="tag real">실측</span></td>
+        <td>자사 실적 2025.09~2026.08, 가맹점 1,708개, 부가세 제외. 7월 비중 8년 평균 9.65%로 검증</td>
+      </tr>
+      <tr>
+        <td>기타 브랜드</td><td class="num">1,000억</td><td class="num">10%</td><td class="num">1%</td>
+        <td><span class="tag est">추정</span></td>
+        <td>나뚜루, 고디바, 하겐다즈, 젤라또 전문점 등. 대부분 직영이라 공개 매출 없음. <a class="src" href="https://www.data.go.kr/data/15143710/openapi.do" target="_blank" rel="noopener">공정위 페어데이터 오픈API</a>로 확정 예정</td>
+      </tr>
+      <tr class="sum">
+        <td>소계</td><td class="num">9,940억</td><td class="num">100%</td><td class="num">12%</td><td></td><td></td>
+      </tr>
+
+      <tr>
+        <td class="cat" rowspan="6">디저트<br>소매</td>
+        <td>편의점</td><td class="num">6,950억</td><td class="num">40%</td><td class="num">8%</td>
+        <td><span class="tag real">실측</span></td>
+        <td rowspan="5"><a class="src" href="https://www.atfis.or.kr" target="_blank" rel="noopener">aT FIS 식품산업통계정보</a> 시장분석 &gt; 소매POS, 2025년.<br>비스킷 1조 2,157억 중 크래커 제외 → 9,055억 · 빵 7,440억 중 케익·크림빵만 → 3,082억 · 초콜릿 5,453억</td>
+      </tr>
+      <tr><td>일반슈퍼</td><td class="num">4,827억</td><td class="num">27%</td><td class="num">6%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>할인점</td><td class="num">2,888억</td><td class="num">16%</td><td class="num">4%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>식자재마트</td><td class="num">1,642억</td><td class="num">9%</td><td class="num">2%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>체인슈퍼</td><td class="num">1,284억</td><td class="num">7%</td><td class="num">2%</td><td><span class="tag real">실측</span></td></tr>
+      <tr class="sum">
+        <td>소계</td><td class="num">1조 7,589억</td><td class="num">100%</td><td class="num">21%</td><td></td><td></td>
+      </tr>
+
+      <tr>
+        <td class="cat" rowspan="6">아이스크림<br>소매</td>
+        <td>편의점</td><td class="num">6,933억</td><td class="num">46%</td><td class="num">8%</td>
+        <td><span class="tag real">실측</span></td>
+        <td rowspan="5"><a class="src" href="https://www.atfis.or.kr" target="_blank" rel="noopener">aT FIS 식품산업통계정보</a> 시장분석 &gt; 소매POS, 빙과 2025년.<br>2024년 1조 5,358억 대비 −2.84%</td>
+      </tr>
+      <tr><td>일반슈퍼</td><td class="num">5,284억</td><td class="num">35%</td><td class="num">6%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>체인슈퍼</td><td class="num">1,020억</td><td class="num">7%</td><td class="num">1%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>식자재마트</td><td class="num">979억</td><td class="num">7%</td><td class="num">1%</td><td><span class="tag real">실측</span></td></tr>
+      <tr><td>할인점</td><td class="num">707억</td><td class="num">5%</td><td class="num">1%</td><td><span class="tag real">실측</span></td></tr>
+      <tr class="sum">
+        <td>소계</td><td class="num">1조 4,923억</td><td class="num">100%</td><td class="num">18%</td><td></td><td></td>
+      </tr>
+
+      <tr class="sum">
+        <td colspan="2">전체 합계</td><td class="num">8조 2,052억</td><td class="num">—</td><td class="num">100%</td><td></td><td></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn">
+    <b>읽을 때 주의할 점</b><br>
+    소매 두 칸의 원자료는 마켓링크 POS(2020~2026)입니다. 일부 유통채널의 POS만 수집·가공한 자료로 국내 소매유통 전체가 아니며, <b>온라인과 무인 아이스크림 할인점은 포함되지 않습니다.</b> 유로모니터 기준으로는 아이스크림 소매가 2조 1,461억이고 무인 할인점이 26.2%를 차지합니다.<br>
+    채널 구분은 편의점 · 일반슈퍼 · 할인점 · 체인슈퍼 · 식자재마트 5개입니다. 백화점은 2022년부터 0입니다.<br>
+    일본 BRJ 자료는 소비자 조사 기반이라 산출 방식이 다릅니다. <b>비중(%) 비교는 유효하나 절대 금액 직접 비교는 불가합니다.</b>
+  </div>
+
+  <h2>디저트 소매 산출 내역</h2>
+  <div class="scroll">
+  <table>
+    <thead>
+      <tr><th>품목</th><th class="num">전체 매출</th><th class="num">남긴 비율</th><th class="num">반영액</th><th>제외한 항목</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cat">비스킷</td><td class="num">1조 2,157억</td><td class="num">74.5%</td><td class="num">9,055억</td><td>크래커</td></tr>
+      <tr><td class="cat">빵</td><td class="num">7,440억</td><td class="num">41.4%</td><td class="num">3,082억</td><td>식빵 · 호빵 · 호떡 · 기타빵</td></tr>
+      <tr><td class="cat">초콜릿</td><td class="num">5,453억</td><td class="num">100%</td><td class="num">5,453억</td><td>없음</td></tr>
+      <tr class="sum"><td>합계</td><td class="num">—</td><td class="num">—</td><td class="num">1조 7,589억</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note" style="margin-top:12px">
+    일본 BRJ 장표가 Sweets에서 짭짤한 스낵·껌·사탕을 제외한 것과 같은 기준을 적용했습니다.
+    초콜릿은 소매POS의 순수 초콜릿(밀크·다크) 분류로, 초코과자는 비스킷 쪽에 포함돼 있어 중복되지 않습니다.
+  </p>
+
+  <h2>남은 작업</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>대상</th><th>할 일</th><th>확정되는 칸</th></tr></thead>
+    <tbody>
+      <tr><td class="cat">공정위 오픈API</td><td>나뚜루 · 설빙 · 노티드 · 랜디스도넛 조회</td><td>기타 브랜드 1,000억, 빙수·기타 3,000억, 도넛 2,500억</td></tr>
+      <tr><td class="cat">aT 소매POS</td><td>냉동디저트 분류 확인</td><td>디저트 소매 1조 7,589억</td></tr>
+      <tr><td class="cat">DART</td><td>맥도날드·롯데GRS 디저트 비중 근거 확보</td><td>패스트푸드 2,800억</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <footer>
+    <span>© Baskin-Robbins Korea · 마케팅전략실 지니어스팀</span>
+    <span id="today"></span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
+  document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
+})();
+</script>
+<script>
+/* 시장 구조는 공통 비밀번호 2701 로 열립니다.
+   분석·위치 지도 페이지와 같은 열쇠(br_all_ok)를 씁니다. */
+var ALL_CODE = "2701";
+(function(){
+  var ALLKEY = "br_all_ok";
+  var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
+  function ok(){ try { return sessionStorage.getItem(ALLKEY) === "1"; } catch(e){ return false; } }
+  function unlock(){
+    try { sessionStorage.setItem(ALLKEY, "1"); } catch(e){}
+    document.body.classList.remove("locked");
+  }
+  function attempt(){
+    var el = document.getElementById("sCode"), v = (el && el.value) || "";
+    if (v === ALL_CODE) { unlock(); }
+    else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
+           if (el) { el.value = ""; el.focus(); } }
+  }
+  if (inFrame) {
+    var bb = document.querySelector(".backbar"); if (bb) bb.style.display = "none";
+    var sb = document.getElementById("sBack");   if (sb) sb.style.display = "none";
+  }
+  if (ok()) document.body.classList.remove("locked");
+  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
+  document.getElementById("sBtn").addEventListener("click", attempt);
+  document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key === "Enter") attempt(); });
+  var back = document.getElementById("sBack");
+  if (back) back.addEventListener("click", function(){ window.location.href = "index.html"; });
+})();
+</script>
+</body>
+</html>
