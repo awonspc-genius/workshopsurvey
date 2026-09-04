@@ -13,6 +13,8 @@
     --ink:#232A4A; --ink-deep:#151B36; --mute:#6E769B;
     --blue:#2B4CC4; --blue-deep:#1E3795; --blue-soft:#E5E9F9;
     --gold:#C9A227; --gold-soft:#F7EFD8;
+    --green:#0F6E56; --green-deep:#08452F;
+    --pink:#EC0089; --pink-deep:#9E0060;
     --page:#EEF1F7; --line:#DDE2EE; --paper:#FFFFFF;
   }
   *{margin:0; padding:0; box-sizing:border-box;}
@@ -38,62 +40,74 @@
         border-radius:11px; padding:9px 15px; cursor:pointer; transition:all .16s ease;}
   .lang:hover{border-color:var(--blue); color:var(--blue);}
 
-  /* ---------- the fork ---------- */
-  .fork{flex:1; display:flex; align-items:stretch; gap:0;
-        padding:0 clamp(18px,4vw,44px) clamp(18px,3vw,34px); position:relative;}
+  /* ---------- uniform tile grid ---------- */
+  .grid{flex:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:clamp(14px,1.8vw,22px); position:relative;
+        padding:0 clamp(18px,4vw,44px) clamp(18px,3vw,34px);}
 
-  .gate{flex:1 1 50%; position:relative; overflow:hidden; text-decoration:none; color:inherit;
-        border-radius:26px; padding:clamp(28px,3.4vw,46px); display:flex; flex-direction:column;
-        min-height:clamp(400px,54vh,540px);
-        transition:flex-grow .55s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, transform .35s ease;
+  .gate{position:relative; overflow:hidden; text-decoration:none; color:#fff;
+        border-radius:26px; padding:clamp(24px,2.6vw,34px); display:flex; flex-direction:column;
+        min-height:clamp(300px,38vh,380px);
+        transition:box-shadow .3s ease, transform .3s ease;
         opacity:0; animation:rise .7s cubic-bezier(.22,1,.36,1) forwards;}
-  .gate:first-child{animation-delay:.05s; margin-right:clamp(9px,1.1vw,15px);}
-  .gate:last-child{animation-delay:.16s;  margin-left:clamp(9px,1.1vw,15px);}
+  .gate:nth-child(1){animation-delay:.04s;}
+  .gate:nth-child(2){animation-delay:.12s;}
+  .gate:nth-child(3){animation-delay:.20s;}
+  .gate:nth-child(4){animation-delay:.28s;}
   @keyframes rise{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
 
   .gate.survey{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
-               color:#fff; box-shadow:0 26px 50px -28px rgba(30,55,149,.75);}
+               box-shadow:0 22px 44px -28px rgba(30,55,149,.75);}
   .gate.sales{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
-              color:#fff; box-shadow:0 26px 50px -28px rgba(21,27,54,.75);}
+              box-shadow:0 22px 44px -28px rgba(21,27,54,.75);}
+  .gate.market{background:linear-gradient(158deg,var(--green) 0%,var(--green-deep) 100%);
+               box-shadow:0 22px 44px -28px rgba(8,69,47,.75);}
+  .gate.onsite{background:linear-gradient(158deg,var(--pink) 0%,var(--pink-deep) 100%);
+               box-shadow:0 22px 44px -28px rgba(158,0,96,.7);}
 
-  .fork:hover .gate{flex-grow:.82;}
-  .fork .gate:hover{flex-grow:1.36;}
-  .gate:hover{transform:translateY(-3px);}
-  .gate.survey:hover{box-shadow:0 34px 62px -26px rgba(30,55,149,.85);}
-  .gate.sales:hover{box-shadow:0 34px 62px -26px rgba(21,27,54,.85);}
+  .gate:hover{transform:translateY(-4px);}
+  .gate.survey:hover{box-shadow:0 32px 58px -26px rgba(30,55,149,.85);}
+  .gate.sales:hover{box-shadow:0 32px 58px -26px rgba(21,27,54,.85);}
+  .gate.market:hover{box-shadow:0 32px 58px -26px rgba(8,69,47,.85);}
+  .gate.onsite:hover{box-shadow:0 32px 58px -26px rgba(158,0,96,.8);}
   .gate:focus-visible{outline:3px solid var(--gold); outline-offset:4px;}
 
-  /* access label — encodes who may open it */
+  /* access label */
   .acc{display:inline-flex; align-items:center; gap:7px; align-self:flex-start;
        font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; letter-spacing:.16em;
        padding:7px 13px; border-radius:999px; text-transform:uppercase;}
   .gate.survey .acc{background:rgba(255,255,255,.16); color:#fff;}
   .gate.sales  .acc{background:var(--gold); color:#3A2C05;}
+  .gate.market .acc{background:var(--gold); color:#3A2C05;}
+  .gate.onsite .acc{background:rgba(255,255,255,.18); color:#fff;}
 
-  .art{flex:1; display:grid; place-items:center; padding:22px 0 12px; min-height:120px;}
-  .art svg{width:clamp(96px,13vw,150px); height:auto; display:block;
-           transition:transform .55s cubic-bezier(.22,1,.36,1);}
+  .art{flex:1; display:grid; place-items:center; padding:16px 0 10px; min-height:96px;}
+  .art svg{width:clamp(84px,9vw,116px); height:auto; display:block;
+           transition:transform .5s cubic-bezier(.22,1,.36,1);}
   .gate:hover .art svg{transform:translateY(-5px) scale(1.05);}
 
-  .gate h2{font-size:clamp(31px,4.4vw,50px); font-weight:900; letter-spacing:-.035em; line-height:1;}
-  .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(17px,1.9vw,22px);
-            letter-spacing:.02em; color:var(--gold); margin-top:9px;}
-  .gate .desc{font-size:14.5px; line-height:1.6; margin-top:13px; max-width:34ch;
+  .gate h2{font-size:clamp(24px,2.8vw,34px); font-weight:900; letter-spacing:-.035em; line-height:1.1;}
+  .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(15px,1.5vw,18px);
+            letter-spacing:.02em; color:var(--gold-soft); margin-top:8px;}
+  .gate.survey .yr, .gate.onsite .yr{color:rgba(255,255,255,.86);}
+  .gate .desc{font-size:13.5px; line-height:1.6; margin-top:11px; max-width:36ch;
               color:rgba(255,255,255,.74);}
-  .stats{display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; padding-top:18px;
+  .stats{display:flex; gap:18px; flex-wrap:wrap; margin-top:16px; padding-top:15px;
          border-top:1px solid rgba(255,255,255,.16);}
-  .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:21px; line-height:1;}
-  .stat .l{font-size:11.5px; color:rgba(255,255,255,.62); margin-top:6px; letter-spacing:.02em;}
-  .gate.sales .stat .v{color:var(--gold-soft);}
+  .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; line-height:1;}
+  .stat .l{font-size:11px; color:rgba(255,255,255,.62); margin-top:6px; letter-spacing:.02em;}
+  .gate.sales .stat .v, .gate.market .stat .v{color:var(--gold-soft);}
 
-  .go{display:inline-flex; align-items:center; gap:9px; margin-top:24px; align-self:flex-start;
-      font-weight:700; font-size:15px; padding:14px 22px; border-radius:14px;
-      background:#fff; color:var(--blue-deep); transition:gap .2s ease, background .2s ease;}
+  .go{display:inline-flex; align-items:center; gap:9px; margin-top:20px; align-self:flex-start;
+      font-weight:700; font-size:14px; padding:12px 20px; border-radius:14px;
+      background:#fff; color:var(--blue-deep); transition:gap .2s ease;}
   .gate.sales .go{background:var(--gold); color:#3A2C05;}
+  .gate.market .go{background:var(--gold); color:#3A2C05;}
+  .gate.onsite .go{background:#fff; color:var(--pink-deep);}
   .gate:hover .go{gap:15px;}
   .go svg{flex:none;}
 
-  /* seam: the 31 mark sits exactly on the fork */
+  /* seam: the 31 mark sits at the centre of the 2×2 grid */
   .seam{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:3;
         pointer-events:none; width:56px; height:56px; border-radius:50%; background:var(--page);
         display:grid; place-items:center; box-shadow:0 0 0 7px var(--page);}
@@ -102,34 +116,12 @@
          flex-wrap:wrap; gap:8px; padding:0 clamp(18px,4vw,44px) 24px;
          font-size:12px; color:var(--mute);}
 
-  /* ---------- on-site field note strip ---------- */
-  .onsite{display:flex; align-items:center; gap:18px; text-decoration:none; color:inherit;
-          margin:0 clamp(18px,4vw,44px) clamp(14px,2vw,20px); padding:17px 22px;
-          background:var(--paper); border:1.5px solid var(--line); border-left:4px solid #EC0089;
-          border-radius:16px; transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;}
-  .onsite:hover{border-color:#EC0089; box-shadow:0 10px 26px -18px rgba(35,42,74,.55); transform:translateY(-1px);}
-  .onsite:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
-  .onsite .cam{font-size:23px; line-height:1; flex:none;}
-  .onsite .txt{flex:1; min-width:0;}
-  .onsite .kick{font-family:'Fredoka',sans-serif; font-weight:600; font-size:10.5px;
-                letter-spacing:.16em; color:#EC0089; display:block; margin-bottom:4px;}
-  .onsite .ttl{font-weight:900; font-size:16.5px; letter-spacing:-.025em; display:block;}
-  .onsite .sub{font-size:12.5px; color:var(--mute); display:block; margin-top:3px;}
-  .onsite .cta{flex:none; font-weight:700; font-size:13px; padding:9px 17px; border-radius:12px;
-               background:var(--ink); color:#fff;}
-  @media (max-width:560px){
-    .onsite{flex-wrap:wrap; gap:12px;}
-    .onsite .cta{width:100%; text-align:center;}
-  }
-
   @media (max-width:860px){
-    .fork{flex-direction:column; gap:14px;}
+    .grid{grid-template-columns:minmax(0,1fr); gap:14px;}
     .gate{min-height:0;}
-    .gate:first-child{margin:0;} .gate:last-child{margin:0;}
-    .fork:hover .gate, .fork .gate:hover{flex-grow:1;}
     .seam{display:none;}
-    .art{min-height:0; padding:16px 0 8px;}
-    .art svg{width:84px;}
+    .art{min-height:0; padding:14px 0 8px;}
+    .art svg{width:80px;}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
@@ -154,7 +146,7 @@
   <button class="lang" id="lang">EN</button>
 </header>
 
-<main class="fork">
+<main class="grid">
 
   <a class="gate survey" href="surveys.html">
     <span class="acc" data-t="a1">사내 공개</span>
@@ -205,6 +197,55 @@
     </span>
   </a>
 
+  <a class="gate market" href="br-market.html">
+    <span class="acc">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span data-t="a3">대외비 · 비밀번호</span>
+    </span>
+    <div class="art">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <rect x="14" y="14" width="54" height="54" rx="5" fill="#5DCAA5" stroke="#fff" stroke-width="3.5"/>
+        <rect x="74" y="14" width="32" height="38" rx="5" fill="#F7EFD8" stroke="#fff" stroke-width="3.5"/>
+        <rect x="14" y="74" width="54" height="32" rx="5" fill="#ED93B1" stroke="#fff" stroke-width="3.5"/>
+        <rect x="74" y="58" width="32" height="48" rx="5" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
+      </svg>
+    </div>
+    <h2 data-t="t3">시장 구조</h2>
+    <div class="yr">2025 &ndash; 2026</div>
+    <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 시장 규모와 우리 위치.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">8.2<small style="font-size:12px">조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
+      <div class="stat"><div class="v">90<small style="font-size:12px">%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
+      <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
+    </div>
+    <span class="go"><span data-t="g3">시장 구조 열기</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
+  <a class="gate onsite" href="br-store-report.html">
+    <span class="acc" data-t="a4">사내 공개</span>
+    <div class="art">
+      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <rect x="12" y="34" width="96" height="64" rx="9" fill="#fff" stroke="#fff" stroke-width="3.5"/>
+        <path d="M42 34 L50 22 L70 22 L78 34" fill="#fff" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="60" cy="66" r="20" fill="#EC0089" stroke="#9E0060" stroke-width="3.5"/>
+        <circle cx="60" cy="66" r="9" fill="#fff"/>
+        <circle cx="95" cy="46" r="4" fill="#C9A227"/>
+      </svg>
+    </div>
+    <h2 data-t="t4">ON-SITE 매장 리포트</h2>
+    <div class="yr">FIELD NOTE</div>
+    <p class="desc" data-t="d4">외부 · 내부 · 디핑구 · 메뉴보드 4컷을 기록하고 A4로 출력해요.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">4</div><div class="l" data-t="s4a">촬영 컷</div></div>
+      <div class="stat"><div class="v">A4</div><div class="l" data-t="s4b">출력 양식</div></div>
+    </div>
+    <span class="go"><span data-t="g4">기록 시작</span>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </a>
+
   <div class="seam" aria-hidden="true">
     <svg width="34" height="34" viewBox="0 0 72 72">
       <circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="3"/>
@@ -214,16 +255,6 @@
   </div>
 
 </main>
-
-<a class="onsite" href="br-store-report.html">
-  <span class="cam" aria-hidden="true">📷</span>
-  <span class="txt">
-    <span class="kick" data-t="ok">FIELD NOTE</span>
-    <span class="ttl" data-t="ot">ON-SITE 매장 사진 리포트</span>
-    <span class="sub" data-t="od">외부 · 내부 · 디핑구 · 메뉴보드 4컷을 기록하고 A4로 출력해요</span>
-  </span>
-  <span class="cta" data-t="og">기록 시작 →</span>
-</a>
 
 <footer>
   <span data-t="ft">© Baskin-Robbins Korea · 마케팅전략실</span>
@@ -240,16 +271,17 @@
 /* ---- KO / EN ---- */
 var EN = {
   sub:'Marketing Strategy · Genius Team',
-  a1:'Internal', a2:'Confidential · passcode',
-  t1:'Surveys', t2:'BR Total POS Sales',
+  a1:'Internal', a2:'Confidential · passcode', a3:'Confidential · passcode', a4:'Internal',
+  t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure', t4:'ON-SITE Store Report',
   d1:'Store visitor feedback, brand health tracking, and FOM concept pre-tests.',
   d2:'90 months of monthly revenue, mapped against the FOM &amp; IP campaign calendar.',
+  d3:'Dessert × ice cream, specialty × retail — four segments and where we stand.',
+  d4:'Capture exterior, interior, dipping cabinet and menu board — then print to A4.',
   s1a:'running', s1c:'stores',
   s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
-  ok:'FIELD NOTE', ot:'ON-SITE Store Photo Report',
-  od:'Capture exterior, interior, dipping cabinet and menu board — then print to A4.',
-  og:'Start a report →',
-  g1:'Open survey site', g2:'Open sales timeline',
+  s3a:'total market', s3b:'specialty share', s3c:'segments',
+  s4a:'shots', s4b:'print format',
+  g1:'Open survey site', g2:'Open sales timeline', g3:'Open market structure', g4:'Start a report',
   ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };
 var KO = {};
