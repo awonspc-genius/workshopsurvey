@@ -11,7 +11,7 @@
 <style>
   :root{
     --ink:#232A4A; --ink-deep:#151B36; --mute:#6E769B;
-    --blue:#2B4CC4; --blue-deep:#1E3795; --blue-soft:#E5E9F9;
+    --blue:#2B4CC4; --blue-deep:#1E3795;
     --gold:#C9A227; --gold-soft:#F7EFD8;
     --green:#0F6E56; --green-deep:#08452F;
     --pink:#EC0089; --pink-deep:#9E0060;
@@ -29,7 +29,7 @@
 
   /* ---------- chrome ---------- */
   .top{display:flex; align-items:center; justify-content:space-between;
-       padding:20px clamp(18px,4vw,44px); flex:none;}
+       padding:20px clamp(18px,4vw,44px) 8px; flex:none;}
   .id{display:flex; align-items:center; gap:11px;}
   .id .nm{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; line-height:1;
           display:flex; flex-direction:column;}
@@ -40,94 +40,82 @@
         border-radius:11px; padding:9px 15px; cursor:pointer; transition:all .16s ease;}
   .lang:hover{border-color:var(--blue); color:var(--blue);}
 
-  /* ---------- uniform tile grid ---------- */
-  .grid{flex:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:clamp(14px,1.8vw,22px); position:relative;
-        padding:0 clamp(18px,4vw,44px) clamp(18px,3vw,34px);}
+  main{flex:1; padding:8px clamp(18px,4vw,44px) 20px;}
 
+  /* ---------- section ---------- */
+  .sect{margin-bottom:26px;}
+  .shead{display:flex; align-items:center; gap:10px; margin:0 0 12px;}
+  .shead .dot{width:9px; height:9px; border-radius:50%; flex:none;}
+  .shead.open .dot{background:var(--blue);}
+  .shead.locked .dot{background:var(--gold);}
+  .shead h2{font-size:14px; font-weight:900; letter-spacing:-.02em;}
+  .shead .cnt{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
+              color:var(--mute); background:var(--paper); border:1.5px solid var(--line);
+              border-radius:999px; padding:2px 9px;}
+  .shead .rule{flex:1; height:1px; background:var(--line);}
+
+  .row{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:12px;}
+
+  /* ---------- compact tile ---------- */
   .gate{position:relative; overflow:hidden; text-decoration:none; color:#fff;
-        border-radius:26px; padding:clamp(24px,2.6vw,34px); display:flex; flex-direction:column;
-        min-height:clamp(300px,38vh,380px);
-        transition:box-shadow .3s ease, transform .3s ease;
-        opacity:0; animation:rise .7s cubic-bezier(.22,1,.36,1) forwards;}
-  .gate:nth-child(1){animation-delay:.04s;}
-  .gate:nth-child(2){animation-delay:.12s;}
-  .gate:nth-child(3){animation-delay:.20s;}
-  .gate:nth-child(4){animation-delay:.28s;}
-  @keyframes rise{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
+        border-radius:16px; padding:15px 16px; display:flex; gap:13px; align-items:flex-start;
+        min-height:132px;
+        transition:box-shadow .25s ease, transform .25s ease;
+        opacity:0; animation:rise .6s cubic-bezier(.22,1,.36,1) forwards;}
+  .row .gate:nth-child(1){animation-delay:.04s;}
+  .row .gate:nth-child(2){animation-delay:.10s;}
+  .row .gate:nth-child(3){animation-delay:.16s;}
+  @keyframes rise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
 
   .gate.survey{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
-               box-shadow:0 22px 44px -28px rgba(30,55,149,.75);}
-  .gate.sales{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
-              box-shadow:0 22px 44px -28px rgba(21,27,54,.75);}
-  .gate.market{background:linear-gradient(158deg,var(--green) 0%,var(--green-deep) 100%);
-               box-shadow:0 22px 44px -28px rgba(8,69,47,.75);}
-  .gate.map{background:linear-gradient(158deg,#3E6FB8 0%,#1F3F70 100%);
-             grid-column:1 / -1;}
+               box-shadow:0 14px 28px -20px rgba(30,55,149,.8);}
   .gate.onsite{background:linear-gradient(158deg,var(--pink) 0%,var(--pink-deep) 100%);
-               box-shadow:0 22px 44px -28px rgba(158,0,96,.7);}
+               box-shadow:0 14px 28px -20px rgba(158,0,96,.75);}
+  .gate.sales{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
+              box-shadow:0 14px 28px -20px rgba(21,27,54,.8);}
+  .gate.market{background:linear-gradient(158deg,var(--green) 0%,var(--green-deep) 100%);
+               box-shadow:0 14px 28px -20px rgba(8,69,47,.8);}
+  .gate.map{background:linear-gradient(158deg,#3E6FB8 0%,#1F3F70 100%);
+            box-shadow:0 14px 28px -20px rgba(31,63,112,.8);}
+  .gate:hover{transform:translateY(-3px);}
+  .gate.survey:hover{box-shadow:0 20px 36px -18px rgba(30,55,149,.9);}
+  .gate.onsite:hover{box-shadow:0 20px 36px -18px rgba(158,0,96,.85);}
+  .gate.sales:hover{box-shadow:0 20px 36px -18px rgba(21,27,54,.9);}
+  .gate.market:hover{box-shadow:0 20px 36px -18px rgba(8,69,47,.9);}
+  .gate.map:hover{box-shadow:0 20px 36px -18px rgba(31,63,112,.9);}
+  .gate:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
 
-  .gate:hover{transform:translateY(-4px);}
-  .gate.survey:hover{box-shadow:0 32px 58px -26px rgba(30,55,149,.85);}
-  .gate.sales:hover{box-shadow:0 32px 58px -26px rgba(21,27,54,.85);}
-  .gate.market:hover{box-shadow:0 32px 58px -26px rgba(8,69,47,.85);}
-  .gate.map:hover{box-shadow:0 32px 58px -26px rgba(31,63,112,.85);}
-  .gate.onsite:hover{box-shadow:0 32px 58px -26px rgba(158,0,96,.8);}
-  .gate:focus-visible{outline:3px solid var(--gold); outline-offset:4px;}
+  .art{flex:none; width:44px; height:44px; border-radius:12px;
+       background:rgba(255,255,255,.14); display:grid; place-items:center;
+       transition:transform .4s cubic-bezier(.22,1,.36,1);}
+  .art svg{width:28px; height:28px; display:block;}
+  .gate:hover .art{transform:scale(1.08);}
 
-  /* access label */
-  .acc{display:inline-flex; align-items:center; gap:7px; align-self:flex-start;
-       font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px; letter-spacing:.16em;
-       padding:7px 13px; border-radius:999px; text-transform:uppercase;}
-  .gate.survey .acc{background:rgba(255,255,255,.16); color:#fff;}
-  .gate.sales  .acc{background:var(--gold); color:#3A2C05;}
-  .gate.market .acc{background:var(--gold); color:#3A2C05;}
-  .gate.map .acc{background:var(--gold); color:#3A2C05;}
-  .gate.onsite .acc{background:rgba(255,255,255,.18); color:#fff;}
-
-  .art{flex:1; display:grid; place-items:center; padding:16px 0 10px; min-height:96px;}
-  .art svg{width:clamp(84px,9vw,116px); height:auto; display:block;
-           transition:transform .5s cubic-bezier(.22,1,.36,1);}
-  .gate:hover .art svg{transform:translateY(-5px) scale(1.05);}
-
-  .gate h2{font-size:clamp(24px,2.8vw,34px); font-weight:900; letter-spacing:-.035em; line-height:1.1;}
-  .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(15px,1.5vw,18px);
-            letter-spacing:.02em; color:var(--gold-soft); margin-top:8px;}
-  .gate.survey .yr, .gate.onsite .yr{color:rgba(255,255,255,.86);}
-  .gate .desc{font-size:13.5px; line-height:1.6; margin-top:11px; max-width:36ch;
-              color:rgba(255,255,255,.74);}
-  .stats{display:flex; gap:18px; flex-wrap:wrap; margin-top:16px; padding-top:15px;
-         border-top:1px solid rgba(255,255,255,.16);}
-  .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; line-height:1;}
-  .stat .l{font-size:11px; color:rgba(255,255,255,.62); margin-top:6px; letter-spacing:.02em;}
+  .body{flex:1; min-width:0; display:flex; flex-direction:column;}
+  .gate h3{font-size:15.5px; font-weight:900; letter-spacing:-.03em; line-height:1.2;
+           padding-right:20px;}
+  .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
+            color:var(--gold-soft); margin-top:3px;}
+  .gate.survey .yr, .gate.onsite .yr{color:rgba(255,255,255,.8);}
+  .gate .desc{font-size:11.5px; line-height:1.5; margin-top:6px;
+              color:rgba(255,255,255,.72);}
+  .stats{display:flex; gap:12px; flex-wrap:wrap; margin-top:auto; padding-top:10px;}
+  .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13.5px; line-height:1;}
+  .stat .v small{font-size:9.5px;}
+  .stat .l{font-size:9.5px; color:rgba(255,255,255,.6); margin-top:3px;}
   .gate.sales .stat .v, .gate.market .stat .v, .gate.map .stat .v{color:var(--gold-soft);}
 
-  .go{display:inline-flex; align-items:center; gap:9px; margin-top:20px; align-self:flex-start;
-      font-weight:700; font-size:14px; padding:12px 20px; border-radius:14px;
-      background:#fff; color:var(--blue-deep); transition:gap .2s ease;}
-  .gate.sales .go{background:var(--gold); color:#3A2C05;}
-  .gate.market .go{background:var(--gold); color:#3A2C05;}
-  .gate.map .go{background:var(--gold); color:#3A2C05;}
-  .gate.onsite .go{background:#fff; color:var(--pink-deep);}
-  .gate:hover .go{gap:15px;}
-  .go svg{flex:none;}
-
-  /* seam: the 31 mark sits at the centre of the 2×2 grid */
-  .seam{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:3;
-        pointer-events:none; width:56px; height:56px; border-radius:50%; background:var(--page);
-        display:grid; place-items:center; box-shadow:0 0 0 7px var(--page);}
+  .arw{position:absolute; right:14px; top:16px; opacity:.55;
+       transition:opacity .2s ease, transform .2s ease;}
+  .gate:hover .arw{opacity:1; transform:translateX(3px);}
 
   footer{flex:none; display:flex; justify-content:space-between; align-items:center;
          flex-wrap:wrap; gap:8px; padding:0 clamp(18px,4vw,44px) 24px;
          font-size:12px; color:var(--mute);}
 
-  @media (max-width:860px){
-    .grid{grid-template-columns:minmax(0,1fr); gap:14px;}
-    .gate.map{grid-column:auto;}
+  @media (max-width:560px){
+    .row{grid-template-columns:minmax(0,1fr);}
     .gate{min-height:0;}
-    .seam{display:none;}
-    .art{min-height:0; padding:14px 0 8px;}
-    .art svg{width:80px;}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
@@ -152,139 +140,136 @@
   <button class="lang" id="lang">EN</button>
 </header>
 
-<main class="grid">
+<main>
 
-  <a class="gate survey" href="surveys.html">
-    <span class="acc" data-t="a1">사내 공개</span>
-    <div class="art">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
-        <circle cx="46" cy="54" r="18" fill="#8FA6E0" stroke="#fff" stroke-width="3.5"/>
-        <circle cx="74" cy="54" r="18" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
-        <circle cx="60" cy="34" r="19" fill="#fff" stroke="#fff" stroke-width="3.5"/>
-        <circle cx="53" cy="30" r="2.6" fill="#232A4A"/><circle cx="68" cy="38" r="2.2" fill="#232A4A"/>
-      </svg>
+  <section class="sect">
+    <div class="shead open">
+      <span class="dot"></span>
+      <h2 data-t="h1">사내 공개</h2>
+      <span class="cnt">2</span>
+      <span class="rule"></span>
     </div>
-    <h2 data-t="t1">설문조사</h2>
-    <p class="desc" data-t="d1">매장 방문객 피드백, 브랜드 헬스 트래킹, FOM 컨셉 사전 반응 조사.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">6</div><div class="l" data-t="s1a">진행 중</div></div>
-      <div class="stat"><div class="v">6</div><div class="l" data-t="s1c">직영 매장</div></div>
-    </div>
-    <span class="go"><span data-t="g1">설문 사이트 열기</span>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
-  </a>
+    <div class="row">
 
-  <a class="gate sales" href="br-sales.html">
-    <span class="acc">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
-      <span data-t="a2">대외비 · 비밀번호</span>
-    </span>
-    <div class="art">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
-        <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
-        <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
-        <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
-        <path d="M14 40 L47 22 L74 34 L108 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 5"/>
-      </svg>
-    </div>
-    <h2 data-t="t2">BR 총 POS 매출</h2>
-    <div class="yr">2019 &ndash; 2026</div>
-    <p class="desc" data-t="d2">90개월 월별 실매출 타임라인 × FOM &amp; IP 캠페인 캘린더.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
-      <div class="stat"><div class="v">742<small style="font-size:12px">억</small></div><div class="l" data-t="s2b">월평균</div></div>
-      <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
-    </div>
-    <span class="go"><span data-t="g2">매출 타임라인 열기</span>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
-  </a>
+      <a class="gate survey" href="surveys.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="46" cy="54" r="18" fill="#8FA6E0" stroke="#fff" stroke-width="5"/>
+            <circle cx="74" cy="54" r="18" fill="#C9A227" stroke="#fff" stroke-width="5"/>
+            <circle cx="60" cy="34" r="19" fill="#fff" stroke="#fff" stroke-width="5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t1">설문조사</h3>
+          <p class="desc" data-t="d1">매장 방문객 피드백, 브랜드 헬스, FOM 컨셉 사전 반응.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">6</div><div class="l" data-t="s1a">진행 중</div></div>
+            <div class="stat"><div class="v">6</div><div class="l" data-t="s1c">직영 매장</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
 
-  <a class="gate market" href="br-market.html">
-    <span class="acc">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
-      <span data-t="a3">대외비 · 비밀번호</span>
-    </span>
-    <div class="art">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <rect x="14" y="14" width="54" height="54" rx="5" fill="#5DCAA5" stroke="#fff" stroke-width="3.5"/>
-        <rect x="74" y="14" width="32" height="38" rx="5" fill="#F7EFD8" stroke="#fff" stroke-width="3.5"/>
-        <rect x="14" y="74" width="54" height="32" rx="5" fill="#ED93B1" stroke="#fff" stroke-width="3.5"/>
-        <rect x="74" y="58" width="32" height="48" rx="5" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
-      </svg>
-    </div>
-    <h2 data-t="t3">시장 구조</h2>
-    <div class="yr">2025 &ndash; 2026</div>
-    <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 시장 규모와 우리 위치.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">8.2<small style="font-size:12px">조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
-      <div class="stat"><div class="v">90<small style="font-size:12px">%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
-      <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
-    </div>
-    <span class="go"><span data-t="g3">시장 구조 열기</span>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
-  </a>
+      <a class="gate onsite" href="br-store-report.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="12" y="34" width="96" height="64" rx="9" fill="#fff"/>
+            <path d="M42 34 L50 22 L70 22 L78 34" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="60" cy="66" r="20" fill="#EC0089"/>
+            <circle cx="60" cy="66" r="9" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t4">ON-SITE 매장 리포트</h3>
+          <div class="yr">FIELD NOTE</div>
+          <p class="desc" data-t="d4">외부·내부·디핑구·메뉴보드 4컷 기록 후 A4 출력.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">4</div><div class="l" data-t="s4a">촬영 컷</div></div>
+            <div class="stat"><div class="v">A4</div><div class="l" data-t="s4b">출력 양식</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
 
-  <a class="gate map" href="br-stores.html">
-    <span class="acc">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
-      <span data-t="a5">대외비 · 비밀번호</span>
-    </span>
-    <div class="art">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
-        <path d="M44 20 L44 90 M76 32 L76 102" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="60" cy="52" r="9" fill="#C9A227" stroke="#fff" stroke-width="3.5"/>
-        <path d="M60 61 L60 76" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
-      </svg>
     </div>
-    <h2 data-t="t5">가맹점 위치 지도</h2>
-    <div class="yr">2026.07</div>
-    <p class="desc" data-t="d5">1,708개 점포를 지도에 놓고 지역·팀·상권별로 매출을 비교해요.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
-      <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
-      <div class="stat"><div class="v">843<small style="font-size:12px">억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
-    </div>
-    <span class="go"><span data-t="g5">지도 열기</span>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
-  </a>
+  </section>
 
-  <a class="gate onsite" href="br-store-report.html">
-    <span class="acc" data-t="a4">사내 공개</span>
-    <div class="art">
-      <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-        <rect x="12" y="34" width="96" height="64" rx="9" fill="#fff" stroke="#fff" stroke-width="3.5"/>
-        <path d="M42 34 L50 22 L70 22 L78 34" fill="#fff" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/>
-        <circle cx="60" cy="66" r="20" fill="#EC0089" stroke="#9E0060" stroke-width="3.5"/>
-        <circle cx="60" cy="66" r="9" fill="#fff"/>
-        <circle cx="95" cy="46" r="4" fill="#C9A227"/>
-      </svg>
+  <section class="sect">
+    <div class="shead locked">
+      <span class="dot"></span>
+      <h2 data-t="h2">대외비 · 비밀번호</h2>
+      <span class="cnt">3</span>
+      <span class="rule"></span>
     </div>
-    <h2 data-t="t4">ON-SITE 매장 리포트</h2>
-    <div class="yr">FIELD NOTE</div>
-    <p class="desc" data-t="d4">외부 · 내부 · 디핑구 · 메뉴보드 4컷을 기록하고 A4로 출력해요.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">4</div><div class="l" data-t="s4a">촬영 컷</div></div>
-      <div class="stat"><div class="v">A4</div><div class="l" data-t="s4b">출력 양식</div></div>
-    </div>
-    <span class="go"><span data-t="g4">기록 시작</span>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </span>
-  </a>
+    <div class="row">
 
-  <div class="seam" aria-hidden="true">
-    <svg width="34" height="34" viewBox="0 0 72 72">
-      <circle cx="36" cy="36" r="34" fill="#fff" stroke="#232A4A" stroke-width="3"/>
-      <text x="36" y="37.5" text-anchor="middle" dominant-baseline="central"
-            font-family="Fredoka, sans-serif" font-weight="700" font-size="31" fill="#2B4CC4">31</text>
-    </svg>
-  </div>
+      <a class="gate sales" href="br-sales.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
+            <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
+            <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
+            <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t2">BR 총 POS 매출</h3>
+          <div class="yr">2019 &ndash; 2026</div>
+          <p class="desc" data-t="d2">90개월 월별 실매출 × FOM &amp; IP 캠페인 캘린더.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
+            <div class="stat"><div class="v">742<small>억</small></div><div class="l" data-t="s2b">월평균</div></div>
+            <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate market" href="br-market.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="14" y="14" width="54" height="54" rx="6" fill="#5DCAA5"/>
+            <rect x="76" y="14" width="30" height="36" rx="6" fill="#F7EFD8"/>
+            <rect x="14" y="76" width="54" height="30" rx="6" fill="#ED93B1"/>
+            <rect x="76" y="58" width="30" height="48" rx="6" fill="#C9A227"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t3">시장 구조</h3>
+          <div class="yr">2025 &ndash; 2026</div>
+          <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 규모.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">8.2<small>조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
+            <div class="stat"><div class="v">90<small>%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
+            <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate map" href="br-stores.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="60" cy="52" r="10" fill="#C9A227" stroke="#fff" stroke-width="5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t5">가맹점 위치 지도</h3>
+          <div class="yr">2026.07</div>
+          <p class="desc" data-t="d5">1,708개 점포를 지역·팀·상권별로 비교.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
+            <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
+            <div class="stat"><div class="v">843<small>억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+    </div>
+  </section>
 
 </main>
 
@@ -294,29 +279,26 @@
 </footer>
 
 <script>
-/* ---- 오늘 날짜 ---- */
 (function(){
   var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
   document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
 })();
 
-/* ---- KO / EN ---- */
 var EN = {
   sub:'Marketing Strategy · Genius Team',
-  a1:'Internal', a2:'Confidential · passcode', a3:'Confidential · passcode', a4:'Internal',
-  t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure', t4:'ON-SITE Store Report',
-  d1:'Store visitor feedback, brand health tracking, and FOM concept pre-tests.',
-  d2:'90 months of monthly revenue, mapped against the FOM &amp; IP campaign calendar.',
-  d3:'Dessert × ice cream, specialty × retail — four segments and where we stand.',
-  d4:'Capture exterior, interior, dipping cabinet and menu board — then print to A4.',
+  h1:'Internal', h2:'Confidential · passcode',
+  t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure',
+  t4:'ON-SITE Store Report', t5:'Store Location Map',
+  d1:'Visitor feedback, brand health, FOM concept pre-tests.',
+  d2:'90 months of revenue × the FOM &amp; IP campaign calendar.',
+  d3:'Dessert × ice cream, specialty × retail — four segments.',
+  d4:'Exterior, interior, dipping cabinet, menu board — then A4.',
+  d5:'1,708 stores compared by region, team and trade area.',
   s1a:'running', s1c:'stores',
   s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
   s3a:'total market', s3b:'specialty share', s3c:'segments',
   s4a:'shots', s4b:'print format',
-  g1:'Open survey site', g2:'Open sales timeline', g3:'Open market structure', g4:'Start a report',
-  a5:'Confidential · passcode', t5:'Franchise Store Map',
-  d5:'All 1,708 stores on a map — compare sales by region, team and trade area.',
-  s5a:'stores', s5b:'districts', s5c:'July sales', g5:'Open map',
+  s5a:'stores', s5b:'districts', s5c:'July sales',
   ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };
 var KO = {};
