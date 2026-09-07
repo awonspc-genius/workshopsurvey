@@ -224,6 +224,12 @@ button{cursor:pointer}
 .els label:has(input:checked){border-color:var(--pink);background:var(--pink-soft)}
 .els input{accent-color:var(--pink);width:16px;height:16px}
 
+.calhead{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.calhead h2{margin:0;font-size:18px}
+.navm{border:1px solid var(--line);background:#fff;border-radius:9px;width:30px;height:30px;font-size:16px;
+  line-height:1;color:var(--mid);padding:0}
+.navm:hover{border-color:var(--pink);color:var(--pink)}
+.cal .thumbs button{cursor:grab}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal .dow{font-size:10.5px;color:var(--mid);text-align:center;padding-bottom:1px}
 .cal .cell{border:1px solid var(--line);border-radius:7px;aspect-ratio:1/1;min-height:0;padding:3px;background:#fff;overflow:hidden}
@@ -269,8 +275,12 @@ button{cursor:pointer}
   <div class="wrap">
     <div class="col-left">
       <div class="panel cal-panel">
-        <h2 id="calTitle">발행 달력</h2>
-        <p class="sub">날짜를 누르면 그날 올릴 게시물이 아래에 열립니다. 그리드 칸을 날짜 위로 끌어다 놓아도 됩니다.</p>
+        <div class="calhead">
+          <button class="navm" id="calPrev" aria-label="이전 달">‹</button>
+          <h2 id="calTitle">9월</h2>
+          <button class="navm" id="calNext" aria-label="다음 달">›</button>
+        </div>
+        <p class="sub">날짜를 누르면 그날 올릴 게시물이 아래에 열립니다. 썸네일을 끌어 다른 날로 옮길 수 있어요.</p>
         <div class="cal" id="cal"></div>
         <div style="margin-top:16px">
           <p class="sub" id="undatedSub" style="margin-bottom:8px"></p>
@@ -1087,11 +1097,14 @@ function startDrag(e){
   e.preventDefault(); e.stopPropagation();
   startDragAt(Number(e.target.closest(".slot").getAttribute("data-i")), e);
 }
-function startDragAt(i, e){
-  var slot=document.querySelector('#grid .slot[data-i="'+i+'"]');
-  if(!slot) return;
+function startDragAt(i, e, srcEl){
+  var src=srcEl;
+  if(!src){
+    var slot=document.querySelector('#grid .slot[data-i="'+i+'"]');
+    if(!slot) return;
+    src=slot.querySelector("img");
+  }
   dragFrom=i;
-  var src=slot.querySelector("img");
   ghost=document.createElement("div"); ghost.id="ghost";
   if(src){ var g=document.createElement("img"); g.src=src.src; ghost.appendChild(g); }
   document.body.appendChild(ghost);
@@ -1164,6 +1177,8 @@ document.getElementById("sortDate").addEventListener("click", function(){
 var monthInput=document.getElementById("month");
 monthInput.addEventListener("change", function(){ month=this.value||ymNow(); switchMonth(); });
 document.getElementById("prevM").addEventListener("click", function(){ month=shiftMonth(month,-1); monthInput.value=month; switchMonth(); });
+document.getElementById("calPrev").addEventListener("click", function(){ month=shiftMonth(month,-1); monthInput.value=month; switchMonth(); });
+document.getElementById("calNext").addEventListener("click", function(){ month=shiftMonth(month,1); monthInput.value=month; switchMonth(); });
 document.getElementById("nextM").addEventListener("click", function(){ month=shiftMonth(month,1); monthInput.value=month; switchMonth(); });
 function shiftMonth(m,d){
   var y=Number(m.slice(0,4)), mo=Number(m.slice(5,7))+d;
@@ -1178,7 +1193,7 @@ function renderEverything(){ renderAll(); }
 /* ---------- calendar ---------- */
 function renderCal(){
   var y=Number(month.slice(0,4)), m=Number(month.slice(5,7));
-  document.getElementById("calTitle").textContent=y+"년 "+m+"월 발행 달력";
+  document.getElementById("calTitle").textContent=m+"월";
   var start=new Date(y,m-1,1).getDay(), days=new Date(y,m,0).getDate();
   var cal=document.getElementById("cal"); cal.innerHTML="";
   ["일","월","화","수","목","금","토"].forEach(function(d){
@@ -1209,7 +1224,26 @@ function renderCal(){
         b.title=(p.time?p.time+" · ":"")+(p.type||"피드");
         var im=document.createElement("img"); b.appendChild(im);
         loadImg(p.img).then(function(u){ if(u) im.src=u; });
-        b.addEventListener("click", function(e){ e.stopPropagation(); select(idx); });
+        b.addEventListener("click", function(e){
+          e.stopPropagation();
+          if(suppressClick){ suppressClick=false; return; }
+          select(idx);
+        });
+        b.addEventListener("pointerdown", function(e){
+          if(e.pointerType==="touch"||e.button!==0) return;
+          e.stopPropagation();
+          var sx=e.clientX, sy=e.clientY, fired=false;
+          function mv(ev){
+            if(fired) return;
+            if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>6){
+              fired=true; off(); suppressClick=true;
+              startDragAt(idx, ev, im);
+            }
+          }
+          function up(){ off(); }
+          function off(){ window.removeEventListener("pointermove",mv); window.removeEventListener("pointerup",up); }
+          window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up);
+        });
         box.appendChild(b);
       });
       cell.title="이 날짜의 게시물을 엽니다";
