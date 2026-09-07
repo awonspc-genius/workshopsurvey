@@ -117,8 +117,8 @@ button{cursor:pointer}
 .slot .day{position:absolute;right:4px;bottom:4px;background:rgba(17,17,17,.6);color:#fff;font-size:10px;padding:2px 5px;border-radius:5px}
 .slot .kind{position:absolute;right:32px;top:4px;color:#fff;font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .slot.sel{outline:2.5px solid var(--pink);outline-offset:-2.5px}
-#ghost{position:fixed;left:0;top:0;z-index:80;width:96px;height:120px;border-radius:8px;overflow:hidden;pointer-events:none;
-  box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:.94;will-change:transform}
+#ghost{position:fixed;left:0;top:0;z-index:80;border-radius:7px;overflow:hidden;pointer-events:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);opacity:.9;will-change:transform}
 #ghost img{width:100%;height:100%;object-fit:cover}
 
 .underphone{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -176,6 +176,13 @@ button{cursor:pointer}
 
 .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px;color:var(--mid);font-size:12px}
 .flow b{font-weight:600;color:var(--ink)}
+.logbox{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.loghead{font-size:12px;color:var(--mid);font-weight:600;margin-bottom:6px}
+.loglist{max-height:104px;overflow:auto;font-size:11.5px;line-height:1.7;color:var(--mid)}
+.loglist .row{display:flex;gap:8px;justify-content:space-between}
+.loglist .row b{font-weight:600;color:var(--ink)}
+.loglist .cancel{color:var(--pink)}
+.loglist .none{color:#aab0ba}
 .daybar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
 .dayswitch{display:flex;gap:6px}
 .daychip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 10px;font-size:12px}
@@ -361,6 +368,11 @@ button{cursor:pointer}
             </div>
           </div>
         </div>
+        <div class="logbox">
+          <div class="loghead">기록</div>
+          <div class="loglist" id="logList"></div>
+        </div>
+
         <div class="daybar">
           <div class="dayswitch" id="sameDay"></div>
           <button class="btn sm" id="addSameDay">이 날짜에 게시물 추가</button>
@@ -724,7 +736,7 @@ function select(i){
   document.getElementById("fMemo").value=p.memo||"";
   document.getElementById("fColorHex").value=p.color||"";
   document.getElementById("fColor").value=/^#[0-9a-fA-F]{6}$/.test(p.color||"")?p.color:"#ffffff";
-  renderCands(); renderSteps(); 
+  renderCands(); renderSteps(); renderLog();
   renderAll();
 }
 function clearEditor(){
@@ -732,7 +744,7 @@ function clearEditor(){
   var cb=document.getElementById("cands"); if(cb) cb.innerHTML="";
   var pl=document.getElementById("pickList"); if(pl) pl.innerHTML="";
   ["fMemo","fColorHex"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
-  renderSteps(); renderAll();
+  renderSteps(); renderLog(); renderAll();
 }
 function bindField(id,key,after){
   document.getElementById(id).addEventListener("input", function(){
@@ -835,7 +847,7 @@ function removePost(i){
   (p.cands||[]).forEach(function(c){ imgDel(c); });
   posts.splice(i,1);
   if(sel===i) clearEditor();
-  else { if(sel>i) sel--; renderSteps(); renderCands(); }
+  else { if(sel>i) sel--; renderSteps(); renderCands(); renderLog(); }
   saveMonth(); renderAll();
   toast("지웠습니다.");
 }
@@ -881,7 +893,7 @@ function renderSameDay(){
     b.className="daychip"+(idx===sel?" on":"");
     b.textContent=(n+1)+"번째";
     b.title=(n+1)+"번째 게시물 열기";
-    b.addEventListener("click", function(){ select(idx); renderSteps(); renderCands(); });
+    b.addEventListener("click", function(){ select(idx); renderSteps(); renderCands(); renderLog(); });
     box.appendChild(b);
   });
 }
@@ -895,7 +907,31 @@ function goDate(d){
   } else {
     sel=-1; var p=ensurePost(); p.date=d; saveMonth();
   }
-  renderSteps(); renderCands(); renderAll();
+  renderSteps(); renderCands(); renderLog(); renderAll();
+}
+
+/* ---------- 기록 ---------- */
+function renderLog(){
+  var box=document.getElementById("logList"); if(!box) return;
+  box.innerHTML="";
+  var p=(sel>=0)?posts[sel]:null;
+  var list=(p&&p.log)?p.log.slice(-30).reverse():[];
+  if(!list.length){
+    var n=document.createElement("div"); n.className="none";
+    n.textContent=p? "아직 확인 기록이 없습니다." : "달력에서 날짜를 고르면 기록이 보입니다.";
+    box.appendChild(n); return;
+  }
+  list.forEach(function(e){
+    var r=document.createElement("div"); r.className="row";
+    var left=document.createElement("span");
+    var b=document.createElement("b"); b.textContent=stepName(e.k);
+    var t=document.createElement("span"); t.textContent=" "+e.act+" · "+(e.by||"");
+    if(e.act==="취소") t.className="cancel";
+    left.appendChild(b); left.appendChild(t);
+    var right=document.createElement("span"); right.textContent=e.at;
+    r.appendChild(left); r.appendChild(right);
+    box.appendChild(r);
+  });
 }
 
 /* ---------- steps ---------- */
@@ -924,7 +960,7 @@ function renderSteps(){
     var s0=(p&&p.steps[st.k])||{};
     row.classList.toggle("done", !!s0.done);
     row.querySelector(".num").textContent=s0.done?"✓":(i+1);
-    row.querySelector(".by").textContent=s0.done&&s0.at?(" "+s0.at):"";
+    row.querySelector(".by").textContent=s0.done&&s0.at?(" "+s0.at.slice(5)):"";
     var nameEl=row.querySelector(".stwho");
     /* 확인된 칸은 기록된 이름을 보여주고, 아직인 칸은 사용자가 친 값을 그대로 둔다 */
     if(s0.done){ if(document.activeElement!==nameEl) nameEl.value=s0.by||""; }
@@ -938,17 +974,25 @@ function renderSteps(){
     b.onclick=function(){
       var t=p||ensurePost();
       if(!t.steps) t.steps={};
-      if(t.steps[st.k]&&t.steps[st.k].done) delete t.steps[st.k];
-      else {
+      if(!t.log) t.log=[];
+      if(t.steps[st.k]&&t.steps[st.k].done){
+        var was=t.steps[st.k].by||"";
+        delete t.steps[st.k];
+        t.log.push({k:st.k, act:"취소", by:(who(st.k)||was), at:nowStamp()});
+      } else {
         var nm=who(st.k);
         if(!nm){ toast("확인자 이름을 먼저 넣어 주세요."); nameEl.focus(); return; }
-        t.steps[st.k]={done:true, by:nm, at:todayStr()};
+        var when=nowStamp();
+        t.steps[st.k]={done:true, by:nm, at:when};
+        t.log.push({k:st.k, act:"확인", by:nm, at:when});
       }
-      saveMonth(); renderSteps(); renderAll();
+      saveMonth(); renderSteps(); renderLog(); renderAll();
     };
   });
 }
 function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function nowStamp(){ var d=new Date(); return todayStr()+" "+pad(d.getHours())+":"+pad(d.getMinutes()); }
+function stepName(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k) return STEPS[i].n; } return k; }
 
 /* ---------- candidates ---------- */
 function renderCands(){
@@ -1034,7 +1078,7 @@ document.getElementById("addSameDay").addEventListener("click", function(){
   if(!d){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
   sel=-1;
   var np=ensurePost(); np.date=d; saveMonth();
-  renderSteps(); renderCands(); renderAll();
+  renderSteps(); renderCands(); renderLog(); renderAll();
   toast(prettyDate(d)+"에 게시물을 하나 더 만들었습니다.");
 });
 document.getElementById("delPost").addEventListener("click", function(){
@@ -1145,7 +1189,12 @@ function startDragAt(i, e, srcEl){
     src=slot.querySelector("img");
   }
   dragFrom=i; dragMoved=false; dragStart.x=e.clientX; dragStart.y=e.clientY;
+  /* 집어 든 곳의 크기에 맞춘다 — 달력 썸네일은 작게, 그리드 칸은 그 칸만 하게 */
+  var box=src?src.getBoundingClientRect():null;
+  ghostW=box&&box.width? Math.round(Math.max(30,Math.min(96,box.width*1.15))) : 60;
+  ghostH=Math.round(ghostW*((profile.ratio==="1/1")?1:1.25));
   ghost=document.createElement("div"); ghost.id="ghost";
+  ghost.style.width=ghostW+"px"; ghost.style.height=ghostH+"px";
   var big=(posts[i]&&posts[i].img)?cache[posts[i].img]:null;
   var g=document.createElement("img");
   g.src=big||(src?src.src:"");
@@ -1156,7 +1205,8 @@ function startDragAt(i, e, srcEl){
   window.addEventListener("pointerup", endDrag);
   window.addEventListener("pointercancel", endDrag);
 }
-function moveGhost(x,y){ if(ghost) ghost.style.transform="translate3d("+(x-48)+"px,"+(y-60)+"px,0)"; }
+var ghostW=72, ghostH=90;
+function moveGhost(x,y){ if(ghost) ghost.style.transform="translate3d("+(x-ghostW/2)+"px,"+(y-ghostH/2)+"px,0)"; }
 var dropTarget=null, moveQueued=false, lastPt={x:0,y:0}, dragMoved=false, dragStart={x:0,y:0};
 function onDragMove(e){
   e.preventDefault();
@@ -1191,7 +1241,7 @@ function endDrag(e){
   dropTarget=null;
   if(!dragMoved){                       /* 제자리에서 뗐으면 클릭으로 본다 */
     var idx=dragFrom; dragFrom=-1; clearDrop();
-    if(idx>=0&&posts[idx]){ select(idx); renderSteps(); renderCands(); }
+    if(idx>=0&&posts[idx]){ select(idx); renderSteps(); renderCands(); renderLog(); }
     return;
   }
   var el=document.elementFromPoint(e.clientX,e.clientY);
@@ -1636,7 +1686,7 @@ function boot(){
   }catch(e){} }
   monthInput.value=month;
   fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
-  loadMonth(); renderSteps(); renderCands(); renderMonths(); renderAll(); queueFit();
+  loadMonth(); renderSteps(); renderCands(); renderLog(); renderMonths(); renderAll(); queueFit();
 }
 boot();
 })();
