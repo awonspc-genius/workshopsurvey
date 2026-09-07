@@ -44,8 +44,25 @@ button{cursor:pointer}
 .views button{border:0;background:transparent;padding:7px 15px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--mid)}
 .views button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 120px;display:grid;grid-template-columns:minmax(0,392px) minmax(0,1fr);gap:26px;align-items:start}
-@media(max-width:900px){.wrap{grid-template-columns:1fr;padding:14px 12px 96px;gap:16px}}
+.wrap{max-width:1320px;width:100%;margin:0 auto;padding:14px 18px 16px;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(360px,420px);gap:16px;flex:1;min-height:0}
+.col-left{display:grid;grid-template-rows:auto minmax(0,1fr);gap:14px;min-height:0}
+.col-right{min-height:0;overflow:auto;padding-right:2px}
+.cal-panel{overflow:auto;max-height:40vh}
+.feed-panel{overflow:auto;min-height:0;display:flex;flex-direction:column;align-items:center}
+.feed-panel .phone{width:min(100%,var(--phoneW,360px))}
+.feed-panel .underphone{width:min(100%,var(--phoneW,360px));justify-content:center}
+@media(min-width:901px){
+  html,body{height:100%}
+  body{overflow:hidden}
+  #app{display:flex;flex-direction:column;height:100vh;min-height:0}
+  .top{flex:none}
+}
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr;padding:12px 12px 90px;gap:14px;min-height:auto}
+  .col-left{grid-template-rows:auto auto}
+  .col-right,.cal-panel,.feed-panel{overflow:visible;max-height:none}
+}
 
 /* phone mock */
 .phone{background:#fff;border:1px solid #d9dde4;border-radius:6px;overflow:hidden;box-shadow:var(--shadow);
@@ -112,7 +129,7 @@ button{cursor:pointer}
 .btn.pink{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:600}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--mid)}
 .btn.warn{color:var(--pink);border-color:#f6c9dd}
-.hint{color:var(--mid);font-size:12.5px;margin:10px 2px 0}
+.hint{color:var(--mid);font-size:12px;margin:8px 2px 0;text-align:center;max-width:360px}
 
 .panel{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
 .panel+.panel{margin-top:16px}
@@ -156,12 +173,12 @@ button{cursor:pointer}
 
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .cal .dow{font-size:11.5px;color:var(--mid);text-align:center;padding-bottom:2px}
-.cal .cell{border:1px solid var(--line);border-radius:10px;min-height:84px;padding:5px;background:#fff;overflow:hidden}
+.cal .cell{border:1px solid var(--line);border-radius:9px;min-height:58px;padding:4px;background:#fff;overflow:hidden}
 .cal .cell.out{background:#f8f9fb;border-style:dashed}
 .cal .cell .n{font-size:11px;color:var(--mid)}
 .cal .cell.sun .n{color:var(--pink)}
 .cal .thumbs{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
-.cal .thumbs button{width:26px;height:32px;border-radius:5px;border:0;padding:0;overflow:hidden;background:#eef0f4}
+.cal .thumbs button{width:22px;height:27px;border-radius:5px;border:0;padding:0;overflow:hidden;background:#eef0f4}
 .cal .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .cal .thumbs button.on{box-shadow:0 0 0 2px var(--pink)}
 .cal .cell[data-date]{cursor:pointer}
@@ -209,9 +226,18 @@ details.panel[open] summary{margin-bottom:14px}
   </header>
 
   <div class="wrap">
-    <!-- phone -->
-    <div>
-      <div class="phone">
+    <div class="col-left">
+      <div class="panel cal-panel">
+        <h2 id="calTitle">발행 달력</h2>
+        <p class="sub">칸을 날짜 위로 끌어다 놓으면 발행일이 잡힙니다. 칸을 고른 뒤 날짜를 눌러도 돼요.</p>
+        <div class="cal" id="cal"></div>
+        <div style="margin-top:16px">
+          <p class="sub" id="undatedSub" style="margin-bottom:8px"></p>
+          <div class="und" id="undated"></div>
+        </div>
+      </div>
+      <div class="panel feed-panel">
+        <div class="phone">
         <div class="ph-top" data-el="topbar">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>
           <span class="h ce" id="pHandle" contenteditable data-key="handle" data-ph="계정 아이디"></span>
@@ -256,26 +282,16 @@ details.panel[open] summary{margin-bottom:14px}
         </div>
       </div>
 
-      <div class="underphone">
+        <div class="underphone">
         <button class="btn pink" id="addSlot">칸 3개 늘리기</button>
         <button class="btn" id="ratioBtn">칸 비율 4:5</button>
         <button class="btn" id="sortDate">날짜순 정렬</button>
       </div>
       <p class="hint">폰 화면의 글자는 눌러서 바로 고칠 수 있어요. 빈 칸을 누르면 이미지가 올라가고, 왼쪽 위 손잡이를 끌면 순서가 바뀝니다.</p>
+      </div>
     </div>
 
-    <!-- side -->
-    <div>
-      <div class="panel">
-        <h2 id="calTitle">발행 달력</h2>
-        <p class="sub">칸을 날짜 위로 끌어다 놓으면 발행일이 잡힙니다. 칸을 고른 뒤 날짜를 눌러도 돼요.</p>
-        <div class="cal" id="cal"></div>
-        <div style="margin-top:16px">
-          <p class="sub" id="undatedSub" style="margin-bottom:8px"></p>
-          <div class="und" id="undated"></div>
-        </div>
-      </div>
-
+    <div class="col-right">
       <div class="panel" id="editor">
         <h2 id="edTitle">게시물 상세</h2>
         <p class="sub" id="edSub">그리드에서 칸을 선택하면 내용을 적을 수 있어요.</p>
@@ -323,6 +339,18 @@ details.panel[open] summary{margin-bottom:14px}
         </div>
       </div>
 
+
+      <div class="panel">
+        <h2>이번 달 요약</h2>
+        <p class="sub" id="summary">아직 등록된 게시물이 없습니다.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn pink" id="expPptx">PPTX로 내보내기</button>
+          <button class="btn" id="expJson">백업 파일 저장</button>
+          <button class="btn" id="impJson">백업 불러오기</button>
+        </div>
+        <p class="sub" style="margin:14px 0 0">저장은 이 브라우저 안에서만 이뤄집니다. 다른 기기에서 열려면 백업 파일을 옮겨 주세요.</p>
+      </div>
+
       <details class="panel">
         <summary>화면 요소</summary>
         <p class="sub">필요한 것만 켜서 실제 계정 화면과 똑같이 맞추세요.</p>
@@ -337,16 +365,6 @@ details.panel[open] summary{margin-bottom:14px}
         </div>
       </details>
 
-      <div class="panel">
-        <h2>이번 달 요약</h2>
-        <p class="sub" id="summary">아직 등록된 게시물이 없습니다.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn pink" id="expPptx">PPTX로 내보내기</button>
-          <button class="btn" id="expJson">백업 파일 저장</button>
-          <button class="btn" id="impJson">백업 불러오기</button>
-        </div>
-        <p class="sub" style="margin:14px 0 0">저장은 이 브라우저 안에서만 이뤄집니다. 다른 기기에서 열려면 백업 파일을 옮겨 주세요.</p>
-      </div>
     </div>
   </div>
 </div>
@@ -476,7 +494,7 @@ function renderEls(){
     var l=document.createElement("label");
     var c=document.createElement("input"); c.type="checkbox"; c.checked=profile.show[e.k]!==false;
     var s=document.createElement("span"); s.textContent=e.n;
-    c.addEventListener("change", function(){ profile.show[e.k]=c.checked; saveProfile(); applyShow(); });
+    c.addEventListener("change", function(){ profile.show[e.k]=c.checked; saveProfile(); applyShow(); queueFit(); });
     l.appendChild(c); l.appendChild(s); box.appendChild(l);
   });
   document.getElementById("tabCount").value=String(profile.tabs||3);
@@ -541,7 +559,7 @@ function applyRatio(){
   document.getElementById("ratioBtn").textContent="칸 비율 "+(r==="1/1"?"1:1":"4:5");
 }
 document.getElementById("ratioBtn").addEventListener("click", function(){
-  profile.ratio=(profile.ratio==="1/1")?"4/5":"1/1"; saveProfile(); applyRatio();
+  profile.ratio=(profile.ratio==="1/1")?"4/5":"1/1"; saveProfile(); applyRatio(); queueFit();
   toast(profile.ratio==="1/1"?"정사각형으로 봅니다.":"인스타 기본값인 4:5로 봅니다.");
 });
 
@@ -878,7 +896,7 @@ function clearDrop(){
 }
 
 /* ---------- buttons ---------- */
-document.getElementById("addSlot").addEventListener("click", function(){ slots+=3; saveMonth(); renderGrid(); });
+document.getElementById("addSlot").addEventListener("click", function(){ slots+=3; saveMonth(); renderGrid(); queueFit(); });
 document.getElementById("sortDate").addEventListener("click", function(){
   var filled=posts.filter(function(p){ return p&&p.img; });
   var rest=posts.filter(function(p){ return p&&!p.img; });
@@ -913,7 +931,7 @@ function shiftMonth(m,d){
 }
 function switchMonth(){ loadMonth(); clearEditor(); renderAll(); }
 
-function renderAll(){ renderGrid(); renderCal(); }
+function renderAll(){ renderGrid(); renderCal(); queueFit(); }
 
 /* ---------- calendar ---------- */
 function renderCal(){
@@ -1115,6 +1133,28 @@ document.getElementById("expPptx").addEventListener("click", function(){
   }).catch(function(){ toast("내보내는 중 문제가 생겼습니다."); });
 });
 
+/* ---------- fit the phone to the panel height ---------- */
+function fitPhone(){
+  var panel=document.querySelector(".feed-panel"),
+      phone=document.querySelector(".feed-panel .phone"),
+      grid=document.getElementById("grid");
+  if(!panel||!phone||!grid) return;
+  if(window.innerWidth<=900){ document.documentElement.style.removeProperty("--phoneW"); return; }
+  var style=getComputedStyle(panel),
+      inner=panel.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom),
+      extras=panel.scrollHeight-grid.offsetHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom),
+      avail=inner-extras-6;
+  var rows=Math.ceil(slots/3);
+  if(rows<1||avail<60){ document.documentElement.style.removeProperty("--phoneW"); return; }
+  var ratio=(profile.ratio==="1/1")?1:1.25;
+  var w=Math.floor(((avail/rows)/ratio)*3);
+  w=Math.max(210,Math.min(360,w));
+  document.documentElement.style.setProperty("--phoneW", w+"px");
+}
+var fitTimer=null;
+function queueFit(){ clearTimeout(fitTimer); fitTimer=setTimeout(function(){ fitPhone(); fitPhone(); },0); }
+window.addEventListener("resize", queueFit);
+
 /* ---------- boot ---------- */
 function boot(){
   var raw=localStorage.getItem(LS_PROFILE);
@@ -1127,7 +1167,7 @@ function boot(){
   monthInput.value=month;
   document.getElementById("whoName").value=localStorage.getItem("brkg_feed_user")||"";
   fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
-  loadMonth(); renderAll();
+  loadMonth(); renderAll(); queueFit();
 }
 if(opened()) openApp(); else document.getElementById("gateInput").focus();
 })();
