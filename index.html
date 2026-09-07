@@ -46,8 +46,11 @@
   .sect{margin-bottom:26px;}
   .shead{display:flex; align-items:center; gap:10px; margin:0 0 12px;}
   .shead .dot{width:9px; height:9px; border-radius:50%; flex:none;}
-  .shead.open .dot{background:var(--blue);}
-  .shead.locked .dot{background:var(--gold);}
+  .shead.info .dot{background:var(--ink-deep);}
+  .shead.poll .dot{background:var(--blue);}
+  .shead.work .dot{background:#7A4BC4;}
+  .shead .pw{font-size:10.5px; font-weight:700; letter-spacing:.02em; color:var(--gold);
+             background:var(--gold-soft); border-radius:999px; padding:2px 9px;}
   .shead h2{font-size:14px; font-weight:900; letter-spacing:-.02em;}
   .shead .cnt{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
               color:var(--mute); background:var(--paper); border:1.5px solid var(--line);
@@ -68,24 +71,15 @@
   .row .gate:nth-child(4){animation-delay:.22s;}
   @keyframes rise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
 
-  .gate.survey{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
-               box-shadow:0 14px 28px -20px rgba(30,55,149,.8);}
-  .gate.onsite{background:linear-gradient(158deg,var(--pink) 0%,var(--pink-deep) 100%);
-               box-shadow:0 14px 28px -20px rgba(158,0,96,.75);}
-  .gate.sales{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
+  .gate.basic{background:linear-gradient(158deg,#2C3457 0%,var(--ink-deep) 100%);
               box-shadow:0 14px 28px -20px rgba(21,27,54,.8);}
-  .gate.market{background:linear-gradient(158deg,var(--green) 0%,var(--green-deep) 100%);
-               box-shadow:0 14px 28px -20px rgba(8,69,47,.8);}
-  .gate.map{background:linear-gradient(158deg,#3E6FB8 0%,#1F3F70 100%);
-            box-shadow:0 14px 28px -20px rgba(31,63,112,.8);}
+  .gate.poll{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
+             box-shadow:0 14px 28px -20px rgba(30,55,149,.8);}
   .gate.work{background:linear-gradient(158deg,#7A4BC4 0%,#432574 100%);
              box-shadow:0 14px 28px -20px rgba(67,37,116,.8);}
   .gate:hover{transform:translateY(-3px);}
-  .gate.survey:hover{box-shadow:0 20px 36px -18px rgba(30,55,149,.9);}
-  .gate.onsite:hover{box-shadow:0 20px 36px -18px rgba(158,0,96,.85);}
-  .gate.sales:hover{box-shadow:0 20px 36px -18px rgba(21,27,54,.9);}
-  .gate.market:hover{box-shadow:0 20px 36px -18px rgba(8,69,47,.9);}
-  .gate.map:hover{box-shadow:0 20px 36px -18px rgba(31,63,112,.9);}
+  .gate.basic:hover{box-shadow:0 20px 36px -18px rgba(21,27,54,.9);}
+  .gate.poll:hover{box-shadow:0 20px 36px -18px rgba(30,55,149,.9);}
   .gate.work:hover{box-shadow:0 20px 36px -18px rgba(67,37,116,.9);}
   .gate:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
 
@@ -100,14 +94,14 @@
            padding-right:20px;}
   .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
             color:var(--gold-soft); margin-top:3px;}
-  .gate.survey .yr, .gate.onsite .yr, .gate.work .yr{color:rgba(255,255,255,.8);}
+  .gate.poll .yr, .gate.work .yr{color:rgba(255,255,255,.8);}
   .gate .desc{font-size:11.5px; line-height:1.5; margin-top:6px;
               color:rgba(255,255,255,.72);}
   .stats{display:flex; gap:12px; flex-wrap:wrap; margin-top:auto; padding-top:10px;}
   .stat .v{font-family:'Fredoka',sans-serif; font-weight:600; font-size:13.5px; line-height:1;}
   .stat .v small{font-size:9.5px;}
   .stat .l{font-size:9.5px; color:rgba(255,255,255,.6); margin-top:3px;}
-  .gate.sales .stat .v, .gate.market .stat .v, .gate.map .stat .v{color:var(--gold-soft);}
+  .gate.basic .stat .v{color:var(--gold-soft);}
 
   .arw{position:absolute; right:14px; top:16px; opacity:.55;
        transition:opacity .2s ease, transform .2s ease;}
@@ -147,15 +141,93 @@
 <main>
 
   <section class="sect">
-    <div class="shead open">
+    <div class="shead info">
       <span class="dot"></span>
-      <h2 data-t="h1">사내 공개</h2>
-      <span class="cnt">2</span>
+      <h2 data-t="hA">회사 기본 정보</h2>
+      <span class="cnt">3</span>
+      <span class="pw" data-t="hApw">비밀번호</span>
       <span class="rule"></span>
     </div>
     <div class="row">
 
-      <a class="gate survey" href="surveys.html">
+      <a class="gate basic" href="br-sales.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
+            <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
+            <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
+            <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t2">BR 총 POS 매출</h3>
+          <div class="yr">2019 &ndash; 2026</div>
+          <p class="desc" data-t="d2">90개월 월별 실매출 × FOM &amp; IP 캠페인 캘린더.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
+            <div class="stat"><div class="v">742<small>억</small></div><div class="l" data-t="s2b">월평균</div></div>
+            <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate basic" href="br-market.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="14" y="14" width="54" height="54" rx="6" fill="#5DCAA5"/>
+            <rect x="76" y="14" width="30" height="36" rx="6" fill="#F7EFD8"/>
+            <rect x="14" y="76" width="54" height="30" rx="6" fill="#ED93B1"/>
+            <rect x="76" y="58" width="30" height="48" rx="6" fill="#C9A227"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t3">시장 구조</h3>
+          <div class="yr">2025 &ndash; 2026</div>
+          <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 규모.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">8.2<small>조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
+            <div class="stat"><div class="v">90<small>%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
+            <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate basic" href="br-stores.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="60" cy="52" r="10" fill="#C9A227" stroke="#fff" stroke-width="5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t5">가맹점 위치 지도</h3>
+          <div class="yr">2026.07</div>
+          <p class="desc" data-t="d5">1,708개 점포를 지역·팀·상권별로 비교.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
+            <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
+            <div class="stat"><div class="v">843<small>억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="sect">
+    <div class="shead poll">
+      <span class="dot"></span>
+      <h2 data-t="hC">설문조사</h2>
+      <span class="cnt">2</span>
+      <span class="pw" data-t="hCpw">비밀번호</span>
+      <span class="rule"></span>
+    </div>
+    <div class="row">
+
+      <a class="gate poll" href="surveys.html">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
@@ -175,7 +247,7 @@
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
 
-      <a class="gate onsite" href="br-store-report.html">
+      <a class="gate poll" href="br-store-report.html">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <rect x="12" y="34" width="96" height="64" rx="9" fill="#fff"/>
@@ -200,77 +272,14 @@
   </section>
 
   <section class="sect">
-    <div class="shead locked">
+    <div class="shead work">
       <span class="dot"></span>
-      <h2 data-t="h2">대외비 · 비밀번호</h2>
-      <span class="cnt">4</span>
+      <h2 data-t="hB">마케팅 실무</h2>
+      <span class="cnt">1</span>
+      <span class="pw" data-t="hBpw">비밀번호</span>
       <span class="rule"></span>
     </div>
     <div class="row">
-
-      <a class="gate sales" href="br-sales.html">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
-            <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
-            <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
-            <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t2">BR 총 POS 매출</h3>
-          <div class="yr">2019 &ndash; 2026</div>
-          <p class="desc" data-t="d2">90개월 월별 실매출 × FOM &amp; IP 캠페인 캘린더.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
-            <div class="stat"><div class="v">742<small>억</small></div><div class="l" data-t="s2b">월평균</div></div>
-            <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
-          </div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-
-      <a class="gate market" href="br-market.html">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="14" y="14" width="54" height="54" rx="6" fill="#5DCAA5"/>
-            <rect x="76" y="14" width="30" height="36" rx="6" fill="#F7EFD8"/>
-            <rect x="14" y="76" width="54" height="30" rx="6" fill="#ED93B1"/>
-            <rect x="76" y="58" width="30" height="48" rx="6" fill="#C9A227"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t3">시장 구조</h3>
-          <div class="yr">2025 &ndash; 2026</div>
-          <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 규모.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">8.2<small>조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
-            <div class="stat"><div class="v">90<small>%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
-            <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
-          </div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-
-      <a class="gate map" href="br-stores.html">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
-            <circle cx="60" cy="52" r="10" fill="#C9A227" stroke="#fff" stroke-width="5"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t5">가맹점 위치 지도</h3>
-          <div class="yr">2026.07</div>
-          <p class="desc" data-t="d5">1,708개 점포를 지역·팀·상권별로 비교.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
-            <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
-            <div class="stat"><div class="v">843<small>억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
-          </div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
 
       <a class="gate work" href="marketing.html">
         <div class="art">
@@ -311,7 +320,8 @@
 
 var EN = {
   sub:'Marketing Strategy · Genius Team',
-  h1:'Internal', h2:'Confidential · passcode',
+  hA:'Company basics', hB:'Marketing workbench', hC:'Surveys',
+  hApw:'passcode', hBpw:'passcode', hCpw:'passcode',
   t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure',
   t4:'ON-SITE Store Report', t5:'Store Location Map', t6:'Marketing Workbench',
   d1:'Visitor feedback, brand health, FOM concept pre-tests.',

@@ -405,9 +405,9 @@ h1.title .on{color:var(--pink)}
    PASSCODE  : 설문 허브와 동일한 코드
    SESSION_KEY: 허브(surveys.html)와 같은 키를 쓰면 한 번만 입력하면 됩니다.
    ═════════════════════════════════════════════════════════ */
-var PASSCODE    = "2607";                 // 설문 허브와 동일한 코드
+var PASSCODE    = "2701";                 // 설문 허브와 동일한 코드
 var SESSION_KEY = "br_report_ok";         // br-sales.html의 br_sales_ok 와 같은 방식
-var TRUST_KEYS  = ["br_survey_ok", "br_admin_ok", "br_sales_ok"];
+var TRUST_KEYS  = ["br_all_ok", "br_survey_ok", "br_admin_ok", "br_sales_ok"];
 var ADMIN_CODE  = "3131";                 // 팀 아카이브 삭제용
 var ADMIN_KEY   = "br_onsite_admin_ok";  // 이미 통과한 세션이면 재입력 생략
 var STORE_KEY   = "brk_store_reports_v1";
@@ -633,7 +633,7 @@ function initGate(){
 }
 function tryUnlock(){
   var v=document.getElementById('gate-pw').value.trim();
-  if(v===PASSCODE){ ssSet(SESSION_KEY,'1'); unlock(); }
+  if(v===PASSCODE){ ssSet(SESSION_KEY,'1'); ssSet('br_all_ok','1'); unlock(); }
   else{ document.getElementById('gate-err').textContent='코드가 맞지 않아요. 다시 입력해 주세요.'; document.getElementById('gate-pw').value=''; document.getElementById('gate-pw').focus(); }
 }
 

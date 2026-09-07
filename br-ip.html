@@ -178,7 +178,7 @@ input.s{width:100%}
 <script>
 (function(){
 "use strict";
-var PASS="2607", LS="brkg_ip_v1";
+var PASS="2701", LS="brkg_ip_v1";
 var STAGES=["발굴","내부 검토","제안 발송","협의 중","계약 완료","보류","종료"];
 var CATS=["캐릭터","브랜드","아티스트","게임","방송·영화","기타"];
 var MD_STAGES=["기획","디자인","샘플","양산","출시"];
@@ -188,11 +188,11 @@ var DOC_TYPES=["제안서","시안","견적","계약","회신 기록","기타"];
 var gate=document.getElementById("gate"), app=document.getElementById("app");
 function opened(){
   return sessionStorage.getItem("br_ip_ok")==="1"||sessionStorage.getItem("br_mkt_ok")==="1"||
-         sessionStorage.getItem("br_survey_ok")==="1"||sessionStorage.getItem("br_admin_ok")==="1";
+         sessionStorage.getItem("br_all_ok")==="1"||sessionStorage.getItem("br_survey_ok")==="1";
 }
 function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); boot(); }
 function tryGate(){
-  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_ip_ok","1"); openApp(); }
+  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_ip_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
   else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
 }
 document.getElementById("gateBtn").addEventListener("click", tryGate);

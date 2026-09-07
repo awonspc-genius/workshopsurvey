@@ -116,15 +116,15 @@ a{text-decoration:none;color:inherit}
 <script>
 (function(){
 "use strict";
-var PASS="2607";
+var PASS="2701";
 var gate=document.getElementById("gate"), app=document.getElementById("app");
 function opened(){
-  return sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_survey_ok")==="1"||
-         sessionStorage.getItem("br_feed_ok")==="1"||sessionStorage.getItem("br_admin_ok")==="1";
+  return sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_all_ok")==="1"||
+         sessionStorage.getItem("br_survey_ok")==="1"||sessionStorage.getItem("br_feed_ok")==="1";
 }
 function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); }
 function tryGate(){
-  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_mkt_ok","1"); openApp(); }
+  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_mkt_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
   else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
 }
 document.getElementById("gateBtn").addEventListener("click", tryGate);

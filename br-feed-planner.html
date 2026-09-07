@@ -359,16 +359,16 @@ details.panel[open] summary{margin-bottom:14px}
 <script>
 (function(){
 "use strict";
-var PASS="2607", LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
+var PASS="2701", LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
 
 /* ---------- gate ---------- */
 var gate=document.getElementById("gate"), app=document.getElementById("app");
-function opened(){ return sessionStorage.getItem("br_feed_ok")==="1"||sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_survey_ok")==="1"||sessionStorage.getItem("br_admin_ok")==="1"; }
+function opened(){ return sessionStorage.getItem("br_feed_ok")==="1"||sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_all_ok")==="1"||sessionStorage.getItem("br_survey_ok")==="1"; }
 function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); boot(); }
 document.getElementById("gateBtn").addEventListener("click", tryGate);
 document.getElementById("gateInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryGate(); });
 function tryGate(){
-  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_feed_ok","1"); openApp(); }
+  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_feed_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
   else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
 }
 

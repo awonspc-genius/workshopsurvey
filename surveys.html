@@ -242,7 +242,7 @@
    ※ 매장 응답 페이지(br-survey-system.html?store=…)는 잠기지 않습니다.
      손님이 QR로 바로 여는 주소이므로 게이트가 걸리면 안 됩니다.
    ===================================================================== */
-var SURVEY_CODE = "2607";
+var SURVEY_CODE = "2701";
 
 (function(){
   var KEY = "br_survey_ok";
@@ -250,7 +250,7 @@ var SURVEY_CODE = "2607";
     var el = document.getElementById("sCode");
     var v = (el && el.value) || "";
     if (v === SURVEY_CODE) {
-      try { sessionStorage.setItem(KEY, "1"); } catch(e){}
+      try { sessionStorage.setItem(KEY, "1"); sessionStorage.setItem("br_all_ok", "1"); } catch(e){}
       document.body.classList.remove("locked");
     } else {
       document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
@@ -258,7 +258,7 @@ var SURVEY_CODE = "2607";
     }
   }
   var already = false;
-  try { already = sessionStorage.getItem(KEY) === "1"; } catch(e){}
+  try { already = sessionStorage.getItem(KEY) === "1" || sessionStorage.getItem("br_all_ok") === "1"; } catch(e){}
   if (already) document.body.classList.remove("locked");
   else { var i = document.getElementById("sCode"); if (i) i.focus(); }
 

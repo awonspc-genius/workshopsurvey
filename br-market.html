@@ -95,9 +95,36 @@
     .backbar{display:none;}
     .board, table, .kpis{break-inside:avoid;}
   }
+  /* gate */
+  body.locked > .wrap{ display:none; }
+  body:not(.locked) > .sgate{ display:none; }
+  .sgate{ position:fixed; inset:0; display:grid; place-items:center;
+          background:radial-gradient(120% 80% at 50% 0%, #fff 0%, #F4F6FA 60%); z-index:99; }
+  .sgate .box{ background:#fff; border:1px solid var(--line, #DDE2EE); border-radius:16px;
+               padding:32px 34px; width:min(92vw,360px); text-align:center;
+               box-shadow:0 18px 40px -28px rgba(21,27,54,.6); }
+  .sgate h2{ font-size:18px; margin-bottom:16px; }
+  .sgate input{ width:100%; padding:11px 13px; font-size:16px; text-align:center;
+                border:1.5px solid var(--line, #DDE2EE); border-radius:10px; font-family:inherit; }
+  .sgate button{ margin-top:12px; width:100%; padding:11px; border:none; border-radius:10px;
+                 background:var(--blue); color:#fff; font-family:inherit; font-size:14px;
+                 font-weight:800; cursor:pointer; }
+  .sgate .back{ background:#fff; color:#6E769B; border:1.5px solid var(--line, #DDE2EE); margin-top:8px; }
+  .sgate .err{ color:#EC0089; font-size:12px; min-height:16px; margin-top:8px; font-weight:700; }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="sgate" id="sgate">
+  <div class="box">
+    <h2>BR 코리아 시장 구조</h2>
+    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
+    <div class="err" id="sErr"></div>
+    <button id="sBtn">열기</button>
+    <button class="back" id="sBack">처음으로</button>
+  </div>
+</div>
+
 <div class="wrap">
 
   <div class="backbar"><a href="index.html"><span>←</span> BRK Genius</a></div>
@@ -321,6 +348,28 @@
 (function(){
   var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
   document.getElementById('today').textContent = d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate());
+})();
+</script>
+<script>
+/* 시장 구조 페이지는 공통 비밀번호 2701 로 열립니다.
+   위치 지도·분석 페이지와 같은 열쇠(br_all_ok)를 써서, 한 번 열면 서로 오갈 때 다시 안 묻습니다. */
+var MARKET_CODE = "2701";
+(function(){
+  var SKEY = "br_all_ok";
+  function ok(){ try { return sessionStorage.getItem(SKEY) === "1"; } catch(e){ return false; } }
+  function unlock(){ try { sessionStorage.setItem(SKEY,"1"); } catch(e){}
+                     document.body.classList.remove("locked"); }
+  function attempt(){
+    var el = document.getElementById("sCode"), v = (el && el.value) || "";
+    if (v === MARKET_CODE) unlock();
+    else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
+           if (el) { el.value=""; el.focus(); } }
+  }
+  if (ok()) document.body.classList.remove("locked");
+  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
+  document.getElementById("sBtn").addEventListener("click", attempt);
+  document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key==="Enter") attempt(); });
+  document.getElementById("sBack").addEventListener("click", function(){ window.location.href = "index.html"; });
 })();
 </script>
 </body>
