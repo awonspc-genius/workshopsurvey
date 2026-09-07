@@ -176,6 +176,10 @@ button{cursor:pointer}
 
 .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px;color:var(--mid);font-size:12px}
 .flow b{font-weight:600;color:var(--ink)}
+.daybar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dayswitch{display:flex;gap:6px}
+.daychip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 10px;font-size:12px}
+.daychip.on{border-color:var(--pink);background:var(--pink-soft);font-weight:600}
 .picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 14px;min-height:38px}
 .picked>img{width:30px;height:37px;object-fit:cover;border-radius:6px;background:#eef0f4}
 .picked .t{font-size:13px;font-weight:600}
@@ -355,8 +359,10 @@ button{cursor:pointer}
             </div>
           </div>
         </div>
-        <div style="margin-top:12px">
-          <button class="btn warn" id="delPost">이 날짜 게시물 지우기</button>
+        <div class="daybar">
+          <div class="dayswitch" id="sameDay"></div>
+          <button class="btn sm" id="addSameDay">이 날짜에 게시물 추가</button>
+          <button class="btn sm warn" id="delPost">이 게시물 지우기</button>
         </div>
       </div>
     </div>
@@ -847,6 +853,11 @@ function postOfDate(d){
   for(var i=0;i<posts.length;i++){ if(posts[i]&&posts[i].date===d) return i; }
   return -1;
 }
+function postsOfDate(d){
+  var out=[];
+  posts.forEach(function(p,i){ if(p&&p.date===d) out.push(i); });
+  return out;
+}
 function doneCount(p){
   if(!p||!p.steps) return 0;
   return STEPS.filter(function(st){ return p.steps[st.k]&&p.steps[st.k].done; }).length;
@@ -861,6 +872,25 @@ function renderDateLabel(){
   if(p&&p.date) lab.textContent=prettyDate(p.date)+" 발행";
   else if(p) lab.textContent="날짜 미정 게시물";
   else lab.textContent="달력에서 날짜를 고르세요";
+  renderSameDay();
+}
+/* 같은 날짜에 여러 건이 있으면 그 사이를 오갈 수 있게 */
+function renderSameDay(){
+  var box=document.getElementById("sameDay"); if(!box) return;
+  box.innerHTML="";
+  var p=(sel>=0)?posts[sel]:null;
+  var d=(p&&p.date)?p.date:curDate;
+  var list=d?postsOfDate(d):[];
+  document.getElementById("addSameDay").disabled=!d;
+  if(list.length<2) return;
+  list.forEach(function(idx,n){
+    var b=document.createElement("button");
+    b.className="daychip"+(idx===sel?" on":"");
+    b.textContent=(n+1)+"번째";
+    b.title=(n+1)+"번째 게시물 열기";
+    b.addEventListener("click", function(){ select(idx); renderSteps(); renderCands(); });
+    box.appendChild(b);
+  });
 }
 /* 달력에서 날짜를 누르면 그 날짜의 게시물을 열고, 없으면 만든다 */
 function goDate(d){
@@ -997,6 +1027,15 @@ document.getElementById("lightbox").addEventListener("click", function(){ this.c
 window.addEventListener("keydown", function(e){
   if(e.key==="Escape") document.getElementById("lightbox").classList.add("hidden");
 });
+document.getElementById("addSameDay").addEventListener("click", function(){
+  var p=(sel>=0)?posts[sel]:null;
+  var d=(p&&p.date)?p.date:curDate;
+  if(!d){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
+  sel=-1;
+  var np=ensurePost(); np.date=d; saveMonth();
+  renderSteps(); renderCands(); renderAll();
+  toast(prettyDate(d)+"에 게시물을 하나 더 만들었습니다.");
+});
 document.getElementById("delPost").addEventListener("click", function(){
   if(sel<0||!posts[sel]){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
   removePost(sel);
@@ -1114,27 +1153,39 @@ function startDragAt(i, e, srcEl){
   window.addEventListener("pointercancel", endDrag);
 }
 function moveGhost(x,y){ if(ghost){ ghost.style.left=x+"px"; ghost.style.top=y+"px"; } }
+var dropTarget=null, moveQueued=false, lastPt={x:0,y:0};
 function onDragMove(e){
-  e.preventDefault(); moveGhost(e.clientX,e.clientY);
-  if(ghost) ghost.style.display="none";
-  var el=document.elementFromPoint(e.clientX,e.clientY);
-  if(ghost) ghost.style.display="";
-  clearDrop();
-  if(!el||!el.closest) return;
-  var cell=el.closest(".cell[data-date]");
-  if(cell){ cell.classList.add("drop"); return; }
-  var s=el.closest(".slot");
-  if(s&&Number(s.getAttribute("data-i"))!==dragFrom) s.classList.add("drop");
+  e.preventDefault();
+  lastPt.x=e.clientX; lastPt.y=e.clientY;
+  moveGhost(e.clientX,e.clientY);
+  if(moveQueued) return;
+  moveQueued=true;
+  requestAnimationFrame(function(){
+    moveQueued=false;
+    var el=document.elementFromPoint(lastPt.x,lastPt.y);   /* ghost 는 pointer-events:none 이라 가려지지 않음 */
+    var t=null;
+    if(el&&el.closest){
+      t=el.closest(".cell[data-date]");
+      if(!t){
+        var sl=el.closest(".slot");
+        if(sl&&Number(sl.getAttribute("data-i"))!==dragFrom) t=sl;
+      }
+    }
+    if(t===dropTarget) return;
+    if(dropTarget) dropTarget.classList.remove("drop");
+    dropTarget=t;
+    if(dropTarget) dropTarget.classList.add("drop");
+  });
 }
 function endDrag(e){
   window.removeEventListener("pointermove", onDragMove);
   window.removeEventListener("pointerup", endDrag);
   window.removeEventListener("pointercancel", endDrag);
-  if(ghost) ghost.style.display="none";
   var el=document.elementFromPoint(e.clientX,e.clientY);
   var cell=(el&&el.closest)?el.closest(".cell[data-date]"):null;
   var s=(el&&el.closest)?el.closest(".slot"):null;
   if(ghost){ ghost.remove(); ghost=null; }
+  dropTarget=null;
   if(cell&&dragFrom>=0&&posts[dragFrom]){
     posts[dragFrom].date=cell.getAttribute("data-date");
     saveMonth();
@@ -1164,6 +1215,7 @@ function clearDrop(){
 
 /* ---------- buttons ---------- */
 document.getElementById("addSlot").addEventListener("click", function(){ slots+=3; saveMonth(); renderGrid(); queueFit(); });
+/* 배치가 바뀌는 동작에서만 폭을 다시 잰다 */
 document.getElementById("sortDate").addEventListener("click", function(){
   var filled=posts.filter(function(p){ return p&&p.img; });
   var rest=posts.filter(function(p){ return p&&!p.img; });
@@ -1185,9 +1237,9 @@ function shiftMonth(m,d){
   if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
   return y+"-"+pad(mo);
 }
-function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); }
+function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); queueFit(); }
 
-function renderAll(){ renderGrid(); renderCal(); renderMonths(); renderDateLabel(); queueFit(); }
+function renderAll(){ renderGrid(); renderCal(); renderMonths(); renderDateLabel(); }
 function renderEverything(){ renderAll(); }
 
 /* ---------- calendar ---------- */
@@ -1209,12 +1261,20 @@ function renderCal(){
       cell.setAttribute("data-date",key);
       var n=document.createElement("div"); n.className="n"; n.textContent=d; cell.appendChild(n);
       var box=document.createElement("div"); box.className="thumbs"; cell.appendChild(box);
-      var dayPost=posts[postOfDate(key)];
-      if(dayPost){
+      var dayList=postsOfDate(key);
+      if(dayList.length){
         var pr=document.createElement("span"); pr.className="prog";
-        var n=doneCount(dayPost);
-        pr.textContent=n+"/5";
-        if(n===STEPS.length) pr.classList.add("full");
+        if(dayList.length===1){
+          var n=doneCount(posts[dayList[0]]);
+          pr.textContent=n+"/5";
+          if(n===STEPS.length) pr.classList.add("full");
+          pr.title="5단계 중 "+n+"단계 확인";
+        } else {
+          var fin=dayList.filter(function(ix){ return doneCount(posts[ix])===STEPS.length; }).length;
+          pr.textContent=fin+"/"+dayList.length+"건";
+          if(fin===dayList.length) pr.classList.add("full");
+          pr.title="이 날 "+dayList.length+"건 중 "+fin+"건 완료";
+        }
         cell.appendChild(pr);
       }
       posts.forEach(function(p,idx){
