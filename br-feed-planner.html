@@ -190,12 +190,6 @@ button{cursor:pointer}
 .mchip.on{border-color:var(--pink);background:var(--pink-soft)}
 .mchip.full b{color:#12a150}
 @media(max-width:900px){.months{grid-template-columns:repeat(4,1fr)}}
-.weeks{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
-.wkchip{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 4px;text-align:center;line-height:1.25}
-.wkchip b{display:block;font-size:12px;font-weight:600}
-.wkchip span{font-size:10.5px;color:var(--mid)}
-.wkchip.on{border-color:var(--pink);background:var(--pink-soft)}
-.wkchip.full b{color:#12a150}
 .colorrow{display:flex;gap:8px;align-items:center}
 .colorrow input[type=color]{width:44px;height:36px;padding:3px;border:1px solid var(--line);border-radius:9px;background:#fff}
 .colorrow #fColorHex{width:118px;padding:8px 10px;border:1px solid var(--line);border-radius:9px}
@@ -238,6 +232,9 @@ button{cursor:pointer}
 .cal .cell[data-date]{cursor:pointer}
 .cal .cell.drop{outline:2px solid var(--pink);outline-offset:-2px;background:var(--pink-soft)}
 .cal .cell.selday{border-color:var(--pink);border-width:2px;padding:2px}
+.cal .cell{position:relative}
+.cal .prog{position:absolute;right:4px;top:3px;font-size:9.5px;color:var(--mid);font-weight:600}
+.cal .prog.full{color:#12a150}
 .und{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:5px}
 @media(max-width:560px){.cal .thumbs button{width:18px;height:22px}}
 
@@ -268,7 +265,7 @@ button{cursor:pointer}
     <div class="col-left">
       <div class="panel cal-panel">
         <h2 id="calTitle">발행 달력</h2>
-        <p class="sub">칸을 날짜 위로 끌어다 놓으면 발행일이 잡힙니다. 칸을 고른 뒤 날짜를 눌러도 돼요.</p>
+        <p class="sub">날짜를 누르면 그날 올릴 게시물이 아래에 열립니다. 그리드 칸을 날짜 위로 끌어다 놓아도 됩니다.</p>
         <div class="cal" id="cal"></div>
         <div style="margin-top:16px">
           <p class="sub" id="undatedSub" style="margin-bottom:8px"></p>
@@ -278,10 +275,9 @@ button{cursor:pointer}
       <div class="panel">
         <div class="teamhead">
           <h2>팀 확인</h2>
-          <span class="wk" id="wkLabel">주차를 고르세요</span>
+          <span class="wk" id="wkLabel">달력에서 날짜를 고르세요</span>
         </div>
         <div class="months" id="months"></div>
-        <div class="weeks" id="weeks"></div>
         <div class="flow">
           <b>컬러 선정</b> IMC <span>→</span> <b>이미지 후보</b> 피이그 <span>→</span>
           <b>이미지 선정</b> 지니어스 <span>→</span> <b>검수</b> 디자인 <span>→</span> <b>최종 확인·파일</b> IMC
@@ -685,11 +681,11 @@ function renderSummary(){
 /* ---------- editor ---------- */
 function select(i){
   sel=i; var p=posts[i]; if(!p) return;
-  curWeek=p.week||curWeek;
+  curDate=p.date||"";
   document.getElementById("fMemo").value=p.memo||"";
   document.getElementById("fColorHex").value=p.color||"";
   document.getElementById("fColor").value=/^#[0-9a-fA-F]{6}$/.test(p.color||"")?p.color:"#ffffff";
-  renderCands(); renderSteps(); renderWeeks();
+  renderCands(); renderSteps(); 
   renderAll();
 }
 function clearEditor(){
@@ -697,7 +693,7 @@ function clearEditor(){
   var cb=document.getElementById("cands"); if(cb) cb.innerHTML="";
   var pl=document.getElementById("pickList"); if(pl) pl.innerHTML="";
   ["fMemo","fColorHex"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
-  renderSteps(); renderWeeks(); renderAll();
+  renderSteps(); renderAll();
 }
 function bindField(id,key,after){
   document.getElementById(id).addEventListener("input", function(){
@@ -724,15 +720,25 @@ document.getElementById("fColor").addEventListener("input", function(){
 });
 
 /* 칸을 고르지 않은 상태에서 작업을 시작하면 빈 칸을 하나 잡아 준다 */
+function blankSlot(){
+  /* 아무것도 적히지 않은 칸만 새 게시물 자리로 쓴다 */
+  for(var i=0;i<slots;i++){
+    var p=posts[i];
+    if(!p) return i;
+    if(!p.img && !p.date && !p.color && !p.memo &&
+       !(p.cands&&p.cands.length) && !(p.steps&&Object.keys(p.steps).length)) return i;
+  }
+  return -1;
+}
 function ensurePost(){
   if(sel>=0&&posts[sel]) return posts[sel];
-  var i=firstEmpty();
+  var i=blankSlot();
   if(i<0){ slots+=3; i=slots-3; }
   while(posts.length<i) posts.push(null);
   posts[i]={id:uid(), img:null, type:"피드", steps:{}, cands:[]};
   sel=i;
-  if(curWeek) posts[i].week=curWeek;
-  saveMonth(); renderSteps(); renderCands(); renderWeeks(); renderAll();
+  if(curDate) posts[i].date=curDate;
+  saveMonth(); renderSteps(); renderCands(); renderAll();
   return posts[i];
 }
 
@@ -774,50 +780,45 @@ function renderMonths(){
     b.children[1].textContent=st.started? (st.done+"/"+st.started) : "－";
     b.title=ym+(st.started? " · 진행 "+st.started+"건 중 "+st.done+"건 완료" : " · 시작 전");
     b.addEventListener("click", function(){
-      month=ym; monthInput.value=ym; curWeek="";
+      month=ym; monthInput.value=ym;
       switchMonth();
     });
     box.appendChild(b);
   });
 }
 
-/* ---------- 주차 관리 ---------- */
-var curWeek="";
-function weekLabels(){
-  var m=Number(month.slice(5,7)), out=[];
-  for(var i=1;i<=5;i++) out.push(m+"-"+i+"주차");
-  return out;
-}
-function postOfWeek(w){
-  for(var i=0;i<posts.length;i++){ if(posts[i]&&posts[i].week===w) return i; }
+/* ---------- 날짜 관리 ---------- */
+var curDate="";
+function postOfDate(d){
+  for(var i=0;i<posts.length;i++){ if(posts[i]&&posts[i].date===d) return i; }
   return -1;
 }
 function doneCount(p){
   if(!p||!p.steps) return 0;
   return STEPS.filter(function(st){ return p.steps[st.k]&&p.steps[st.k].done; }).length;
 }
-function renderWeeks(){
-  var box=document.getElementById("weeks"); if(!box) return;
-  box.innerHTML="";
-  weekLabels().forEach(function(w){
-    var idx=postOfWeek(w), p=(idx>=0)?posts[idx]:null, n=doneCount(p);
-    var b=document.createElement("button");
-    b.className="wkchip"+(curWeek===w?" on":"")+(n===5?" full":"");
-    b.innerHTML="<b></b><span></span>";
-    b.children[0].textContent=w.replace("주차","주");
-    b.children[1].textContent=p?(n+"/5"):"시작 전";
-    b.addEventListener("click", function(){ goWeek(w); });
-    box.appendChild(b);
-  });
-  var lab=document.getElementById("wkLabel");
-  if(lab) lab.textContent=(sel>=0&&posts[sel]&&posts[sel].week)?posts[sel].week:(curWeek||"주차를 고르세요");
+function prettyDate(d){
+  if(!d) return "";
+  return Number(d.slice(5,7))+"월 "+Number(d.slice(8,10))+"일";
 }
-function goWeek(w){
-  curWeek=w;
-  var idx=postOfWeek(w);
-  if(idx<0){ sel=-1; var p=ensurePost(); p.week=w; saveMonth(); }   /* 이미 열려 있던 칸의 주차를 덮어쓰지 않도록 */
-  else select(idx);
-  renderWeeks(); renderSteps(); renderCands(); renderAll();
+function renderDateLabel(){
+  var lab=document.getElementById("wkLabel"); if(!lab) return;
+  var p=(sel>=0)?posts[sel]:null;
+  if(p&&p.date) lab.textContent=prettyDate(p.date)+" 발행";
+  else if(p) lab.textContent="날짜 미정 게시물";
+  else lab.textContent="달력에서 날짜를 고르세요";
+}
+/* 달력에서 날짜를 누르면 그 날짜의 게시물을 열고, 없으면 만든다 */
+function goDate(d){
+  curDate=d;
+  var idx=postOfDate(d);
+  if(idx>=0){ select(idx); }
+  else if(sel>=0&&posts[sel]&&!posts[sel].date){
+    posts[sel].date=d; saveMonth(); select(sel);      /* 날짜 미정이던 게시물에 날짜를 준다 */
+  } else {
+    sel=-1; var p=ensurePost(); p.date=d; saveMonth();
+  }
+  renderSteps(); renderCands(); renderAll();
 }
 
 /* ---------- steps ---------- */
@@ -854,7 +855,7 @@ function renderSteps(){
       if(!t.steps) t.steps={};
       if(t.steps[st.k]&&t.steps[st.k].done) delete t.steps[st.k];
       else t.steps[st.k]={done:true, by:who(st.k), at:todayStr()};
-      saveMonth(); renderSteps(); renderWeeks(); renderAll();
+      saveMonth(); renderSteps(); renderAll();
     };
   });
 }
@@ -910,7 +911,7 @@ function drawCandList(box, mode){
       b.addEventListener("click", function(){ zoom(cid,(ci+1)+"번째 후보"); });
     } else {
       b.addEventListener("click", function(){
-        p.img=cid; saveMonth(); renderCands(); renderWeeks(); renderAll();
+        p.img=cid; saveMonth(); renderCands(); renderAll();
         toast("최종 이미지로 정했습니다.");
       });
     }
@@ -1111,9 +1112,9 @@ function shiftMonth(m,d){
   if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
   return y+"-"+pad(mo);
 }
-function switchMonth(){ loadMonth(); curWeek=""; clearEditor(); renderMonths(); renderWeeks(); renderCands(); renderEverything(); }
+function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); }
 
-function renderAll(){ renderGrid(); renderCal(); renderWeeks(); renderMonths(); queueFit(); }
+function renderAll(){ renderGrid(); renderCal(); renderMonths(); renderDateLabel(); queueFit(); }
 function renderEverything(){ renderAll(); }
 
 /* ---------- calendar ---------- */
@@ -1133,9 +1134,16 @@ function renderCal(){
       var cell=document.createElement("div");
       cell.className="cell"+(new Date(y,m-1,d).getDay()===0?" sun":"")+(selDate===key?" selday":"");
       cell.setAttribute("data-date",key);
-      cell.title="여기를 누르면 고른 칸의 발행일이 이 날짜로 바뀝니다";
       var n=document.createElement("div"); n.className="n"; n.textContent=d; cell.appendChild(n);
       var box=document.createElement("div"); box.className="thumbs"; cell.appendChild(box);
+      var dayPost=posts[postOfDate(key)];
+      if(dayPost){
+        var pr=document.createElement("span"); pr.className="prog";
+        var n=doneCount(dayPost);
+        pr.textContent=n+"/5";
+        if(n===STEPS.length) pr.classList.add("full");
+        cell.appendChild(pr);
+      }
       posts.forEach(function(p,idx){
         if(!p||!p.img||p.date!==key) return;
         var b=document.createElement("button");
@@ -1146,11 +1154,8 @@ function renderCal(){
         b.addEventListener("click", function(e){ e.stopPropagation(); select(idx); });
         box.appendChild(b);
       });
-      cell.addEventListener("click", function(){
-        if(sel<0||!posts[sel]){ toast("먼저 그리드에서 칸을 골라 주세요."); return; }
-        posts[sel].date=key;
-        saveMonth(); renderAll();
-      });
+      cell.title="이 날짜의 게시물을 엽니다";
+      cell.addEventListener("click", function(){ goDate(key); });
       cal.appendChild(cell);
     })(d);
   }
@@ -1166,7 +1171,7 @@ function renderCal(){
     b.addEventListener("click", function(){ select(idx); });
     und.appendChild(b);
   });
-  document.getElementById("undatedSub").textContent = count? "날짜 미정 "+count+"개 — 누른 뒤 달력 날짜를 누르면 잡힙니다." : "전부 날짜가 잡혀 있습니다.";
+  document.getElementById("undatedSub").textContent = count? "날짜 미정 "+count+"개 — 누른 뒤 달력에서 날짜를 누르면 그 날짜로 잡힙니다." : "전부 날짜가 잡혀 있습니다.";
 }
 
 /* ---------- backup ---------- */
@@ -1478,7 +1483,7 @@ function boot(){
   }catch(e){} }
   monthInput.value=month;
   fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
-  loadMonth(); renderSteps(); renderCands(); renderWeeks(); renderMonths(); renderAll(); queueFit();
+  loadMonth(); renderSteps(); renderCands(); renderMonths(); renderAll(); queueFit();
 }
 boot();
 })();
