@@ -21,13 +21,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 
 /* gate */
-#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:90;padding:24px}
-#gate .box{background:var(--card);border-radius:20px;padding:32px 28px;width:min(360px,100%);box-shadow:var(--shadow);text-align:center}
-#gate h1{font-size:19px;margin:0 0 6px}
-#gate p{color:var(--mid);font-size:13px;margin:0 0 20px}
-#gate input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-align:center;letter-spacing:.3em;font-size:17px}
-#gate button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:600}
-#gate .err{color:var(--pink);font-size:13px;height:18px;margin-top:8px}
 
 /* shell */
 .top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
@@ -185,11 +178,6 @@ button{cursor:pointer}
 .cal .cell.drop{outline:2px solid var(--pink);outline-offset:-2px;background:var(--pink-soft)}
 .cal .cell.selday{border-color:var(--pink);border-width:2px;padding:4px}
 .und{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
-details.panel summary{cursor:pointer;font-size:15px;font-weight:600;list-style:none}
-details.panel summary::-webkit-details-marker{display:none}
-details.panel summary::after{content:"펼치기";float:right;font-size:12.5px;color:var(--mid);font-weight:400}
-details.panel[open] summary::after{content:"접기"}
-details.panel[open] summary{margin-bottom:14px}
 @media(max-width:560px){.cal .cell{min-height:64px}.cal .thumbs button{width:20px;height:25px}}
 
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#191b22;color:#fff;
@@ -202,17 +190,7 @@ details.panel[open] summary{margin-bottom:14px}
 </head>
 <body>
 
-<div id="gate">
-  <div class="box">
-    <h1>피드 플래너</h1>
-    <p>마케팅 실무 · 접근 코드를 입력해 주세요</p>
-    <input id="gateInput" inputmode="numeric" maxlength="4" placeholder="····" aria-label="접근 코드">
-    <div class="err" id="gateErr"></div>
-    <button id="gateBtn">들어가기</button>
-  </div>
-</div>
-
-<div id="app" class="hidden">
+<div id="app">
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
@@ -292,6 +270,20 @@ details.panel[open] summary{margin-bottom:14px}
     </div>
 
     <div class="col-right">
+      <div class="panel">
+        <h2>화면 요소</h2>
+        <p class="sub">필요한 것만 켜서 실제 계정 화면과 똑같이 맞추세요.</p>
+        <div class="els" id="els"></div>
+        <div class="row2" style="margin-top:12px">
+          <div class="f" style="margin:0"><label for="tabCount">탭 개수</label>
+            <select id="tabCount"><option value="3">3개 (그리드·릴스·태그됨)</option><option value="4">4개 (가이드 포함)</option></select>
+          </div>
+          <div class="f" style="margin:0"><label for="hlAdd">하이라이트</label>
+            <button class="btn" id="hlAdd" style="width:100%">하이라이트 추가</button>
+          </div>
+        </div>
+      </div>
+
       <div class="panel" id="editor">
         <h2 id="edTitle">게시물 상세</h2>
         <p class="sub" id="edSub">그리드에서 칸을 선택하면 내용을 적을 수 있어요.</p>
@@ -345,25 +337,12 @@ details.panel[open] summary{margin-bottom:14px}
         <p class="sub" id="summary">아직 등록된 게시물이 없습니다.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn pink" id="expPptx">PPTX로 내보내기</button>
+          <button class="btn" id="expJpg">피드 이미지(JPG)</button>
           <button class="btn" id="expJson">백업 파일 저장</button>
           <button class="btn" id="impJson">백업 불러오기</button>
         </div>
         <p class="sub" style="margin:14px 0 0">저장은 이 브라우저 안에서만 이뤄집니다. 다른 기기에서 열려면 백업 파일을 옮겨 주세요.</p>
       </div>
-
-      <details class="panel">
-        <summary>화면 요소</summary>
-        <p class="sub">필요한 것만 켜서 실제 계정 화면과 똑같이 맞추세요.</p>
-        <div class="els" id="els"></div>
-        <div class="row2" style="margin-top:12px">
-          <div class="f" style="margin:0"><label for="tabCount">탭 개수</label>
-            <select id="tabCount"><option value="3">3개 (그리드·릴스·태그됨)</option><option value="4">4개 (가이드 포함)</option></select>
-          </div>
-          <div class="f" style="margin:0"><label for="hlAdd">하이라이트</label>
-            <button class="btn" id="hlAdd" style="width:100%">하이라이트 추가</button>
-          </div>
-        </div>
-      </details>
 
     </div>
   </div>
@@ -377,18 +356,7 @@ details.panel[open] summary{margin-bottom:14px}
 <script>
 (function(){
 "use strict";
-var PASS="2701", LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
-
-/* ---------- gate ---------- */
-var gate=document.getElementById("gate"), app=document.getElementById("app");
-function opened(){ return sessionStorage.getItem("br_feed_ok")==="1"||sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_all_ok")==="1"||sessionStorage.getItem("br_survey_ok")==="1"; }
-function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); boot(); }
-document.getElementById("gateBtn").addEventListener("click", tryGate);
-document.getElementById("gateInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryGate(); });
-function tryGate(){
-  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_feed_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
-  else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
-}
+var LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
 
 /* ---------- image store ---------- */
 var DB=null, cache={};
@@ -1058,6 +1026,123 @@ document.getElementById("jsonPick").addEventListener("change", function(){
   fr.readAsText(f);
 });
 
+/* ---------- feed image (JPG) ---------- */
+function loadBitmap(dataUrl){
+  return new Promise(function(res){
+    if(!dataUrl){ res(null); return; }
+    var done=false, t=setTimeout(function(){ if(!done){ done=true; res(null); } },5000);
+    var im=new Image();
+    im.onload=function(){ if(!done){ done=true; clearTimeout(t); res(im); } };
+    im.onerror=function(){ if(!done){ done=true; clearTimeout(t); res(null); } };
+    im.src=dataUrl;
+  });
+}
+function drawCover(ctx,img,x,y,w,h){
+  if(!img){ ctx.fillStyle="#eef0f4"; ctx.fillRect(x,y,w,h); return; }
+  var s=Math.max(w/img.width,h/img.height), dw=img.width*s, dh=img.height*s;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  ctx.restore();
+}
+document.getElementById("expJpg").addEventListener("click", function(){
+  var live=posts.filter(function(p){ return p&&p.img; });
+  if(!live.length){ toast("먼저 이미지를 올려 주세요."); return; }
+  toast("이미지를 만드는 중입니다…");
+  var ids=[];
+  for(var n=0;n<slots;n++){ ids.push(posts[n]&&posts[n].img?posts[n].img:null); }
+  Promise.all([loadImg(profile.avatar)].concat(ids.map(loadImg)))
+    .then(function(urls){ return Promise.all(urls.map(loadBitmap)); })
+    .then(function(imgs){
+      var avatar=imgs[0], tiles=imgs.slice(1), show=profile.show||{};
+      var W=1080, pad=36, gap=6,
+          cellW=Math.floor((W-gap*2)/3),
+          ratio=(profile.ratio==="1/1")?1:1.25,
+          cellH=Math.round(cellW*ratio),
+          rows=Math.ceil(slots/3),
+          bioLines=(show.bio!==false&&profile.bio)?profile.bio.split("\n").length:0;
+      var headH=150;
+      if(show.name!==false&&profile.name) headH+=38;
+      if(show.cat!==false&&profile.cat) headH+=34;
+      headH+=bioLines*34;
+      if(show.link!==false&&profile.link) headH+=38;
+      if(show.actions!==false) headH+=64;
+      if(show.highlights!==false&&profile.highlights.length) headH+=160;
+      headH+=54;
+      var H=pad+headH+rows*cellH+(rows-1)*gap+pad;
+      var c=document.createElement("canvas"); c.width=W; c.height=H;
+      var ctx=c.getContext("2d");
+      ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
+      var F='Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+      var y=pad, av=120;
+
+      ctx.save(); ctx.beginPath(); ctx.arc(pad+av/2,y+av/2,av/2,0,Math.PI*2); ctx.closePath(); ctx.clip();
+      if(avatar) drawCover(ctx,avatar,pad,y,av,av);
+      else { ctx.fillStyle="#ece7e2"; ctx.fillRect(pad,y,av,av); }
+      ctx.restore();
+
+      if(show.stats!==false){
+        var vals=[String(live.length),profile.followers||"",profile.following||""],
+            labs=["게시물","팔로워","팔로잉"],
+            sx=pad+av+40, colW=(W-pad-sx)/3;
+        ctx.textAlign="center";
+        for(var i=0;i<3;i++){
+          var cx=sx+colW*i+colW/2;
+          ctx.fillStyle="#111"; ctx.font="700 34px "+F; ctx.fillText(vals[i],cx,y+52);
+          ctx.fillStyle="#333"; ctx.font="24px "+F; ctx.fillText(labs[i],cx,y+88);
+        }
+        ctx.textAlign="left";
+      }
+      y+=av+30;
+
+      if(show.name!==false&&profile.name){ ctx.fillStyle="#111"; ctx.font="700 30px "+F; ctx.fillText(profile.name,pad,y); y+=38; }
+      if(show.cat!==false&&profile.cat){ ctx.fillStyle="#8e8e8e"; ctx.font="26px "+F; ctx.fillText(profile.cat,pad,y); y+=34; }
+      if(bioLines){
+        ctx.fillStyle="#111"; ctx.font="26px "+F;
+        profile.bio.split("\n").forEach(function(line){ ctx.fillText(line,pad,y); y+=34; });
+      }
+      if(show.link!==false&&profile.link){ ctx.fillStyle="#1c5fca"; ctx.font="26px "+F; ctx.fillText(profile.link,pad,y); y+=38; }
+      if(show.actions!==false){
+        var labels=[profile.btn1,profile.btn2,profile.btn3].filter(Boolean),
+            bw=(W-pad*2-24)/(labels.length||1);
+        ctx.font="600 24px "+F; ctx.textAlign="center";
+        labels.forEach(function(t,i){
+          var bx=pad+(bw+12)*i;
+          ctx.fillStyle="#efefef"; ctx.fillRect(bx,y,bw,46);
+          ctx.fillStyle="#111"; ctx.fillText(t,bx+bw/2,y+31);
+        });
+        ctx.textAlign="left"; y+=64;
+      }
+      if(show.highlights!==false&&profile.highlights.length){
+        var hx=pad, hr=110;
+        profile.highlights.slice(0,5).forEach(function(h){
+          ctx.beginPath(); ctx.arc(hx+hr/2,y+hr/2,hr/2,0,Math.PI*2);
+          ctx.fillStyle="#ece7e2"; ctx.fill();
+          ctx.strokeStyle="rgba(0,0,0,.07)"; ctx.stroke();
+          ctx.fillStyle="#111"; ctx.font="22px "+F; ctx.textAlign="center";
+          ctx.fillText(h.label||"",hx+hr/2,y+hr+28);
+          ctx.textAlign="left"; hx+=hr+28;
+        });
+        y+=160;
+      }
+
+      ctx.strokeStyle="#efefef"; ctx.beginPath(); ctx.moveTo(0,y+10); ctx.lineTo(W,y+10); ctx.stroke();
+      ctx.strokeStyle="#111"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(pad,y+42); ctx.lineTo(pad+180,y+42); ctx.stroke();
+      ctx.lineWidth=1; y+=54;
+
+      for(var k=0;k<slots;k++){
+        var col=k%3, row=Math.floor(k/3);
+        drawCover(ctx,tiles[k],col*(cellW+gap),y+row*(cellH+gap),cellW,cellH);
+      }
+
+      var a=document.createElement("a");
+      a.href=c.toDataURL("image/jpeg",0.92);
+      a.download="인스타그램_피드_"+month+".jpg";
+      a.click();
+      toast("JPG를 내려받았습니다.");
+    }).catch(function(){ toast("이미지를 만들지 못했습니다."); });
+});
+
 /* ---------- PPTX ---------- */
 document.getElementById("expPptx").addEventListener("click", function(){
   if(typeof PptxGenJS==="undefined"){ toast("내보내기 도구를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요."); return; }
@@ -1169,7 +1254,7 @@ function boot(){
   fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
   loadMonth(); renderAll(); queueFit();
 }
-if(opened()) openApp(); else document.getElementById("gateInput").focus();
+boot();
 })();
 </script>
 </body>

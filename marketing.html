@@ -17,13 +17,6 @@ button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 a{text-decoration:none;color:inherit}
 
-#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:90;padding:24px}
-#gate .box{background:var(--card);border-radius:20px;padding:32px 28px;width:min(360px,100%);box-shadow:var(--shadow);text-align:center}
-#gate h1{font-size:19px;margin:0 0 6px}
-#gate p{color:var(--mid);font-size:13px;margin:0 0 20px}
-#gate input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-align:center;letter-spacing:.3em;font-size:17px}
-#gate button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:600}
-#gate .err{color:var(--pink);font-size:13px;height:18px;margin-top:8px}
 
 .top{background:var(--card);border-bottom:1px solid var(--line)}
 .top .in{max-width:1000px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:12px}
@@ -57,17 +50,7 @@ a{text-decoration:none;color:inherit}
 </head>
 <body>
 
-<div id="gate">
-  <div class="box">
-    <h1>마케팅 실무</h1>
-    <p>접근 코드를 입력해 주세요</p>
-    <input id="gateInput" inputmode="numeric" maxlength="4" placeholder="····" aria-label="접근 코드">
-    <div class="err" id="gateErr"></div>
-    <button id="gateBtn">들어가기</button>
-  </div>
-</div>
-
-<div id="app" class="hidden">
+<div id="app">
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><b>마케팅 실무</b></div>
@@ -100,7 +83,7 @@ a{text-decoration:none;color:inherit}
         <span class="ico">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z"/></svg>
         </span>
-        <h2>IP 관련 업무</h2>
+        <h2>IP 관련 업무 <span class="tag">비밀번호</span></h2>
         <p>협업 후보 IP를 모아 두고 검토 단계와 진행 상황을 관리합니다.</p>
         <ul>
           <li>IP 후보 목록과 기본 정보</li>
@@ -113,24 +96,5 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
-<script>
-(function(){
-"use strict";
-var PASS="2701";
-var gate=document.getElementById("gate"), app=document.getElementById("app");
-function opened(){
-  return sessionStorage.getItem("br_mkt_ok")==="1"||sessionStorage.getItem("br_all_ok")==="1"||
-         sessionStorage.getItem("br_survey_ok")==="1"||sessionStorage.getItem("br_feed_ok")==="1";
-}
-function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); }
-function tryGate(){
-  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_mkt_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
-  else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
-}
-document.getElementById("gateBtn").addEventListener("click", tryGate);
-document.getElementById("gateInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryGate(); });
-if(opened()) openApp(); else document.getElementById("gateInput").focus();
-})();
-</script>
 </body>
 </html>
