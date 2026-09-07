@@ -37,8 +37,8 @@ button{cursor:pointer}
 .views button{border:0;background:transparent;padding:7px 15px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--mid)}
 .views button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-.wrap{max-width:1320px;width:100%;margin:0 auto;padding:14px 18px 16px;display:grid;
-  grid-template-columns:var(--leftW,392px) minmax(0,1fr);gap:16px;flex:1;min-height:0}
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:14px 18px 16px;display:grid;
+  grid-template-columns:var(--leftW,470px) minmax(0,1fr);gap:20px;flex:1;min-height:0}
 .col-left{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
 .col-left>.panel{flex:none}
 .col-right{min-height:0;overflow:auto;padding-right:2px}
@@ -68,9 +68,9 @@ button{cursor:pointer}
   cursor:pointer;position:relative;border:0;padding:0}
 .avatar::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .avatar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa0aa;font-size:20px}
-.stats{display:flex;flex:1;justify-content:space-around;text-align:center}
-.stats div b{display:block;font-size:17px;font-weight:700}
-.stats div i{font-size:12.5px;color:#333;font-style:normal}
+.stats{display:flex;flex:1;justify-content:space-around;text-align:center;gap:6px;min-width:0}
+.stats div b{display:block;font-size:17px;font-weight:700;white-space:nowrap}
+.stats div i{font-size:12.5px;color:#333;font-style:normal;white-space:nowrap}
 .ph-name{margin-top:12px;font-weight:700;font-size:14.5px}
 .ph-cat{font-size:13px;color:#8e8e8e}
 .ph-bio{font-size:13px;white-space:pre-wrap;margin-top:2px}
@@ -1224,14 +1224,13 @@ function fitPhone(){
   var wrap=document.querySelector(".wrap"), col=document.querySelector(".col-left");
   if(!wrap||!col) return;
   if(window.innerWidth<=900){ document.documentElement.style.removeProperty("--leftW"); return; }
-  var avail=wrap.clientHeight-2;
-  var w=420, MIN=280;
-  for(var i=0;i<16;i++){
+  var avail=wrap.clientHeight-2, MAX=560, MIN=400, COMFY=470;
+  for(var w=MAX; w>=MIN; w-=10){
     document.documentElement.style.setProperty("--leftW", w+"px");
-    if(col.scrollHeight<=avail) return;
-    w-=10;
-    if(w<MIN){ document.documentElement.style.setProperty("--leftW", MIN+"px"); return; }
+    if(col.scrollHeight<=avail) return;      // 이 폭이면 한 화면에 들어옴
   }
+  /* 어떤 폭으로도 한 화면에 못 넣으면, 보기 편한 폭으로 두고 왼쪽 칸만 스크롤한다 */
+  document.documentElement.style.setProperty("--leftW", COMFY+"px");
 }
 var fitTimer=null;
 function queueFit(){ clearTimeout(fitTimer); fitTimer=setTimeout(function(){ fitPhone(); fitPhone(); },0); }
