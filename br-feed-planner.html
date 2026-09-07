@@ -38,10 +38,10 @@ button{cursor:pointer}
 .views button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
 .wrap{max-width:1180px;width:100%;margin:0 auto;padding:14px 18px 16px;display:grid;
-  grid-template-columns:var(--leftW,470px) minmax(0,1fr);gap:20px;flex:1;min-height:0}
-.col-left{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
-.col-left>.panel{flex:none}
-.col-right{min-height:0;overflow:auto;padding-right:2px}
+  grid-template-columns:minmax(0,1fr) var(--feedW,440px);gap:20px;flex:1;min-height:0}
+.col-left{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto;padding-right:2px}
+.col-right{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.col-left>.panel,.col-right>.panel{flex:none}
 .cal-panel{padding:14px}
 .feed-panel{padding:12px;display:flex;flex-direction:column;align-items:center}
 .feed-panel .phone{width:100%;flex:none}
@@ -153,6 +153,9 @@ button{cursor:pointer}
 .cands{display:flex;gap:7px;margin-bottom:9px;height:82px;align-items:center;overflow-x:auto;overflow-y:hidden;
   padding-bottom:2px;scrollbar-width:thin}
 .cands .ph{width:62px;height:78px;border-radius:9px;border:1px dashed var(--line);background:#fbfcfd;flex:none}
+.cands .addtile{width:62px;height:78px;flex:none;border-radius:9px;border:1.5px dashed #c9cfd9;background:#fbfcfd;
+  color:#98a0ad;font-size:24px;font-weight:300;line-height:1;padding:0}
+.cands .addtile:hover{border-color:var(--pink);color:var(--pink)}
 .cands .msg{font-size:11.5px;color:var(--mid)}
 .cand{position:relative;width:62px;height:78px;flex:none;border-radius:9px;overflow:hidden;border:1px solid var(--line);
   padding:0;background:#eef0f4}
@@ -180,6 +183,13 @@ button{cursor:pointer}
 .teamhead{display:flex;align-items:baseline;gap:9px;margin-bottom:10px}
 .teamhead h2{margin:0}
 .teamhead .wk{font-size:12.5px;color:var(--pink);font-weight:600}
+.months{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:8px}
+.mchip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 2px;text-align:center;line-height:1.2}
+.mchip b{display:block;font-size:12px;font-weight:600}
+.mchip span{font-size:9.5px;color:var(--mid)}
+.mchip.on{border-color:var(--pink);background:var(--pink-soft)}
+.mchip.full b{color:#12a150}
+@media(max-width:900px){.months{grid-template-columns:repeat(4,1fr)}}
 .weeks{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
 .wkchip{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 4px;text-align:center;line-height:1.25}
 .wkchip b{display:block;font-size:12px;font-weight:600}
@@ -219,10 +229,10 @@ button{cursor:pointer}
 .cal .dow{font-size:10.5px;color:var(--mid);text-align:center;padding-bottom:1px}
 .cal .cell{border:1px solid var(--line);border-radius:7px;aspect-ratio:1/1;min-height:0;padding:3px;background:#fff;overflow:hidden}
 .cal .cell.out{background:#f8f9fb;border-style:dashed}
-.cal .cell .n{font-size:10px;color:var(--mid);line-height:1.2}
+.cal .cell .n{font-size:11px;color:var(--mid);line-height:1.2}
 .cal .cell.sun .n{color:var(--pink)}
 .cal .thumbs{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
-.cal .thumbs button{width:15px;height:19px;border-radius:4px;border:0;padding:0;overflow:hidden;background:#eef0f4}
+.cal .thumbs button{width:19px;height:24px;border-radius:4px;border:0;padding:0;overflow:hidden;background:#eef0f4}
 .cal .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .cal .thumbs button.on{box-shadow:0 0 0 2px var(--pink)}
 .cal .cell[data-date]{cursor:pointer}
@@ -265,6 +275,79 @@ button{cursor:pointer}
           <div class="und" id="undated"></div>
         </div>
       </div>
+      <div class="panel">
+        <div class="teamhead">
+          <h2>팀 확인</h2>
+          <span class="wk" id="wkLabel">주차를 고르세요</span>
+        </div>
+        <div class="months" id="months"></div>
+        <div class="weeks" id="weeks"></div>
+        <div class="flow">
+          <b>컬러 선정</b> IMC <span>→</span> <b>이미지 후보</b> 피이그 <span>→</span>
+          <b>이미지 선정</b> 지니어스 <span>→</span> <b>검수</b> 디자인 <span>→</span> <b>최종 확인·파일</b> IMC
+        </div>
+
+        <div class="steps" id="steps">
+          <div class="st" data-k="color">
+            <div class="sthead"><span class="num">1</span>
+              <span class="nm">컬러 선정<span class="teamchip">IMC</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="colorrow">
+                <input type="color" id="fColor" aria-label="컬러 고르기">
+                <input id="fColorHex" placeholder="#E4ECB2">
+              </div>
+            </div>
+          </div>
+
+          <div class="st" data-k="cand">
+            <div class="sthead"><span class="num">2</span>
+              <span class="nm">이미지 후보<span class="teamchip">피이그</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="cands"></div>
+              <span class="mini">＋ 칸을 눌러 올리고, 올린 이미지를 누르면 크게 보입니다</span>
+            </div>
+          </div>
+
+          <div class="st" data-k="pick">
+            <div class="sthead"><span class="num">3</span>
+              <span class="nm">이미지 선정<span class="teamchip">지니어스</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="pickList"></div>
+              <span class="mini" id="pickNote">후보 중 하나를 누르면 최종이 됩니다</span>
+            </div>
+          </div>
+
+          <div class="st" data-k="review">
+            <div class="sthead"><span class="num">4</span>
+              <span class="nm">검수<span class="teamchip">디자인</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <textarea id="fMemo" placeholder="검수 의견이나 수정 요청을 적으세요. 없으면 확인만 눌러도 됩니다."></textarea>
+            </div>
+          </div>
+
+          <div class="st" data-k="post">
+            <div class="sthead"><span class="num">5</span>
+              <span class="nm">최종 확인 및 파일 다운<span class="teamchip">IMC</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="finalbox">
+                <img id="finalThumb" alt="최종 이미지">
+                <div>
+                  <p class="mini" id="finalNote">아직 최종 이미지가 없습니다.</p>
+                  <button class="btn sm" id="dlFinal">이 이미지 내려받기</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
       <div class="panel feed-panel">
         <div class="phone">
         <div class="ph-top" data-el="topbar">
@@ -341,78 +424,6 @@ button{cursor:pointer}
         </div>
       </details>
     </div>
-
-    <div class="col-right">
-      <div class="panel">
-        <div class="teamhead">
-          <h2>팀 확인</h2>
-          <span class="wk" id="wkLabel">주차를 고르세요</span>
-        </div>
-        <div class="weeks" id="weeks"></div>
-        <div class="flow">
-          <b>컬러 선정</b> IMC <span>→</span> <b>이미지 후보</b> 피이그 <span>→</span>
-          <b>이미지 선정</b> 지니어스 <span>→</span> <b>검수</b> 디자인 <span>→</span> <b>최종 확인·파일</b> IMC
-        </div>
-
-        <div class="steps" id="steps">
-          <div class="st" data-k="color">
-            <div class="sthead"><span class="num">1</span>
-              <span class="nm">컬러 선정<span class="teamchip">IMC</span><span class="by"></span></span>
-              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
-            <div class="stbody">
-              <div class="colorrow">
-                <input type="color" id="fColor" aria-label="컬러 고르기">
-                <input id="fColorHex" placeholder="#E4ECB2">
-              </div>
-            </div>
-          </div>
-
-          <div class="st" data-k="cand">
-            <div class="sthead"><span class="num">2</span>
-              <span class="nm">이미지 후보<span class="teamchip">피이그</span><span class="by"></span></span>
-              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
-            <div class="stbody">
-              <div class="cands" id="cands"></div>
-              <button class="btn sm" id="addCand">후보 올리기</button>
-              <span class="mini">이미지를 누르면 크게 보입니다</span>
-            </div>
-          </div>
-
-          <div class="st" data-k="pick">
-            <div class="sthead"><span class="num">3</span>
-              <span class="nm">이미지 선정<span class="teamchip">지니어스</span><span class="by"></span></span>
-              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
-            <div class="stbody">
-              <div class="cands" id="pickList"></div>
-              <span class="mini" id="pickNote">후보 중 하나를 누르면 최종이 됩니다</span>
-            </div>
-          </div>
-
-          <div class="st" data-k="review">
-            <div class="sthead"><span class="num">4</span>
-              <span class="nm">검수<span class="teamchip">디자인</span><span class="by"></span></span>
-              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
-            <div class="stbody">
-              <textarea id="fMemo" placeholder="검수 의견이나 수정 요청을 적으세요. 없으면 확인만 눌러도 됩니다."></textarea>
-            </div>
-          </div>
-
-          <div class="st" data-k="post">
-            <div class="sthead"><span class="num">5</span>
-              <span class="nm">최종 확인 및 파일 다운<span class="teamchip">IMC</span><span class="by"></span></span>
-              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
-            <div class="stbody">
-              <div class="finalbox">
-                <img id="finalThumb" alt="최종 이미지">
-                <div>
-                  <p class="mini" id="finalNote">아직 최종 이미지가 없습니다.</p>
-                  <button class="btn sm" id="dlFinal">이 이미지 내려받기</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -725,6 +736,51 @@ function ensurePost(){
   return posts[i];
 }
 
+/* ---------- 월 관리 ---------- */
+var MONTH_SPAN=8;
+function monthList(){
+  var d=new Date(), y=d.getFullYear(), m=d.getMonth()+1, out=[];
+  for(var i=0;i<MONTH_SPAN;i++){
+    var mm=m+i, yy=y+Math.floor((mm-1)/12);
+    mm=((mm-1)%12)+1;
+    out.push(yy+"-"+pad(mm));
+  }
+  return out;
+}
+function monthStats(ym){
+  var arr=[];
+  if(ym===month) arr=posts;
+  else {
+    try{ var o=JSON.parse(localStorage.getItem(LS_MONTH+ym)||"{}"); arr=o.posts||[]; }catch(e){ arr=[]; }
+  }
+  var started=0, done=0;
+  arr.forEach(function(p){
+    if(!p) return;
+    var n=doneCount(p);
+    if(n>0||p.img) started++;
+    if(n===STEPS.length) done++;
+  });
+  return {started:started, done:done};
+}
+function renderMonths(){
+  var box=document.getElementById("months"); if(!box) return;
+  box.innerHTML="";
+  monthList().forEach(function(ym){
+    var st=monthStats(ym);
+    var b=document.createElement("button");
+    b.className="mchip"+(ym===month?" on":"")+((st.started&&st.done===st.started)?" full":"");
+    b.innerHTML="<b></b><span></span>";
+    b.children[0].textContent=Number(ym.slice(5,7))+"월";
+    b.children[1].textContent=st.started? (st.done+"/"+st.started) : "－";
+    b.title=ym+(st.started? " · 진행 "+st.started+"건 중 "+st.done+"건 완료" : " · 시작 전");
+    b.addEventListener("click", function(){
+      month=ym; monthInput.value=ym; curWeek="";
+      switchMonth();
+    });
+    box.appendChild(b);
+  });
+}
+
 /* ---------- 주차 관리 ---------- */
 var curWeek="";
 function weekLabels(){
@@ -830,18 +886,18 @@ function drawCandList(box, mode){
   var p=(sel>=0)?posts[sel]:null;
   var list=(p&&p.cands)?p.cands:[];
   if(!list.length){
-    for(var z=0;z<3;z++){ var ph=document.createElement("span"); ph.className="ph"; box.appendChild(ph); }
-    var e=document.createElement("span"); e.className="msg";
-    e.textContent=(mode==="pick")?"후보가 올라오면 고를 수 있어요":"아직 후보가 없어요";
-    box.appendChild(e); return;
+    if(mode==="view") box.appendChild(makeAddTile());
+    for(var z=(mode==="view"?1:0);z<3;z++){ var ph=document.createElement("span"); ph.className="ph"; box.appendChild(ph); }
+    if(mode==="pick"){ var e=document.createElement("span"); e.className="msg"; e.textContent="후보가 올라오면 고를 수 있어요"; box.appendChild(e); }
+    return;
   }
   list.forEach(function(cid,ci){
     var b=document.createElement("button");
-    b.className="cand"+(p.img===cid?" on":"");
+    b.className="cand"+((mode==="pick"&&p.img===cid)?" on":"");
     b.title=(mode==="pick")?"이 이미지를 최종으로 정합니다":"크게 보기";
     var im=document.createElement("img"); b.appendChild(im);
     loadImg(cid).then(function(u){ if(u) im.src=u; });
-    if(p.img===cid){ var f=document.createElement("span"); f.className="fin"; f.textContent="최종"; b.appendChild(f); }
+    if(mode==="pick"&&p.img===cid){ var f=document.createElement("span"); f.className="fin"; f.textContent="최종"; b.appendChild(f); }
     if(mode==="view"){
       var x=document.createElement("span"); x.className="x"; x.textContent="×"; x.title="후보에서 빼기";
       x.addEventListener("click", function(e){
@@ -860,7 +916,14 @@ function drawCandList(box, mode){
     }
     box.appendChild(b);
   });
-  for(var q=list.length;q<3;q++){ var ph2=document.createElement("span"); ph2.className="ph"; box.appendChild(ph2); }
+  if(mode==="view") box.appendChild(makeAddTile());
+  for(var q=list.length+(mode==="view"?1:0);q<3;q++){ var ph2=document.createElement("span"); ph2.className="ph"; box.appendChild(ph2); }
+}
+function makeAddTile(){
+  var a=document.createElement("button");
+  a.className="addtile"; a.textContent="＋"; a.title="후보 이미지 올리기";
+  a.addEventListener("click", addCandidate);
+  return a;
 }
 function zoom(id,label){
   var lb=document.getElementById("lightbox");
@@ -886,10 +949,10 @@ document.getElementById("dlFinal").addEventListener("click", function(){
     a.click();
   });
 });
-document.getElementById("addCand").addEventListener("click", function(){
+function addCandidate(){
   ensurePost();
   pickMode="cand"; pickIndex=sel; filePick.value=""; filePick.click();
-});
+}
 
 /* ---------- image picking ---------- */
 var filePick=document.getElementById("filePick"), pickMode="new", pickIndex=-1;
@@ -1048,9 +1111,9 @@ function shiftMonth(m,d){
   if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
   return y+"-"+pad(mo);
 }
-function switchMonth(){ loadMonth(); clearEditor(); renderEverything(); }
+function switchMonth(){ loadMonth(); curWeek=""; clearEditor(); renderMonths(); renderWeeks(); renderCands(); renderEverything(); }
 
-function renderAll(){ renderGrid(); renderCal(); renderWeeks(); queueFit(); }
+function renderAll(){ renderGrid(); renderCal(); renderWeeks(); renderMonths(); queueFit(); }
 function renderEverything(){ renderAll(); }
 
 /* ---------- calendar ---------- */
@@ -1389,16 +1452,16 @@ document.getElementById("phoneView").addEventListener("click", function(){
 /* ---------- fit the phone to the panel height ---------- */
 /* 달력과 피드가 같은 폭을 쓰므로, 그 폭을 줄여 세로로 한 화면에 맞춘다 */
 function fitPhone(){
-  var wrap=document.querySelector(".wrap"), col=document.querySelector(".col-left");
+  var wrap=document.querySelector(".wrap"), col=document.querySelector(".col-right");
   if(!wrap||!col) return;
-  if(window.innerWidth<=900){ document.documentElement.style.removeProperty("--leftW"); return; }
-  var avail=wrap.clientHeight-2, MAX=560, MIN=400, COMFY=470;
+  if(window.innerWidth<=900){ document.documentElement.style.removeProperty("--feedW"); return; }
+  var avail=wrap.clientHeight-2, MAX=520, MIN=380, COMFY=440;
   for(var w=MAX; w>=MIN; w-=10){
-    document.documentElement.style.setProperty("--leftW", w+"px");
+    document.documentElement.style.setProperty("--feedW", w+"px");
     if(col.scrollHeight<=avail) return;      // 이 폭이면 한 화면에 들어옴
   }
-  /* 어떤 폭으로도 한 화면에 못 넣으면, 보기 편한 폭으로 두고 왼쪽 칸만 스크롤한다 */
-  document.documentElement.style.setProperty("--leftW", COMFY+"px");
+  /* 어떤 폭으로도 한 화면에 못 넣으면, 보기 편한 폭으로 두고 그 칸만 스크롤한다 */
+  document.documentElement.style.setProperty("--feedW", COMFY+"px");
 }
 var fitTimer=null;
 function queueFit(){ clearTimeout(fitTimer); fitTimer=setTimeout(function(){ fitPhone(); fitPhone(); },0); }
@@ -1415,7 +1478,7 @@ function boot(){
   }catch(e){} }
   monthInput.value=month;
   fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
-  loadMonth(); renderSteps(); renderCands(); renderWeeks(); renderAll(); queueFit();
+  loadMonth(); renderSteps(); renderCands(); renderWeeks(); renderMonths(); renderAll(); queueFit();
 }
 boot();
 })();
