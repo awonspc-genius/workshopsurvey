@@ -138,9 +138,12 @@ button{cursor:pointer}
 .count{float:right;font-size:11.5px;color:var(--mid)}
 .teamchip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#f1f3f7;color:var(--mid);margin-left:6px}
 .steps{border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.steps .st{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--line)}
+.steps .st{padding:9px 11px;border-bottom:1px solid var(--line)}
 .steps .st:last-child{border-bottom:0}
 .steps .st.done{background:#f4fbf6}
+.steps .sthead{display:flex;align-items:center;gap:9px}
+.steps .stbody{margin:10px 0 3px}
+.steps .st.off .nm{color:var(--mid)}
 .steps .st .num{width:20px;height:20px;border-radius:50%;background:#eceff4;color:var(--mid);font-size:11px;
   display:flex;align-items:center;justify-content:center;flex:none;font-weight:600}
 .steps .st.done .num{background:#12a150;color:#fff}
@@ -159,6 +162,23 @@ button{cursor:pointer}
 .slot .pips i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.4)}
 .slot .pips i.on{background:#12a150}
 
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px;color:var(--mid);font-size:12px}
+.flow b{font-weight:600;color:var(--ink)}
+.picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 14px;min-height:38px}
+.picked>img{width:30px;height:37px;object-fit:cover;border-radius:6px;background:#eef0f4}
+.picked .t{font-size:13px;font-weight:600}
+.picked .m{font-size:12px;color:var(--mid)}
+.picked .pill{border:1px solid var(--line);background:#fff;border-radius:9px;padding:4px 9px 4px 4px;font-size:12px;
+  display:flex;align-items:center;gap:6px}
+.picked .pill img{width:20px;height:25px;object-fit:cover;border-radius:4px;background:#eef0f4}
+.picked .pill:hover{border-color:var(--pink)}
+.mini{font-size:12.5px;color:var(--mid);margin:0}
+.finalbox{display:flex;gap:11px;align-items:center;margin-bottom:12px}
+.finalbox img{width:62px;aspect-ratio:var(--tile);object-fit:cover;border-radius:9px;background:#eef0f4;display:block}
+#lightbox{position:fixed;inset:0;background:rgba(15,18,28,.82);z-index:88;display:flex;align-items:center;
+  justify-content:center;padding:24px;cursor:zoom-out}
+#lightbox img{max-width:min(92vw,760px);max-height:88vh;border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+#lightbox .cap{position:absolute;bottom:18px;color:#fff;font-size:13px;opacity:.85}
 .els{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .els label{display:flex;align-items:center;gap:8px;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer}
 .els label:has(input:checked){border-color:var(--pink);background:var(--pink-soft)}
@@ -271,6 +291,94 @@ button{cursor:pointer}
 
     <div class="col-right">
       <div class="panel">
+        <h2>팀 확인</h2>
+        <div class="flow">
+          <b>컬러 선정</b> IMC <span>→</span> <b>이미지 후보</b> 피이그 <span>→</span>
+          <b>이미지 선정</b> 지니어스 <span>→</span> <b>검수</b> 디자인 <span>→</span> <b>최종 확인·파일</b> IMC
+        </div>
+        <div class="row2">
+          <div class="f"><label for="fWeek">주차</label><input id="fWeek" placeholder="9-2주차"></div>
+          <div class="f"><label for="whoName">확인자</label><input id="whoName" placeholder="이름"></div>
+        </div>
+        <div id="pickedBar" class="picked"></div>
+
+        <div class="steps" id="steps">
+          <div class="st off" data-k="color">
+            <div class="sthead"><span class="num">1</span>
+              <span class="nm">컬러 선정<span class="teamchip">IMC</span><span class="by"></span></span>
+              <button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="color" id="fColor" style="width:46px;padding:3px" aria-label="컬러 고르기">
+                <input id="fColorHex" placeholder="#E4ECB2" style="flex:1">
+              </div>
+            </div>
+          </div>
+
+          <div class="st off" data-k="cand">
+            <div class="sthead"><span class="num">2</span>
+              <span class="nm">이미지 후보<span class="teamchip">피이그</span><span class="by"></span></span>
+              <button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="cands"></div>
+              <p class="mini" style="margin:0 0 8px">이미지를 누르면 크게 볼 수 있어요.</p>
+              <button class="btn" id="addCand" style="width:100%">후보 이미지 올리기</button>
+            </div>
+          </div>
+
+          <div class="st off" data-k="pick">
+            <div class="sthead"><span class="num">3</span>
+              <span class="nm">이미지 선정<span class="teamchip">지니어스</span><span class="by"></span></span>
+              <button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="pickList"></div>
+              <p class="mini" id="pickNote">고른 이미지가 최종이 되어 그리드에 올라갑니다.</p>
+            </div>
+          </div>
+
+          <div class="st off" data-k="review">
+            <div class="sthead"><span class="num">4</span>
+              <span class="nm">검수<span class="teamchip">디자인</span><span class="by"></span></span>
+              <button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <textarea id="fMemo" style="min-height:56px" placeholder="검수 의견이나 수정 요청을 적으세요. 없으면 확인만 눌러도 됩니다."></textarea>
+            </div>
+          </div>
+
+          <div class="st off" data-k="post">
+            <div class="sthead"><span class="num">5</span>
+              <span class="nm">최종 확인 및 파일 다운<span class="teamchip">IMC</span><span class="by"></span></span>
+              <button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="finalbox">
+                <img id="finalThumb" alt="최종 이미지">
+                <div>
+                  <p class="mini" id="finalNote">아직 최종 이미지가 없습니다.</p>
+                  <button class="btn sm" id="dlFinal">이 이미지 내려받기</button>
+                </div>
+              </div>
+              <div class="row3">
+                <div class="f"><label for="fDate">발행일</label><input type="date" id="fDate"></div>
+                <div class="f"><label for="fTime">시간</label><input type="time" id="fTime"></div>
+                <div class="f"><label for="fType">형식</label>
+                  <select id="fType"><option>피드</option><option>캐러셀</option><option>릴스</option><option>스토리</option></select></div>
+              </div>
+              <div class="f"><label for="fCap">캡션 <span class="count" id="capCount">0자</span></label>
+                <textarea id="fCap" placeholder="첫 두 줄에서 승부가 납니다"></textarea></div>
+              <div class="f"><label for="fTags">해시태그</label>
+                <textarea id="fTags" style="min-height:48px" placeholder="#배스킨라빈스 #이달의맛"></textarea></div>
+              <button class="btn sm" id="clearDate">발행일 지우기</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn" id="replaceImg">최종 이미지 바로 올리기</button>
+          <button class="btn warn" id="delPost">이 칸 비우기</button>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>화면 요소</h2>
         <p class="sub">필요한 것만 켜서 실제 계정 화면과 똑같이 맞추세요.</p>
         <div class="els" id="els"></div>
@@ -284,72 +392,25 @@ button{cursor:pointer}
         </div>
       </div>
 
-      <div class="panel" id="editor">
-        <h2 id="edTitle">게시물 상세</h2>
-        <p class="sub" id="edSub">그리드에서 칸을 선택하면 내용을 적을 수 있어요.</p>
-        <div id="edBody" class="hidden">
-          <div class="row2">
-            <div class="f"><label for="fWeek">주차</label><input id="fWeek" placeholder="9-2주차"></div>
-            <div class="f"><label for="fColorHex">컬러 <span class="count">IMC</span></label>
-              <div style="display:flex;gap:7px"><input type="color" id="fColor" style="width:44px;padding:3px" aria-label="컬러 고르기">
-              <input id="fColorHex" placeholder="#E4ECB2" style="flex:1"></div></div>
-          </div>
-
-          <div class="f">
-            <label>후보 이미지 <span class="count">피이그</span></label>
-            <div class="cands" id="cands"></div>
-            <button class="btn" id="addCand" style="width:100%">후보 이미지 올리기</button>
-          </div>
-
-          <div class="f">
-            <label for="whoName">진행 단계 <span class="count">확인 누르면 이름과 날짜가 남습니다</span></label>
-            <input id="whoName" placeholder="확인하는 사람 이름" style="margin-bottom:9px">
-            <div class="steps" id="steps"></div>
-          </div>
-
-          <div class="f"><label for="fCap">캡션 <span class="count" id="capCount">0자</span></label>
-            <textarea id="fCap" placeholder="첫 두 줄에서 승부가 납니다"></textarea></div>
-          <div class="f"><label for="fTags">해시태그</label>
-            <textarea id="fTags" style="min-height:52px" placeholder="#배스킨라빈스 #이달의맛"></textarea></div>
-          <div class="row3">
-            <div class="f"><label for="fDate">발행일</label><input type="date" id="fDate"></div>
-            <div class="f"><label for="fTime">시간</label><input type="time" id="fTime"></div>
-            <div class="f"><label for="fType">형식</label>
-              <select id="fType"><option>피드</option><option>캐러셀</option><option>릴스</option><option>스토리</option></select></div>
-          </div>
-          <div class="row2">
-            <div class="f"><label for="fTheme">IMC 테마</label><input id="fTheme" placeholder="9월 · 플레이버 오브 더 먼스"></div>
-            <div class="f"><label for="fStatus">상태</label>
-              <select id="fStatus"><option>기획</option><option>촬영 대기</option><option>디자인 검수</option><option>발행 확정</option></select></div>
-          </div>
-          <div class="f"><label for="fMemo">메모</label><textarea id="fMemo" style="min-height:56px" placeholder="촬영 소품, 협업 계정, 참고 링크"></textarea></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="replaceImg">이미지 바꾸기</button>
-            <button class="btn" id="clearDate">발행일 지우기</button>
-            <button class="btn warn" id="delPost">이 칸 비우기</button>
-          </div>
-        </div>
-      </div>
-
 
       <div class="panel">
-        <h2>이번 달 요약</h2>
+        <h2>최종 이미지 뽑기</h2>
         <p class="sub" id="summary">아직 등록된 게시물이 없습니다.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn pink" id="expPptx">PPTX로 내보내기</button>
-          <button class="btn" id="expJpg">피드 이미지(JPG)</button>
+          <button class="btn pink" id="expJpg">피드 이미지(JPG)</button>
+          <button class="btn" id="expPptx">PPTX로 내보내기</button>
           <button class="btn" id="expJson">백업 파일 저장</button>
           <button class="btn" id="impJson">백업 불러오기</button>
         </div>
-        <p class="sub" style="margin:14px 0 0">저장은 이 브라우저 안에서만 이뤄집니다. 다른 기기에서 열려면 백업 파일을 옮겨 주세요.</p>
+        <p class="sub" style="margin:14px 0 0">선정된 최종 이미지만 모아서 한 장으로 뽑습니다. 저장은 이 브라우저 안에서만 이뤄집니다.</p>
       </div>
-
     </div>
   </div>
 </div>
 
 <input type="file" id="filePick" accept="image/*" class="hidden">
 <input type="file" id="jsonPick" accept="application/json" class="hidden">
+<div id="lightbox" class="hidden"><img alt="후보 이미지 크게 보기"><span class="cap"></span></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
@@ -411,7 +472,7 @@ var STEPS=[
   {k:"cand", n:"이미지 후보",t:"피이그"},
   {k:"pick", n:"이미지 선정",t:"지니어스"},
   {k:"review",n:"검수",t:"디자인"},
-  {k:"post", n:"포스팅",t:"IMC"}
+  {k:"post", n:"최종 확인 및 파일 다운",t:"IMC"}
 ];
 var month=ymNow(), slots=12, posts=[], sel=-1;
 var profile={
@@ -559,6 +620,8 @@ function renderGrid(){
         if(p.date||p.week){ var d=document.createElement("span"); d.className="day";
           d.textContent=p.date? Number(p.date.slice(8,10))+"일" : p.week; b.appendChild(d); }
         if(p.type&&p.type!=="피드"){ var k=document.createElement("span"); k.className="kind"; k.textContent=p.type==="릴스"?"▶":(p.type==="캐러셀"?"❐":"◍"); b.appendChild(k); }
+      } else { b.textContent="+"; }
+      if(p){
         if(p.color){ var bar=document.createElement("span"); bar.className="bar"; bar.style.background=p.color; b.appendChild(bar); }
         var pips=document.createElement("span"); pips.className="pips";
         STEPS.forEach(function(st){
@@ -567,10 +630,17 @@ function renderGrid(){
           pips.appendChild(dot);
         });
         b.appendChild(pips);
-      } else { b.textContent="+"; }
+        if(!p.img&&(p.week||p.date)){
+          var d2=document.createElement("span"); d2.className="day";
+          d2.textContent=p.date? Number(p.date.slice(8,10))+"일" : p.week;
+          b.appendChild(d2);
+        }
+      }
       b.addEventListener("click", function(e){
         if(e.target.classList.contains("grab")) return;
-        if(p&&p.img) select(i); else pickFor(i);
+        if(p&&p.img) select(i);
+        else if(p&&(p.week||p.color||p.caption||(p.cands&&p.cands.length)||(p.steps&&Object.keys(p.steps).length))) select(i);
+        else pickFor(i);
       });
       g.appendChild(b);
     })(i);
@@ -587,7 +657,7 @@ function renderSummary(){
     return c? st.n+" "+c+"건" : "";
   }).filter(Boolean).join(" · ");
   document.getElementById("summary").textContent = n===0 ? "아직 등록된 게시물이 없습니다."
-    : "게시물 "+n+"개 · 날짜 확정 "+dated+"개 · 릴스 "+reels+"개 · 빈 칸 "+(slots-n)+"개"+
+    : "최종 선정 "+n+"장 · 날짜 확정 "+dated+"개 · 릴스 "+reels+"개 · 빈 칸 "+(slots-n)+"개"+
       (waiting? "\n남은 확인 — "+waiting : "\n모든 단계 확인 완료");
   document.getElementById("summary").style.whiteSpace="pre-line";
 }
@@ -595,37 +665,31 @@ function renderSummary(){
 /* ---------- editor ---------- */
 function select(i){
   sel=i; var p=posts[i]; if(!p) return;
-  document.getElementById("edBody").classList.remove("hidden");
-  document.getElementById("edTitle").textContent=(i+1)+"번째 칸";
-  document.getElementById("edSub").textContent=p.theme||"왼쪽 위부터 순서대로 노출됩니다.";
   document.getElementById("fCap").value=p.caption||"";
   document.getElementById("fTags").value=p.tags||"";
   document.getElementById("fDate").value=p.date||"";
   document.getElementById("fTime").value=p.time||"";
   document.getElementById("fType").value=p.type||"피드";
-  document.getElementById("fTheme").value=p.theme||"";
-  document.getElementById("fStatus").value=p.status||"기획";
   document.getElementById("fMemo").value=p.memo||"";
   document.getElementById("fWeek").value=p.week||"";
   document.getElementById("fColorHex").value=p.color||"";
   document.getElementById("fColor").value=/^#[0-9a-fA-F]{6}$/.test(p.color||"")?p.color:"#ffffff";
   renderCands(); renderSteps();
   capCount(); renderAll();
-  if(window.innerWidth<=900) document.getElementById("editor").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function clearEditor(){
   sel=-1;
   var cb=document.getElementById("cands"); if(cb) cb.innerHTML="";
-  var sb=document.getElementById("steps"); if(sb) sb.innerHTML="";
-  document.getElementById("edBody").classList.add("hidden");
-  document.getElementById("edTitle").textContent="게시물 상세";
-  document.getElementById("edSub").textContent="그리드에서 칸을 선택하면 내용을 적을 수 있어요.";
+  ["fCap","fTags","fDate","fTime","fMemo","fWeek","fColorHex"].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.value="";
+  });
+  renderSteps(); renderAll();
 }
 function capCount(){ document.getElementById("capCount").textContent=document.getElementById("fCap").value.length+"자"; }
 function bindField(id,key,after){
   document.getElementById(id).addEventListener("input", function(){
-    if(sel<0||!posts[sel]) return;
-    posts[sel][key]=this.value; saveMonth(); if(after) after();
+    var p=ensurePost();
+    p[key]=this.value; saveMonth(); if(after) after();
   });
 }
 bindField("fCap","caption",capCount);
@@ -633,26 +697,38 @@ bindField("fTags","tags");
 bindField("fDate","date",function(){ renderAll(); });
 bindField("fTime","time");
 bindField("fType","type",function(){ renderAll(); });
-bindField("fTheme","theme",function(){ if(sel>=0) document.getElementById("edSub").textContent=posts[sel].theme||"왼쪽 위부터 순서대로 노출됩니다."; });
-bindField("fStatus","status");
 bindField("fMemo","memo");
 
-bindField("fWeek","week",function(){ renderGrid(); });
+bindField("fWeek","week",function(){ renderGrid(); renderPicked(); });
 
 document.getElementById("fColorHex").addEventListener("input", function(){
-  if(sel<0||!posts[sel]) return;
+  var p=ensurePost();
   var v=this.value.trim();
   if(v&&v[0]!=="#") v="#"+v;
-  posts[sel].color=v;
+  p.color=v;
   if(/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById("fColor").value=v;
   saveMonth(); renderGrid();
 });
 document.getElementById("fColor").addEventListener("input", function(){
-  if(sel<0||!posts[sel]) return;
-  posts[sel].color=this.value;
+  var p=ensurePost();
+  p.color=this.value;
   document.getElementById("fColorHex").value=this.value;
   saveMonth(); renderGrid();
 });
+
+/* 칸을 고르지 않은 상태에서 작업을 시작하면 빈 칸을 하나 잡아 준다 */
+function ensurePost(){
+  if(sel>=0&&posts[sel]) return posts[sel];
+  var i=firstEmpty();
+  if(i<0){ slots+=3; i=slots-3; }
+  while(posts.length<i) posts.push(null);
+  posts[i]={id:uid(), img:null, type:"피드", steps:{}, cands:[]};
+  sel=i;
+  var wk=document.getElementById("fWeek").value.trim();
+  if(wk) posts[i].week=wk;
+  saveMonth(); renderSteps(); renderCands(); renderAll();
+  return posts[i];
+}
 
 /* ---------- steps ---------- */
 function who(){ return (document.getElementById("whoName").value||"").trim(); }
@@ -660,75 +736,163 @@ document.getElementById("whoName").addEventListener("input", function(){
   try{ localStorage.setItem("brkg_feed_user", this.value); }catch(e){}
 });
 function renderSteps(){
-  var box=document.getElementById("steps"); box.innerHTML="";
-  if(sel<0||!posts[sel]) return;
-  var p=posts[sel];
-  if(!p.steps) p.steps={};
+  var p=(sel>=0)?posts[sel]:null;
+  if(p&&!p.steps) p.steps={};
   STEPS.forEach(function(st,i){
-    var s0=p.steps[st.k]||{};
-    var row=document.createElement("div"); row.className="st"+(s0.done?" done":"");
-    var num=document.createElement("span"); num.className="num"; num.textContent=s0.done?"✓":(i+1);
-    var nm=document.createElement("span"); nm.className="nm";
-    var t=document.createElement("span"); t.textContent=st.n;
-    var chip=document.createElement("span"); chip.className="teamchip"; chip.textContent=st.t;
-    nm.appendChild(t); nm.appendChild(chip);
-    if(s0.done){
-      var by=document.createElement("span"); by.className="by";
-      by.textContent=(s0.by? s0.by+" · ":"")+(s0.at||"");
-      nm.appendChild(by);
-    }
-    var b=document.createElement("button"); b.className="btn sm"+(s0.done?"":" pink");
+    var row=document.querySelector('.steps .st[data-k="'+st.k+'"]');
+    if(!row) return;
+    var s0=(p&&p.steps[st.k])||{};
+    row.classList.toggle("done", !!s0.done);
+    row.classList.toggle("off", !p);
+    row.querySelector(".num").textContent=s0.done?"✓":(i+1);
+    row.querySelector(".by").textContent=s0.done?(" "+(s0.by?s0.by+" · ":"")+(s0.at||"")):"";
+    var b=row.querySelector("[data-c]");
     b.textContent=s0.done?"취소":"확인";
-    b.addEventListener("click", function(){
-      if(s0.done){ delete p.steps[st.k]; }
-      else { p.steps[st.k]={done:true, by:who(), at:todayStr()}; }
+    b.className="btn sm"+(s0.done?"":" pink");
+    b.disabled=false;
+    b.onclick=function(){
+      var t=p||ensurePost();
+      if(!t.steps) t.steps={};
+      if(t.steps[st.k]&&t.steps[st.k].done) delete t.steps[st.k];
+      else t.steps[st.k]={done:true, by:who(), at:todayStr()};
       saveMonth(); renderSteps(); renderAll();
-    });
-    row.appendChild(num); row.appendChild(nm); row.appendChild(b);
-    box.appendChild(row);
+    };
+  });
+}
+function renderPicked(){
+  var bar=document.getElementById("pickedBar"); if(!bar) return;
+  bar.innerHTML="";
+  if(sel>=0&&posts[sel]){
+    var p=posts[sel];
+    var im=document.createElement("img"); bar.appendChild(im);
+    loadImg(p.img).then(function(u){ if(u) im.src=u; });
+    var t=document.createElement("span"); t.className="t"; t.textContent=p.week||((sel+1)+"번째 칸");
+    var left=STEPS.filter(function(st){ return !(p.steps&&p.steps[st.k]&&p.steps[st.k].done); }).length;
+    var m=document.createElement("span"); m.className="m";
+    m.textContent=(p.date? p.date+" 발행 · ":"")+(left? "남은 확인 "+left+"단계":"모든 단계 확인 완료");
+    bar.appendChild(t); bar.appendChild(m);
+    var ch=document.createElement("button"); ch.className="btn sm"; ch.textContent="다른 칸 고르기";
+    ch.addEventListener("click", function(){ clearEditor(); });
+    bar.appendChild(ch);
+    return;
+  }
+  var live=[];
+  posts.forEach(function(p,i){
+    if(!p) return;
+    if(p.img||p.week||p.color||(p.cands&&p.cands.length)||(p.steps&&Object.keys(p.steps).length)) live.push({p:p,i:i});
+  });
+  var nb=document.createElement("button"); nb.className="btn sm pink"; nb.textContent="새 칸 만들기";
+  nb.addEventListener("click", function(){ ensurePost(); });
+  bar.appendChild(nb);
+  if(!live.length){
+    var n=document.createElement("span"); n.className="m";
+    n.textContent="아래 단계를 그냥 진행해도 새 칸이 만들어집니다.";
+    bar.appendChild(n); return;
+  }
+  var pick=document.createElement("span"); pick.className="m"; pick.textContent="또는 이어서 볼 칸:";
+  bar.appendChild(pick);
+  live.forEach(function(o){
+    var b=document.createElement("button"); b.className="pill";
+    var im=document.createElement("img"); b.appendChild(im);
+    loadImg(o.p.img).then(function(u){ if(u) im.src=u; });
+    var lab=document.createElement("span");
+    var left=STEPS.filter(function(st){ return !(o.p.steps&&o.p.steps[st.k]&&o.p.steps[st.k].done); }).length;
+    lab.textContent=(o.p.week||((o.i+1)+"번째"))+" · "+(left? "남은 "+left:"완료");
+    b.appendChild(lab);
+    b.addEventListener("click", function(){ select(o.i); });
+    bar.appendChild(b);
   });
 }
 function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
 
 /* ---------- candidates ---------- */
 function renderCands(){
-  var box=document.getElementById("cands"); box.innerHTML="";
+  drawCandList(document.getElementById("cands"), "view");
+  drawCandList(document.getElementById("pickList"), "pick");
+  var p=(sel>=0)?posts[sel]:null;
+  var note=document.getElementById("pickNote");
+  if(note) note.textContent=(p&&p.cands&&p.cands.length)? "고른 이미지가 최종이 되어 그리드에 올라갑니다."
+    : "먼저 후보를 올려 주세요.";
+  var th=document.getElementById("finalThumb"), fn=document.getElementById("finalNote");
+  if(th&&fn){
+    if(p&&p.img){
+      th.classList.remove("hidden");
+      loadImg(p.img).then(function(u){ if(u) th.src=u; });
+      fn.textContent=(p.week? p.week+" · ":"")+"최종 이미지가 정해졌습니다.";
+    } else {
+      th.classList.add("hidden"); th.removeAttribute("src");
+      fn.textContent="아직 최종 이미지가 없습니다.";
+    }
+  }
+}
+function drawCandList(box, mode){
+  if(!box) return;
+  box.innerHTML="";
   if(sel<0||!posts[sel]) return;
   var p=posts[sel];
   if(!p.cands) p.cands=[];
   if(!p.cands.length){
     var e=document.createElement("span");
     e.style.cssText="color:var(--mid);font-size:12.5px";
-    e.textContent="아직 후보가 없습니다.";
+    e.textContent=(mode==="pick")?"후보가 올라오면 여기서 고릅니다.":"아직 후보가 없습니다.";
     box.appendChild(e); return;
   }
   p.cands.forEach(function(cid,ci){
-    var b=document.createElement("button"); b.className="cand"+(p.img===cid?" on":"");
-    b.title="누르면 최종 이미지로 올라갑니다";
+    var b=document.createElement("button");
+    b.className="cand"+(p.img===cid?" on":"");
+    b.title=(mode==="pick")?"이 이미지를 최종으로 정합니다":"크게 보기";
     var im=document.createElement("img"); b.appendChild(im);
     loadImg(cid).then(function(u){ if(u) im.src=u; });
     if(p.img===cid){ var f=document.createElement("span"); f.className="fin"; f.textContent="최종"; b.appendChild(f); }
-    var x=document.createElement("span"); x.className="x"; x.textContent="×"; x.title="후보에서 빼기";
-    x.addEventListener("click", function(e){
-      e.stopPropagation();
-      p.cands.splice(ci,1);
-      if(p.img===cid){ p.img=p.cands[0]||null; }
-      imgDel(cid); saveMonth(); renderCands(); renderAll();
-    });
-    b.appendChild(x);
-    b.addEventListener("click", function(){ p.img=cid; saveMonth(); renderCands(); renderAll(); });
+    if(mode==="view"){
+      var x=document.createElement("span"); x.className="x"; x.textContent="×"; x.title="후보에서 빼기";
+      x.addEventListener("click", function(e){
+        e.stopPropagation();
+        p.cands.splice(ci,1);
+        if(p.img===cid) p.img=p.cands[0]||null;
+        imgDel(cid); saveMonth(); renderCands(); renderAll();
+      });
+      b.appendChild(x);
+      b.addEventListener("click", function(){ zoom(cid,(ci+1)+"번째 후보"); });
+    } else {
+      b.addEventListener("click", function(){ p.img=cid; saveMonth(); renderCands(); renderAll(); toast("최종 이미지로 정했습니다."); });
+    }
     box.appendChild(b);
   });
 }
+function zoom(id,label){
+  var lb=document.getElementById("lightbox");
+  loadImg(id).then(function(u){
+    if(!u){ toast("이미지를 불러오지 못했습니다."); return; }
+    lb.querySelector("img").src=u;
+    lb.querySelector(".cap").textContent=label||"";
+    lb.classList.remove("hidden");
+  });
+}
+document.getElementById("lightbox").addEventListener("click", function(){ this.classList.add("hidden"); });
+window.addEventListener("keydown", function(e){
+  if(e.key==="Escape") document.getElementById("lightbox").classList.add("hidden");
+});
+document.getElementById("dlFinal").addEventListener("click", function(){
+  if(sel<0||!posts[sel]||!posts[sel].img){ toast("최종 이미지가 아직 없습니다."); return; }
+  var p=posts[sel];
+  loadImg(p.img).then(function(u){
+    if(!u){ toast("이미지를 불러오지 못했습니다."); return; }
+    var a=document.createElement("a");
+    a.href=u;
+    a.download=(p.week? p.week.replace(/\s/g,"") : month+"_"+(sel+1))+"_최종.jpg";
+    a.click();
+  });
+});
 document.getElementById("addCand").addEventListener("click", function(){
-  if(sel<0){ toast("먼저 그리드에서 칸을 골라 주세요."); return; }
+  ensurePost();
   pickMode="cand"; pickIndex=sel; filePick.value=""; filePick.click();
 });
 
 /* ---------- image picking ---------- */
 var filePick=document.getElementById("filePick"), pickMode="new", pickIndex=-1;
 function pickFor(i){ pickMode="new"; pickIndex=i; filePick.value=""; filePick.click(); }
-document.getElementById("replaceImg").addEventListener("click", function(){ if(sel<0) return; pickFor(sel); });
+document.getElementById("replaceImg").addEventListener("click", function(){ ensurePost(); pickFor(sel); });
 filePick.addEventListener("change", function(){
   var f=this.files&&this.files[0]; if(!f) return;
   if(pickMode==="avatar"){
@@ -752,7 +916,7 @@ filePick.addEventListener("change", function(){
         if(!p.cands) p.cands=[];
         p.cands.push(id);
         if(!p.img) p.img=id;
-        saveMonth(); renderCands(); renderAll();
+        saveMonth(); renderCands(); renderEverything();
       });
     }).catch(function(e){ toast(e.message||"이미지를 올리지 못했습니다."); });
   } else {
@@ -872,7 +1036,7 @@ document.getElementById("sortDate").addEventListener("click", function(){
     var A=(a.date||"0000-00-00")+(a.time||"00:00"), B=(b.date||"0000-00-00")+(b.time||"00:00");
     return A<B?1:(A>B?-1:0);
   });
-  posts=filled.concat(rest); clearEditor(); saveMonth(); renderAll();
+  posts=filled.concat(rest); clearEditor(); saveMonth(); renderEverything();
   toast("최신 발행일이 맨 위로 올라갔습니다.");
 });
 document.getElementById("clearDate").addEventListener("click", function(){
@@ -885,7 +1049,7 @@ document.getElementById("delPost").addEventListener("click", function(){
   if(!confirm((sel+1)+"번째 칸을 비울까요?")) return;
   if(posts[sel].img) imgDel(posts[sel].img);
   (posts[sel].cands||[]).forEach(function(c){ imgDel(c); });
-  posts.splice(sel,1); clearEditor(); saveMonth(); renderAll();
+  posts.splice(sel,1); clearEditor(); saveMonth(); renderEverything();
 });
 
 var monthInput=document.getElementById("month");
@@ -897,9 +1061,10 @@ function shiftMonth(m,d){
   if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
   return y+"-"+pad(mo);
 }
-function switchMonth(){ loadMonth(); clearEditor(); renderAll(); }
+function switchMonth(){ loadMonth(); clearEditor(); renderEverything(); }
 
-function renderAll(){ renderGrid(); renderCal(); queueFit(); }
+function renderAll(){ renderGrid(); renderCal(); renderPicked(); queueFit(); }
+function renderEverything(){ renderAll(); }
 
 /* ---------- calendar ---------- */
 function renderCal(){
@@ -1019,7 +1184,7 @@ document.getElementById("jsonPick").addEventListener("change", function(){
       Promise.all(jobs).then(function(){
         saveProfile(); saveMonth();
         fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
-        clearEditor(); renderAll(); toast("불러왔습니다.");
+        clearEditor(); renderEverything(); toast("불러왔습니다.");
       });
     }catch(e){ toast("파일 형식이 맞지 않습니다."); }
   };
