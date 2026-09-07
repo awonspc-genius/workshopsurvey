@@ -117,8 +117,8 @@ button{cursor:pointer}
 .slot .day{position:absolute;right:4px;bottom:4px;background:rgba(17,17,17,.6);color:#fff;font-size:10px;padding:2px 5px;border-radius:5px}
 .slot .kind{position:absolute;right:32px;top:4px;color:#fff;font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .slot.sel{outline:2.5px solid var(--pink);outline-offset:-2.5px}
-#ghost{position:fixed;z-index:80;width:96px;height:120px;border-radius:8px;overflow:hidden;pointer-events:none;
-  box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:.94;transform:translate(-50%,-50%)}
+#ghost{position:fixed;left:0;top:0;z-index:80;width:96px;height:120px;border-radius:8px;overflow:hidden;pointer-events:none;
+  box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:.94;will-change:transform}
 #ghost img{width:100%;height:100%;object-fit:cover}
 
 .underphone{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -206,6 +206,7 @@ button{cursor:pointer}
   border:1px solid var(--line);border-radius:10px;resize:vertical}
 .stwho{width:88px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px;flex:none}
 .stwho[readonly]{background:#f6f7f9;color:var(--mid)}
+.steps [data-c]:disabled{opacity:.45;cursor:not-allowed}
 .elspanel summary{cursor:pointer;font-size:15px;font-weight:600;list-style:none}
 .elspanel summary::-webkit-details-marker{display:none}
 .elspanel summary::after{content:"펼치기";float:right;font-size:12.5px;color:var(--mid);font-weight:400}
@@ -241,7 +242,8 @@ button{cursor:pointer}
 .cal .cell .n{font-size:11px;color:var(--mid);line-height:1.2}
 .cal .cell.sun .n{color:var(--pink)}
 .cal .thumbs{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
-.cal .thumbs button{width:19px;height:24px;border-radius:4px;border:0;padding:0;overflow:hidden;background:#eef0f4}
+.cal .thumbs button{width:24px;height:30px;border-radius:5px;border:0;padding:0;overflow:hidden;background:#eef0f4;
+  touch-action:none}
 .cal .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .cal .thumbs button.on{box-shadow:0 0 0 2px var(--pink)}
 .cal .cell[data-date]{cursor:pointer}
@@ -251,7 +253,7 @@ button{cursor:pointer}
 .cal .prog{position:absolute;right:4px;top:3px;font-size:9.5px;color:var(--mid);font-weight:600}
 .cal .prog.full{color:#12a150}
 .und{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:5px}
-@media(max-width:560px){.cal .thumbs button{width:18px;height:22px}}
+@media(max-width:560px){.cal .thumbs button{width:20px;height:25px}}
 
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#191b22;color:#fff;
   padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;pointer-events:none;transition:.22s;z-index:95}
@@ -684,17 +686,8 @@ function renderGrid(){
         b.addEventListener("pointerdown", function(e){
           if(e.pointerType==="touch"||e.button!==0) return;
           if(e.target.classList.contains("del")||e.target.classList.contains("grab")) return;
-          var sx=e.clientX, sy=e.clientY, fired=false;
-          function mv(ev){
-            if(fired) return;
-            if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>6){
-              fired=true; off(); suppressClick=true;
-              startDragAt(i, ev);
-            }
-          }
-          function up(){ off(); }
-          function off(){ window.removeEventListener("pointermove",mv); window.removeEventListener("pointerup",up); }
-          window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up);
+          e.preventDefault(); suppressClick=true;
+          startDragAt(i, e);
         });
       }
       b.addEventListener("click", function(e){
@@ -908,12 +901,14 @@ function goDate(d){
 /* ---------- steps ---------- */
 function stepInput(k){ return document.querySelector('.steps .st[data-k="'+k+'"] .stwho'); }
 function who(k){
-  var el=stepInput(k), v=el?el.value.trim():"";
-  return v||localStorage.getItem("brkg_feed_user")||"";
+  var el=stepInput(k);
+  return el? el.value.trim() : "";
 }
-document.querySelectorAll(".steps .stwho").forEach(function(el){
+/* 이름을 넣어야 확인 버튼이 열린다 */
+document.querySelectorAll(".steps .st").forEach(function(row){
+  var el=row.querySelector(".stwho"), b=row.querySelector("[data-c]");
   el.addEventListener("input", function(){
-    try{ localStorage.setItem("brkg_feed_user", this.value.trim()); }catch(e){}
+    if(!row.classList.contains("done")) b.disabled=!el.value.trim();
   });
 });
 
@@ -938,11 +933,17 @@ function renderSteps(){
     var b=row.querySelector("[data-c]");
     b.textContent=s0.done?"취소":"확인";
     b.className="btn sm"+(s0.done?"":" pink");
+    b.disabled=!s0.done && !nameEl.value.trim();
+    b.title=b.disabled?"확인자 이름을 넣어 주세요":"";
     b.onclick=function(){
       var t=p||ensurePost();
       if(!t.steps) t.steps={};
       if(t.steps[st.k]&&t.steps[st.k].done) delete t.steps[st.k];
-      else t.steps[st.k]={done:true, by:who(st.k), at:todayStr()};
+      else {
+        var nm=who(st.k);
+        if(!nm){ toast("확인자 이름을 먼저 넣어 주세요."); nameEl.focus(); return; }
+        t.steps[st.k]={done:true, by:nm, at:todayStr()};
+      }
       saveMonth(); renderSteps(); renderAll();
     };
   });
@@ -1143,20 +1144,24 @@ function startDragAt(i, e, srcEl){
     if(!slot) return;
     src=slot.querySelector("img");
   }
-  dragFrom=i;
+  dragFrom=i; dragMoved=false; dragStart.x=e.clientX; dragStart.y=e.clientY;
   ghost=document.createElement("div"); ghost.id="ghost";
-  if(src){ var g=document.createElement("img"); g.src=src.src; ghost.appendChild(g); }
+  var big=(posts[i]&&posts[i].img)?cache[posts[i].img]:null;
+  var g=document.createElement("img");
+  g.src=big||(src?src.src:"");
+  ghost.appendChild(g);
   document.body.appendChild(ghost);
   moveGhost(e.clientX,e.clientY);
   window.addEventListener("pointermove", onDragMove);
   window.addEventListener("pointerup", endDrag);
   window.addEventListener("pointercancel", endDrag);
 }
-function moveGhost(x,y){ if(ghost){ ghost.style.left=x+"px"; ghost.style.top=y+"px"; } }
-var dropTarget=null, moveQueued=false, lastPt={x:0,y:0};
+function moveGhost(x,y){ if(ghost) ghost.style.transform="translate3d("+(x-48)+"px,"+(y-60)+"px,0)"; }
+var dropTarget=null, moveQueued=false, lastPt={x:0,y:0}, dragMoved=false, dragStart={x:0,y:0};
 function onDragMove(e){
   e.preventDefault();
   lastPt.x=e.clientX; lastPt.y=e.clientY;
+  if(!dragMoved && (Math.abs(e.clientX-dragStart.x)+Math.abs(e.clientY-dragStart.y))>4) dragMoved=true;
   moveGhost(e.clientX,e.clientY);
   if(moveQueued) return;
   moveQueued=true;
@@ -1181,11 +1186,17 @@ function endDrag(e){
   window.removeEventListener("pointermove", onDragMove);
   window.removeEventListener("pointerup", endDrag);
   window.removeEventListener("pointercancel", endDrag);
+  if(ghost){ ghost.remove(); ghost=null; }
+  if(dropTarget){ dropTarget.classList.remove("drop"); }
+  dropTarget=null;
+  if(!dragMoved){                       /* 제자리에서 뗐으면 클릭으로 본다 */
+    var idx=dragFrom; dragFrom=-1; clearDrop();
+    if(idx>=0&&posts[idx]){ select(idx); renderSteps(); renderCands(); }
+    return;
+  }
   var el=document.elementFromPoint(e.clientX,e.clientY);
   var cell=(el&&el.closest)?el.closest(".cell[data-date]"):null;
   var s=(el&&el.closest)?el.closest(".slot"):null;
-  if(ghost){ ghost.remove(); ghost=null; }
-  dropTarget=null;
   if(cell&&dragFrom>=0&&posts[dragFrom]){
     posts[dragFrom].date=cell.getAttribute("data-date");
     saveMonth();
@@ -1291,23 +1302,13 @@ function renderCal(){
         });
         b.addEventListener("pointerdown", function(e){
           if(e.pointerType==="touch"||e.button!==0) return;
-          e.stopPropagation();
-          var sx=e.clientX, sy=e.clientY, fired=false;
-          function mv(ev){
-            if(fired) return;
-            if(Math.abs(ev.clientX-sx)+Math.abs(ev.clientY-sy)>6){
-              fired=true; off(); suppressClick=true;
-              startDragAt(idx, ev, im);
-            }
-          }
-          function up(){ off(); }
-          function off(){ window.removeEventListener("pointermove",mv); window.removeEventListener("pointerup",up); }
-          window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up);
+          e.preventDefault(); e.stopPropagation(); suppressClick=true;
+          startDragAt(idx, e, im);
         });
         box.appendChild(b);
       });
       cell.title="이 날짜의 게시물을 엽니다";
-      cell.addEventListener("click", function(){ goDate(key); });
+      cell.addEventListener("click", function(){ if(suppressClick){ suppressClick=false; return; } goDate(key); });
       cal.appendChild(cell);
     })(d);
   }
