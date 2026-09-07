@@ -491,11 +491,28 @@ function badge(state, text){
   var b=document.getElementById("syncBadge"); if(!b) return;
   b.className="syncbadge "+state; b.textContent=text;
 }
+/* 읽기는 JSONP 로 — 브라우저 보안(CORS)에 막히지 않는다 */
+var cbSeq=0;
 function api(params){
-  if(typeof fetch!=="function") return Promise.reject(new Error("no fetch"));
-  var q=[];
-  for(var k in params) q.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));
-  return fetch(SYNC_URL+"?"+q.join("&"), {method:"GET"}).then(function(r){ return r.json(); });
+  return new Promise(function(res,rej){
+    var cb="brkfeedcb"+(++cbSeq)+"_"+Date.now();
+    var sc=document.createElement("script");
+    var done=false;
+    var timer=setTimeout(function(){ finish(); rej(new Error("시간 초과")); }, 15000);
+    function finish(){
+      if(done) return; done=true;
+      clearTimeout(timer);
+      try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+    }
+    window[cb]=function(data){ finish(); res(data); };
+    var q=[];
+    for(var k in params) q.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));
+    q.push("callback="+cb);
+    sc.src=SYNC_URL+(SYNC_URL.indexOf("?")<0?"?":"&")+q.join("&");
+    sc.onerror=function(){ finish(); rej(new Error("주소를 열지 못했습니다")); };
+    document.head.appendChild(sc);
+  });
 }
 function apiPost(obj){
   if(typeof fetch!=="function") return Promise.reject(new Error("no fetch"));
@@ -519,9 +536,20 @@ function pushMonth(now){
   clearTimeout(syncTimer);
   syncTimer=setTimeout(function(){
     badge("busy","저장 중…");
+    var mine=JSON.stringify({slots:slots,posts:posts});
     apiPost({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()})
-      .then(function(){ dirty=false; badge("on","팀 저장 켜짐"); })
-      .catch(function(){ badge("off","저장 실패 · 이 브라우저에만"); });
+      .then(function(){
+        /* 응답을 읽을 수 없는 방식이라, 시트를 다시 읽어 확인한다 */
+        return new Promise(function(r){ setTimeout(r,900); }).then(function(){
+          return api({action:"feed_get", month:month});
+        });
+      })
+      .then(function(r){
+        dirty=false;
+        if(r&&r.ok&&r.json){ lastPulled=r.updatedAt||""; badge("on","팀 저장 켜짐"); }
+        else badge("off","저장 안 됨 · 배포 설정 확인");
+      })
+      .catch(function(e){ badge("off","저장 실패 · "+(e&&e.message||"")); });
   }, now?0:1200);
 }
 var profTimer=null;
@@ -564,6 +592,42 @@ function pullProfile(){
   }).catch(function(){});
 }
 
+/* 연결 전에 이 브라우저에만 올려 둔 이미지를 팀 저장으로 밀어 올린다 */
+var backfilling=false;
+function backfillImages(){
+  if(!syncOn||backfilling) return;
+  var need=[];
+  posts.forEach(function(p){
+    if(!p) return;
+    if(p.img) need.push(p.img);
+    (p.cands||[]).forEach(function(c){ need.push(c); });
+  });
+  if(profile.avatar) need.push(profile.avatar);
+  (profile.highlights||[]).forEach(function(h){ if(h.img) need.push(h.img); });
+  need=need.filter(function(v,i){ return v && need.indexOf(v)===i; });
+  if(!need.length) return;
+  backfilling=true;
+  var i=0, sent=0;
+  function step(){
+    if(i>=need.length){
+      backfilling=false;
+      if(sent) badge("on","팀 저장 켜짐");
+      return;
+    }
+    var id=need[i++];
+    api({action:"img_has", key:id}).then(function(r){
+      if(r&&r.ok&&r.exists) return null;
+      return imgGet(id).then(function(v){
+        if(!v) return null;
+        sent++;
+        badge("busy","이미지 올리는 중 "+sent+"…");
+        return apiPost({type:"feed_img", key:id, data:v});
+      });
+    }).catch(function(){}).then(function(){ setTimeout(step, 250); });
+  }
+  step();
+}
+
 function startSync(){
   if(!SYNC_URL){ badge("off","이 브라우저에만 저장"); return; }
   if(typeof fetch!=="function"){ badge("off","이 브라우저에만 저장"); return; }
@@ -571,7 +635,7 @@ function startSync(){
     if(!r||!r.ok){ badge("off","연결 안 됨"); return; }
     syncOn=true; badge("on","팀 저장 켜짐");
     pullProfile();
-    pullMonth(true);
+    pullMonth(true).then(function(){ backfillImages(); });
     clearInterval(pullTimer);
     pullTimer=setInterval(function(){ pullMonth(false); }, 30000);
   }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
@@ -587,7 +651,16 @@ document.getElementById("syncBadge").addEventListener("click", function(){
     return;
   }
   badge("busy","불러오는 중…");
-  pullMonth(true);
+  api({action:"ping"}).then(function(r){
+    if(!r||!r.ok) throw new Error("응답이 이상합니다");
+    return pullMonth(true);
+  }).then(function(){
+    badge("on","팀 저장 켜짐");
+  }).catch(function(e){
+    badge("off","연결 안 됨");
+    alert("팀 저장에 연결하지 못했습니다.\n\n" + (e&&e.message||"") +
+          "\n\n확인할 것\n· Apps Script 배포에서 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 '새 배포' 를 했는지\n· 주소가 /exec 로 끝나는지");
+  });
 });
 /* ================= 팀 저장 끝 ================= */
 
@@ -1432,7 +1505,7 @@ function shiftMonth(m,d){
   if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
   return y+"-"+pad(mo);
 }
-function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); queueFit(); lastPulled=""; pullMonth(true); }
+function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); queueFit(); lastPulled=""; pullMonth(true).then(function(){ backfillImages(); }); }
 
 function renderAll(){ renderGrid(); renderCal(); renderMonths(); renderDateLabel(); }
 function renderEverything(){ renderAll(); }
