@@ -107,10 +107,13 @@ button{cursor:pointer}
 .slot.drop{outline:2px solid var(--pink);outline-offset:-2px}
 .slot .grab{position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:7px;border:0;
   background:rgba(17,17,17,.55);color:#fff;font-size:11px;line-height:24px;text-align:center;touch-action:none;opacity:0;transition:opacity .12s}
-.slot:hover .grab{opacity:1}
-@media(hover:none){.slot .grab{opacity:.9}}
+.slot .del{position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:7px;border:0;
+  background:rgba(17,17,17,.55);color:#fff;font-size:13px;line-height:24px;text-align:center;padding:0;opacity:0;transition:opacity .12s}
+.slot .del:hover{background:var(--pink)}
+.slot:hover .grab,.slot:hover .del{opacity:1}
+@media(hover:none){.slot .grab,.slot .del{opacity:.9}}
 .slot .day{position:absolute;right:4px;bottom:4px;background:rgba(17,17,17,.6);color:#fff;font-size:10px;padding:2px 5px;border-radius:5px}
-.slot .kind{position:absolute;right:5px;top:4px;color:#fff;font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.slot .kind{position:absolute;right:32px;top:4px;color:#fff;font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .slot.sel{outline:2.5px solid var(--pink);outline-offset:-2.5px}
 #ghost{position:fixed;z-index:80;width:96px;height:120px;border-radius:8px;overflow:hidden;pointer-events:none;
   box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:.94;transform:translate(-50%,-50%)}
@@ -339,6 +342,9 @@ button{cursor:pointer}
               </div>
             </div>
           </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn warn" id="delPost">이 날짜 게시물 지우기</button>
         </div>
       </div>
     </div>
@@ -638,6 +644,10 @@ function renderGrid(){
         if(p.type&&p.type!=="피드"){ var k=document.createElement("span"); k.className="kind"; k.textContent=p.type==="릴스"?"▶":(p.type==="캐러셀"?"❐":"◍"); b.appendChild(k); }
       } else { b.textContent="+"; }
       if(p){
+        var del=document.createElement("span"); del.className="del"; del.textContent="×";
+        del.title="이 칸 비우기";
+        del.addEventListener("click", function(e){ e.stopPropagation(); removePost(i); });
+        b.appendChild(del);
         if(p.color){ var bar=document.createElement("span"); bar.className="bar"; bar.style.background=p.color; b.appendChild(bar); }
         var pips=document.createElement("span"); pips.className="pips";
         STEPS.forEach(function(st){
@@ -785,6 +795,20 @@ function renderMonths(){
     });
     box.appendChild(b);
   });
+}
+
+/* ---------- 게시물 삭제 ---------- */
+function removePost(i){
+  var p=posts[i]; if(!p) return;
+  var name=p.date? prettyDate(p.date)+" 게시물" : (i+1)+"번째 칸";
+  if(!confirm(name+"을 지울까요? 올린 이미지와 확인 기록이 함께 사라집니다.")) return;
+  if(p.img) imgDel(p.img);
+  (p.cands||[]).forEach(function(c){ imgDel(c); });
+  posts.splice(i,1);
+  if(sel===i) clearEditor();
+  else { if(sel>i) sel--; renderSteps(); renderCands(); }
+  saveMonth(); renderAll();
+  toast("지웠습니다.");
 }
 
 /* ---------- 날짜 관리 ---------- */
@@ -938,6 +962,10 @@ function zoom(id,label){
 document.getElementById("lightbox").addEventListener("click", function(){ this.classList.add("hidden"); });
 window.addEventListener("keydown", function(e){
   if(e.key==="Escape") document.getElementById("lightbox").classList.add("hidden");
+});
+document.getElementById("delPost").addEventListener("click", function(){
+  if(sel<0||!posts[sel]){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
+  removePost(sel);
 });
 document.getElementById("dlFinal").addEventListener("click", function(){
   if(sel<0||!posts[sel]||!posts[sel].img){ toast("최종 이미지가 아직 없습니다."); return; }
