@@ -65,6 +65,7 @@
   .row .gate:nth-child(1){animation-delay:.04s;}
   .row .gate:nth-child(2){animation-delay:.10s;}
   .row .gate:nth-child(3){animation-delay:.16s;}
+  .row .gate:nth-child(4){animation-delay:.22s;}
   @keyframes rise{from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;}}
 
   .gate.survey{background:linear-gradient(158deg,var(--blue) 0%,var(--blue-deep) 100%);
@@ -77,12 +78,15 @@
                box-shadow:0 14px 28px -20px rgba(8,69,47,.8);}
   .gate.map{background:linear-gradient(158deg,#3E6FB8 0%,#1F3F70 100%);
             box-shadow:0 14px 28px -20px rgba(31,63,112,.8);}
+  .gate.work{background:linear-gradient(158deg,#7A4BC4 0%,#432574 100%);
+             box-shadow:0 14px 28px -20px rgba(67,37,116,.8);}
   .gate:hover{transform:translateY(-3px);}
   .gate.survey:hover{box-shadow:0 20px 36px -18px rgba(30,55,149,.9);}
   .gate.onsite:hover{box-shadow:0 20px 36px -18px rgba(158,0,96,.85);}
   .gate.sales:hover{box-shadow:0 20px 36px -18px rgba(21,27,54,.9);}
   .gate.market:hover{box-shadow:0 20px 36px -18px rgba(8,69,47,.9);}
   .gate.map:hover{box-shadow:0 20px 36px -18px rgba(31,63,112,.9);}
+  .gate.work:hover{box-shadow:0 20px 36px -18px rgba(67,37,116,.9);}
   .gate:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
 
   .art{flex:none; width:44px; height:44px; border-radius:12px;
@@ -96,7 +100,7 @@
            padding-right:20px;}
   .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
             color:var(--gold-soft); margin-top:3px;}
-  .gate.survey .yr, .gate.onsite .yr{color:rgba(255,255,255,.8);}
+  .gate.survey .yr, .gate.onsite .yr, .gate.work .yr{color:rgba(255,255,255,.8);}
   .gate .desc{font-size:11.5px; line-height:1.5; margin-top:6px;
               color:rgba(255,255,255,.72);}
   .stats{display:flex; gap:12px; flex-wrap:wrap; margin-top:auto; padding-top:10px;}
@@ -199,7 +203,7 @@
     <div class="shead locked">
       <span class="dot"></span>
       <h2 data-t="h2">대외비 · 비밀번호</h2>
-      <span class="cnt">3</span>
+      <span class="cnt">4</span>
       <span class="rule"></span>
     </div>
     <div class="row">
@@ -268,6 +272,27 @@
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
 
+      <a class="gate work" href="marketing.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="16" y="16" width="88" height="88" rx="14" fill="none" stroke="#fff" stroke-width="6"/>
+            <path d="M16 45h88M16 74h88M45 16v88M74 16v88" stroke="#fff" stroke-width="4.5" opacity=".55"/>
+            <circle cx="30" cy="30" r="6.5" fill="#C9A227"/>
+            <circle cx="90" cy="89" r="6.5" fill="#ED93B1"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t6">마케팅 실무</h3>
+          <div class="yr">인스타 피드 · IP</div>
+          <p class="desc" data-t="d6">월 피드 그리드와 발행 일정, IP 후보와 MD 진행.</p>
+          <div class="stats">
+            <div class="stat"><div class="v">2</div><div class="l" data-t="s6a">도구</div></div>
+            <div class="stat"><div class="v">5</div><div class="l" data-t="s6b">확인 단계</div></div>
+          </div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
     </div>
   </section>
 
@@ -288,17 +313,19 @@ var EN = {
   sub:'Marketing Strategy · Genius Team',
   h1:'Internal', h2:'Confidential · passcode',
   t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure',
-  t4:'ON-SITE Store Report', t5:'Store Location Map',
+  t4:'ON-SITE Store Report', t5:'Store Location Map', t6:'Marketing Workbench',
   d1:'Visitor feedback, brand health, FOM concept pre-tests.',
   d2:'90 months of revenue × the FOM &amp; IP campaign calendar.',
   d3:'Dessert × ice cream, specialty × retail — four segments.',
   d4:'Exterior, interior, dipping cabinet, menu board — then A4.',
   d5:'1,708 stores compared by region, team and trade area.',
+  d6:'Monthly feed grid and posting calendar, IP leads and MD progress.',
   s1a:'running', s1c:'stores',
   s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
   s3a:'total market', s3b:'specialty share', s3c:'segments',
   s4a:'shots', s4b:'print format',
   s5a:'stores', s5b:'districts', s5c:'July sales',
+  s6a:'tools', s6b:'approval steps',
   ft:'© Baskin-Robbins Korea · Marketing Strategy'
 };
 var KO = {};
