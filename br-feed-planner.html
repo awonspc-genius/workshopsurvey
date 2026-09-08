@@ -30,6 +30,9 @@ button{cursor:pointer}
 .brand b{font-size:16px;font-weight:700;letter-spacing:-.01em}
 .brand em{color:var(--mid);font-size:12px;font-style:normal}
 .back{color:var(--mid);font-size:13px;text-decoration:none}
+.savebtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 14px;font-size:13px;font-weight:600}
+.savebtn.need{background:var(--pink);border-color:var(--pink);color:#fff}
+.savebtn:disabled{opacity:.5}
 .syncbadge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;color:var(--mid)}
 .syncbadge.on{border-color:#bfe4cc;background:#f1fbf4;color:#12a150;font-weight:600}
 .syncbadge.busy{border-color:#f6c9dd;background:var(--pink-soft);color:#c2005f}
@@ -290,6 +293,7 @@ button{cursor:pointer}
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
+      <button class="btn savebtn" id="saveBtn">저장</button>
       <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
       <div class="monthpick">
         <button id="prevM" aria-label="이전 달">‹</button>
@@ -484,7 +488,7 @@ var LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
 var SYNC_URL = "https://script.google.com/macros/s/AKfycby839KinLDHNzqDivc3fcjbwHNI5SeOggRMwSkoQ3CYWI4AeF2lV2Xx4ttlKwb4Fy8slQ/exec";
 
 if(!SYNC_URL){ try{ SYNC_URL=localStorage.getItem("brkg_feed_sync")||""; }catch(e){} }
-var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="", lastError="";
+var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="", lastError="", dirtySeq=0;
 
 function badge(state, text){
   var b=document.getElementById("syncBadge"); if(!b) return;
@@ -528,12 +532,20 @@ function lastUser(){
   return v;
 }
 
-/* 서버로 올리기 — 잦은 입력을 모아 1.2초 뒤 한 번만 보낸다 */
+/* 손으로 저장 — 상단 저장 버튼을 누를 때만 시트로 올린다 */
+function markDirty(){
+  dirty=true; dirtySeq++;
+  var b=document.getElementById("saveBtn");
+  if(b){ b.classList.add("need"); b.textContent="저장"; }
+  if(syncOn) badge("busy","저장 안 한 변경 있음");
+}
 function pushMonth(now){
   if(!syncOn) return;
-  dirty=true;
-  clearTimeout(syncTimer);
-  syncTimer=setTimeout(function(){
+  if(!now){ markDirty(); return; }
+  var b=document.getElementById("saveBtn");
+  if(b) b.disabled=true;
+  var seqAtStart=dirtySeq;
+  (function(){
     badge("busy","저장 중…");
     var mine=JSON.stringify({slots:slots,posts:posts});
     apiPost({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()})
@@ -544,20 +556,50 @@ function pushMonth(now){
         });
       })
       .then(function(r){
-        dirty=false;
-        if(r&&r.ok&&r.json){ lastPulled=r.updatedAt||""; badge("on","팀 저장 켜짐"); }
-        else { lastError=(r&&r.error)||"시트에 줄이 생기지 않았습니다."; badge("off","저장 안 됨 · 눌러서 확인"); }
+        var b2=document.getElementById("saveBtn");
+        if(b2) b2.disabled=false;
+        if(r&&r.ok&&r.json){
+          lastPulled=r.updatedAt||"";
+          while(pendingDel.length){                       /* 지운 이미지도 서버에서 정리 */
+            apiPost({type:"feed_img_del", key:pendingDel.shift()}).catch(function(){});
+          }
+          if(dirtySeq===seqAtStart){        /* 저장하는 사이에 또 고쳤으면 그대로 둔다 */
+            dirty=false;
+            if(b2){ b2.classList.remove("need"); b2.textContent="저장됨"; }
+            badge("on","팀 저장 켜짐 · "+String(r.updatedAt).slice(11,16));
+          } else {
+            badge("busy","저장 안 한 변경 있음");
+          }
+        } else {
+          lastError=(r&&r.error)||"시트에 줄이 생기지 않았습니다.";
+          badge("off","저장 안 됨 · 눌러서 확인");
+        }
       })
-      .catch(function(e){ badge("off","저장 실패 · "+(e&&e.message||"")); });
-  }, now?0:1200);
+      .catch(function(e){
+        var b3=document.getElementById("saveBtn"); if(b3) b3.disabled=false;
+        badge("off","저장 실패 · "+(e&&e.message||""));
+      });
+  })();
 }
-var profTimer=null;
-function pushProfile(){
+document.addEventListener("visibilitychange", function(){
+  if(!document.hidden) pullMonth(false);      /* 다른 창에 갔다 오면 곧바로 최신으로 */
+});
+window.addEventListener("focus", function(){ pullMonth(false); });
+
+document.getElementById("saveBtn").addEventListener("click", function(){
+  if(!syncOn){ toast("팀 저장에 연결되지 않았습니다. 오른쪽 상태를 눌러 확인해 주세요."); return; }
+  pushProfile(true);
+  pushMonth(true);
+  backfillImages();      /* 아직 안 올라간 이미지가 있으면 같이 올린다 */
+});
+window.addEventListener("beforeunload", function(e){
+  if(!dirty||!syncOn) return;
+  e.preventDefault(); e.returnValue="";
+});
+function pushProfile(now){
   if(!syncOn) return;
-  clearTimeout(profTimer);
-  profTimer=setTimeout(function(){
-    apiPost({type:"feed_save", month:"__profile__", data:profile, by:lastUser()}).catch(function(){});
-  }, 1500);
+  if(!now){ markDirty(); return; }
+  apiPost({type:"feed_save", month:"__profile__", data:profile, by:lastUser()}).catch(function(){});
 }
 
 /* 서버에서 받아오기 */
@@ -568,7 +610,9 @@ function pullMonth(force){
     if(!r||!r.ok) return;
     if(!r.json){ pushMonth(true); return; }
     if(!force && r.updatedAt && r.updatedAt===lastPulled) return;
+    var same=(JSON.stringify({slots:slots,posts:posts})===r.json);
     lastPulled=r.updatedAt||"";
+    if(same) return;
     var o=JSON.parse(r.json);
     var keepId=(sel>=0&&posts[sel])?posts[sel].id:null;
     posts=o.posts||[]; slots=o.slots||12;
@@ -578,6 +622,8 @@ function pullMonth(force){
     if(keepId){ posts.forEach(function(p,i){ if(p&&p.id===keepId) sel=i; }); }
     renderSteps(); renderCands(); renderLog(); renderAll();
     badge("on","팀 저장 켜짐");
+    var bb=document.getElementById("saveBtn");
+    if(bb&&!dirty){ bb.classList.remove("need"); bb.textContent="저장됨"; }
   }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
 }
 function pullProfile(){
@@ -636,7 +682,10 @@ function startSync(){
     pullProfile();
     pullMonth(true).then(function(){ backfillImages(); });
     clearInterval(pullTimer);
-    pullTimer=setInterval(function(){ pullMonth(false); }, 30000);
+    pullTimer=setInterval(function(){
+      if(document.hidden) return;
+      pullMonth(false);
+    }, 8000);
   }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
 }
 document.getElementById("syncBadge").addEventListener("click", function(){
@@ -656,6 +705,12 @@ document.getElementById("syncBadge").addEventListener("click", function(){
       lines.push("시트: "+(r.sheetName||"?"));
       if(r.rows!==undefined) lines.push("저장된 월: "+r.rows+"개");
       if(r.sheetUrl) lines.push(r.sheetUrl);
+      if(r.images!==undefined){
+        var need=[];
+        posts.forEach(function(p){ if(!p) return; if(p.img) need.push(p.img); (p.cands||[]).forEach(function(c){ need.push(c); }); });
+        need=need.filter(function(v,i){ return v&&need.indexOf(v)===i; });
+        lines.push("이미지: 이 달에 "+need.length+"장 / 서버에 "+r.images+"장");
+      }
       if(r.folderUrl) lines.push("이미지 폴더: "+r.folderUrl);
       if(r.user) lines.push("실행 계정: "+r.user);
       if(lastError) lines.push("\n마지막 오류: "+lastError);
@@ -693,8 +748,9 @@ function imgPut(k,v){
 function imgGet(k){ return db().then(function(d){ return new Promise(function(res,rej){
   var q=d.transaction("imgs","readonly").objectStore("imgs").get(k);
   q.onsuccess=function(){res(q.result||null)}; q.onerror=function(){rej(q.error)}; });});}
+var pendingDel=[];
 function imgDel(k){
-  if(syncOn) apiPost({type:"feed_img_del", key:k}).catch(function(){});
+  if(syncOn && pendingDel.indexOf(k)<0) pendingDel.push(k);   /* 저장할 때 서버에서도 지운다 */
   return db().then(function(d){ return new Promise(function(res){
     var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").delete(k); t.oncomplete=function(){res()}; });}).catch(function(){});}
 var pulling={};
@@ -709,13 +765,17 @@ function loadImg(id){
 function fetchImg(id){
   if(!syncOn) return null;
   if(pulling[id]) return pulling[id];
-  pulling[id]=api({action:"img", key:id}).then(function(r){
-    delete pulling[id];
-    if(!r||!r.ok||!r.data) return null;
-    var url="data:"+(r.mime||"image/jpeg")+";base64,"+r.data;
-    cache[id]=url;
-    db().then(function(d){ var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(url,id); }).catch(function(){});
-    return url;
+  pulling[id]=api({action:"img_url", key:id}).then(function(r){
+    if(r&&r.ok&&r.url){ delete pulling[id]; cache[id]=r.url; return r.url; }
+    /* 주소로 못 받으면 파일 내용을 통째로 받아온다 */
+    return api({action:"img", key:id}).then(function(r2){
+      delete pulling[id];
+      if(!r2||!r2.ok||!r2.data) return null;
+      var url="data:"+(r2.mime||"image/jpeg")+";base64,"+r2.data;
+      cache[id]=url;
+      db().then(function(d){ var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(url,id); }).catch(function(){});
+      return url;
+    });
   }).catch(function(){ delete pulling[id]; return null; });
   return pulling[id];
 }
