@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IP 관련 업무 · BRK Genius</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{--pink:#F0187C;--pink-soft:#FFE7F1;--ink:#191b22;--mid:#6b7180;--line:#e3e6ec;--bg:#eef0f4;--card:#fff;
+  --shadow:0 1px 2px rgba(20,24,40,.06),0 10px 30px rgba(20,24,40,.07)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+
+#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:90;padding:24px}
+#gate .box{background:var(--card);border-radius:20px;padding:32px 28px;width:min(360px,100%);box-shadow:var(--shadow);text-align:center}
+#gate h1{font-size:19px;margin:0 0 6px}
+#gate p{color:var(--mid);font-size:13px;margin:0 0 20px}
+#gate input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-align:center;letter-spacing:.3em;font-size:17px}
+#gate button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:600}
+#gate .err{color:var(--pink);font-size:13px;height:18px;margin-top:8px}
+
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.top .in{max-width:1240px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto}
+.brand .dot{width:26px;height:26px;border-radius:9px;background:var(--pink)}
+.brand b{font-size:16px;font-weight:700}
+.back{color:var(--mid);font-size:13px;text-decoration:none}
+.views{display:flex;background:#f4f6f9;border-radius:11px;padding:4px;gap:2px}
+.views button{border:0;background:transparent;padding:7px 14px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--mid)}
+.views button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:22px 18px 110px}
+.bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.bar .grow{flex:1;min-width:150px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:9px 13px;font-size:13.5px;font-weight:500}
+.btn:hover{border-color:#c9cfd9}
+.btn.pink{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:600}
+.btn.warn{color:var(--pink);border-color:#f6c9dd}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:9px}
+input.s,select.s{padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#fff}
+input.s{width:100%}
+
+.panel{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:18px}
+.panel+.panel{margin-top:14px}
+.empty{color:var(--mid);font-size:13.5px;text-align:center;padding:40px 12px;border:1px dashed var(--line);border-radius:12px}
+
+/* IP list */
+.iplist{display:grid;gap:10px}
+.ip{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;display:grid;
+  grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.ip h3{margin:0;font-size:15.5px;letter-spacing:-.01em}
+.ip .meta{color:var(--mid);font-size:12.5px;margin-top:3px}
+.ip .memo{font-size:13px;margin-top:7px;white-space:pre-wrap}
+.ip .side{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+.chip{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;background:#f1f3f7;color:var(--mid)}
+.chip.on{background:var(--pink-soft);color:#c2005f}
+.stage-sel{padding:6px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12.5px}
+.rowbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media(max-width:1000px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.board{grid-template-columns:1fr}}
+.col{background:#f7f8fb;border:1px solid var(--line);border-radius:13px;padding:11px;min-height:120px}
+.col h3{font-size:13px;margin:0 0 10px;display:flex;justify-content:space-between;color:var(--mid);font-weight:600}
+.mdcard{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px;margin-bottom:9px}
+.mdcard b{display:block;font-size:14px}
+.mdcard .m{color:var(--mid);font-size:12px;margin-top:3px}
+.mdcard .due{font-size:12px;margin-top:5px}
+.mdcard .due.late{color:var(--pink);font-weight:600}
+.mdcard .mv{display:flex;gap:5px;margin-top:9px}
+.mdcard .mv button{flex:none;border:1px solid var(--line);background:#fff;border-radius:8px;padding:3px 8px;font-size:12px}
+.mdcard .mv .sp{flex:1}
+
+/* docs */
+.doc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+.doc b{font-size:14.5px}
+.doc .m{color:var(--mid);font-size:12.5px;margin-top:2px}
+
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(15,18,28,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:22px;width:min(520px,100%);max-height:88vh;overflow:auto}
+.modal h2{font-size:16px;margin:0 0 4px}
+.modal .sub{color:var(--mid);font-size:12.5px;margin:0 0 16px}
+.f{margin-bottom:12px}
+.f label{display:block;font-size:12.5px;color:var(--mid);margin-bottom:5px}
+.f input,.f select,.f textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.f textarea{resize:vertical;min-height:70px}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--pink-soft);border-color:var(--pink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.foot{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#191b22;color:#fff;
+  padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;pointer-events:none;transition:.22s;z-index:95}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.hidden{display:none !important}
+:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <h1>IP 관련 업무</h1>
+    <p>접근 코드를 입력해 주세요</p>
+    <input id="gateInput" inputmode="numeric" maxlength="4" placeholder="····" aria-label="접근 코드">
+    <div class="err" id="gateErr"></div>
+    <button id="gateBtn">들어가기</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="in">
+      <div class="brand"><span class="dot"></span><b>IP 관련 업무</b></div>
+      <a class="back" href="/marketing/">← 마케팅 실무</a>
+      <div class="views" role="group" aria-label="보기 전환">
+        <button id="tIp" aria-pressed="true">IP 후보</button>
+        <button id="tMd" aria-pressed="false">MD 현황판</button>
+        <button id="tDoc" aria-pressed="false">자료함</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- IP -->
+    <section id="secIp">
+      <div class="bar">
+        <button class="btn pink" id="addIp">IP 후보 추가</button>
+        <select class="s" id="fStage"><option value="">모든 단계</option></select>
+        <select class="s" id="fCat"><option value="">모든 종류</option></select>
+        <span class="grow"><input class="s" id="fQ" placeholder="이름, 담당사, 메모에서 찾기"></span>
+        <button class="btn" id="expJson">백업 저장</button>
+        <button class="btn" id="impJson">백업 불러오기</button>
+      </div>
+      <div id="ipWrap" class="iplist"></div>
+    </section>
+
+    <!-- MD -->
+    <section id="secMd" class="hidden">
+      <div class="bar">
+        <button class="btn pink" id="addMd">상품 추가</button>
+        <select class="s" id="fMdIp"><option value="">모든 IP</option></select>
+        <span class="grow"></span>
+        <span class="chip" id="mdCount"></span>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- DOC -->
+    <section id="secDoc" class="hidden">
+      <div class="bar">
+        <button class="btn pink" id="addDoc">자료 추가</button>
+        <select class="s" id="fDocIp"><option value="">모든 IP</option></select>
+        <select class="s" id="fDocType"><option value="">모든 종류</option></select>
+        <span class="grow"><input class="s" id="fDocQ" placeholder="제목에서 찾기"></span>
+      </div>
+      <div id="docWrap"></div>
+      <p class="sub" style="color:var(--mid);font-size:12.5px;margin-top:14px">
+        파일은 이 브라우저 안에만 저장됩니다. 용량이 큰 제안서는 드라이브에 올리고 링크로 걸어 두는 편이 안전해요.
+      </p>
+    </section>
+  </div>
+</div>
+
+<input type="file" id="filePick" class="hidden">
+<input type="file" id="jsonPick" accept="application/json" class="hidden">
+<div id="modalHost"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+var PASS="2701", LS="brkg_ip_v1";
+var STAGES=["발굴","내부 검토","제안 발송","협의 중","계약 완료","보류","종료"];
+var CATS=["캐릭터","브랜드","아티스트","게임","방송·영화","기타"];
+var MD_STAGES=["기획","디자인","샘플","양산","출시"];
+var DOC_TYPES=["제안서","시안","견적","계약","회신 기록","기타"];
+
+/* gate */
+var gate=document.getElementById("gate"), app=document.getElementById("app");
+function opened(){
+  return sessionStorage.getItem("br_ip_ok")==="1"||sessionStorage.getItem("br_all_ok")==="1";
+}
+function openApp(){ gate.classList.add("hidden"); app.classList.remove("hidden"); boot(); }
+function tryGate(){
+  if(document.getElementById("gateInput").value.trim()===PASS){ sessionStorage.setItem("br_ip_ok","1"); sessionStorage.setItem("br_all_ok","1"); openApp(); }
+  else { document.getElementById("gateErr").textContent="코드가 맞지 않습니다."; document.getElementById("gateInput").select(); }
+}
+document.getElementById("gateBtn").addEventListener("click", tryGate);
+document.getElementById("gateInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryGate(); });
+
+/* file store */
+var DB=null;
+function db(){ return new Promise(function(res,rej){
+  if(DB) return res(DB);
+  var r=indexedDB.open("brkg_ip",1);
+  r.onupgradeneeded=function(){ r.result.createObjectStore("files"); };
+  r.onsuccess=function(){ DB=r.result; res(DB); };
+  r.onerror=function(){ rej(r.error); };
+});}
+function filePut(k,v){ return db().then(function(d){ return new Promise(function(res,rej){
+  var t=d.transaction("files","readwrite"); t.objectStore("files").put(v,k);
+  t.oncomplete=function(){res()}; t.onerror=function(){rej(t.error)}; });});}
+function fileGet(k){ return db().then(function(d){ return new Promise(function(res,rej){
+  var q=d.transaction("files","readonly").objectStore("files").get(k);
+  q.onsuccess=function(){res(q.result||null)}; q.onerror=function(){rej(q.error)}; });}).catch(function(){return null;});}
+function fileDel(k){ return db().then(function(d){ return new Promise(function(res){
+  var t=d.transaction("files","readwrite"); t.objectStore("files").delete(k); t.oncomplete=function(){res()}; });}).catch(function(){});}
+
+/* state */
+var data={ips:[],md:[],docs:[]};
+function uid(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(data)); }
+  catch(e){ toast("저장 공간이 가득 찼습니다. 큰 파일은 지우고 링크로 걸어 주세요."); } }
+function load(){
+  var raw=localStorage.getItem(LS);
+  if(raw){ try{ var o=JSON.parse(raw); data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[]; }catch(e){} }
+}
+function toast(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2000); }
+function ipName(id){ var f=data.ips.filter(function(x){return x.id===id})[0]; return f? f.name : ""; }
+function today(){ var d=new Date(); return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); }
+function p2(n){ return (n<10?"0":"")+n; }
+function esc(s){ return (s==null?"":String(s)); }
+
+/* tabs */
+function setTab(v){
+  ["Ip","Md","Doc"].forEach(function(k){
+    document.getElementById("t"+k).setAttribute("aria-pressed", String(k.toLowerCase()===v));
+    document.getElementById("sec"+k).classList.toggle("hidden", k.toLowerCase()!==v);
+  });
+  if(v==="md") renderBoard();
+  if(v==="doc") renderDocs();
+}
+document.getElementById("tIp").addEventListener("click", function(){ setTab("ip"); });
+document.getElementById("tMd").addEventListener("click", function(){ setTab("md"); });
+document.getElementById("tDoc").addEventListener("click", function(){ setTab("doc"); });
+
+/* selects */
+function fillSelect(el, arr, all){
+  el.innerHTML="";
+  if(all){ var o=document.createElement("option"); o.value=""; o.textContent=all; el.appendChild(o); }
+  arr.forEach(function(v){
+    var o=document.createElement("option");
+    if(typeof v==="string"){ o.value=v; o.textContent=v; } else { o.value=v.v; o.textContent=v.t; }
+    el.appendChild(o);
+  });
+}
+function refreshFilters(){
+  var keep1=document.getElementById("fStage").value, keep2=document.getElementById("fCat").value;
+  fillSelect(document.getElementById("fStage"), STAGES, "모든 단계");
+  fillSelect(document.getElementById("fCat"), CATS, "모든 종류");
+  document.getElementById("fStage").value=keep1; document.getElementById("fCat").value=keep2;
+  var ipOpts=data.ips.map(function(i){ return {v:i.id,t:i.name}; });
+  var k3=document.getElementById("fMdIp").value, k4=document.getElementById("fDocIp").value;
+  fillSelect(document.getElementById("fMdIp"), ipOpts, "모든 IP");
+  fillSelect(document.getElementById("fDocIp"), ipOpts, "모든 IP");
+  document.getElementById("fMdIp").value=k3; document.getElementById("fDocIp").value=k4;
+  var k5=document.getElementById("fDocType").value;
+  fillSelect(document.getElementById("fDocType"), DOC_TYPES, "모든 종류");
+  document.getElementById("fDocType").value=k5;
+}
+["fStage","fCat","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderIps); });
+document.getElementById("fMdIp").addEventListener("change", renderBoard);
+["fDocIp","fDocType","fDocQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderDocs); });
+
+/* ---------- IP list ---------- */
+function renderIps(){
+  var wrap=document.getElementById("ipWrap"); wrap.innerHTML="";
+  var st=document.getElementById("fStage").value, ct=document.getElementById("fCat").value;
+  var q=document.getElementById("fQ").value.trim().toLowerCase();
+  var list=data.ips.filter(function(i){
+    if(st&&i.stage!==st) return false;
+    if(ct&&i.cat!==ct) return false;
+    if(q){
+      var hay=(i.name+" "+(i.owner||"")+" "+(i.contact||"")+" "+(i.memo||"")).toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+  if(!list.length){
+    var e=document.createElement("div"); e.className="empty";
+    e.textContent=data.ips.length? "조건에 맞는 IP가 없습니다." : "아직 등록한 IP 후보가 없습니다. 위 버튼으로 추가해 보세요.";
+    wrap.appendChild(e); return;
+  }
+  list.forEach(function(i){
+    var mdN=data.md.filter(function(m){return m.ipId===i.id}).length;
+    var docN=data.docs.filter(function(d){return d.ipId===i.id}).length;
+    var card=document.createElement("div"); card.className="ip";
+
+    var left=document.createElement("div");
+    var h=document.createElement("h3"); h.textContent=i.name; left.appendChild(h);
+    var meta=document.createElement("div"); meta.className="meta";
+    meta.textContent=[i.cat, i.owner? "담당사 "+i.owner:"", i.contact? "연락 "+i.contact:"",
+      i.season? "제안 시기 "+i.season:""].filter(Boolean).join("  ·  ");
+    left.appendChild(meta);
+    if(i.memo){ var mm=document.createElement("div"); mm.className="memo"; mm.textContent=i.memo; left.appendChild(mm); }
+    var tags=document.createElement("div"); tags.style.marginTop="9px";
+    if(mdN){ var c1=document.createElement("span"); c1.className="chip"; c1.textContent="상품 "+mdN+"건"; tags.appendChild(c1); }
+    if(docN){ var c2=document.createElement("span"); c2.className="chip"; c2.style.marginLeft="6px"; c2.textContent="자료 "+docN+"건"; tags.appendChild(c2); }
+    left.appendChild(tags);
+
+    var side=document.createElement("div"); side.className="side";
+    var sel=document.createElement("select"); sel.className="stage-sel";
+    STAGES.forEach(function(s){ var o=document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
+    sel.value=i.stage||"발굴";
+    sel.addEventListener("change", function(){ i.stage=sel.value; save(); renderIps(); });
+    side.appendChild(sel);
+    var btns=document.createElement("div"); btns.className="rowbtns";
+    var b1=document.createElement("button"); b1.className="btn sm"; b1.textContent="수정";
+    b1.addEventListener("click", function(){ ipModal(i); });
+    var b2=document.createElement("button"); b2.className="btn sm warn"; b2.textContent="삭제";
+    b2.addEventListener("click", function(){ delIp(i); });
+    btns.appendChild(b1); btns.appendChild(b2); side.appendChild(btns);
+
+    card.appendChild(left); card.appendChild(side); wrap.appendChild(card);
+  });
+}
+function delIp(i){
+  var mdN=data.md.filter(function(m){return m.ipId===i.id}).length;
+  var docN=data.docs.filter(function(d){return d.ipId===i.id}).length;
+  var msg=i.name+"을(를) 지울까요?";
+  if(mdN||docN) msg+="\n연결된 상품 "+mdN+"건과 자료 "+docN+"건은 IP 없음으로 남습니다.";
+  if(!confirm(msg)) return;
+  data.md.forEach(function(m){ if(m.ipId===i.id) m.ipId=""; });
+  data.docs.forEach(function(d){ if(d.ipId===i.id) d.ipId=""; });
+  data.ips=data.ips.filter(function(x){ return x.id!==i.id; });
+  save(); refreshFilters(); renderIps();
+}
+
+/* ---------- modal helper ---------- */
+function modal(title,sub,fieldsHtml,onSave){
+  var host=document.getElementById("modalHost");
+  host.innerHTML='<div class="mask"><div class="modal"><h2></h2><p class="sub"></p><div class="body"></div>'+
+    '<div class="foot"><button class="btn" data-x>취소</button><button class="btn pink" data-s>저장</button></div></div></div>';
+  host.querySelector("h2").textContent=title;
+  host.querySelector(".sub").textContent=sub;
+  host.querySelector(".body").innerHTML=fieldsHtml;
+  function close(){ host.innerHTML=""; }
+  host.querySelector("[data-x]").addEventListener("click", close);
+  host.querySelector(".mask").addEventListener("click", function(e){ if(e.target===this) close(); });
+  host.querySelector("[data-s]").addEventListener("click", function(){ if(onSave(host, close)!==false) close(); });
+  var first=host.querySelector("input,select,textarea"); if(first) first.focus();
+  return host;
+}
+function opts(arr,cur){
+  return arr.map(function(v){
+    var val=(typeof v==="string")?v:v.v, txt=(typeof v==="string")?v:v.t;
+    return '<option value="'+val+'"'+(val===cur?" selected":"")+">"+txt+"</option>";
+  }).join("");
+}
+function val(host,id){ var e=host.querySelector("#"+id); return e? e.value.trim() : ""; }
+
+/* ---------- IP modal ---------- */
+document.getElementById("addIp").addEventListener("click", function(){ ipModal(null); });
+function ipModal(i){
+  var e=i||{};
+  var html=
+   '<div class="f"><label for="mName">IP 이름</label><input id="mName" value="'+esc(e.name||"").replace(/"/g,"&quot;")+'" placeholder="예: 산리오 캐릭터즈"></div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mCat">종류</label><select id="mCat">'+opts(CATS,e.cat||"캐릭터")+'</select></div>'+
+     '<div class="f"><label for="mStage">검토 단계</label><select id="mStage">'+opts(STAGES,e.stage||"발굴")+'</select></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mOwner">담당사·에이전시</label><input id="mOwner" value="'+esc(e.owner||"").replace(/"/g,"&quot;")+'"></div>'+
+     '<div class="f"><label for="mContact">연락처</label><input id="mContact" value="'+esc(e.contact||"").replace(/"/g,"&quot;")+'"></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mSeason">제안 시기</label><input id="mSeason" value="'+esc(e.season||"").replace(/"/g,"&quot;")+'" placeholder="예: 2027년 상반기"></div>'+
+     '<div class="f"><label for="mFee">조건 메모</label><input id="mFee" value="'+esc(e.fee||"").replace(/"/g,"&quot;")+'" placeholder="예: 최소 보증금 협의 중"></div>'+
+   '</div>'+
+   '<div class="f"><label for="mMemo">메모</label><textarea id="mMemo" placeholder="타깃, 팬덤 규모, 우리 브랜드와 맞는 지점">'+esc(e.memo||"")+'</textarea></div>';
+  modal(i?"IP 후보 수정":"IP 후보 추가","이름만 넣어도 저장됩니다.",html,function(host){
+    var name=val(host,"mName");
+    if(!name){ toast("IP 이름을 넣어 주세요."); return false; }
+    var obj=i||{id:uid("ip"),created:today()};
+    obj.name=name; obj.cat=val(host,"mCat"); obj.stage=val(host,"mStage");
+    obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
+    obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee"); obj.memo=val(host,"mMemo");
+    if(!i) data.ips.unshift(obj);
+    save(); refreshFilters(); renderIps();
+  });
+}
+
+/* ---------- MD board ---------- */
+function renderBoard(){
+  var b=document.getElementById("board"); b.innerHTML="";
+  var f=document.getElementById("fMdIp").value;
+  var list=data.md.filter(function(m){ return !f||m.ipId===f; });
+  document.getElementById("mdCount").textContent="모두 "+list.length+"건";
+  MD_STAGES.forEach(function(st,si){
+    var col=document.createElement("div"); col.className="col";
+    var items=list.filter(function(m){ return (m.stage||"기획")===st; });
+    var h=document.createElement("h3");
+    h.innerHTML="<span></span><span></span>";
+    h.children[0].textContent=st; h.children[1].textContent=items.length;
+    col.appendChild(h);
+    items.forEach(function(m){
+      var c=document.createElement("div"); c.className="mdcard";
+      var t=document.createElement("b"); t.textContent=m.item; c.appendChild(t);
+      var meta=document.createElement("div"); meta.className="m";
+      meta.textContent=[ipName(m.ipId), m.type, m.owner? "담당 "+m.owner:""].filter(Boolean).join("  ·  ");
+      c.appendChild(meta);
+      if(m.due){
+        var d=document.createElement("div"); d.className="due"+((m.due<today()&&st!=="출시")?" late":"");
+        d.textContent="목표 "+m.due+((m.due<today()&&st!=="출시")?" (지남)":"");
+        c.appendChild(d);
+      }
+      var mv=document.createElement("div"); mv.className="mv";
+      var L=document.createElement("button"); L.textContent="◀"; L.title="앞 단계로"; L.disabled=(si===0);
+      L.addEventListener("click", function(){ m.stage=MD_STAGES[si-1]; save(); renderBoard(); });
+      var R=document.createElement("button"); R.textContent="▶"; R.title="다음 단계로"; R.disabled=(si===MD_STAGES.length-1);
+      R.addEventListener("click", function(){ m.stage=MD_STAGES[si+1]; save(); renderBoard(); });
+      var sp=document.createElement("span"); sp.className="sp";
+      var E=document.createElement("button"); E.textContent="수정";
+      E.addEventListener("click", function(){ mdModal(m); });
+      mv.appendChild(L); mv.appendChild(R); mv.appendChild(sp); mv.appendChild(E);
+      c.appendChild(mv);
+      col.appendChild(c);
+    });
+    if(!items.length){
+      var e=document.createElement("div"); e.style.cssText="color:#a8aeba;font-size:12.5px;text-align:center;padding:14px 0";
+      e.textContent="없음"; col.appendChild(e);
+    }
+    b.appendChild(col);
+  });
+}
+document.getElementById("addMd").addEventListener("click", function(){ mdModal(null); });
+function mdModal(m){
+  var e=m||{};
+  var ipOpts=[{v:"",t:"IP 없음"}].concat(data.ips.map(function(i){ return {v:i.id,t:i.name}; }));
+  var html=
+   '<div class="f"><label for="dItem">상품 이름</label><input id="dItem" value="'+esc(e.item||"").replace(/"/g,"&quot;")+'" placeholder="예: 콜라보 케이크"></div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="dIp">연결 IP</label><select id="dIp">'+opts(ipOpts,e.ipId||"")+'</select></div>'+
+     '<div class="f"><label for="dStage">단계</label><select id="dStage">'+opts(MD_STAGES,e.stage||"기획")+'</select></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="dType">품목</label><input id="dType" value="'+esc(e.type||"").replace(/"/g,"&quot;")+'" placeholder="굿즈, 케이크, 패키지"></div>'+
+     '<div class="f"><label for="dOwner">담당</label><input id="dOwner" value="'+esc(e.owner||"").replace(/"/g,"&quot;")+'"></div>'+
+   '</div>'+
+   '<div class="f"><label for="dDue">목표 날짜</label><input type="date" id="dDue" value="'+esc(e.due||"")+'"></div>'+
+   '<div class="f"><label for="dMemo">메모</label><textarea id="dMemo">'+esc(e.memo||"")+'</textarea></div>'+
+   (m?'<button class="btn warn" id="dDel" style="width:100%">이 상품 삭제</button>':"");
+  var host=modal(m?"상품 수정":"상품 추가","현황판에 카드로 올라갑니다.",html,function(host){
+    var item=val(host,"dItem");
+    if(!item){ toast("상품 이름을 넣어 주세요."); return false; }
+    var obj=m||{id:uid("md")};
+    obj.item=item; obj.ipId=val(host,"dIp"); obj.stage=val(host,"dStage");
+    obj.type=val(host,"dType"); obj.owner=val(host,"dOwner"); obj.due=val(host,"dDue"); obj.memo=val(host,"dMemo");
+    if(!m) data.md.push(obj);
+    save(); renderBoard(); renderIps();
+  });
+  var del=host.querySelector("#dDel");
+  if(del) del.addEventListener("click", function(){
+    if(!confirm(m.item+"을(를) 지울까요?")) return;
+    data.md=data.md.filter(function(x){ return x.id!==m.id; });
+    save(); document.getElementById("modalHost").innerHTML=""; renderBoard(); renderIps();
+  });
+}
+
+/* ---------- docs ---------- */
+function renderDocs(){
+  var wrap=document.getElementById("docWrap"); wrap.innerHTML="";
+  var fi=document.getElementById("fDocIp").value, ft=document.getElementById("fDocType").value;
+  var q=document.getElementById("fDocQ").value.trim().toLowerCase();
+  var list=data.docs.filter(function(d){
+    if(fi&&d.ipId!==fi) return false;
+    if(ft&&d.type!==ft) return false;
+    if(q&&(d.title||"").toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  if(!list.length){
+    var e=document.createElement("div"); e.className="empty";
+    e.textContent=data.docs.length? "조건에 맞는 자료가 없습니다." : "제안서, 시안, 회신 기록을 모아 두는 곳입니다.";
+    wrap.appendChild(e); return;
+  }
+  list.forEach(function(d){
+    var row=document.createElement("div"); row.className="doc";
+    var left=document.createElement("div");
+    var t=document.createElement("b"); t.textContent=d.title; left.appendChild(t);
+    var m=document.createElement("div"); m.className="m";
+    m.textContent=[ipName(d.ipId), d.type, d.date, d.fileName||(d.url?"링크":"")].filter(Boolean).join("  ·  ");
+    left.appendChild(m);
+    if(d.memo){ var mm=document.createElement("div"); mm.className="m"; mm.style.marginTop="4px"; mm.textContent=d.memo; left.appendChild(mm); }
+    var side=document.createElement("div"); side.className="rowbtns";
+    if(d.url){
+      var a=document.createElement("a"); a.className="btn sm"; a.href=d.url; a.target="_blank"; a.rel="noopener"; a.textContent="열기";
+      side.appendChild(a);
+    }
+    if(d.fileId){
+      var dl=document.createElement("button"); dl.className="btn sm"; dl.textContent="내려받기";
+      dl.addEventListener("click", function(){
+        fileGet(d.fileId).then(function(u){
+          if(!u){ toast("파일을 찾지 못했습니다."); return; }
+          var a2=document.createElement("a"); a2.href=u; a2.download=d.fileName||"file"; a2.click();
+        });
+      });
+      side.appendChild(dl);
+    }
+    var ed=document.createElement("button"); ed.className="btn sm"; ed.textContent="수정";
+    ed.addEventListener("click", function(){ docModal(d); });
+    var de=document.createElement("button"); de.className="btn sm warn"; de.textContent="삭제";
+    de.addEventListener("click", function(){
+      if(!confirm(d.title+"을(를) 지울까요?")) return;
+      if(d.fileId) fileDel(d.fileId);
+      data.docs=data.docs.filter(function(x){ return x.id!==d.id; });
+      save(); renderDocs(); renderIps();
+    });
+    side.appendChild(ed); side.appendChild(de);
+    row.appendChild(left); row.appendChild(side); wrap.appendChild(row);
+  });
+}
+document.getElementById("addDoc").addEventListener("click", function(){ docModal(null); });
+function docModal(d){
+  var e=d||{}, pending=null, pendingName="";
+  var ipOpts=[{v:"",t:"IP 없음"}].concat(data.ips.map(function(i){ return {v:i.id,t:i.name}; }));
+  var html=
+   '<div class="f"><label for="cTitle">제목</label><input id="cTitle" value="'+esc(e.title||"").replace(/"/g,"&quot;")+'" placeholder="예: 산리오 콜라보 1차 제안서"></div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="cIp">연결 IP</label><select id="cIp">'+opts(ipOpts,e.ipId||"")+'</select></div>'+
+     '<div class="f"><label for="cType">종류</label><select id="cType">'+opts(DOC_TYPES,e.type||"제안서")+'</select></div>'+
+   '</div>'+
+   '<div class="f"><label for="cDate">날짜</label><input type="date" id="cDate" value="'+esc(e.date||today())+'"></div>'+
+   '<div class="f"><label for="cUrl">링크 주소</label><input id="cUrl" value="'+esc(e.url||"").replace(/"/g,"&quot;")+'" placeholder="드라이브 링크를 붙여 넣으세요"></div>'+
+   '<div class="f"><label>파일 첨부</label><button class="btn" id="cPick" style="width:100%">'+
+     (e.fileName? "파일 바꾸기 · 지금 "+esc(e.fileName) : "파일 고르기")+'</button>'+
+     '<div class="m" id="cFileMsg" style="color:var(--mid);font-size:12.5px;margin-top:6px"></div></div>'+
+   '<div class="f"><label for="cMemo">메모</label><textarea id="cMemo">'+esc(e.memo||"")+'</textarea></div>';
+  var host=modal(d?"자료 수정":"자료 추가","링크만 걸어도 되고, 파일을 함께 올려도 됩니다.",html,function(host){
+    var title=val(host,"cTitle");
+    if(!title){ toast("제목을 넣어 주세요."); return false; }
+    var obj=d||{id:uid("dc")};
+    obj.title=title; obj.ipId=val(host,"cIp"); obj.type=val(host,"cType");
+    obj.date=val(host,"cDate"); obj.url=val(host,"cUrl"); obj.memo=val(host,"cMemo");
+    var done=Promise.resolve();
+    if(pending){
+      var fid=uid("f");
+      if(obj.fileId) fileDel(obj.fileId);
+      done=filePut(fid,pending).then(function(){ obj.fileId=fid; obj.fileName=pendingName; });
+    }
+    done.then(function(){
+      if(!d) data.docs.unshift(obj);
+      save(); renderDocs(); renderIps();
+    });
+  });
+  host.querySelector("#cPick").addEventListener("click", function(){
+    var fp=document.getElementById("filePick"); fp.value="";
+    fp.onchange=function(){
+      var f=fp.files&&fp.files[0]; if(!f) return;
+      if(f.size>4*1024*1024){ host.querySelector("#cFileMsg").textContent="4MB가 넘습니다. 드라이브에 올리고 링크로 걸어 주세요."; return; }
+      var fr=new FileReader();
+      fr.onload=function(){ pending=fr.result; pendingName=f.name;
+        host.querySelector("#cFileMsg").textContent="고른 파일 · "+f.name; };
+      fr.readAsDataURL(f);
+    };
+    fp.click();
+  });
+}
+
+/* ---------- backup ---------- */
+document.getElementById("expJson").addEventListener("click", function(){
+  var out={ips:data.ips,md:data.md,docs:JSON.parse(JSON.stringify(data.docs))};
+  var jobs=out.docs.map(function(d,i){
+    if(!d.fileId) return Promise.resolve();
+    return fileGet(d.fileId).then(function(u){ out.docs[i].fileData=u||null; });
+  });
+  Promise.all(jobs).then(function(){
+    var blob=new Blob([JSON.stringify(out)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="ip_업무_"+today()+".json"; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+  });
+});
+document.getElementById("impJson").addEventListener("click", function(){
+  var jp=document.getElementById("jsonPick"); jp.value=""; jp.click();
+});
+document.getElementById("jsonPick").addEventListener("change", function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var o=JSON.parse(fr.result);
+      if(!confirm("지금 저장된 내용은 덮어써집니다. 불러올까요?")) return;
+      data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[];
+      var jobs=data.docs.map(function(d){
+        var fd=d.fileData; delete d.fileData;
+        if(!fd) return Promise.resolve();
+        var fid=uid("f");
+        return filePut(fid,fd).then(function(){ d.fileId=fid; });
+      });
+      Promise.all(jobs).then(function(){ save(); refreshFilters(); renderIps(); renderBoard(); renderDocs(); toast("불러왔습니다."); });
+    }catch(e){ toast("파일 형식이 맞지 않습니다."); }
+  };
+  fr.readAsText(f);
+});
+
+/* boot */
+function boot(){ load(); refreshFilters(); renderIps(); renderBoard(); renderDocs(); }
+if(opened()) openApp(); else document.getElementById("gateInput").focus();
+})();
+</script>
+</body>
+</html>
