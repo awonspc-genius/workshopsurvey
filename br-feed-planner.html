@@ -290,7 +290,6 @@ button{cursor:pointer}
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
-      <a class="back" href="marketing.html">← 마케팅 실무</a>
       <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
       <div class="monthpick">
         <button id="prevM" aria-label="이전 달">‹</button>
@@ -485,7 +484,7 @@ var LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
 var SYNC_URL = "https://script.google.com/macros/s/AKfycby839KinLDHNzqDivc3fcjbwHNI5SeOggRMwSkoQ3CYWI4AeF2lV2Xx4ttlKwb4Fy8slQ/exec";
 
 if(!SYNC_URL){ try{ SYNC_URL=localStorage.getItem("brkg_feed_sync")||""; }catch(e){} }
-var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="";
+var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="", lastError="";
 
 function badge(state, text){
   var b=document.getElementById("syncBadge"); if(!b) return;
@@ -547,7 +546,7 @@ function pushMonth(now){
       .then(function(r){
         dirty=false;
         if(r&&r.ok&&r.json){ lastPulled=r.updatedAt||""; badge("on","팀 저장 켜짐"); }
-        else badge("off","저장 안 됨 · 배포 설정 확인");
+        else { lastError=(r&&r.error)||"시트에 줄이 생기지 않았습니다."; badge("off","저장 안 됨 · 눌러서 확인"); }
       })
       .catch(function(e){ badge("off","저장 실패 · "+(e&&e.message||"")); });
   }, now?0:1200);
@@ -650,16 +649,29 @@ document.getElementById("syncBadge").addEventListener("click", function(){
     }
     return;
   }
-  badge("busy","불러오는 중…");
-  api({action:"ping"}).then(function(r){
-    if(!r||!r.ok) throw new Error("응답이 이상합니다");
-    return pullMonth(true);
-  }).then(function(){
-    badge("on","팀 저장 켜짐");
+  badge("busy","확인 중…");
+  api({action:"diag"}).then(function(r){
+    var lines=[];
+    if(r&&r.ok){
+      lines.push("시트: "+(r.sheetName||"?"));
+      if(r.rows!==undefined) lines.push("저장된 월: "+r.rows+"개");
+      if(r.sheetUrl) lines.push(r.sheetUrl);
+      if(r.folderUrl) lines.push("이미지 폴더: "+r.folderUrl);
+      if(r.user) lines.push("실행 계정: "+r.user);
+      if(lastError) lines.push("\n마지막 오류: "+lastError);
+      alert("팀 저장 상태\n\n"+lines.join("\n"));
+      syncOn=true; pullMonth(true).then(function(){ backfillImages(); });
+      badge("on","팀 저장 켜짐");
+    } else {
+      alert("스크립트가 시트나 드라이브에 접근하지 못했습니다.\n\n"+
+            ((r&&(r.sheetError||r.folderError||r.error))||"이유를 알 수 없습니다.")+
+            "\n\nApps Script 편집기에서 함수 '준비확인' 을 한 번 실행해 권한을 승인한 뒤 다시 시도해 주세요.");
+      badge("off","저장 안 됨 · 눌러서 확인");
+    }
   }).catch(function(e){
     badge("off","연결 안 됨");
-    alert("팀 저장에 연결하지 못했습니다.\n\n" + (e&&e.message||"") +
-          "\n\n확인할 것\n· Apps Script 배포에서 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 '새 배포' 를 했는지\n· 주소가 /exec 로 끝나는지");
+    alert("팀 저장에 연결하지 못했습니다.\n\n"+(e&&e.message||"")+
+          "\n\n확인할 것\n· 배포의 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 배포를 새 버전으로 올렸는지\n· 주소가 /exec 로 끝나는지");
   });
 });
 /* ================= 팀 저장 끝 ================= */
