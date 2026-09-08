@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연간 마케팅 플랜 · 2026 | BRK Genius</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FFFFFF; --choco:#000000; --berry:#E8447A; --mint:#0F6E56; --soft:#F6E3E9;
+          --line:#EBD9CD; --gold:#C9A227; --goldsoft:#F7EFD8; --blue:#2B4CC4; --bluesoft:#E7ECFA; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+         background:var(--cream); color:var(--choco); padding:56px 40px 72px; }
+  .wrap { max-width:1320px; margin:0 auto; }
+  header { padding-bottom:14px; }
+  h1 { font-size:30px; font-weight:900; letter-spacing:-.5px; }
+  h1 em { font-style:normal; color:var(--berry); }
+  h2 { font-size:20px; font-weight:700; margin-bottom:6px; }
+  h2 small { font-size:13px; font-weight:500; color:#8a6f63; margin-left:8px; }
+  .smark { font-size:11px; font-weight:900; letter-spacing:.14em; color:#B09A8C; margin:34px 0 12px; }
+  .smark.first { margin-top:6px; }
+  .smark i { font-style:normal; color:var(--berry); margin-right:5px; }
+  .lead { font-size:13px; color:#8a6f63; line-height:1.7; margin-bottom:14px; }
+
+  /* ── 연간 플랜 ── */
+  .yearbox { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .yscroll { overflow-x:auto; }
+  table.yr { width:100%; border-collapse:collapse; font-size:12px; min-width:1080px; }
+  table.yr th, table.yr td { border-bottom:1px solid #F4EAE2; border-right:1px solid #F4EAE2;
+                             padding:9px 10px; vertical-align:top; text-align:left; }
+  table.yr th.rh { width:78px; background:#FBF3ED; font-size:11px; font-weight:800; color:#8a6f63;
+                   white-space:nowrap; position:sticky; left:0; z-index:2; }
+  table.yr thead th { background:#FBF3ED; font-size:12.5px; font-weight:900; text-align:center;
+                      cursor:pointer; user-select:none; }
+  table.yr thead th:hover { color:var(--berry); }
+  table.yr thead th.on { background:var(--berry); color:#fff; }
+  table.yr thead th small { display:block; font-size:10px; font-weight:600; opacity:.72; margin-top:1px; }
+  table.yr td.mcell { cursor:pointer; }
+  table.yr td.mcell:hover { background:#FDF7F3; }
+  table.yr td.on { background:var(--soft); }
+  table.yr td.tbd { color:#C4B5AA; }
+  .sv { font-size:15px; font-weight:900; }
+  .sv i { font-style:normal; font-size:10.5px; font-weight:700; margin-left:2px; }
+  .yoy { font-size:10.5px; font-weight:800; margin-top:2px; }
+  .yoy.up { color:var(--mint); } .yoy.dn { color:var(--berry); } .yoy.flat { color:#A8988B; }
+  .ipb { display:inline-block; font-size:9.5px; font-weight:800; border-radius:4px;
+         padding:1.5px 6px; color:#fff; margin-bottom:3px; }
+  .season { font-size:11px; font-weight:800; color:#8a6f63; }
+
+  /* ── 월 상세 ── */
+  .mdet { margin-top:16px; background:#fff; border:1.5px solid var(--choco);
+          border-radius:14px; padding:20px 22px; }
+  .mdet[hidden] { display:none; }
+  .mtop { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  .mtop .mno { font-size:25px; font-weight:900; letter-spacing:-.6px; }
+  .mtop .mth { font-size:15px; font-weight:800; color:var(--berry); }
+  .mx { margin-left:auto; background:none; border:none; cursor:pointer; font:inherit;
+        font-size:12px; font-weight:800; color:#8a6f63; }
+  .mx:hover { color:var(--berry); }
+  .mkpi { display:flex; gap:0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+          margin:12px 0 18px; flex-wrap:wrap; }
+  .mkpi .k { padding:12px 20px 12px 0; }
+  .mkpi .k + .k { border-left:1px solid var(--line); padding-left:20px; }
+  .mkpi .k .l { font-size:10.5px; color:#8a6f63; font-weight:700; margin-bottom:3px; }
+  .mkpi .k .v { font-size:19px; font-weight:900; }
+  .mkpi .k .v small { font-size:11px; font-weight:600; margin-left:1px; }
+
+  /* 달력 */
+  .cal { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .cal .dh { text-align:center; font-size:10.5px; font-weight:800; color:#8a6f63; padding:4px 0; }
+  .cal .dh.sun { color:var(--berry); }
+  .day { border:1px solid var(--line); border-radius:9px; padding:7px 8px 8px; min-height:104px;
+         background:#fff; display:flex; flex-direction:column; gap:4px; }
+  .day.out { background:#FBF8F5; border-color:#F4EAE2; }
+  .day.hol { background:#FDF2F6; border-color:#F2C6D8; }
+  .day .dn { font-size:12px; font-weight:900; }
+  .day.out .dn { color:#C4B5AA; }
+  .day .dn .wd { font-size:9.5px; font-weight:700; color:#A8988B; margin-left:3px; }
+  .dsale { margin-top:1px; }
+  .dsale .bar { height:5px; background:#F4EAE2; border-radius:3px; overflow:hidden; }
+  .dsale .bar i { display:block; height:100%; background:var(--berry); border-radius:3px; }
+  .dsale .v { font-size:11px; font-weight:800; margin-top:2px; }
+  .dsale .y { font-size:9.5px; font-weight:800; }
+  .dsale .y.up { color:var(--mint); } .dsale .y.dn { color:var(--berry); }
+  .dsale.none .v { color:#C4B5AA; font-weight:600; font-size:10px; }
+  .chip { font-size:9.5px; font-weight:700; border-radius:4px; padding:2px 5px; line-height:1.35; }
+  .chip.np { background:var(--goldsoft); color:#8A6E12; }
+  .chip.pr { background:var(--soft); color:#B3245A; }
+  .chip.ev { background:#EDE9E3; color:#6b544b; }
+
+  /* 간트 */
+  .gantt { margin-top:8px; }
+  .gcat { font-size:11px; font-weight:900; color:#8a6f63; margin:14px 0 6px; }
+  .grow { display:grid; grid-template-columns:238px 1fr; gap:10px; align-items:center;
+          padding:2.5px 0; }
+  .grow .gl { font-size:11.5px; font-weight:700; line-height:1.3; }
+  .grow .gl span { display:block; font-size:10px; font-weight:500; color:#8a6f63; }
+  .gtrack { position:relative; height:19px; background:#FBF3ED; border-radius:5px; }
+  .gtrack i { position:absolute; top:0; height:100%; border-radius:5px; }
+  .gtrack i.off { background:var(--berry); }
+  .gtrack i.del { background:var(--mint); }
+  .gtrack i.gif { background:var(--gold); }
+  .gtrack i.com { background:#8A93B5; }
+  .gtrack em { position:absolute; top:0; height:100%; width:1px; background:#E0CDBE; }
+  .gtrack em.wk { background:#C9B4A4; }
+  .gaxis { display:grid; grid-template-columns:238px 1fr; gap:10px; margin-top:7px; }
+  .gaxis .ax { position:relative; height:15px; font-size:9.5px; color:#8a6f63; }
+  .gaxis .ax span { position:absolute; transform:translateX(-50%); font-weight:700; }
+  .glegend { display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:#8a6f63; margin-top:12px; }
+  .glegend b { display:inline-block; width:11px; height:11px; border-radius:3px;
+               vertical-align:-1px; margin-right:4px; }
+
+  /* 비교 박스 */
+  .cmp { margin-top:18px; background:#FDF7F3; border:1px solid var(--line);
+         border-radius:12px; padding:16px 18px; }
+  .cmp h4 { font-size:13.5px; font-weight:900; margin-bottom:10px; }
+  .cmp table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .cmp th { text-align:left; font-size:10.5px; font-weight:800; color:#8a6f63;
+            padding:5px 10px 5px 0; }
+  .cmp td { padding:5px 10px 5px 0; font-weight:700; }
+  .cmp td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .cmp .up { color:var(--mint); } .cmp .dn { color:var(--berry); }
+  .cmp p { margin-top:10px; font-size:12px; line-height:1.75; color:#6b544b; font-weight:400; }
+
+  .tblwrap { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+             margin-top:12px; }
+  table.gt { width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.gt th { background:#FBF3ED; text-align:left; font-size:11px; font-weight:800; color:#8a6f63;
+                padding:10px 13px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.gt td { padding:8px 13px; border-bottom:1px solid #F4EAE2; }
+  table.gt tr:last-child td { border-bottom:none; }
+  table.gt td.num { text-align:right; font-variant-numeric:tabular-nums; color:#6b544b; }
+  table.gt td.it { font-weight:700; }
+  .kk { display:inline-block; font-size:9.5px; font-weight:800; border-radius:4px;
+        padding:1.5px 6px; margin-right:5px; }
+  .kk.FOM { background:var(--soft); color:#B3245A; }
+  .kk.LTO { background:var(--goldsoft); color:#8A6E12; }
+  .kk.SET { background:var(--bluesoft); color:#1E3795; }
+  .kk.케이크 { background:#F3EDE8; color:#6b544b; }
+  .kk.디저트 { background:#E7F2EE; color:var(--mint); }
+  .kk.음료 { background:#EDE9E3; color:#6b544b; }
+
+  .tgl { font:inherit; font-size:12px; font-weight:700; color:#8a6f63; background:#fff;
+         cursor:pointer; border:1px solid var(--line); border-radius:9px; padding:5px 11px;
+         margin-left:9px; vertical-align:2px; }
+  .tgl:hover { color:var(--berry); border-color:var(--berry); }
+  .tgl i { font-style:normal; font-size:9px; margin-right:4px; display:inline-block; }
+  .tgl[aria-expanded="true"] i { transform:rotate(90deg); }
+  .rule { border-top:2px solid var(--choco); margin-top:46px; }
+  .gotoa { margin-top:26px; display:flex; align-items:center; justify-content:space-between;
+           gap:16px; flex-wrap:wrap; background:#fff; border:1px solid var(--line);
+           border-radius:14px; padding:20px 24px; }
+  .gotoa .gt b { display:block; font-size:17px; font-weight:900; }
+  .gobtn { display:inline-flex; align-items:center; gap:8px; background:var(--berry); color:#fff;
+           text-decoration:none; font-size:13px; font-weight:800; padding:11px 20px;
+           border-radius:24px; transition:.18s; white-space:nowrap; }
+  .gobtn:hover { background:#CC2F63; }
+  footer { margin-top:16px; font-size:12px; color:#8a6f63; line-height:1.75; }
+  footer b { color:var(--choco); font-weight:800; }
+
+  body.locked > .wrap { display:none; }
+  body.locked { padding:0; }
+  .sgate { position:fixed; inset:0; z-index:9999; display:none; place-items:center;
+           background:radial-gradient(120% 80% at 50% 0%, #fff 0%, #FAFAFA 60%); }
+  body.locked .sgate { display:grid; }
+  .sgate .box { width:min(380px,88vw); background:#fff; border:1px solid var(--line);
+                border-radius:20px; padding:34px 30px 28px; text-align:center;
+                box-shadow:0 30px 60px -30px rgba(62,39,35,.35); }
+  .sgate .lock { width:56px; height:56px; border-radius:50%; background:var(--soft);
+                 display:grid; place-items:center; margin:0 auto 16px; }
+  .sgate h2 { font-size:20px; font-weight:900; margin:0; }
+  .sgate p { font-size:13px; color:#8a6f63; margin-top:8px; line-height:1.55; }
+  .sgate input { width:100%; margin-top:20px; padding:14px 16px; border-radius:13px;
+                 border:1.5px solid var(--line); background:var(--cream); font:inherit;
+                 font-size:18px; letter-spacing:.35em; text-align:center; }
+  .sgate input:focus { outline:none; border-color:var(--berry); background:#fff; }
+  .sgate .err { min-height:18px; font-size:12.5px; color:var(--berry); font-weight:700; margin-top:9px; }
+  .sgate button { width:100%; padding:14px; border:none; border-radius:13px; cursor:pointer;
+                  background:var(--berry); color:#fff; font:inherit; font-weight:700; font-size:15px; }
+  .sgate .back { margin-top:10px; background:#fff; color:#8a6f63; border:1.5px solid var(--line); }
+  .backbar { max-width:1320px; margin:0 auto 18px; }
+  .backbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700;
+               color:#8a6f63; text-decoration:none; padding:8px 14px; border:1px solid var(--line);
+               border-radius:11px; background:#fff; }
+  .backbar a:hover { color:var(--berry); border-color:var(--berry); }
+  @media (max-width:860px){
+    body { padding:32px 14px; }
+    .grow, .gaxis { grid-template-columns:120px 1fr; }
+    .day { min-height:84px; }
+  }
+</style>
+</head>
+<body class="locked">
+<div class="sgate" id="sgate">
+  <div class="box">
+    <div class="lock">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="16" height="11" rx="2.5" stroke="#E8447A" stroke-width="2"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#E8447A" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2>연간 마케팅 플랜</h2>
+    <p>내부 자료입니다.<br>공통 열람 비밀번호를 입력해 주세요.</p>
+    <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off" aria-label="비밀번호">
+    <div class="err" id="sErr"></div>
+    <button id="sBtn">열기</button>
+    <button class="back" id="sBack">마케팅 실무로</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="backbar" id="backbar"><a href="marketing.html"><span>←</span> 마케팅 실무</a></div>
+  <header><h1>2026 <em>연간 마케팅 플랜</em></h1></header>
+
+  <div class="smark first"><i>&gt;</i> Annual Plan</div>
+  <h2>연간 한눈에 보기 <small>월을 누르면 그 달 달력이 열립니다</small></h2>
+  <p class="lead">1~9월은 실적이 있는 달이고, 10~12월은 아직 계획 전입니다. 매출은 월 마감 실적이며 9월만 진행중(9/1~7)입니다.</p>
+  <div class="yearbox"><div class="yscroll"><table class="yr" id="yrTbl"></table></div></div>
+
+  <div class="mdet" id="mdet" hidden></div>
+
+  <div class="rule"></div>
+  <div class="gotoa">
+    <div class="gt"><b>월별 매출 × FOM &amp; IP 캘린더</b></div>
+    <a class="gobtn" href="br-sales.html">매출 페이지 열기 <i>→</i></a>
+  </div>
+
+  <div style="margin-top:30px">
+    <button class="tgl" id="srcTgl" type="button" aria-expanded="false" aria-controls="fsrc" style="margin-left:0"><i>▶</i><span>출처 · 주석</span></button>
+  </div>
+  <footer id="fsrc" hidden>
+    <b>연간 플랜 행 구성</b> · 「연간 마케팅 캘린더」(2022 CHASINRABBITS) 시트의 행 구조(시즌 / 제품 / 전략 / 목표 / 실적)를 본으로 삼아 BR에 맞게 옮겼습니다.<br>
+    <b>월별 매출 · FOM · 굿즈</b> · br-sales.html 의 캠페인 타임라인과 같은 값입니다. 9월은 9/1~9/7 누계라 마감월과 직접 비교하지 마세요.<br>
+    <b>9월 마케팅 내용</b> · 「BR MKT 마스터플랜 캘린더 26년 9월 (v.0904)」 13장에서 옮겼습니다.
+    오프라인 제휴는 7장, 배달·픽업은 8장, 모바일 교환권은 9장, 바이럴·PR은 10·12장, 신제품은 3~5장 기준입니다.<br>
+    <b>일매출</b> · 「BR 제품군별 일매출 현황(MKT)」 26.09.07 기준. 전년비는 <b>전년 동요일</b> 기준입니다.<br>
+    <b>신제품</b> · 원본 장표에는 21종으로 적혀 있으나 표에서 읽어낸 항목은 20종입니다(예상 매출 합계 35.6억, 장표 표기 35.7억). 1종은 표에서 확인되지 않았습니다.<br>
+    <b>읽을 때 주의</b> · 프로모션 대부분이 채널 한정입니다. 배달·모바일 교환권 프로모션은 그 채널 안에서만 작동하는데 여기 일매출은 POS 전체라, 겹쳐 보이더라도 인과로 읽으면 안 됩니다.
+    매장 결제로 바로 반영되는 것은 오프라인 제휴뿐입니다.
+  </footer>
+</div>
+
+<script id="planData" type="application/json">{"months":[{"n":1,"has":true,"sv":"656억","fn":"베리 굿","ip":"자체","ipst":"background:#EDE9E3;color:#8a6f63","gd":"굿즈 없음","gi":"","bd":["전년 ▼11%","출하 –"],"wip":false},{"n":2,"has":true,"sv":"661억","fn":"러블리 쫀꾸렛","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲22%","출하 –"],"wip":false},{"n":3,"has":true,"sv":"690억","fn":"두바이에서 온 엄마는 외계인","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲6%","출하 –"],"wip":false},{"n":4,"has":true,"sv":"678억","fn":"두바이 크런치 봉봉","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 없음","gi":"","bd":["전년 ▲9%","출하 –"],"wip":false},{"n":5,"has":true,"sv":"897억","fn":"말랑포도 메타몽","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 —","gi":"포켓몬 랜덤 키링 S2 (6종)","bd":["전년 ▲12%","출하 –"],"wip":false},{"n":6,"has":true,"sv":"772억","fn":"우디 후르츠 어드벤처","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종*","gi":"토이스토리 키즈 우의·키캡 세트","bd":["전년 ▼1%","출하 –"],"wip":false},{"n":7,"has":true,"sv":"882억","fn":"쵸파의 코튼캔디 크런치 외 1종","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종","gi":"쵸파 비치타월&amp;비치백 세트·원피스 랜덤 키링","bd":["전년 ▲2%","출하 –"],"wip":false},{"n":8,"has":true,"sv":"886억","fn":"산딸기가 끌리는 연유","ip":"셀럽","ipst":"background:#E8447A;color:#fff","gd":"굿즈 2종","gi":"박지훈 랜덤 키링 · 원피스 해적단 타프","bd":["전년 ▲7%","출하 –"],"wip":false},{"n":9,"has":true,"sv":"166.7억","fn":"도쿄바나나 크렘브륄레","ip":"원료","ipst":"background:#C9A227;color:#fff","gd":"굿즈 —","gi":"몬치치 9/11 출시 · 추석 원더풀 위크","bd":["전년 ▲2%","9/1~7"],"wip":true},{"n":10,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false},{"n":11,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false},{"n":12,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false}],"sep":{"daily":{"1":{"s":1655202850,"c":115564,"aov":14323,"pw":1781155190,"pwc":133333},"2":{"s":1833289700,"c":136948,"aov":13387,"pw":1859497720,"pwc":140046},"3":{"s":1837493620,"c":138306,"aov":13286,"pw":1786346785,"pwc":132892},"4":{"s":2408506910,"c":177039,"aov":13604,"pw":2400776210,"pwc":174124},"5":{"s":3755016770,"c":260201,"aov":14431,"pw":3636582340,"pwc":240405},"6":{"s":3268372200,"c":233328,"aov":14008,"pw":3172298730,"pwc":219307},"7":{"s":1914570060,"c":142292,"aov":13455,"pw":1633543190,"pwc":121661}},"promos":[{"t":"SUPER 배라위크 · 전 제품 50% OFF 쿠폰","d":"최대 1만원 · 쿠폰사용 ~9/8","ch":"오프라인","s":4,"e":6,"src":7},{"t":"HP APP 멤버십 배라감사제","d":"해피앱 멤버십","ch":"오프라인","s":4,"e":6,"src":7},{"t":"토스페이 싱글레귤러 1,900원","d":"계좌·머니 결제 시","ch":"오프라인","s":9,"e":11,"src":7},{"t":"HP APP 포인트결제 런칭 Promo.","d":"결제 금액 50% 캐시백(최대 5천)","ch":"오프라인","s":14,"e":30,"src":7},{"t":"LGU+ 유플투플","d":"전제품 1.5만 구매 시 40% OFF + 10% 적립","ch":"오프라인","s":14,"e":18,"src":7},{"t":"SKT T day · 파인트 40% 할인/적립","d":"월 1회 X-DAY","ch":"오프라인","s":16,"e":16,"src":7},{"t":"위챗페이 Promo.","d":"최대 60위안 할인","ch":"오프라인","s":18,"e":30,"src":7},{"t":"N pay 레디팩 2+2 / 2+1, 아메리카노 1+1","d":"네이버페이","ch":"오프라인","s":21,"e":27,"src":7},{"t":"9월 X-DAY · 패밀리 최대 9천원 할인/적립","d":"","ch":"오프라인","s":22,"e":30,"src":7},{"t":"삼성카드 LINK · 2천원 OFF 쿠폰","d":"1.85만원 이상 결제 시","ch":"오프라인","s":1,"e":30,"src":7},{"t":"H.Point 사용(최대 50%) · L.POINT 적립","d":"상시 제휴","ch":"오프라인","s":1,"e":30,"src":7},{"t":"배민클럽 쿠폰팩 3,500원 OFF","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 T멤버십","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 픽업데이","d":"","ch":"배달","s":1,"e":3,"src":8},{"t":"쿠팡이츠 셰프콜렉션 리텐션 4천원 OFF","d":"8/31 시작","ch":"배달","s":1,"e":6,"src":8},{"t":"배민 배짱할인 신규 3,000원 OFF","d":"일 150장 · 그 외 2,000원","ch":"배달","s":1,"e":6,"src":8},{"t":"쿠팡이츠 슈퍼딜 최대 7,000원 OFF","d":"","ch":"배달","s":7,"e":10,"src":8},{"t":"쿠팡이츠 선착순 5천원 OFF","d":"","ch":"배달","s":11,"e":13,"src":8},{"t":"메가팩 사전예약 20% 할인","d":"픽업 9/19~9/23","ch":"배달","s":11,"e":18,"src":8},{"t":"배민 18,500원 이상 3,000~4,000원 OFF","d":"토·일 선착순 일 1만장","ch":"배달","s":14,"e":20,"src":8},{"t":"배민 간편픽업 해피아워 4,000원 OFF","d":"14~17시 · 일 226장","ch":"배달","s":14,"e":20,"src":8},{"t":"추석 선물세트 픽업 프로모션","d":"","ch":"배달","s":15,"e":27,"src":8},{"t":"쿠팡이츠 추석 디저트 기획전 4천원 OFF","d":"일 5천장","ch":"배달","s":21,"e":27,"src":8},{"t":"쿠팡이츠 선착순 4천원 OFF","d":"일 7천장 · ~10/4","ch":"배달","s":28,"e":30,"src":8},{"t":"네이버 신제품 기획전","d":"","ch":"교환권","s":1,"e":5,"src":9},{"t":"해피앱 선물함 프로모션 1차","d":"","ch":"교환권","s":1,"e":13,"src":9},{"t":"11번가 반값딜","d":"","ch":"교환권","s":4,"e":4,"src":9},{"t":"카카오 일반 기획전","d":"","ch":"교환권","s":7,"e":13,"src":9},{"t":"네이버 타임특가 (TBD)","d":"","ch":"교환권","s":11,"e":11,"src":9},{"t":"마켓컬리 쿠폰 할인 기획전","d":"~10/31","ch":"교환권","s":14,"e":30,"src":9},{"t":"해피앱 선물함 프로모션 2차","d":"","ch":"교환권","s":14,"e":30,"src":9},{"t":"네이버 추석 사전 붐업","d":"","ch":"교환권","s":18,"e":20,"src":9},{"t":"카카오쇼핑라이브","d":"","ch":"교환권","s":21,"e":21,"src":9},{"t":"카카오 라이브 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"네이버 추석 프로모션","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"배라앱 추석 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"해피앱 추석맞이 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"카카오 쟁쟁한 특가","d":"~10/4","ch":"교환권","s":28,"e":30,"src":9},{"t":"도쿄바나나 FOM 파워페이지 5건","d":"바이럴","ch":"커뮤","s":1,"e":1,"src":12},{"t":"도쿄바나나 IC 라인업 소개 파워페이지 5건","d":"바이럴","ch":"커뮤","s":4,"e":4,"src":12},{"t":"핑크드림 캠페인 보도자료","d":"PR","ch":"커뮤","s":4,"e":4,"src":10},{"t":"몬치치 콜라보 티저 파워페이지 5건","d":"바이럴","ch":"커뮤","s":7,"e":7,"src":12},{"t":"도쿄바나나 라인업 실리뷰 인플루언서 4건","d":"바이럴","ch":"커뮤","s":9,"e":9,"src":12},{"t":"카페 31 홍보 파워페이지 5건","d":"일정 미정","ch":"커뮤","s":10,"e":10,"src":12},{"t":"몬치치 아이스크림·플레이컵 보도자료","d":"PR","ch":"커뮤","s":11,"e":11,"src":10},{"t":"몬치치 플레이컵 실리뷰 인플루언서 3건","d":"바이럴","ch":"커뮤","s":11,"e":11,"src":12}],"new":[{"t":"도쿄바나나 크렘브륄레","k":"FOM","day":null,"q":"22,000 TUB","rev":16.3,"note":"8/29 출시"},{"t":"카라멜 퐁당 몬치치","k":"LTO","day":11,"q":"8,000 TUB","rev":5.9},{"t":"몬치치 플레이컵 + 피규어 키링 SET","k":"SET","day":14,"q":"30,000 SET","rev":2.0,"price":"13,000원"},{"t":"도쿄바나나 바삭 브륄레","k":"케이크","day":null,"q":"15,000 EA","rev":2.4,"price":"32,000원","note":"8/29 출시"},{"t":"몬가 귀여운 몬치치","k":"케이크","day":21,"q":"8,000 EA","rev":1.5,"price":"38,000원","note":"4주차"},{"t":"달콤함에 빠진 몬치치","k":"케이크","day":11,"q":"7,000 EA","rev":1.3,"price":"36,000원"},{"t":"도쿄바나나 브륄레 랑그드샤 쿠키 샌드","k":"디저트","day":null,"q":"50,000 EA","rev":1.4,"price":"5,400원","note":"8/31 출시"},{"t":"아이스 브라운 쿠키 밀크 샌드","k":"디저트","day":7,"q":"18,000 SET","rev":0.5,"price":"5,700원"},{"t":"에스프레소 쿠키 크런치 모찌","k":"디저트","day":7,"q":"38,000 EA","rev":0.9,"price":"4,800원"},{"t":"비스코프 에스프레소 앤 카라멜","k":"케이크","day":12,"q":"7,000 EA","rev":1.0,"price":"29,000원"},{"t":"아이스 미니 마카롱 시그니처","k":"디저트","day":null,"q":"8,000 EA","rev":0.8,"price":"19,000원"},{"t":"아이스 미니 마카롱 리미티드","k":"디저트","day":null,"q":"7,000 EA","rev":0.7,"price":"19,000원"},{"t":"자모카 훠지 클라우드 라떼","k":"음료","day":null,"q":"7,000 EA","rev":0.1,"price":"4,900원"},{"t":"아몬드 봉봉 클라우드 라떼","k":"음료","day":null,"q":"3,000 EA","rev":0.1,"price":"5,400원"},{"t":"엄마는 외계인 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.03,"price":"4,500원"},{"t":"스트로베리 말차 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.04,"price":"4,500원"},{"t":"우리 사과 블라스트","k":"음료","day":null,"q":"8,000 EA","rev":0.2,"price":"5,300원"},{"t":"오르차타 블라스트","k":"음료","day":null,"q":"5,000 EA","rev":0.08,"price":"4,500원"},{"t":"몬치치 아메리카노(보이/걸)","k":"음료","day":14,"q":"33,200 EA","rev":0.3,"price":"3,900원"},{"t":"몬치치 납작복숭아 아이스티(보이/걸)","k":"음료","day":14,"q":"6,800 EA","rev":0.06,"price":"2,700원"}],"events":[{"d":24,"t":"추석 연휴"},{"d":25,"t":"추석"},{"d":26,"t":"추석 연휴"}],"theme":"도쿄바나나 & 몬치치 & 추석","weeks":[["1 WEEK",1,6],["2 WEEK",7,13],["3 WEEK",14,20],["4 & 5 WEEK",21,30]]}}</script>
+<script>
+var D = JSON.parse(document.getElementById("planData").textContent);
+var MON = D.months, SEP = D.sep;
+var WD = ["월","화","수","목","금","토","일"];
+var SEASON = {1:"겨울",2:"겨울",3:"봄",4:"봄",5:"봄",6:"여름",7:"여름",8:"여름",9:"가을",10:"가을",11:"가을",12:"겨울"};
+var EVT = {1:"신정",2:"설",3:"봄 시즌",4:"벚꽃",5:"어린이날·가정의달",6:"여름 시작",7:"여름 성수기",8:"휴가",9:"추석",10:"할로윈",11:"빼빼로·수능",12:"크리스마스"};
+var eok = function(v){ return (v/1e8).toFixed(1); };
+
+/* ── 연간 표 ── */
+(function(){
+  var head = "<thead><tr><th class='rh'></th>" + MON.map(function(m){
+    return "<th data-m='" + m.n + "'>" + m.n + "월<small>" + SEASON[m.n] + "</small></th>";
+  }).join("") + "</tr></thead>";
+
+  function rowCells(fn){ return MON.map(function(m){
+    return "<td class='mcell" + (m.has ? "" : " tbd") + "' data-m='" + m.n + "'>" + fn(m) + "</td>";
+  }).join(""); }
+
+  var rows = [
+    ["시즌 이벤트", function(m){ return "<span class='season'>" + EVT[m.n] + "</span>"; }],
+    ["FOM", function(m){
+       if(!m.has) return "—";
+       return (m.ip ? "<span class='ipb' style='" + m.ipst + "'>" + m.ip + "</span><br>" : "") + m.fn;
+    }],
+    ["굿즈 · IMC", function(m){
+       if(!m.has) return "—";
+       return "<b style='font-weight:800'>" + (m.gd || "—") + "</b>" + (m.gi ? "<br>" + m.gi : "");
+    }],
+    ["실매출", function(m){
+       if(!m.has) return "—";
+       var y = (m.bd[0] || "");
+       var cl = y.indexOf("▲") > -1 ? "up" : (y.indexOf("▼") > -1 ? "dn" : "flat");
+       return "<div class='sv'>" + m.sv + "</div><div class='yoy " + cl + "'>" + y + "</div>"
+              + (m.wip ? "<div class='yoy flat'>진행중</div>" : "");
+    }]
+  ];
+  var body = "<tbody>" + rows.map(function(r){
+    return "<tr><th class='rh'>" + r[0] + "</th>" + rowCells(r[1]) + "</tr>";
+  }).join("") + "</tbody>";
+  document.getElementById("yrTbl").innerHTML = head + body;
+})();
+
+/* ── 월 상세 ── */
+var mdet = document.getElementById("mdet");
+
+function markSel(n){
+  document.querySelectorAll("#yrTbl .on").forEach(function(x){ x.classList.remove("on"); });
+  if(!n) return;
+  document.querySelectorAll("#yrTbl [data-m='" + n + "']").forEach(function(x){ x.classList.add("on"); });
+}
+
+function scrollTo(el){
+  if (el && typeof el.scrollIntoView === "function") {
+    el.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+}
+function openMonth(n, quiet){
+  var m = MON[n-1];
+  markSel(n);
+  if(n !== 9){
+    mdet.innerHTML =
+      "<div class='mtop'><span class='mno'>" + n + "월</span>" +
+      (m.has ? "<span class='mth'>" + m.fn + "</span>" : "<span class='mth'>계획 전</span>") +
+      "<button class='mx' type='button' id='mclose'>닫기 ✕</button></div>" +
+      "<p class='lead' style='margin:8px 0 0'>" +
+      (m.has
+        ? "이 달은 <b>월 단위 실적</b>만 있습니다. 일자별 달력을 보려면 그 달 「MKT 마스터플랜 캘린더」와 일매출 파일이 필요합니다. 지금은 9월만 들어와 있습니다."
+        : "아직 계획이 들어오지 않은 달입니다.") + "</p>" +
+      (m.has ? "<div class='mkpi'>" +
+        "<div class='k'><div class='l'>실매출</div><div class='v'>" + m.sv + "</div></div>" +
+        "<div class='k'><div class='l'>전년비</div><div class='v'>" + (m.bd[0] || "—") + "</div></div>" +
+        "<div class='k'><div class='l'>FOM</div><div class='v' style='font-size:15px'>" + m.fn + "</div></div>" +
+        "<div class='k'><div class='l'>굿즈</div><div class='v' style='font-size:15px'>" + (m.gi || m.gd || "—") + "</div></div>" +
+      "</div>" : "");
+    mdet.removeAttribute("hidden");
+    if (!quiet) scrollTo(mdet);
+    return;
+  }
+  renderSep();
+  mdet.removeAttribute("hidden");
+  if (!quiet) scrollTo(mdet);
+}
+
+function renderSep(){
+  var daily = SEP.daily, promos = SEP.promos, news = SEP.new, evs = SEP.events;
+  var DAYS = 30, FIRST_WD = 1;           /* 2026-09-01 = 화요일 → 인덱스 1 */
+  var vals = Object.keys(daily).map(function(k){ return daily[k].s; });
+  var mx = Math.max.apply(null, vals);
+  var tot = vals.reduce(function(a,b){ return a+b; }, 0);
+  var cus = Object.keys(daily).reduce(function(a,k){ return a + daily[k].c; }, 0);
+  var pw  = Object.keys(daily).reduce(function(a,k){ return a + daily[k].pw; }, 0);
+
+  /* 날짜별 시작 항목 */
+  var startsN = {}, startsP = {}, evMap = {};
+  news.forEach(function(x){ if(x.day){ (startsN[x.day] = startsN[x.day] || []).push(x); } });
+  promos.forEach(function(p){ (startsP[p.s] = startsP[p.s] || []).push(p); });
+  evs.forEach(function(e){ evMap[e.d] = e.t; });
+
+  /* 달력 */
+  var cal = ["월","화","수","목","금","토","일"].map(function(w,i){
+    return "<div class='dh" + (i===6 ? " sun" : "") + "'>" + w + "</div>";
+  }).join("");
+  for(var i=0; i<FIRST_WD; i++) cal += "<div class='day out'></div>";
+  for(var d=1; d<=DAYS; d++){
+    var wd = (FIRST_WD + d - 1) % 7;
+    var s = daily[d];
+    var sale = s
+      ? "<div class='dsale'><div class='bar'><i style='width:" + (s.s/mx*100).toFixed(0) + "%'></i></div>" +
+        "<div class='v'>" + eok(s.s) + "억</div>" +
+        "<div class='y " + (s.s>=s.pw ? "up" : "dn") + "'>" +
+        ((s.s>=s.pw?"+":"") + ((s.s/s.pw-1)*100).toFixed(1)) + "%</div></div>"
+      : "<div class='dsale none'><div class='v'>—</div></div>";
+    var chips = "";
+    (startsN[d] || []).forEach(function(x){ chips += "<div class='chip np'>▲ " + x.t + "</div>"; });
+    (startsP[d] || []).filter(function(p){ return p.ch === "오프라인"; })
+      .forEach(function(p){ chips += "<div class='chip pr'>" + p.t + "</div>"; });
+    if(evMap[d]) chips = "<div class='chip ev'>" + evMap[d] + "</div>" + chips;
+    cal += "<div class='day" + (evMap[d] ? " hol" : "") + "'>" +
+           "<div class='dn'>" + d + "<span class='wd'>" + WD[wd] + "</span></div>" +
+           sale + chips + "</div>";
+  }
+
+  /* 간트 */
+  var CH = [["오프라인","오프라인 제휴 · 매장 결제","off"],
+            ["배달","배달 · 픽업","del"],
+            ["교환권","모바일 교환권","gif"],
+            ["커뮤","커뮤니케이션 (바이럴 · PR)","com"]];
+  var gantt = "";
+  CH.forEach(function(c){
+    var list = promos.filter(function(p){ return p.ch === c[0]; });
+    if(!list.length) return;
+    gantt += "<div class='gcat'>" + c[1] + " · " + list.length + "건</div>";
+    list.forEach(function(p){
+      var L = (p.s-1)/DAYS*100, W = (p.e-p.s+1)/DAYS*100;
+      var ticks = "";
+      [7,14,21,28].forEach(function(t){
+        ticks += "<em class='wk' style='left:" + ((t-1)/DAYS*100) + "%'></em>";
+      });
+      gantt += "<div class='grow'><div class='gl'>" + p.t +
+               (p.d ? "<span>" + p.d + "</span>" : "") + "</div>" +
+               "<div class='gtrack'>" + ticks +
+               "<i class='" + c[2] + "' style='left:" + L + "%;width:" + W + "%'></i></div></div>";
+    });
+  });
+  var ax = "";
+  [1,5,10,15,20,25,30].forEach(function(t){
+    ax += "<span style='left:" + ((t-0.5)/DAYS*100) + "%'>" + t + "</span>";
+  });
+
+  /* 신제품 표 */
+  var nrows = news.map(function(x){
+    return "<tr><td class='it'><span class='kk " + x.k + "'>" + x.k + "</span>" + x.t + "</td>" +
+           "<td class='num'>" + (x.price || "—") + "</td>" +
+           "<td class='num'>" + x.q + "</td>" +
+           "<td class='num'>" + x.rev.toFixed(2).replace(/\.?0+$/,"") + "억</td>" +
+           "<td class='num'>" + (x.day ? "9/" + x.day : (x.note || "—")) + "</td></tr>";
+  }).join("");
+  var nrev = news.reduce(function(a,b){ return a + b.rev; }, 0);
+
+  /* 배라위크 비교 */
+  function blk(a,b){
+    var s=0,p=0,c=0,pc=0,n=0;
+    for(var d=a; d<=b; d++){ if(daily[d]){ s+=daily[d].s; p+=daily[d].pw; c+=daily[d].c; pc+=daily[d].pwc; n++; } }
+    return {s:s, p:p, yoy:(s/p-1)*100, cyoy:(c/pc-1)*100, n:n};
+  }
+  var pre = blk(1,3), wk = blk(4,6);
+  var cls = function(v){ return v>=0 ? "up" : "dn"; };
+  var sgn = function(v){ return (v>=0?"+":"") + v.toFixed(1) + "%"; };
+
+  mdet.innerHTML =
+    "<div class='mtop'><span class='mno'>9월</span><span class='mth'>" + SEP.theme + "</span>" +
+    "<button class='mx' type='button' id='mclose'>닫기 ✕</button></div>" +
+    "<div class='mkpi'>" +
+      "<div class='k'><div class='l'>9/1~7 실매출</div><div class='v'>" + eok(tot) + "<small>억</small></div></div>" +
+      "<div class='k'><div class='l'>전년 동요일比</div><div class='v'>" + sgn((tot/pw-1)*100) + "</div></div>" +
+      "<div class='k'><div class='l'>고객수</div><div class='v'>" + (cus/1e4).toFixed(1) + "<small>만명</small></div></div>" +
+      "<div class='k'><div class='l'>프로모션</div><div class='v'>" + promos.length + "<small>건</small></div></div>" +
+      "<div class='k'><div class='l'>신제품</div><div class='v'>" + news.length + "<small>종</small></div></div>" +
+      "<div class='k'><div class='l'>신제품 예상매출</div><div class='v'>" + nrev.toFixed(1) + "<small>억</small></div></div>" +
+    "</div>" +
+
+    "<h2 style='font-size:15px;margin:4px 0 9px'>9월 달력 <small>막대는 일매출 · %는 전년 동요일比 · 칩은 그날 시작하는 신제품(▲)과 오프라인 프로모션</small></h2>" +
+    "<div class='cal'>" + cal + "</div>" +
+
+    "<h2 style='font-size:15px;margin:24px 0 4px'>프로모션 기간 <small>" + promos.length + "건 · 채널별</small></h2>" +
+    "<div class='gantt'>" + gantt +
+      "<div class='gaxis'><div></div><div class='ax'>" + ax + "</div></div>" +
+      "<div class='glegend'>" +
+        "<span><b style='background:#E8447A'></b>오프라인 (매장 결제에 바로 반영)</span>" +
+        "<span><b style='background:#0F6E56'></b>배달 · 픽업</span>" +
+        "<span><b style='background:#C9A227'></b>모바일 교환권</span>" +
+        "<span><b style='background:#8A93B5'></b>커뮤니케이션</span>" +
+      "</div>" +
+    "</div>" +
+
+    "<div class='cmp'><h4>연관 가능성 · SUPER 배라위크 (9/4~6, 전 제품 50% OFF 쿠폰)</h4>" +
+      "<table><tr><th>구간</th><th class='num'>매출</th><th class='num'>전년 동요일比</th><th class='num'>고객 전년비</th></tr>" +
+      "<tr><td>9/1~3 (직전)</td><td class='num'>" + eok(pre.s) + "억</td>" +
+        "<td class='num " + cls(pre.yoy) + "'>" + sgn(pre.yoy) + "</td>" +
+        "<td class='num " + cls(pre.cyoy) + "'>" + sgn(pre.cyoy) + "</td></tr>" +
+      "<tr><td>9/4~6 (배라위크)</td><td class='num'>" + eok(wk.s) + "억</td>" +
+        "<td class='num " + cls(wk.yoy) + "'>" + sgn(wk.yoy) + "</td>" +
+        "<td class='num " + cls(wk.cyoy) + "'>" + sgn(wk.cyoy) + "</td></tr>" +
+      "</table>" +
+      "<p>전년 동요일 기준으로 <b>" + (wk.yoy-pre.yoy).toFixed(1) + "%p</b> 차이, 고객수는 <b>" +
+      (wk.cyoy-pre.cyoy).toFixed(1) + "%p</b> 차이입니다. 고객 쪽 차이가 더 큰 것은 쿠폰이 " +
+      "장바구니보다 <b>방문</b>을 움직였다는 쪽에 가깝습니다. 다만 양쪽 다 <b>3일치</b>라 우연일 수 있고, " +
+      "같은 기간에 배민·쿠팡이츠 프로모션도 겹쳐 있어 배라위크만의 효과로 떼어낼 수 없습니다. " +
+      "9월이 끝나고 30일치가 다 모이면 프로모션 있는 날과 없는 날을 제대로 비교할 수 있습니다.</p>" +
+    "</div>" +
+
+    "<h2 style='font-size:15px;margin:24px 0 0'>9월 신제품 <small>" + news.length + "종 · 예상매출 " + nrev.toFixed(1) + "억</small></h2>" +
+    "<div class='tblwrap'><table class='gt'><thead><tr><th>제품</th><th class='num'>판매가</th>" +
+    "<th class='num'>판매 계획</th><th class='num'>예상 매출</th><th class='num'>출시</th></tr></thead>" +
+    "<tbody>" + nrows + "</tbody></table></div>";
+}
+
+/* 클릭 */
+document.getElementById("yrTbl").addEventListener("click", function(e){
+  var el = e.target.closest("[data-m]");
+  if(!el) return;
+  openMonth(parseInt(el.dataset.m, 10));
+});
+mdet.addEventListener("click", function(e){
+  if(e.target.id === "mclose"){ mdet.setAttribute("hidden",""); markSel(null); }
+});
+(function(){
+  var b = document.getElementById("srcTgl"), t = document.getElementById("fsrc");
+  b.addEventListener("click", function(){
+    var open = t.hasAttribute("hidden");
+    if(open) t.removeAttribute("hidden"); else t.setAttribute("hidden","");
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+    b.querySelector("span").textContent = open ? "접기" : "출처 · 주석";
+  });
+})();
+openMonth(9, true);   /* 처음 열 때는 스크롤하지 않습니다 */
+</script>
+
+<script>
+/* 공통 비밀번호 2701 — 지도·분석·시장 페이지와 같은 열쇠 */
+var ALL_CODE = "2701";
+(function(){
+  var ALLKEY = "br_all_ok";
+  var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
+  function ok(){ try { return sessionStorage.getItem(ALLKEY) === "1"; } catch(e){ return false; } }
+  function unlock(){
+    try { sessionStorage.setItem(ALLKEY, "1"); } catch(e){}
+    document.body.classList.remove("locked");
+  }
+  function attempt(){
+    var el = document.getElementById("sCode"), v = (el && el.value) || "";
+    if (v === ALL_CODE) { unlock(); }
+    else { document.getElementById("sErr").textContent = "비밀번호가 올바르지 않습니다.";
+           if (el) { el.value = ""; el.focus(); } }
+  }
+  if (inFrame) {
+    var bb = document.getElementById("backbar"); if (bb) bb.style.display = "none";
+    var sb = document.getElementById("sBack");   if (sb) sb.style.display = "none";
+  }
+  if (ok()) document.body.classList.remove("locked");
+  else { var i = document.getElementById("sCode"); if (i) i.focus(); }
+  document.getElementById("sBtn").addEventListener("click", attempt);
+  document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key === "Enter") attempt(); });
+  var back = document.getElementById("sBack");
+  if (back) back.addEventListener("click", function(){ window.location.href = "marketing.html"; });
+})();
+</script>
+</body>
+</html>
