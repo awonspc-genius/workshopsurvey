@@ -1,0 +1,157 @@
+/* ============================================================
+   BR ONSITE 매장 리포트 — Google Apps Script (누적 저장용)
+
+   ▶ 무엇을 하나요?
+   br-store-report.html에서 "팀에 제출"을 누르면
+   · 사진은 구글 드라이브 폴더에 매장·날짜별로 저장
+   · 문항 답변과 사진 링크는 스프레드시트 한 줄로 기록
+   되고, 같은 페이지 하단 "팀에 누적된 리포트"에서 모두가 봅니다.
+
+   ▶ 배포 (10분, 한 번만)
+   1. drive.google.com → 새로 만들기 → Google 스프레드시트
+      이름 예: "BR ONSITE 매장 리포트"
+   2. 확장 프로그램 → Apps Script → 기존 코드 전부 지우고 이 파일 붙여넣기
+   3. 저장 → 배포 → 새 배포 → 유형 "웹 앱"
+        실행 사용자: 나
+        액세스 권한: 회사 도메인 내 모든 사용자 (또는 링크가 있는 모든 사용자)
+      → 배포 → 권한 승인
+   4. 나오는 웹 앱 URL(.../exec)을 복사해서
+      br-store-report.html 상단의  var UPLOAD_ENDPOINT = "";  안에 붙여넣기
+   5. 페이지 새로고침 → 매장 카드에 "팀에 제출" 버튼이 생깁니다.
+
+   ▶ 이미 설문용 Apps Script를 쓰고 있다면
+   같은 프로젝트에 붙이지 말고 새 스프레드시트 + 새 배포로 분리하세요.
+   설문 응답과 사진 리포트는 성격이 달라서 섞이면 나중에 정리가 어렵습니다.
+   ============================================================ */
+
+var SHEET_NAME  = 'OnSite';                    // 기록이 쌓이는 탭
+var FOLDER_NAME = 'BR ONSITE 매장리포트 사진';   // 드라이브 폴더 이름
+var HEADERS = ['sentAt','id','store','date','author','hour','oneline','survey','notes','photos'];
+
+/* ── 저장소 준비 ───────────────────────────────────────── */
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
+  }
+  return sh;
+}
+
+function getFolder_() {
+  var it = DriveApp.getFoldersByName(FOLDER_NAME);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(FOLDER_NAME);
+}
+
+function getSubFolder_(parent, name) {
+  var it = parent.getFoldersByName(name);
+  return it.hasNext() ? it.next() : parent.createFolder(name);
+}
+
+/* ── 제출 받기 ─────────────────────────────────────────── */
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(30000);
+  try {
+    var body = JSON.parse(e.postData.contents);
+    if (body.type !== 'onsite') return ContentService.createTextOutput('ignored');
+
+    var store = String(body.store || '무제').replace(/[\\\/:*?"<>|]/g, '_');
+    var date  = String(body.date || '').slice(0, 10);
+    var folder = getSubFolder_(getFolder_(), date + ' ' + store);
+
+    // 사진 저장 — 같은 id로 다시 제출하면 기존 파일을 대체
+    var urls = [];
+    (body.photos || []).forEach(function (p, i) {
+      var parts = String(p.data).split(',');
+      var bytes = Utilities.base64Decode(parts[1]);
+      var name  = date + '_' + store + '_' + (i + 1) + '_' + (p.slot || 'photo') + '.jpg';
+      var old = folder.getFilesByName(name);
+      while (old.hasNext()) old.next().setTrashed(true);
+      var blob = Utilities.newBlob(bytes, 'image/jpeg', name);
+      var file = folder.createFile(blob);
+      // 링크가 있으면 볼 수 있게 — 조직 정책에 따라 실패할 수 있어 무시 처리
+      try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (err) {}
+      urls.push('https://drive.google.com/thumbnail?id=' + file.getId() + '&sz=w600');
+    });
+
+    var sv = body.survey || {};
+    var row = [
+      new Date().toISOString(),
+      body.id || '',
+      body.store || '',
+      body.date || '',
+      sv.author || '',
+      sv.hour || '',
+      sv.oneline || '',
+      JSON.stringify(sv),
+      JSON.stringify(body.notes || {}),
+      JSON.stringify(urls)
+    ];
+
+    // 같은 id가 있으면 덮어쓰기(재제출), 없으면 새 줄
+    var sh = getSheet_();
+    var ids = sh.getLastRow() > 1
+      ? sh.getRange(2, 2, sh.getLastRow() - 1, 1).getValues().map(function (r) { return r[0]; })
+      : [];
+    var at = ids.indexOf(body.id);
+    if (at > -1) sh.getRange(at + 2, 1, 1, row.length).setValues([row]);
+    else sh.appendRow(row);
+
+    return ContentService.createTextOutput('ok');
+  } catch (err) {
+    return ContentService.createTextOutput('error: ' + err);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ── 아카이브 읽기 (JSONP) ─────────────────────────────── */
+function doGet(e) {
+  var action = (e.parameter && e.parameter.action) || '';
+  var cb = (e.parameter && e.parameter.callback) || 'cb';
+  var out = { rows: [] };
+
+  if (action === 'onsite_list') {
+    var sh = getSheet_();
+    if (sh.getLastRow() > 1) {
+      var values = sh.getRange(2, 1, sh.getLastRow() - 1, HEADERS.length).getValues();
+      out.rows = values.map(function (v) {
+        var photos = [];
+        try { photos = JSON.parse(v[9] || '[]'); } catch (err) {}
+        return {
+          sentAt: v[0] instanceof Date ? v[0].toISOString() : String(v[0]),
+          id: v[1], store: v[2],
+          date: v[3] instanceof Date ? Utilities.formatDate(v[3], 'Asia/Seoul', 'yyyy-MM-dd') : String(v[3]),
+          author: v[4], hour: v[5], oneline: v[6],
+          photos: photos
+        };
+      });
+    }
+  }
+
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(out) + ')')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+/* ============================================================
+   ▶ 알아두실 점
+
+   · 사진은 "링크가 있는 모든 사용자 보기"로 공유됩니다. 페이지에서
+     썸네일을 보여주려면 필요한 설정이에요. 매장 내부 사진이라
+     외부 유출이 걱정되면 setSharing 줄을 지우고, 아카이브는
+     링크만 남기는 방식으로 바꿔서 쓰세요. (썸네일은 안 보입니다)
+
+   · 사진 촬영 시 인물 얼굴이 들어가지 않도록 안내문을 지켰는지
+     제출 전에 한 번 더 확인해 주세요. 드라이브에 남는 자료입니다.
+
+   · 코드를 고친 뒤에는 반드시 "배포 관리 → 편집(연필) → 새 버전 → 배포"
+     로 기존 배포의 버전을 올리세요. "새 배포"를 하면 URL이 바뀌어서
+     HTML의 UPLOAD_ENDPOINT도 같이 고쳐야 합니다.
+   ============================================================ */
