@@ -21,8 +21,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 
 /* gate */
-#app{display:none}
-body.unlocked #app{display:block}
+/* 잠겨 있을 때만 감춘다. 열린 뒤에는 원래 배치(세로 flex)를 그대로 쓴다 */
+body:not(.unlocked) #app{display:none!important}
 body.unlocked #gate{display:none}
 #gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(120% 90% at 50% 0%, #fff 0%, var(--bg) 60%);padding:22px}
@@ -46,7 +46,6 @@ body.unlocked #gate{display:none}
 .brand .dot{width:26px;height:26px;border-radius:9px;background:var(--pink);flex:none}
 .brand b{font-size:16px;font-weight:700;letter-spacing:-.01em}
 .brand em{color:var(--mid);font-size:12px;font-style:normal}
-.back{color:var(--mid);font-size:13px;text-decoration:none}
 .syncbadge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;color:var(--mid)}
 .syncbadge.on{border-color:#bfe4cc;background:#f1fbf4;color:#12a150;font-weight:600}
 .syncbadge.busy{border-color:#f6c9dd;background:var(--pink-soft);color:#c2005f}
@@ -356,7 +355,6 @@ body.unlocked #gate{display:none}
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
-      <a class="back" href="marketing.html">← 마케팅 실무</a>
       <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
       <div class="monthpick">
         <button id="prevM" aria-label="이전 달">‹</button>
