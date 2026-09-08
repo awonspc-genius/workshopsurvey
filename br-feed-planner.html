@@ -21,23 +21,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 
 /* gate */
-/* 잠겨 있을 때만 감춘다. 열린 뒤에는 원래 배치(세로 flex)를 그대로 쓴다 */
-body:not(.unlocked) #app{display:none!important}
-body.unlocked #gate{display:none}
-#gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(120% 90% at 50% 0%, #fff 0%, var(--bg) 60%);padding:22px}
-#gate .box{width:100%;max-width:340px;background:var(--card);border:1px solid var(--line);
-  border-radius:18px;box-shadow:var(--shadow);padding:26px 22px 22px;text-align:center}
-#gate .lg{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px}
-#gate .lg span{width:26px;height:26px;border-radius:9px;background:var(--pink)}
-#gate .lg b{font-size:16px;letter-spacing:-.01em}
-#gate p{margin:0 0 16px;font-size:13px;color:var(--mid);line-height:1.5}
-#gate input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;
-  font-size:19px;text-align:center;letter-spacing:.35em;background:#fff}
-#gate input:focus{outline:2px solid var(--pink-soft);border-color:var(--pink)}
-#gate button{width:100%;margin-top:10px;border:0;border-radius:11px;padding:12px;
-  background:var(--pink);color:#fff;font-size:15px;font-weight:600}
-#gate .err{min-height:18px;margin-top:9px;font-size:12.5px;color:var(--pink)}
 
 /* shell */
 .top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
@@ -46,19 +29,11 @@ body.unlocked #gate{display:none}
 .brand .dot{width:26px;height:26px;border-radius:9px;background:var(--pink);flex:none}
 .brand b{font-size:16px;font-weight:700;letter-spacing:-.01em}
 .brand em{color:var(--mid);font-size:12px;font-style:normal}
+.back{color:var(--mid);font-size:13px;text-decoration:none}
 .syncbadge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;color:var(--mid)}
 .syncbadge.on{border-color:#bfe4cc;background:#f1fbf4;color:#12a150;font-weight:600}
 .syncbadge.busy{border-color:#f6c9dd;background:var(--pink-soft);color:#c2005f}
-.syncbadge.off{border-color:#f3b9b9;background:#fff4f4;color:#c0392b;font-weight:600}
-#syncPanel{position:fixed;z-index:120;top:56px;right:18px;width:270px;background:#fff;
-  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;font-size:13px}
-#syncPanel h4{margin:0 0 4px;font-size:13.5px}
-#syncPanel .st{color:var(--mid);font-size:12.5px;line-height:1.6;margin-bottom:10px}
-#syncPanel button{display:block;width:100%;margin-top:6px;border:1px solid var(--line);
-  background:#fff;border-radius:9px;padding:8px;font-size:13px;text-align:center}
-#syncPanel button:hover{border-color:var(--pink);color:var(--pink)}
-#syncPanel button.pink{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:600}
-#syncPanel button.pink:hover{color:#fff}
+.syncbadge.off{border-color:var(--line);color:var(--mid)}
 .monthpick{display:flex;align-items:center;gap:6px;background:#f4f6f9;border-radius:11px;padding:4px}
 .monthpick button{border:0;background:transparent;padding:5px 9px;border-radius:8px;color:var(--mid);font-size:16px;line-height:1}
 .monthpick input{border:0;background:transparent;font-weight:600;width:118px;text-align:center;padding:4px}
@@ -311,50 +286,11 @@ body.unlocked #gate{display:none}
 </head>
 <body>
 
-<div id="gate">
-  <div class="box">
-    <div class="lg"><span></span><b>피드 플래너</b></div>
-    <p>사내 전용 화면입니다.<br>접속 번호를 넣어 주세요.</p>
-    <input id="gpin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="접속 번호">
-    <button id="gbtn" type="button">들어가기</button>
-    <div class="err" id="gerr"></div>
-  </div>
-</div>
-<script>
-(function(){
-  var CODE="3131", KEY="br_feed_ok";
-  var SHARED=["br_feed_ok","br_admin_ok","br_sales_ok"];   /* 같은 3131 번호를 쓰는 화면들 */
-  function seen(){
-    for(var i=0;i<SHARED.length;i++){
-      try{ if(sessionStorage.getItem(SHARED[i])==="1") return true; }catch(e){}
-    }
-    return false;
-  }
-  function open_(){
-    document.body.classList.add("unlocked");
-    setTimeout(function(){ window.dispatchEvent(new Event("resize")); },0);
-  }
-  if(seen()){ open_(); return; }
-  var pin=document.getElementById("gpin"), btn=document.getElementById("gbtn"), err=document.getElementById("gerr");
-  function tryIn(){
-    if(pin.value.trim()===CODE){
-      try{ sessionStorage.setItem(KEY,"1"); }catch(e){}
-      open_();
-    }else{
-      err.textContent="번호가 맞지 않습니다.";
-      pin.value=""; pin.focus();
-    }
-  }
-  btn.addEventListener("click", tryIn);
-  pin.addEventListener("keydown", function(e){ if(e.key==="Enter") tryIn(); });
-  setTimeout(function(){ pin.focus(); },120);
-})();
-</script>
-
 <div id="app">
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
+      <a class="back" href="marketing.html">← 마케팅 실무</a>
       <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
       <div class="monthpick">
         <button id="prevM" aria-label="이전 달">‹</button>
@@ -550,9 +486,6 @@ var SYNC_URL = "https://script.google.com/macros/s/AKfycby839KinLDHNzqDivc3fcjbw
 
 if(!SYNC_URL){ try{ SYNC_URL=localStorage.getItem("brkg_feed_sync")||""; }catch(e){} }
 var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="";
-var retryTimer=null, pendingOffline=false, lastSavedAt="", imgFail=0;
-function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-function clockNow(){ var d=new Date(); return d.getHours()+"시 "+(d.getMinutes()<10?"0":"")+d.getMinutes()+"분"; }
 
 function badge(state, text){
   var b=document.getElementById("syncBadge"); if(!b) return;
@@ -598,43 +531,27 @@ function lastUser(){
 
 /* 서버로 올리기 — 잦은 입력을 모아 1.2초 뒤 한 번만 보낸다 */
 function pushMonth(now){
-  dirty=true;
-  if(!syncOn){ pendingOffline=true; badge("off","이 컴퓨터에만 저장됨"); return; }
-  clearTimeout(syncTimer);
-  syncTimer=setTimeout(function(){ sendMonth(0); }, now?0:900);
-}
-/* 올린 뒤 시트를 다시 읽어 확인하고, 안 들어갔으면 두 번 더 시도한다 */
-function sendMonth(tries){
   if(!syncOn) return;
-  badge("busy", tries?"다시 저장 중…":"저장 중…");
-  apiPost({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()})
-    .then(function(){ return wait(900); })
-    .then(function(){ return api({action:"feed_get", month:month}); })
-    .then(function(r){
-      if(!(r&&r.ok&&r.json)) throw new Error("시트에서 확인되지 않음");
-      dirty=false; pendingOffline=false;
-      lastPulled=r.updatedAt||""; lastSavedAt=clockNow();
-      badge("on","팀 저장 켜짐");
-    })
-    .catch(function(){
-      if(tries<2){ setTimeout(function(){ sendMonth(tries+1); }, 1500*(tries+1)); return; }
-      pendingOffline=true;
-      badge("off","저장 안 됨 · 눌러서 확인");
-    });
+  dirty=true;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(function(){
+    badge("busy","저장 중…");
+    var mine=JSON.stringify({slots:slots,posts:posts});
+    apiPost({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()})
+      .then(function(){
+        /* 응답을 읽을 수 없는 방식이라, 시트를 다시 읽어 확인한다 */
+        return new Promise(function(r){ setTimeout(r,900); }).then(function(){
+          return api({action:"feed_get", month:month});
+        });
+      })
+      .then(function(r){
+        dirty=false;
+        if(r&&r.ok&&r.json){ lastPulled=r.updatedAt||""; badge("on","팀 저장 켜짐"); }
+        else badge("off","저장 안 됨 · 배포 설정 확인");
+      })
+      .catch(function(e){ badge("off","저장 실패 · "+(e&&e.message||"")); });
+  }, now?0:1200);
 }
-/* 창을 닫거나 다른 화면으로 넘어갈 때, 아직 못 올린 내용을 마지막으로 밀어 보낸다 */
-function flushNow(){
-  if(!syncOn || !dirty || !SYNC_URL) return;
-  try{
-    if(navigator.sendBeacon){
-      var body=JSON.stringify({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()});
-      navigator.sendBeacon(SYNC_URL, new Blob([body],{type:"text/plain;charset=utf-8"}));
-      dirty=false;
-    }
-  }catch(e){}
-}
-document.addEventListener("visibilitychange", function(){ if(document.visibilityState==="hidden") flushNow(); });
-window.addEventListener("pagehide", flushNow);
 var profTimer=null;
 function pushProfile(){
   if(!syncOn) return;
@@ -677,10 +594,8 @@ function pullProfile(){
 
 /* 연결 전에 이 브라우저에만 올려 둔 이미지를 팀 저장으로 밀어 올린다 */
 var backfilling=false;
-function backfillImages(again){
-  if(!syncOn) return;
-  if(backfilling && !again) return;
-  if(again){ imgFail=0; }
+function backfillImages(){
+  if(!syncOn||backfilling) return;
   var need=[];
   posts.forEach(function(p){
     if(!p) return;
@@ -696,8 +611,7 @@ function backfillImages(again){
   function step(){
     if(i>=need.length){
       backfilling=false;
-      badge(imgFail?"off":"on", imgFail?("이미지 "+imgFail+"장 안 올라감"):"팀 저장 켜짐");
-      if(again) toast(sent?("이미지 "+sent+"장을 팀 저장에 올렸습니다."):"모든 이미지가 이미 올라가 있습니다.");
+      if(sent) badge("on","팀 저장 켜짐");
       return;
     }
     var id=need[i++];
@@ -715,103 +629,38 @@ function backfillImages(again){
 }
 
 function startSync(){
-  if(!SYNC_URL){ badge("off","이 브라우저에만 저장 · 눌러서 주소 넣기"); return; }
+  if(!SYNC_URL){ badge("off","이 브라우저에만 저장"); return; }
   if(typeof fetch!=="function"){ badge("off","이 브라우저에만 저장"); return; }
-  badge("busy","연결 중…");
   api({action:"ping"}).then(function(r){
-    if(!r||!r.ok) throw new Error("응답이 이상합니다");
-    syncOn=true;
-    clearInterval(retryTimer); retryTimer=null;
-    badge("on","팀 저장 켜짐");
+    if(!r||!r.ok){ badge("off","연결 안 됨"); return; }
+    syncOn=true; badge("on","팀 저장 켜짐");
     pullProfile();
-    return firstSync();
-  }).catch(function(){
-    syncOn=false;
-    badge("off","연결 안 됨 · 눌러서 확인");
-    /* 잠깐 끊긴 것일 수 있으니 20초마다 스스로 다시 붙는다 */
-    if(!retryTimer) retryTimer=setInterval(function(){ if(!syncOn) startSync(); }, 20000);
-  });
-}
-function hasLocalWork(){
-  for(var i=0;i<posts.length;i++){
-    var q=posts[i];
-    if(q&&(q.img||q.date||q.color||q.cap||(q.cands&&q.cands.length)||(q.steps&&Object.keys(q.steps).length))) return true;
-  }
-  return false;
-}
-/* 연결된 직후 한 번. 이 컴퓨터에만 남은 작업이 있으면 어느 쪽을 살릴지 먼저 묻는다 */
-function firstSync(){
-  var p;
-  if(pendingOffline && hasLocalWork()){
-    p = api({action:"feed_get", month:month}).then(function(r){
-      var mine=JSON.stringify({slots:slots,posts:posts});
-      if(r&&r.ok&&r.json&&r.json!==mine){
-        var keepMine=confirm("연결이 늦게 열려서, 이 컴퓨터에만 남아 있는 내용이 있습니다.\n\n확인 = 이 컴퓨터 내용을 팀 저장에 올립니다\n취소 = 팀 저장에 있는 내용을 받아옵니다");
-        if(keepMine){ pushMonth(true); return; }
-      }
-      return pullMonth(true);
-    });
-  } else {
-    p = pullMonth(true);
-  }
-  return p.then(function(){
-    backfillImages();
+    pullMonth(true).then(function(){ backfillImages(); });
     clearInterval(pullTimer);
     pullTimer=setInterval(function(){ pullMonth(false); }, 30000);
-  });
-}
-function askUrl(){
-  var u=prompt("팀 저장 주소(Apps Script 웹 앱 URL)를 넣어 주세요.\n비워 두면 이 브라우저에만 저장됩니다.", SYNC_URL||"");
-  if(u===null) return;
-  u=u.trim();
-  SYNC_URL=u;
-  try{ if(u) localStorage.setItem("brkg_feed_sync", u); else localStorage.removeItem("brkg_feed_sync"); }catch(e){}
-  syncOn=false; startSync();
-}
-/* 배지를 누르면 상태 창 */
-function syncPanel(){
-  var old=document.getElementById("syncPanel");
-  if(old){ old.remove(); return; }
-  var box=document.createElement("div");
-  box.id="syncPanel";
-  var st = syncOn ? "팀 저장에 연결됨" : (SYNC_URL ? "팀 저장에 연결되지 않음" : "주소가 없어 이 브라우저에만 저장됩니다");
-  var lines = "<div class='st'>"+st+"<br>"
-    + "마지막 저장 : " + (lastSavedAt||"아직 없음") + "<br>"
-    + "아직 못 올린 변경 : " + (dirty||pendingOffline ? "있음" : "없음")
-    + (imgFail?("<br>안 올라간 이미지 : "+imgFail+"장"):"")
-    + "</div>";
-  box.innerHTML = "<h4>팀 저장 상태</h4>" + lines
-    + "<button class='pink' data-a='push'>지금 올리기</button>"
-    + "<button data-a='pull'>지금 받아오기</button>"
-    + "<button data-a='img'>이미지 다시 올리기</button>"
-    + "<button data-a='url'>저장 주소 바꾸기</button>"
-    + "<button data-a='close'>닫기</button>";
-  document.body.appendChild(box);
-  box.addEventListener("click", function(e){
-    var b=e.target.closest("button"); if(!b) return;
-    var a=b.getAttribute("data-a");
-    if(a==="close"){ box.remove(); return; }
-    if(a==="url"){ box.remove(); askUrl(); return; }
-    if(!syncOn && a!=="url"){
-      box.remove();
-      alert("팀 저장에 연결되지 않았습니다.\n\n확인할 것\n· Apps Script 배포에서 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 '새 배포' 를 눌렀는지\n· 주소가 /exec 로 끝나는지\n· 회사 망에서 script.google.com 이 막혀 있지는 않은지");
-      startSync();
-      return;
-    }
-    if(a==="push"){ box.remove(); dirty=true; sendMonth(0); return; }
-    if(a==="pull"){ box.remove(); badge("busy","받아오는 중…"); lastPulled=""; pullMonth(true); return; }
-    if(a==="img"){ box.remove(); badge("busy","이미지 확인 중…"); backfillImages(true); return; }
-  });
-  setTimeout(function(){
-    document.addEventListener("click", function once(ev){
-      if(box.contains(ev.target)||ev.target.id==="syncBadge") return;
-      box.remove(); document.removeEventListener("click", once);
-    });
-  },0);
+  }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
 }
 document.getElementById("syncBadge").addEventListener("click", function(){
-  if(!SYNC_URL){ askUrl(); return; }
-  syncPanel();
+  if(!SYNC_URL){
+    var u=prompt("팀 저장 주소(웹 앱 URL)를 넣어 주세요.\n비워 두면 이 브라우저에만 저장됩니다.", "");
+    if(u&&u.indexOf("http")===0){
+      SYNC_URL=u.trim();
+      try{ localStorage.setItem("brkg_feed_sync", SYNC_URL); }catch(e){}
+      startSync();
+    }
+    return;
+  }
+  badge("busy","불러오는 중…");
+  api({action:"ping"}).then(function(r){
+    if(!r||!r.ok) throw new Error("응답이 이상합니다");
+    return pullMonth(true);
+  }).then(function(){
+    badge("on","팀 저장 켜짐");
+  }).catch(function(e){
+    badge("off","연결 안 됨");
+    alert("팀 저장에 연결하지 못했습니다.\n\n" + (e&&e.message||"") +
+          "\n\n확인할 것\n· Apps Script 배포에서 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 '새 배포' 를 했는지\n· 주소가 /exec 로 끝나는지");
+  });
 });
 /* ================= 팀 저장 끝 ================= */
 
@@ -824,22 +673,8 @@ function db(){ return new Promise(function(res,rej){
   r.onsuccess=function(){ DB=r.result; res(DB); };
   r.onerror=function(){ rej(r.error); };
 });}
-function uploadImg(k,v,tries){
-  apiPost({type:"feed_img", key:k, data:v})
-    .then(function(){ return wait(1400); })
-    .then(function(){ return api({action:"img_has", key:k}); })
-    .then(function(r){
-      if(!(r&&r.ok&&r.exists)) throw new Error("확인 안 됨");
-      if(imgFail>0) imgFail--;
-    })
-    .catch(function(){
-      if(tries<2){ setTimeout(function(){ uploadImg(k,v,tries+1); }, 2000*(tries+1)); return; }
-      imgFail++;
-      badge("off","이미지 "+imgFail+"장 안 올라감 · 눌러서 확인");
-    });
-}
 function imgPut(k,v){
-  if(syncOn) uploadImg(k,v,0);
+  if(syncOn) apiPost({type:"feed_img", key:k, data:v}).catch(function(){});
   return db().then(function(d){ return new Promise(function(res,rej){
     var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(v,k);
     t.oncomplete=function(){res()}; t.onerror=function(){rej(t.error)}; });});}
