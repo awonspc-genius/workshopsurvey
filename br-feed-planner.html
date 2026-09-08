@@ -590,7 +590,7 @@ document.getElementById("saveBtn").addEventListener("click", function(){
   if(!syncOn){ toast("팀 저장에 연결되지 않았습니다. 오른쪽 상태를 눌러 확인해 주세요."); return; }
   pushProfile(true);
   pushMonth(true);
-  backfillImages();      /* 아직 안 올라간 이미지가 있으면 같이 올린다 */
+  backfillImages();      /* 아직 안 올라간 이미지도 이때 함께 올린다 */
 });
 window.addEventListener("beforeunload", function(e){
   if(!dirty||!syncOn) return;
@@ -680,7 +680,7 @@ function startSync(){
     if(!r||!r.ok){ badge("off","연결 안 됨"); return; }
     syncOn=true; badge("on","팀 저장 켜짐");
     pullProfile();
-    pullMonth(true).then(function(){ backfillImages(); });
+    pullMonth(true).then(function(){ if(!dirty) backfillImages(); });
     clearInterval(pullTimer);
     pullTimer=setInterval(function(){
       if(document.hidden) return;
@@ -741,7 +741,7 @@ function db(){ return new Promise(function(res,rej){
   r.onerror=function(){ rej(r.error); };
 });}
 function imgPut(k,v){
-  if(syncOn) apiPost({type:"feed_img", key:k, data:v}).catch(function(){});
+  if(syncOn) markDirty();      /* 이미지도 저장 버튼을 눌러야 올라간다 */
   return db().then(function(d){ return new Promise(function(res,rej){
     var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(v,k);
     t.oncomplete=function(){res()}; t.onerror=function(){rej(t.error)}; });});}
