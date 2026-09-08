@@ -39,8 +39,21 @@
   table.yr td.mcell:hover { background:#FDF7F3; }
   table.yr td.on { background:var(--soft); }
   table.yr td.tbd { color:#C4B5AA; }
+  table.yr td.tbd .ginput { color:var(--choco); }
   .sv { font-size:15px; font-weight:900; }
   .sv i { font-style:normal; font-size:10.5px; font-weight:700; margin-left:2px; }
+  table.yr td .sub { display:block; font-size:10px; font-weight:600; color:#8a6f63; margin-top:1px; }
+  table.yr td .goal { display:block; font-size:10px; font-weight:800; color:var(--gold); margin-top:1px; }
+  table.yr td .sub2 { font-size:12.5px; font-weight:700; color:#8a6f63; }
+  table.yr td .mut { color:#C4B5AA; }
+  .rate { font-size:15px; font-weight:900; }
+  .rate.up { color:var(--mint); } .rate.dn { color:var(--berry); }
+  .ginput { width:52px; font:inherit; font-size:13px; font-weight:800; text-align:right;
+            border:1px solid var(--line); border-radius:6px; padding:3px 5px; background:#FDFAF7;
+            color:var(--choco); }
+  .ginput:focus { outline:none; border-color:var(--berry); background:#fff; }
+  .ginput::placeholder { color:#C4B5AA; font-weight:500; }
+  .gu { font-style:normal; font-size:10.5px; font-weight:700; color:#8a6f63; margin-left:3px; }
   .yoy { font-size:10.5px; font-weight:800; margin-top:2px; }
   .yoy.up { color:var(--mint); } .yoy.dn { color:var(--berry); } .yoy.flat { color:#A8988B; }
   .ipb { display:inline-block; font-size:9.5px; font-weight:800; border-radius:4px;
@@ -66,38 +79,42 @@
   .mkpi .k .v small { font-size:11px; font-weight:600; margin-left:1px; }
 
   /* 달력 */
-  .cal { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
-  .cal .dh { text-align:center; font-size:10.5px; font-weight:800; color:#8a6f63; padding:4px 0; }
-  .cal .dh.sun { color:var(--berry); }
-  .day { border:1px solid var(--line); border-radius:9px; padding:7px 8px 8px;
-         height:190px; background:#fff; display:flex; flex-direction:column; gap:3px; }
-  .day.out { background:#FBF8F5; border-color:#F4EAE2; }
-  .day.hol { background:#FDF2F6; border-color:#F2C6D8; }
+  .cal { display:flex; flex-direction:column; gap:8px; }
+  .calhead { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .calhead div { text-align:center; font-size:10.5px; font-weight:800; color:#8a6f63; padding:2px 0; }
+  .calhead div.sun { color:var(--berry); }
+  .calwk { border:1px solid var(--line); border-radius:10px; padding:6px 6px 7px; background:#fff; }
+  .calwk .wkdays { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .day { border-radius:7px; padding:5px 7px 6px; height:62px; background:#FDFAF7;
+         display:flex; flex-direction:column; gap:2px; }
+  .day.out { background:#F7F3EF; }
+  .day.hol { background:#FDF2F6; }
   .day .dn { font-size:12px; font-weight:900; }
   .day.out .dn { color:#C4B5AA; }
-  .day .dn .wd { font-size:9.5px; font-weight:700; color:#A8988B; margin-left:3px; }
-  .dhead { flex:none; }
-  .dsale { margin-top:1px; }
-  .dsale .bar { height:5px; background:#F4EAE2; border-radius:3px; overflow:hidden; }
-  .dsale .bar i { display:block; height:100%; background:var(--berry); border-radius:3px; }
-  .dsale .v { font-size:11px; font-weight:800; margin-top:2px; }
+  .dsale .sbar { height:4px; background:#EFE3D9; border-radius:3px; overflow:hidden; margin-top:2px; }
+  .dsale .sbar i { display:block; height:100%; background:var(--berry); border-radius:3px; }
+  .dsale .v { font-size:10.5px; font-weight:800; margin-top:2px; }
   .dsale .y { font-size:9.5px; font-weight:800; }
   .dsale .y.up { color:var(--mint); } .dsale .y.dn { color:var(--berry); }
-  .dsale.none .v { color:#C4B5AA; font-weight:600; font-size:10px; }
-  .dcount { font-size:9.5px; font-weight:800; color:#B09A8C; flex:none; }
-  .dchips { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:3px;
-            padding-right:2px; scrollbar-width:thin; }
-  .dchips::-webkit-scrollbar { width:4px; }
-  .dchips::-webkit-scrollbar-thumb { background:#E0CDBE; border-radius:3px; }
-  .chip { font-size:9.5px; font-weight:700; border-radius:4px; padding:2px 5px; line-height:1.35;
-          flex:none; }
-  .chip .st { font-weight:900; margin-right:2px; }
-  .chip.np  { background:var(--bluesoft); color:#1E3795; }
-  .chip.off { background:var(--soft); color:#B3245A; }
-  .chip.del { background:#E7F2EE; color:#0B5642; }
-  .chip.gif { background:var(--goldsoft); color:#8A6E12; }
-  .chip.com { background:#EDEFF5; color:#4A5478; }
-  .chip.ev  { background:#EDE9E3; color:#6b544b; }
+  .dsale.none .v { color:#C4B5AA; font-weight:600; }
+
+  /* 기간 막대 — 주마다 높이 고정, 넘치면 안에서 스크롤 */
+  .lanes { position:relative; height:152px; overflow-y:auto; margin-top:6px;
+           padding-right:2px; scrollbar-width:thin; }
+  .lanes::-webkit-scrollbar { width:4px; }
+  .lanes::-webkit-scrollbar-thumb { background:#E0CDBE; border-radius:3px; }
+  .lanes .empty { font-size:11px; color:#C4B5AA; padding:6px 2px; }
+  .lane { position:relative; height:19px; margin-bottom:3px; }
+  .lanes .bar { position:absolute; top:0; height:19px; border-radius:5px; padding:0 7px;
+         font-size:10px; font-weight:700; line-height:19px; white-space:nowrap;
+         overflow:hidden; text-overflow:ellipsis; }
+  .lanes .bar.np  { background:var(--bluesoft); color:#1E3795; }
+  .lanes .bar.off { background:var(--soft); color:#B3245A; }
+  .lanes .bar.del { background:#E7F2EE; color:#0B5642; }
+  .lanes .bar.gif { background:var(--goldsoft); color:#8A6E12; }
+  .lanes .bar.com { background:#EDEFF5; color:#4A5478; }
+  .lanes .bar.ev  { background:#E4DDD6; color:#5A4438; }
+  .lanes .bar .cut { opacity:.5; font-weight:900; }
 
   /* 표시 켜고 끄기 */
   .filt { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
@@ -269,7 +286,7 @@
   </footer>
 </div>
 
-<script id="planData" type="application/json">{"months":[{"n":1,"has":true,"sv":"656억","fn":"베리 굿","ip":"자체","ipst":"background:#EDE9E3;color:#8a6f63","gd":"굿즈 없음","gi":"","bd":["전년 ▼11%","출하 –"],"wip":false},{"n":2,"has":true,"sv":"661억","fn":"러블리 쫀꾸렛","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲22%","출하 –"],"wip":false},{"n":3,"has":true,"sv":"690억","fn":"두바이에서 온 엄마는 외계인","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲6%","출하 –"],"wip":false},{"n":4,"has":true,"sv":"678억","fn":"두바이 크런치 봉봉","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 없음","gi":"","bd":["전년 ▲9%","출하 –"],"wip":false},{"n":5,"has":true,"sv":"897억","fn":"말랑포도 메타몽","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 —","gi":"포켓몬 랜덤 키링 S2 (6종)","bd":["전년 ▲12%","출하 –"],"wip":false},{"n":6,"has":true,"sv":"772억","fn":"우디 후르츠 어드벤처","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종*","gi":"토이스토리 키즈 우의·키캡 세트","bd":["전년 ▼1%","출하 –"],"wip":false},{"n":7,"has":true,"sv":"882억","fn":"쵸파의 코튼캔디 크런치 외 1종","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종","gi":"쵸파 비치타월&amp;비치백 세트·원피스 랜덤 키링","bd":["전년 ▲2%","출하 –"],"wip":false},{"n":8,"has":true,"sv":"886억","fn":"산딸기가 끌리는 연유","ip":"셀럽","ipst":"background:#E8447A;color:#fff","gd":"굿즈 2종","gi":"박지훈 랜덤 키링 · 원피스 해적단 타프","bd":["전년 ▲7%","출하 –"],"wip":false},{"n":9,"has":true,"sv":"166.7억","fn":"도쿄바나나 크렘브륄레","ip":"원료","ipst":"background:#C9A227;color:#fff","gd":"굿즈 —","gi":"몬치치 9/11 출시 · 추석 원더풀 위크","bd":["전년 ▲2%","9/1~7"],"wip":true},{"n":10,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false},{"n":11,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false},{"n":12,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false}],"sep":{"daily":{"1":{"s":1655202850,"c":115564,"aov":14323,"pw":1781155190,"pwc":133333},"2":{"s":1833289700,"c":136948,"aov":13387,"pw":1859497720,"pwc":140046},"3":{"s":1837493620,"c":138306,"aov":13286,"pw":1786346785,"pwc":132892},"4":{"s":2408506910,"c":177039,"aov":13604,"pw":2400776210,"pwc":174124},"5":{"s":3755016770,"c":260201,"aov":14431,"pw":3636582340,"pwc":240405},"6":{"s":3268372200,"c":233328,"aov":14008,"pw":3172298730,"pwc":219307},"7":{"s":1914570060,"c":142292,"aov":13455,"pw":1633543190,"pwc":121661}},"promos":[{"t":"SUPER 배라위크 · 전 제품 50% OFF 쿠폰","d":"최대 1만원 · 쿠폰사용 ~9/8","ch":"오프라인","s":4,"e":6,"src":7},{"t":"HP APP 멤버십 배라감사제","d":"해피앱 멤버십","ch":"오프라인","s":4,"e":6,"src":7},{"t":"토스페이 싱글레귤러 1,900원","d":"계좌·머니 결제 시","ch":"오프라인","s":9,"e":11,"src":7},{"t":"HP APP 포인트결제 런칭 Promo.","d":"결제 금액 50% 캐시백(최대 5천)","ch":"오프라인","s":14,"e":30,"src":7},{"t":"LGU+ 유플투플","d":"전제품 1.5만 구매 시 40% OFF + 10% 적립","ch":"오프라인","s":14,"e":18,"src":7},{"t":"SKT T day · 파인트 40% 할인/적립","d":"월 1회 X-DAY","ch":"오프라인","s":16,"e":16,"src":7},{"t":"위챗페이 Promo.","d":"최대 60위안 할인","ch":"오프라인","s":18,"e":30,"src":7},{"t":"N pay 레디팩 2+2 / 2+1, 아메리카노 1+1","d":"네이버페이","ch":"오프라인","s":21,"e":27,"src":7},{"t":"9월 X-DAY · 패밀리 최대 9천원 할인/적립","d":"","ch":"오프라인","s":22,"e":30,"src":7},{"t":"삼성카드 LINK · 2천원 OFF 쿠폰","d":"1.85만원 이상 결제 시","ch":"오프라인","s":1,"e":30,"src":7},{"t":"H.Point 사용(최대 50%) · L.POINT 적립","d":"상시 제휴","ch":"오프라인","s":1,"e":30,"src":7},{"t":"배민클럽 쿠폰팩 3,500원 OFF","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 T멤버십","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 픽업데이","d":"","ch":"배달","s":1,"e":3,"src":8},{"t":"쿠팡이츠 셰프콜렉션 리텐션 4천원 OFF","d":"8/31 시작","ch":"배달","s":1,"e":6,"src":8},{"t":"배민 배짱할인 신규 3,000원 OFF","d":"일 150장 · 그 외 2,000원","ch":"배달","s":1,"e":6,"src":8},{"t":"쿠팡이츠 슈퍼딜 최대 7,000원 OFF","d":"","ch":"배달","s":7,"e":10,"src":8},{"t":"쿠팡이츠 선착순 5천원 OFF","d":"","ch":"배달","s":11,"e":13,"src":8},{"t":"메가팩 사전예약 20% 할인","d":"픽업 9/19~9/23","ch":"배달","s":11,"e":18,"src":8},{"t":"배민 18,500원 이상 3,000~4,000원 OFF","d":"토·일 선착순 일 1만장","ch":"배달","s":14,"e":20,"src":8},{"t":"배민 간편픽업 해피아워 4,000원 OFF","d":"14~17시 · 일 226장","ch":"배달","s":14,"e":20,"src":8},{"t":"추석 선물세트 픽업 프로모션","d":"","ch":"배달","s":15,"e":27,"src":8},{"t":"쿠팡이츠 추석 디저트 기획전 4천원 OFF","d":"일 5천장","ch":"배달","s":21,"e":27,"src":8},{"t":"쿠팡이츠 선착순 4천원 OFF","d":"일 7천장 · ~10/4","ch":"배달","s":28,"e":30,"src":8},{"t":"네이버 신제품 기획전","d":"","ch":"교환권","s":1,"e":5,"src":9},{"t":"해피앱 선물함 프로모션 1차","d":"","ch":"교환권","s":1,"e":13,"src":9},{"t":"11번가 반값딜","d":"","ch":"교환권","s":4,"e":4,"src":9},{"t":"카카오 일반 기획전","d":"","ch":"교환권","s":7,"e":13,"src":9},{"t":"네이버 타임특가 (TBD)","d":"","ch":"교환권","s":11,"e":11,"src":9},{"t":"마켓컬리 쿠폰 할인 기획전","d":"~10/31","ch":"교환권","s":14,"e":30,"src":9},{"t":"해피앱 선물함 프로모션 2차","d":"","ch":"교환권","s":14,"e":30,"src":9},{"t":"네이버 추석 사전 붐업","d":"","ch":"교환권","s":18,"e":20,"src":9},{"t":"카카오쇼핑라이브","d":"","ch":"교환권","s":21,"e":21,"src":9},{"t":"카카오 라이브 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"네이버 추석 프로모션","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"배라앱 추석 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"해피앱 추석맞이 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"카카오 쟁쟁한 특가","d":"~10/4","ch":"교환권","s":28,"e":30,"src":9},{"t":"도쿄바나나 FOM 파워페이지 5건","d":"바이럴","ch":"커뮤","s":1,"e":1,"src":12},{"t":"도쿄바나나 IC 라인업 소개 파워페이지 5건","d":"바이럴","ch":"커뮤","s":4,"e":4,"src":12},{"t":"핑크드림 캠페인 보도자료","d":"PR","ch":"커뮤","s":4,"e":4,"src":10},{"t":"몬치치 콜라보 티저 파워페이지 5건","d":"바이럴","ch":"커뮤","s":7,"e":7,"src":12},{"t":"도쿄바나나 라인업 실리뷰 인플루언서 4건","d":"바이럴","ch":"커뮤","s":9,"e":9,"src":12},{"t":"카페 31 홍보 파워페이지 5건","d":"일정 미정","ch":"커뮤","s":10,"e":10,"src":12},{"t":"몬치치 아이스크림·플레이컵 보도자료","d":"PR","ch":"커뮤","s":11,"e":11,"src":10},{"t":"몬치치 플레이컵 실리뷰 인플루언서 3건","d":"바이럴","ch":"커뮤","s":11,"e":11,"src":12}],"new":[{"t":"도쿄바나나 크렘브륄레","k":"FOM","day":null,"q":"22,000 TUB","rev":16.3,"note":"8/29 출시"},{"t":"카라멜 퐁당 몬치치","k":"LTO","day":11,"q":"8,000 TUB","rev":5.9},{"t":"몬치치 플레이컵 + 피규어 키링 SET","k":"SET","day":14,"q":"30,000 SET","rev":2.0,"price":"13,000원"},{"t":"도쿄바나나 바삭 브륄레","k":"케이크","day":null,"q":"15,000 EA","rev":2.4,"price":"32,000원","note":"8/29 출시"},{"t":"몬가 귀여운 몬치치","k":"케이크","day":21,"q":"8,000 EA","rev":1.5,"price":"38,000원","note":"4주차"},{"t":"달콤함에 빠진 몬치치","k":"케이크","day":11,"q":"7,000 EA","rev":1.3,"price":"36,000원"},{"t":"도쿄바나나 브륄레 랑그드샤 쿠키 샌드","k":"디저트","day":null,"q":"50,000 EA","rev":1.4,"price":"5,400원","note":"8/31 출시"},{"t":"아이스 브라운 쿠키 밀크 샌드","k":"디저트","day":7,"q":"18,000 SET","rev":0.5,"price":"5,700원"},{"t":"에스프레소 쿠키 크런치 모찌","k":"디저트","day":7,"q":"38,000 EA","rev":0.9,"price":"4,800원"},{"t":"비스코프 에스프레소 앤 카라멜","k":"케이크","day":12,"q":"7,000 EA","rev":1.0,"price":"29,000원"},{"t":"아이스 미니 마카롱 시그니처","k":"디저트","day":null,"q":"8,000 EA","rev":0.8,"price":"19,000원"},{"t":"아이스 미니 마카롱 리미티드","k":"디저트","day":null,"q":"7,000 EA","rev":0.7,"price":"19,000원"},{"t":"자모카 훠지 클라우드 라떼","k":"음료","day":null,"q":"7,000 EA","rev":0.1,"price":"4,900원"},{"t":"아몬드 봉봉 클라우드 라떼","k":"음료","day":null,"q":"3,000 EA","rev":0.1,"price":"5,400원"},{"t":"엄마는 외계인 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.03,"price":"4,500원"},{"t":"스트로베리 말차 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.04,"price":"4,500원"},{"t":"우리 사과 블라스트","k":"음료","day":null,"q":"8,000 EA","rev":0.2,"price":"5,300원"},{"t":"오르차타 블라스트","k":"음료","day":null,"q":"5,000 EA","rev":0.08,"price":"4,500원"},{"t":"몬치치 아메리카노(보이/걸)","k":"음료","day":14,"q":"33,200 EA","rev":0.3,"price":"3,900원"},{"t":"몬치치 납작복숭아 아이스티(보이/걸)","k":"음료","day":14,"q":"6,800 EA","rev":0.06,"price":"2,700원"}],"events":[{"d":24,"t":"추석 연휴"},{"d":25,"t":"추석"},{"d":26,"t":"추석 연휴"}],"theme":"도쿄바나나 & 몬치치 & 추석","weeks":[["1 WEEK",1,6],["2 WEEK",7,13],["3 WEEK",14,20],["4 & 5 WEEK",21,30]]}}</script>
+<script id="planData" type="application/json">{"months":[{"n":1,"has":true,"sv":"656억","fn":"베리 굿","ip":"자체","ipst":"background:#EDE9E3;color:#8a6f63","gd":"굿즈 없음","gi":"","bd":["전년 ▼11%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"베리 굿","q":"15,167EA","r":"출하율 5.4% · 전년비 +142%"},{"k":"LTO","n":"윈터 밤","q":"0EA","r":"출하율 – · 전년비 -100%"},{"k":"DES","n":"굿럭 초코 찹쌀떡","q":"12,456EA","r":"출하율 – · 전년비 –"}],"prev":734.0},{"n":2,"has":true,"sv":"661억","fn":"러블리 쫀꾸렛","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲22%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"진정한 쫀꾸렛","q":"18,446EA","r":"출하율 5.8% · 전년비 +52%"},{"k":"LTO","n":"쫀떡 만난 흑임자","q":"5,336EA","r":"출하율 2.8% · 전년비 –"}],"prev":542.3},{"n":3,"has":true,"sv":"690억","fn":"두바이에서 온 엄마는 외계인","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 1종","gi":"","bd":["전년 ▲6%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"두바이에서 온 엄마는 외계인","q":"45,068EA","r":"출하율 12.8% · 전년비 +175%"},{"k":"LTO","n":"쫀떡 만난 흑임자","q":"5,132EA","r":"출하율 3.9% · 전년비 –"}],"prev":653.2},{"n":4,"has":true,"sv":"678억","fn":"두바이 크런치 봉봉","ip":"컨셉","ipst":"background:#8A93B5;color:#fff","gd":"굿즈 없음","gi":"","bd":["전년 ▲9%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"두바이 크런치 봉봉","q":"25,364EA","r":"출하율 7.8% · 전년비 +43%"},{"k":"LTO","n":"쫀떡 만난 흑임자","q":"4,903EA","r":"출하율 4.1% · 전년비 –"}],"prev":623.1},{"n":5,"has":true,"sv":"897억","fn":"말랑포도 메타몽","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 —","gi":"포켓몬 랜덤 키링 S2 (6종)","bd":["전년 ▲12%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"말랑 포도 메타몽","q":"18,338EA","r":"출하율 5.0% · 전년비 +24%"},{"k":"FOM","n":"달빛 레몬 블래키","q":"14,307EA","r":"출하율 3.9% · 전년비 -3%"}],"prev":800.5},{"n":6,"has":true,"sv":"772억","fn":"우디 후르츠 어드벤처","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종*","gi":"토이스토리 키즈 우의·키캡 세트","bd":["전년 ▼1%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"우디의 후르츠 어드벤처","q":"10,132EA","r":"출하율 2.9% · 전년비 -60%"},{"k":"FOM","n":"버즈의 애플 리치 빔","q":"9,847EA","r":"출하율 2.8% · 전년비 -61%"}],"prev":776.7},{"n":7,"has":true,"sv":"882억","fn":"쵸파의 코튼캔디 크런치 외 1종","ip":"캐릭터","ipst":"background:#2B4CC4;color:#fff","gd":"굿즈 2종","gi":"쵸파 비치타월&amp;비치백 세트·원피스 랜덤 키링","bd":["전년 ▲2%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"쵸파의 코튼캔디 크런치","q":"14,111EA","r":"출하율 4.0% · 전년비 -14%"},{"k":"FOM","n":"고무고무 블루베리 마카롱","q":"6,531EA","r":"출하율 4.3% · 전년비 -60%"}],"prev":862.0},{"n":8,"has":true,"sv":"886억","fn":"산딸기가 끌리는 연유","ip":"셀럽","ipst":"background:#E8447A;color:#fff","gd":"굿즈 2종","gi":"박지훈 랜덤 키링 · 원피스 해적단 타프","bd":["전년 ▲7%","출하 –"],"wip":false,"fom":[{"k":"FOM","n":"산딸기가 끌리는 연유","q":"22,301텁","r":"출하율 6.6% · 목표 소진율 111.5% · 전년비 +37%"},{"k":"LTO","n":"비스코프 에스프레소 크런치","q":"8,195텁","r":"출하율 2.9% · 목표 소진율 37.8% · 전년비 -50%"},{"k":"IMC","n":"원피스 키링 세트","q":"21,957개","r":"목표 5.0만개 · 소진율 43.9%"},{"k":"IMC","n":"고무고무 열매 파인트","q":"18,617개","r":"목표 3.0만개 · 소진율 62.1%"}],"prev":827.4},{"n":9,"has":true,"sv":"166.7억","fn":"도쿄바나나 크렘브륄레","ip":"원료","ipst":"background:#C9A227;color:#fff","gd":"굿즈 —","gi":"몬치치 9/11 출시 · 추석 원더풀 위크","bd":["전년 ▲2%","9/1~7"],"wip":true,"fom":[{"k":"FOM","n":"도쿄바나나 크렘브륄레","q":"—","r":"목표 22,000텁 · 예상 16.3억"},{"k":"LTO","n":"카라멜 퐁당 몬치치","q":"—","r":"목표 8,000텁 · 예상 5.9억 · 9/11 출시"},{"k":"IMC","n":"몬치치 플레이컵 + 키링 SET","q":"—","r":"목표 30,000세트 · 예상 2.0억 · 9/14"}],"prev":651.8},{"n":10,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false,"fom":[],"prev":760.1},{"n":11,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false,"fom":[],"prev":607.5},{"n":12,"has":false,"sv":"","fn":"","ip":"","ipst":"","gd":"","gi":"","bd":[],"wip":false,"fom":[],"prev":798.1}],"sep":{"daily":{"1":{"s":1655202850,"c":115564,"aov":14323,"pw":1781155190,"pwc":133333},"2":{"s":1833289700,"c":136948,"aov":13387,"pw":1859497720,"pwc":140046},"3":{"s":1837493620,"c":138306,"aov":13286,"pw":1786346785,"pwc":132892},"4":{"s":2408506910,"c":177039,"aov":13604,"pw":2400776210,"pwc":174124},"5":{"s":3755016770,"c":260201,"aov":14431,"pw":3636582340,"pwc":240405},"6":{"s":3268372200,"c":233328,"aov":14008,"pw":3172298730,"pwc":219307},"7":{"s":1914570060,"c":142292,"aov":13455,"pw":1633543190,"pwc":121661}},"promos":[{"t":"SUPER 배라위크 · 전 제품 50% OFF 쿠폰","d":"최대 1만원 · 쿠폰사용 ~9/8","ch":"오프라인","s":4,"e":6,"src":7},{"t":"HP APP 멤버십 배라감사제","d":"해피앱 멤버십","ch":"오프라인","s":4,"e":6,"src":7},{"t":"토스페이 싱글레귤러 1,900원","d":"계좌·머니 결제 시","ch":"오프라인","s":9,"e":11,"src":7},{"t":"HP APP 포인트결제 런칭 Promo.","d":"결제 금액 50% 캐시백(최대 5천)","ch":"오프라인","s":14,"e":30,"src":7},{"t":"LGU+ 유플투플","d":"전제품 1.5만 구매 시 40% OFF + 10% 적립","ch":"오프라인","s":14,"e":18,"src":7},{"t":"SKT T day · 파인트 40% 할인/적립","d":"월 1회 X-DAY","ch":"오프라인","s":16,"e":16,"src":7},{"t":"위챗페이 Promo.","d":"최대 60위안 할인","ch":"오프라인","s":18,"e":30,"src":7},{"t":"N pay 레디팩 2+2 / 2+1, 아메리카노 1+1","d":"네이버페이","ch":"오프라인","s":21,"e":27,"src":7},{"t":"9월 X-DAY · 패밀리 최대 9천원 할인/적립","d":"","ch":"오프라인","s":22,"e":30,"src":7},{"t":"삼성카드 LINK · 2천원 OFF 쿠폰","d":"1.85만원 이상 결제 시","ch":"오프라인","s":1,"e":30,"src":7},{"t":"H.Point 사용(최대 50%) · L.POINT 적립","d":"상시 제휴","ch":"오프라인","s":1,"e":30,"src":7},{"t":"배민클럽 쿠폰팩 3,500원 OFF","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 T멤버십","d":"","ch":"배달","s":1,"e":30,"src":8},{"t":"해피오더 픽업데이","d":"","ch":"배달","s":1,"e":3,"src":8},{"t":"쿠팡이츠 셰프콜렉션 리텐션 4천원 OFF","d":"8/31 시작","ch":"배달","s":1,"e":6,"src":8},{"t":"배민 배짱할인 신규 3,000원 OFF","d":"일 150장 · 그 외 2,000원","ch":"배달","s":1,"e":6,"src":8},{"t":"쿠팡이츠 슈퍼딜 최대 7,000원 OFF","d":"","ch":"배달","s":7,"e":10,"src":8},{"t":"쿠팡이츠 선착순 5천원 OFF","d":"","ch":"배달","s":11,"e":13,"src":8},{"t":"메가팩 사전예약 20% 할인","d":"픽업 9/19~9/23","ch":"배달","s":11,"e":18,"src":8},{"t":"배민 18,500원 이상 3,000~4,000원 OFF","d":"토·일 선착순 일 1만장","ch":"배달","s":14,"e":20,"src":8},{"t":"배민 간편픽업 해피아워 4,000원 OFF","d":"14~17시 · 일 226장","ch":"배달","s":14,"e":20,"src":8},{"t":"추석 선물세트 픽업 프로모션","d":"","ch":"배달","s":15,"e":27,"src":8},{"t":"쿠팡이츠 추석 디저트 기획전 4천원 OFF","d":"일 5천장","ch":"배달","s":21,"e":27,"src":8},{"t":"쿠팡이츠 선착순 4천원 OFF","d":"일 7천장 · ~10/4","ch":"배달","s":28,"e":30,"src":8},{"t":"네이버 신제품 기획전","d":"","ch":"교환권","s":1,"e":5,"src":9},{"t":"해피앱 선물함 프로모션 1차","d":"","ch":"교환권","s":1,"e":13,"src":9},{"t":"11번가 반값딜","d":"","ch":"교환권","s":4,"e":4,"src":9},{"t":"카카오 일반 기획전","d":"","ch":"교환권","s":7,"e":13,"src":9},{"t":"네이버 타임특가 (TBD)","d":"","ch":"교환권","s":11,"e":11,"src":9},{"t":"마켓컬리 쿠폰 할인 기획전","d":"~10/31","ch":"교환권","s":14,"e":30,"src":9},{"t":"해피앱 선물함 프로모션 2차","d":"","ch":"교환권","s":14,"e":30,"src":9},{"t":"네이버 추석 사전 붐업","d":"","ch":"교환권","s":18,"e":20,"src":9},{"t":"카카오쇼핑라이브","d":"","ch":"교환권","s":21,"e":21,"src":9},{"t":"카카오 라이브 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"네이버 추석 프로모션","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"배라앱 추석 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"해피앱 추석맞이 기획전","d":"","ch":"교환권","s":21,"e":27,"src":9},{"t":"카카오 쟁쟁한 특가","d":"~10/4","ch":"교환권","s":28,"e":30,"src":9},{"t":"도쿄바나나 FOM 파워페이지 5건","d":"바이럴","ch":"커뮤","s":1,"e":1,"src":12},{"t":"도쿄바나나 IC 라인업 소개 파워페이지 5건","d":"바이럴","ch":"커뮤","s":4,"e":4,"src":12},{"t":"핑크드림 캠페인 보도자료","d":"PR","ch":"커뮤","s":4,"e":4,"src":10},{"t":"몬치치 콜라보 티저 파워페이지 5건","d":"바이럴","ch":"커뮤","s":7,"e":7,"src":12},{"t":"도쿄바나나 라인업 실리뷰 인플루언서 4건","d":"바이럴","ch":"커뮤","s":9,"e":9,"src":12},{"t":"카페 31 홍보 파워페이지 5건","d":"일정 미정","ch":"커뮤","s":10,"e":10,"src":12},{"t":"몬치치 아이스크림·플레이컵 보도자료","d":"PR","ch":"커뮤","s":11,"e":11,"src":10},{"t":"몬치치 플레이컵 실리뷰 인플루언서 3건","d":"바이럴","ch":"커뮤","s":11,"e":11,"src":12}],"new":[{"t":"도쿄바나나 크렘브륄레","k":"FOM","day":null,"q":"22,000 TUB","rev":16.3,"note":"8/29 출시"},{"t":"카라멜 퐁당 몬치치","k":"LTO","day":11,"q":"8,000 TUB","rev":5.9},{"t":"몬치치 플레이컵 + 피규어 키링 SET","k":"SET","day":14,"q":"30,000 SET","rev":2.0,"price":"13,000원"},{"t":"도쿄바나나 바삭 브륄레","k":"케이크","day":null,"q":"15,000 EA","rev":2.4,"price":"32,000원","note":"8/29 출시"},{"t":"몬가 귀여운 몬치치","k":"케이크","day":21,"q":"8,000 EA","rev":1.5,"price":"38,000원","note":"4주차"},{"t":"달콤함에 빠진 몬치치","k":"케이크","day":11,"q":"7,000 EA","rev":1.3,"price":"36,000원"},{"t":"도쿄바나나 브륄레 랑그드샤 쿠키 샌드","k":"디저트","day":null,"q":"50,000 EA","rev":1.4,"price":"5,400원","note":"8/31 출시"},{"t":"아이스 브라운 쿠키 밀크 샌드","k":"디저트","day":7,"q":"18,000 SET","rev":0.5,"price":"5,700원"},{"t":"에스프레소 쿠키 크런치 모찌","k":"디저트","day":7,"q":"38,000 EA","rev":0.9,"price":"4,800원"},{"t":"비스코프 에스프레소 앤 카라멜","k":"케이크","day":12,"q":"7,000 EA","rev":1.0,"price":"29,000원"},{"t":"아이스 미니 마카롱 시그니처","k":"디저트","day":null,"q":"8,000 EA","rev":0.8,"price":"19,000원"},{"t":"아이스 미니 마카롱 리미티드","k":"디저트","day":null,"q":"7,000 EA","rev":0.7,"price":"19,000원"},{"t":"자모카 훠지 클라우드 라떼","k":"음료","day":null,"q":"7,000 EA","rev":0.1,"price":"4,900원"},{"t":"아몬드 봉봉 클라우드 라떼","k":"음료","day":null,"q":"3,000 EA","rev":0.1,"price":"5,400원"},{"t":"엄마는 외계인 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.03,"price":"4,500원"},{"t":"스트로베리 말차 크림 라떼","k":"음료","day":null,"q":"2,000 EA","rev":0.04,"price":"4,500원"},{"t":"우리 사과 블라스트","k":"음료","day":null,"q":"8,000 EA","rev":0.2,"price":"5,300원"},{"t":"오르차타 블라스트","k":"음료","day":null,"q":"5,000 EA","rev":0.08,"price":"4,500원"},{"t":"몬치치 아메리카노(보이/걸)","k":"음료","day":14,"q":"33,200 EA","rev":0.3,"price":"3,900원"},{"t":"몬치치 납작복숭아 아이스티(보이/걸)","k":"음료","day":14,"q":"6,800 EA","rev":0.06,"price":"2,700원"}],"events":[{"d":24,"t":"추석 연휴"},{"d":25,"t":"추석"},{"d":26,"t":"추석 연휴"}],"theme":"도쿄바나나 & 몬치치 & 추석","weeks":[["1 WEEK",1,6],["2 WEEK",7,13],["3 WEEK",14,20],["4 & 5 WEEK",21,30]]}}</script>
 <script>
 var D = JSON.parse(document.getElementById("planData").textContent);
 var MON = D.months, SEP = D.sep;
@@ -285,38 +302,94 @@ var FILT = {};
 FKEYS.forEach(function(k){ FILT[k[0]] = true; });
 
 /* ── 연간 표 ── */
-(function(){
+/* 매출 목표는 자료에 없어서 직접 넣게 했습니다. 넣은 값은 이 브라우저에 저장됩니다. */
+var GOALKEY = "br_plan_goal_2026";
+var GOALS = (function(){
+  try { return JSON.parse(localStorage.getItem(GOALKEY)) || {}; } catch(e){ return {}; }
+})();
+function saveGoals(){
+  try { localStorage.setItem(GOALKEY, JSON.stringify(GOALS)); } catch(e){}
+}
+var num = function(v){ return parseFloat(String(v).replace(/[^0-9.]/g,"")) || 0; };
+
+function drawYear(){
   var head = "<thead><tr><th class='rh'></th>" + MON.map(function(m){
     return "<th data-m='" + m.n + "'>" + m.n + "월<small>" + SEASON[m.n] + "</small></th>";
   }).join("") + "</tr></thead>";
 
-  function rowCells(fn){ return MON.map(function(m){
+  function cells(fn){ return MON.map(function(m){
     return "<td class='mcell" + (m.has ? "" : " tbd") + "' data-m='" + m.n + "'>" + fn(m) + "</td>";
   }).join(""); }
 
+  function pick(m, kinds){
+    return (m.fom || []).filter(function(f){ return kinds.indexOf(f.k) > -1; });
+  }
+  function prod(list){
+    if(!list.length) return "—";
+    return list.map(function(f){
+      var g = /목표[^·]*/.exec(f.r);
+      return "<b style='font-weight:800'>" + f.n + "</b>" +
+             (f.q && f.q !== "—" ? "<span class='sub'>" + f.q + "</span>" : "") +
+             (g ? "<span class='goal'>" + g[0].trim() + "</span>" : "");
+    }).join("<div style='height:5px'></div>");
+  }
+
   var rows = [
-    ["시즌 이벤트", function(m){ return "<span class='season'>" + EVT[m.n] + "</span>"; }],
-    ["FOM", function(m){
-       if(!m.has) return "—";
-       return (m.ip ? "<span class='ipb' style='" + m.ipst + "'>" + m.ip + "</span><br>" : "") + m.fn;
-    }],
+    ["시즌", function(m){ return "<span class='season'>" + EVT[m.n] + "</span>"; }],
+    ["주력 · FOM", function(m){ return prod(pick(m, ["FOM"])); }],
+    ["서브 · LTO", function(m){ return prod(pick(m, ["LTO","DES"])); }],
     ["굿즈 · IMC", function(m){
-       if(!m.has) return "—";
-       return "<b style='font-weight:800'>" + (m.gd || "—") + "</b>" + (m.gi ? "<br>" + m.gi : "");
+        var imc = pick(m, ["IMC"]);
+        if(imc.length) return prod(imc);
+        if(!m.has) return "—";
+        return "<b style='font-weight:800'>" + (m.gd || "—") + "</b>" +
+               (m.gi ? "<span class='sub'>" + m.gi + "</span>" : "");
+    }],
+    ["매출 목표", function(m){
+        var v = GOALS[m.n] || "";
+        return "<input class='ginput' type='text' inputmode='decimal' data-g='" + m.n +
+               "' value='" + v + "' placeholder='—' aria-label='" + m.n + "월 매출 목표'><i class='gu'>억</i>";
     }],
     ["실매출", function(m){
-       if(!m.has) return "—";
-       var y = (m.bd[0] || "");
-       var cl = y.indexOf("▲") > -1 ? "up" : (y.indexOf("▼") > -1 ? "dn" : "flat");
-       return "<div class='sv'>" + m.sv + "</div><div class='yoy " + cl + "'>" + y + "</div>"
-              + (m.wip ? "<div class='yoy flat'>진행중</div>" : "");
+        if(!m.has) return "—";
+        return "<div class='sv'>" + m.sv + "</div>";
+    }],
+    ["목표 달성", function(m){
+        var g = num(GOALS[m.n]);
+        if(!m.has || !g) return "<span class='mut'>—</span>";
+        var a = num(m.sv), r = a/g*100;
+        return "<div class='rate " + (r>=100 ? "up" : "dn") + "'>" + r.toFixed(0) + "%</div>";
+    }],
+    ["전년 · 전년비", function(m){
+        if(!m.prev) return "—";
+        var out = "<div class='sub2'>" + m.prev.toFixed(0) + "억</div>";
+        if(!m.has) return out;                    /* 계획 전인 달도 전년은 보여줍니다 */
+        if(m.wip) return out + "<div class='mut' style='font-size:10px'>진행중</div>";
+        var r = (num(m.sv)/m.prev-1)*100;
+        return out + "<div class='yoy " + (r>=0 ? "up" : "dn") + "'>" +
+               (r>=0?"+":"") + r.toFixed(1) + "%</div>";
     }]
   ];
   var body = "<tbody>" + rows.map(function(r){
-    return "<tr><th class='rh'>" + r[0] + "</th>" + rowCells(r[1]) + "</tr>";
+    return "<tr><th class='rh'>" + r[0] + "</th>" + cells(r[1]) + "</tr>";
   }).join("") + "</tbody>";
   document.getElementById("yrTbl").innerHTML = head + body;
-})();
+}
+drawYear();
+
+/* 목표 입력 */
+document.getElementById("yrTbl").addEventListener("input", function(e){
+  var el = e.target.closest(".ginput");
+  if(!el) return;
+  GOALS[el.dataset.g] = el.value.trim();
+  saveGoals();
+  var m = MON[el.dataset.g - 1], g = num(el.value), td = el.closest("tr").parentNode
+      .querySelectorAll("tr")[6].querySelectorAll("td")[el.dataset.g - 1];
+  if(!td) return;
+  if(!m.has || !g){ td.innerHTML = "<span class='mut'>—</span>"; return; }
+  var r = num(m.sv)/g*100;
+  td.innerHTML = "<div class='rate " + (r>=100 ? "up" : "dn") + "'>" + r.toFixed(0) + "%</div>";
+});
 
 /* ── 월 상세 ── */
 var mdet = document.getElementById("mdet");
@@ -366,58 +439,88 @@ function renderSep(){
   var tot = vals.reduce(function(a,b){ return a+b; }, 0);
   var cus = Object.keys(daily).reduce(function(a,k){ return a + daily[k].c; }, 0);
   var pw  = Object.keys(daily).reduce(function(a,k){ return a + daily[k].pw; }, 0);
+  var evMapHol = {};
+  evs.forEach(function(e){ evMapHol[e.d] = e.t; });
 
-  /* 날짜별 시작 항목 */
+  /* 표시할 항목을 하나의 목록으로 모읍니다 (기간이 있는 것 = 막대) */
   var CHC = {"오프라인":"off","배달":"del","교환권":"gif","커뮤":"com"};
-  var startsN = {}, evMap = {};
-  news.forEach(function(x){ if(x.day){ (startsN[x.day] = startsN[x.day] || []).push(x); } });
-  evs.forEach(function(e){ evMap[e.d] = e.t; });
 
-  /* 그날 칸에 들어갈 칩 — 켜 놓은 것만 */
-  function dayChips(d){
-    var out = "", n = 0;
-    if(FILT.ev && evMap[d]){ out += "<div class='chip ev'>" + evMap[d] + "</div>"; n++; }
-    if(FILT.np){
-      (startsN[d] || []).forEach(function(x){
-        out += "<div class='chip np' title='" + x.t + " 출시'><span class='st'>▲</span>" + x.t + "</div>";
-        n++;
-      });
-    }
+  function items(){
+    var out = [];
+    if(FILT.ev) evs.forEach(function(e){ out.push({k:"ev", t:e.t, s:e.d, e:e.d}); });
+    if(FILT.np) news.forEach(function(x){
+      if(x.day) out.push({k:"np", t:"▲ " + x.t, s:x.day, e:x.day, tip:x.t + " 출시 (9/" + x.day + ")"});
+    });
     promos.forEach(function(p){
       var c = CHC[p.ch];
-      if(!FILT[c] || d < p.s || d > p.e) return;
-      out += "<div class='chip " + c + "' title='" + p.t + (p.d ? " · " + p.d : "") +
-             " (9/" + p.s + "~9/" + p.e + ")'>" +
-             (d === p.s ? "<span class='st'>▶</span>" : "") + p.t + "</div>";
-      n++;
+      if(FILT[c]) out.push({k:c, t:p.t, s:p.s, e:p.e,
+                            tip:p.t + (p.d ? " · " + p.d : "") + " (9/" + p.s + "~9/" + p.e + ")"});
     });
-    return { html: out, n: n };
+    return out;
   }
 
-  /* 달력 — 칸 높이는 CSS 로 고정돼 있어 칩이 늘어도 크기가 변하지 않습니다 */
+  /* 주 단위로 잘라 겹치지 않게 레인에 쌓습니다 */
+  var WEEKS_G = [[-0,6],[7,13],[14,20],[21,27],[28,34]];   /* 표시 구간(일). 1일=화요일 */
+  function packWeek(list, ws, we){
+    var lanes = [];
+    list.forEach(function(it){
+      var a = Math.max(it.s, ws), b = Math.min(it.e, we);
+      if(a > b) return;
+      var seg = {it:it, a:a, b:b, left:it.s < ws, right:it.e > we};
+      for(var i=0; i<lanes.length; i++){
+        var fit = lanes[i].every(function(x){ return seg.b < x.a || seg.a > x.b; });
+        if(fit){ lanes[i].push(seg); return; }
+      }
+      lanes.push([seg]);
+    });
+    return lanes;
+  }
+
+  /* 달력 — 주 블록 높이가 고정이라 켜고 꺼도 레이아웃이 흔들리지 않습니다 */
   function drawCal(){
-    var cal = ["월","화","수","목","금","토","일"].map(function(w,i){
-      return "<div class='dh" + (i===6 ? " sun" : "") + "'>" + w + "</div>";
-    }).join("");
-    for(var i=0; i<FIRST_WD; i++) cal += "<div class='day out'></div>";
-    for(var d=1; d<=DAYS; d++){
-      var wd = (FIRST_WD + d - 1) % 7;
-      var s2 = daily[d];
-      var sale = s2
-        ? "<div class='dsale'><div class='bar'><i style='width:" + (s2.s/mx*100).toFixed(0) + "%'></i></div>" +
-          "<div class='v'>" + eok(s2.s) + "억</div>" +
-          "<div class='y " + (s2.s>=s2.pw ? "up" : "dn") + "'>" +
-          ((s2.s>=s2.pw?"+":"") + ((s2.s/s2.pw-1)*100).toFixed(1)) + "%</div></div>"
-        : "<div class='dsale none'><div class='v'>—</div></div>";
-      var ch = dayChips(d);
-      cal += "<div class='day" + (evMap[d] ? " hol" : "") + "'>" +
-             "<div class='dhead'><div class='dn'>" + d + "<span class='wd'>" + WD[wd] + "</span></div>" +
-             sale + "</div>" +
-             (ch.n ? "<div class='dcount'>" + ch.n + "건</div>" : "<div class='dcount'></div>") +
-             "<div class='dchips'>" + ch.html + "</div></div>";
-    }
+    var list = items();
+    var html = "<div class='calhead'>" +
+      ["월","화","수","목","금","토","일"].map(function(w,i){
+        return "<div" + (i===6 ? " class='sun'" : "") + ">" + w + "</div>";
+      }).join("") + "</div>";
+
+    WEEKS_G.forEach(function(w){
+      var ws = w[0], we = w[1];
+      /* 날짜 칸 */
+      var days = "";
+      for(var col=0; col<7; col++){
+        var d = ws + col;
+        if(d < 1 || d > DAYS){ days += "<div class='day out'></div>"; continue; }
+        var s2 = daily[d];
+        var sale = s2
+          ? "<div class='dsale'><div class='sbar'>" +
+            "<i style='width:" + (s2.s/mx*100).toFixed(0) + "%'></i></div>" +
+            "<div class='v'>" + eok(s2.s) + "억 <span class='y " + (s2.s>=s2.pw ? "up" : "dn") + "'>" +
+            ((s2.s>=s2.pw?"+":"") + ((s2.s/s2.pw-1)*100).toFixed(1)) + "%</span></div></div>"
+          : "<div class='dsale none'><div class='v'>—</div></div>";
+        days += "<div class='day" + (evMapHol[d] ? " hol" : "") + "'>" +
+                "<div class='dn'>" + d + "</div>" + sale + "</div>";
+      }
+      /* 기간 막대 */
+      var lanes = packWeek(list, Math.max(ws,1), Math.min(we,DAYS));
+      var bars = "";
+      lanes.forEach(function(ln){
+        bars += "<div class='lane'>" + ln.map(function(g){
+          var c0 = g.a - ws, c1 = g.b - ws;
+          var left  = (c0/7*100), width = ((c1-c0+1)/7*100);
+          return "<div class='bar " + g.it.k + "' style='left:calc(" + left + "% + 1px);" +
+                 "width:calc(" + width + "% - 2px)' title='" + (g.it.tip || g.it.t) + "'>" +
+                 (g.left ? "<span class='cut'>‹ </span>" : "") + g.it.t +
+                 (g.right ? "<span class='cut'> ›</span>" : "") + "</div>";
+        }).join("") + "</div>";
+      });
+      if(!bars) bars = "<div class='empty'>표시할 항목이 없습니다</div>";
+      html += "<div class='calwk'><div class='wkdays'>" + days + "</div>" +
+              "<div class='lanes'>" + bars + "</div></div>";
+    });
+
     var el = document.getElementById("calGrid");
-    if(el) el.innerHTML = cal;
+    if(el) el.innerHTML = html;
   }
 
   /* 간트 */
