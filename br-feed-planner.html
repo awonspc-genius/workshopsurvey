@@ -1,9 +1,1743 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8">
-<title>이동합니다</title>
-<link rel="canonical" href="/feed/">
-<meta http-equiv="refresh" content="0; url=/feed/">
-<script>location.replace("/feed/" + location.search + location.hash);</script>
-</head><body style="font-family:sans-serif;padding:40px">
-<p>주소가 바뀌었습니다. <a href="/feed/">/feed/</a> 로 이동합니다.</p>
-</body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>피드 플래너 · BRK Genius</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --pink:#F0187C; --pink-soft:#FFE7F1; --ink:#191b22; --mid:#6b7180;
+  --line:#e3e6ec; --bg:#eef0f4; --card:#ffffff;
+  --r:14px; --shadow:0 1px 2px rgba(20,24,40,.06), 0 10px 30px rgba(20,24,40,.07);
+  --tile:4/5;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
+body{background:var(--bg);color:var(--ink);
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* gate */
+
+/* shell */
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.top .in{max-width:1180px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto;min-width:0}
+.brand .dot{width:26px;height:26px;border-radius:9px;background:var(--pink);flex:none}
+.brand b{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.brand em{color:var(--mid);font-size:12px;font-style:normal}
+.back{color:var(--mid);font-size:13px;text-decoration:none}
+.savebtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 14px;font-size:13px;font-weight:600}
+.savebtn.need{background:var(--pink);border-color:var(--pink);color:#fff}
+.savebtn:disabled{opacity:.5}
+.syncbadge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;color:var(--mid)}
+.syncbadge.on{border-color:#bfe4cc;background:#f1fbf4;color:#12a150;font-weight:600}
+.syncbadge.busy{border-color:#f6c9dd;background:var(--pink-soft);color:#c2005f}
+.syncbadge.off{border-color:var(--line);color:var(--mid)}
+.monthpick{display:flex;align-items:center;gap:6px;background:#f4f6f9;border-radius:11px;padding:4px}
+.monthpick button{border:0;background:transparent;padding:5px 9px;border-radius:8px;color:var(--mid);font-size:16px;line-height:1}
+.monthpick input{border:0;background:transparent;font-weight:600;width:118px;text-align:center;padding:4px}
+.views{display:flex;background:#f4f6f9;border-radius:11px;padding:4px;gap:2px}
+.views button{border:0;background:transparent;padding:7px 15px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--mid)}
+.views button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.wrap{max-width:1180px;width:100%;margin:0 auto;padding:14px 18px 16px;display:grid;
+  grid-template-columns:minmax(0,1fr) var(--feedW,440px);gap:20px;flex:1;min-height:0}
+.col-left{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto;padding-right:2px}
+.col-right{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.col-left>.panel,.col-right>.panel{flex:none}
+.cal-panel{padding:14px}
+.feed-panel{padding:12px;display:flex;flex-direction:column;align-items:center}
+.feed-panel .phone{width:100%;flex:none}
+.feed-panel .underphone{width:100%;flex:none;justify-content:center}
+@media(min-width:901px){
+  html,body{height:100%}
+  body{overflow:hidden}
+  #app{display:flex;flex-direction:column;height:100vh;min-height:0}
+  .top{flex:none}
+}
+@media(max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);padding:12px 12px 90px;gap:14px;min-height:auto;height:auto;width:100%}
+  .col-left,.col-right{overflow:visible;height:auto;min-height:0;min-width:0;max-width:100%}
+  .panel,.phone,.cal,.months,.steps{max-width:100%}
+  .flow{overflow-wrap:anywhere}
+  .loglist .row{flex-wrap:wrap}
+  .panel{padding:14px}
+  .steps .sthead{flex-wrap:wrap;row-gap:6px}
+  .steps .sthead .nm{flex:1 1 100%;order:-1}
+  .stwho{flex:1 1 auto;width:auto;min-width:90px}
+  .top .in{gap:10px}
+  .monthpick input{width:104px}
+  .els{grid-template-columns:1fr}
+}
+
+/* phone mock */
+.phone{background:#fff;border:1px solid #d9dde4;border-radius:6px;overflow:hidden;box-shadow:var(--shadow);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,sans-serif;color:#111}
+.ph-top{display:flex;align-items:center;gap:12px;padding:12px 14px 6px}
+.ph-top .h{flex:1;text-align:center;font-weight:700;font-size:16px}
+.ph-head{padding:10px 14px 0}
+.ph-row{display:flex;align-items:center;gap:16px}
+.avatar{width:78px;height:78px;border-radius:50%;flex:none;background:#ece7e2;background-size:cover;background-position:center;
+  cursor:pointer;position:relative;border:0;padding:0}
+.avatar::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.avatar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa0aa;font-size:20px}
+.stats{display:flex;flex:1;justify-content:space-around;text-align:center;gap:6px;min-width:0}
+.stats div b{display:block;font-size:17px;font-weight:700;white-space:nowrap}
+.stats div i{font-size:12.5px;color:#333;font-style:normal;white-space:nowrap}
+.ph-name{margin-top:12px;font-weight:700;font-size:14.5px}
+.ph-cat{font-size:13px;color:#8e8e8e}
+.ph-bio{font-size:13px;white-space:pre-wrap;margin-top:2px}
+.ph-link{font-size:13px;color:#1c5fca;margin-top:6px;display:flex;align-items:center;gap:5px}
+.ph-actions{display:flex;gap:6px;margin-top:12px}
+.ph-actions b{flex:1;background:#efefef;border-radius:9px;text-align:center;padding:7px 0;font-size:13px;font-weight:600}
+.ph-actions b.sq{flex:none;width:40px}
+.hl{display:flex;gap:13px;padding:14px 14px 12px;overflow-x:auto;scrollbar-width:none}
+.hl::-webkit-scrollbar{display:none}
+.hl .item{text-align:center;flex:none;width:62px;position:relative}
+.hl .circ{display:block;width:60px;height:60px;border-radius:50%;background:#ece7e2;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07);
+  background-size:cover;background-position:center;border:0;padding:0;cursor:pointer}
+.hl .lab{display:block;font-size:11px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hl .x{position:absolute;right:0;top:-2px;width:19px;height:19px;border-radius:50%;border:0;background:#111;color:#fff;
+  font-size:11px;line-height:19px;padding:0;opacity:0;transition:.12s}
+.hl .item:hover .x{opacity:1}
+@media(hover:none){.hl .x{opacity:.75}}
+.hl .add{width:60px;height:60px;border-radius:50%;border:1.5px dashed #cfd4dc;background:#fbfcfd;color:#aab0ba;font-size:20px}
+.ph-tabs{display:flex;border-top:1px solid #efefef}
+.ph-tabs div{flex:1;display:flex;justify-content:center;padding:9px 0;color:#c7c7c7;border-bottom:1.5px solid transparent}
+.ph-tabs div.on{color:#111;border-bottom-color:#111}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:#fff}
+.ph-nav{display:flex;justify-content:space-around;padding:11px 0 12px;border-top:1px solid #efefef}
+
+.ce{outline:0;border-radius:4px;cursor:text}
+.ce:hover{box-shadow:0 0 0 1px var(--pink-soft)}
+.ce:focus{box-shadow:0 0 0 2px var(--pink)}
+.ce:empty::before{content:attr(data-ph);color:#c2c7cf}
+
+.slot{position:relative;aspect-ratio:var(--tile);background:#f3f4f6;overflow:hidden;border:0;padding:0;display:block;width:100%}
+.slot img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.slot:has(img){cursor:grab}
+.slot:has(img):active{cursor:grabbing}
+.slot.empty{background:repeating-linear-gradient(135deg,#fafbfc,#fafbfc 7px,#f2f4f7 7px,#f2f4f7 14px);
+  display:flex;align-items:center;justify-content:center;color:#b9bfc9;font-size:22px;font-weight:300}
+.slot.drop{outline:2px solid var(--pink);outline-offset:-2px}
+.slot .grab{position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:7px;border:0;
+  background:rgba(17,17,17,.55);color:#fff;font-size:11px;line-height:24px;text-align:center;touch-action:none;opacity:0;transition:opacity .12s}
+.slot .del{position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:7px;border:0;
+  background:rgba(17,17,17,.55);color:#fff;font-size:13px;line-height:24px;text-align:center;padding:0;opacity:0;transition:opacity .12s}
+.slot .del:hover{background:var(--pink)}
+.slot:hover .grab,.slot:hover .del{opacity:1}
+@media(hover:none){.slot .grab,.slot .del{opacity:.9}}
+.slot .day{position:absolute;right:4px;bottom:4px;background:rgba(17,17,17,.6);color:#fff;font-size:10px;padding:2px 5px;border-radius:5px}
+.slot .kind{position:absolute;right:32px;top:4px;color:#fff;font-size:11px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.slot.sel{outline:2.5px solid var(--pink);outline-offset:-2.5px}
+#ghost{position:fixed;left:0;top:0;z-index:80;border-radius:7px;overflow:hidden;pointer-events:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);opacity:.9;will-change:transform}
+#ghost img{width:100%;height:100%;object-fit:cover}
+
+.underphone{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:9px 13px;font-size:13.5px;font-weight:500}
+.btn:hover{border-color:#c9cfd9}
+.btn.pink{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:600}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--mid)}
+.btn.warn{color:var(--pink);border-color:#f6c9dd}
+.hint{color:var(--mid);font-size:12px;margin:8px 2px 0;text-align:center;max-width:360px}
+
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.panel+.panel{margin-top:16px}
+.panel h2{font-size:15px;margin:0 0 3px;letter-spacing:-.01em}
+.panel .sub{color:var(--mid);font-size:12.5px;margin:0 0 16px}
+.f{margin-bottom:13px}
+.f label{display:block;font-size:12.5px;color:var(--mid);margin-bottom:5px}
+.f input,.f textarea,.f select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.f input:focus,.f textarea:focus,.f select:focus{outline:2px solid var(--pink-soft);border-color:var(--pink)}
+.f textarea{resize:vertical;min-height:78px;line-height:1.55}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.count{float:right;font-size:11.5px;color:var(--mid)}
+.teamchip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#f1f3f7;color:var(--mid);margin-left:6px}
+.steps{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.steps .st{padding:9px 11px;border-bottom:1px solid var(--line)}
+.steps .st:last-child{border-bottom:0}
+.steps .st.done{background:#f4fbf6}
+.steps .sthead{display:flex;align-items:center;gap:8px}
+.steps .sthead .nm{flex:1;min-width:0}
+.steps .stbody{margin:10px 0 3px}
+.steps .st.off .nm{color:var(--mid)}
+.steps .st .num{width:20px;height:20px;border-radius:50%;background:#eceff4;color:var(--mid);font-size:11px;
+  display:flex;align-items:center;justify-content:center;flex:none;font-weight:600}
+.steps .st.done .num{background:#12a150;color:#fff}
+.steps .st .nm{font-size:13.5px;flex:1;min-width:0}
+.steps .st .by{display:block;font-size:11.5px;color:var(--mid)}
+.cands{display:flex;gap:7px;margin-bottom:9px;height:82px;align-items:center;overflow-x:auto;overflow-y:hidden;
+  padding-bottom:2px;scrollbar-width:thin}
+.cands .ph{width:62px;height:78px;border-radius:9px;border:1px dashed var(--line);background:#fbfcfd;flex:none}
+.cands .addtile{width:62px;height:78px;flex:none;border-radius:9px;border:1.5px dashed #c9cfd9;background:#fbfcfd;
+  color:#98a0ad;font-size:24px;font-weight:300;line-height:1;padding:0}
+.cands .addtile:hover{border-color:var(--pink);color:var(--pink)}
+.cands .msg{font-size:11.5px;color:var(--mid)}
+.cand{position:relative;width:62px;height:78px;flex:none;border-radius:9px;overflow:hidden;border:1px solid var(--line);
+  padding:0;background:#eef0f4}
+.cand img{width:100%;height:100%;object-fit:cover;display:block}
+.cand.on{outline:2.5px solid var(--pink);outline-offset:-2.5px}
+.cand .fin{position:absolute;left:3px;bottom:3px;background:var(--pink);color:#fff;font-size:9.5px;padding:1px 5px;border-radius:5px}
+.cand .x{position:absolute;right:2px;top:2px;width:17px;height:17px;border-radius:50%;border:0;background:rgba(17,17,17,.6);
+  color:#fff;font-size:11px;line-height:17px;padding:0}
+.slot .bar{position:absolute;left:0;top:0;bottom:0;width:5px}
+.slot .pips{position:absolute;left:5px;bottom:4px;display:flex;gap:2px}
+.slot .pips i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.4)}
+.slot .pips i.on{background:#12a150}
+
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px;color:var(--mid);font-size:12px}
+.flow b{font-weight:600;color:var(--ink)}
+.logbox{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.loghead{font-size:12px;color:var(--mid);font-weight:600;margin-bottom:6px}
+.loglist{max-height:104px;overflow:auto;font-size:11.5px;line-height:1.7;color:var(--mid)}
+.loglist .row{display:flex;gap:8px;justify-content:space-between}
+.loglist .row b{font-weight:600;color:var(--ink)}
+.loglist .cancel{color:var(--pink)}
+.loglist .none{color:#aab0ba}
+.daybar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dayswitch{display:flex;gap:6px}
+.daychip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 10px;font-size:12px}
+.daychip.on{border-color:var(--pink);background:var(--pink-soft);font-weight:600}
+.picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 14px;min-height:38px}
+.picked>img{width:30px;height:37px;object-fit:cover;border-radius:6px;background:#eef0f4}
+.picked .t{font-size:13px;font-weight:600}
+.picked .m{font-size:12px;color:var(--mid)}
+.picked .pill{border:1px solid var(--line);background:#fff;border-radius:9px;padding:4px 9px 4px 4px;font-size:12px;
+  display:flex;align-items:center;gap:6px}
+.picked .pill img{width:20px;height:25px;object-fit:cover;border-radius:4px;background:#eef0f4}
+.picked .pill:hover{border-color:var(--pink)}
+.mini{font-size:11.5px;color:var(--mid);margin:0}
+.teamhead{display:flex;align-items:baseline;gap:9px;margin-bottom:10px}
+.teamhead h2{margin:0}
+.teamhead .wk{font-size:12.5px;color:var(--pink);font-weight:600}
+.months{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:8px}
+.mchip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 2px;text-align:center;line-height:1.2}
+.mchip b{display:block;font-size:12px;font-weight:600}
+.mchip span{font-size:9.5px;color:var(--mid)}
+.mchip.on{border-color:var(--pink);background:var(--pink-soft)}
+.mchip.full b{color:#12a150}
+@media(max-width:900px){.months{grid-template-columns:repeat(4,1fr)}}
+.colorrow{display:flex;gap:8px;align-items:center}
+.colorrow input[type=color]{width:44px;height:36px;padding:3px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.colorrow #fColorHex{width:118px;padding:8px 10px;border:1px solid var(--line);border-radius:9px}
+#fMemo{width:100%;min-height:92px;font-size:11.5px;line-height:1.6;padding:9px 11px;
+  border:1px solid var(--line);border-radius:10px;resize:vertical}
+.stwho{width:88px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px;flex:none}
+.stwho[readonly]{background:#f6f7f9;color:var(--mid)}
+.steps [data-c]:disabled{opacity:.45;cursor:not-allowed}
+.elspanel summary{cursor:pointer;font-size:15px;font-weight:600;list-style:none}
+.elspanel summary::-webkit-details-marker{display:none}
+.elspanel summary::after{content:"펼치기";float:right;font-size:12.5px;color:var(--mid);font-weight:400}
+.elspanel[open] summary::after{content:"접기"}
+.elspanel[open] summary{margin-bottom:12px}
+#phonePreview{position:fixed;inset:0;background:rgba(15,18,28,.8);z-index:86;display:flex;align-items:center;
+  justify-content:center;padding:20px}
+#phonePreview .frame{width:min(92vw,392px);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;
+  box-shadow:0 30px 70px rgba(0,0,0,.45)}
+#phonePreview .close{position:absolute;top:18px;right:20px;background:#fff;border:0;border-radius:10px;
+  padding:8px 14px;font-size:13px;font-weight:600}
+.finalbox{display:flex;gap:11px;align-items:center;margin-bottom:12px}
+.finalbox img{width:62px;aspect-ratio:var(--tile);object-fit:cover;border-radius:9px;background:#eef0f4;display:block}
+#lightbox{position:fixed;inset:0;background:rgba(15,18,28,.82);z-index:88;display:flex;align-items:center;
+  justify-content:center;padding:24px;cursor:zoom-out}
+#lightbox img{max-width:min(92vw,760px);max-height:88vh;border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+#lightbox .cap{position:absolute;bottom:18px;color:#fff;font-size:13px;opacity:.85}
+.els{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.els label{display:flex;align-items:center;gap:8px;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer}
+.els label:has(input:checked){border-color:var(--pink);background:var(--pink-soft)}
+.els input{accent-color:var(--pink);width:16px;height:16px}
+
+.calhead{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.calhead h2{margin:0;font-size:18px}
+.navm{border:1px solid var(--line);background:#fff;border-radius:9px;width:30px;height:30px;font-size:16px;
+  line-height:1;color:var(--mid);padding:0}
+.navm:hover{border-color:var(--pink);color:var(--pink)}
+.cal .thumbs button{cursor:grab}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dow{font-size:10.5px;color:var(--mid);text-align:center;padding-bottom:1px}
+.cal .cell{border:1px solid var(--line);border-radius:7px;aspect-ratio:1/1;min-height:0;padding:3px;background:#fff;overflow:hidden}
+.cal .cell.out{background:#f8f9fb;border-style:dashed}
+.cal .cell .n{font-size:11px;color:var(--mid);line-height:1.2}
+.cal .cell.sun .n{color:var(--pink)}
+.cal .thumbs{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
+.cal .thumbs button{width:24px;height:30px;border-radius:5px;border:0;padding:0;overflow:hidden;background:#eef0f4;
+  touch-action:none}
+.cal .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.cal .thumbs button.on{box-shadow:0 0 0 2px var(--pink)}
+.cal .cell[data-date]{cursor:pointer}
+.cal .cell.drop{outline:2px solid var(--pink);outline-offset:-2px;background:var(--pink-soft)}
+.cal .cell.selday{border-color:var(--pink);border-width:2px;padding:2px}
+.cal .cell{position:relative}
+.cal .prog{position:absolute;right:4px;top:3px;font-size:9.5px;color:var(--mid);font-weight:600}
+.cal .colors{position:absolute;left:0;right:0;top:0;height:5px;display:flex;overflow:hidden;border-radius:6px 6px 0 0}
+.cal .colors i{flex:1}
+.cal .cell .n{margin-top:3px}
+.cal .prog.full{color:#12a150}
+.und{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:5px}
+@media(max-width:560px){.cal .thumbs button{width:20px;height:25px}}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#191b22;color:#fff;
+  padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;pointer-events:none;transition:.22s;z-index:95}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.hidden{display:none !important}
+:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <div class="in">
+      <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
+      <button class="btn savebtn" id="saveBtn">저장</button>
+      <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
+      <div class="monthpick">
+        <button id="prevM" aria-label="이전 달">‹</button>
+        <input type="month" id="month" aria-label="계획 월">
+        <button id="nextM" aria-label="다음 달">›</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="col-left">
+      <div class="panel cal-panel">
+        <div class="calhead">
+          <button class="navm" id="calPrev" aria-label="이전 달">‹</button>
+          <h2 id="calTitle">9월</h2>
+          <button class="navm" id="calNext" aria-label="다음 달">›</button>
+        </div>
+        <p class="sub">날짜를 누르면 그날 올릴 게시물이 아래에 열립니다. 썸네일을 끌어 다른 날로 옮길 수 있어요.</p>
+        <div class="cal" id="cal"></div>
+        <div style="margin-top:16px">
+          <p class="sub" id="undatedSub" style="margin-bottom:8px"></p>
+          <div class="und" id="undated"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="teamhead">
+          <h2>팀 확인</h2>
+          <span class="wk" id="wkLabel">달력에서 날짜를 고르세요</span>
+        </div>
+        <div class="months" id="months"></div>
+        <div class="flow">
+          <b>컬러 선정</b> IMC <span>→</span> <b>이미지 후보</b> 피이그 <span>→</span>
+          <b>이미지 선정</b> 지니어스 <span>→</span> <b>검수</b> 디자인 <span>→</span> <b>최종 확인·파일</b> IMC
+        </div>
+
+        <div class="steps" id="steps">
+          <div class="st" data-k="color">
+            <div class="sthead"><span class="num">1</span>
+              <span class="nm">컬러 선정<span class="teamchip">IMC</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="colorrow">
+                <input type="color" id="fColor" aria-label="컬러 고르기">
+                <input id="fColorHex" placeholder="#E4ECB2">
+              </div>
+            </div>
+          </div>
+
+          <div class="st" data-k="cand">
+            <div class="sthead"><span class="num">2</span>
+              <span class="nm">이미지 후보<span class="teamchip">피이그</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="cands"></div>
+              <span class="mini">＋ 칸을 눌러 올리고, 올린 이미지를 누르면 크게 보입니다</span>
+            </div>
+          </div>
+
+          <div class="st" data-k="pick">
+            <div class="sthead"><span class="num">3</span>
+              <span class="nm">이미지 선정<span class="teamchip">지니어스</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="cands" id="pickList"></div>
+              <span class="mini" id="pickNote">후보 중 하나를 누르면 최종이 됩니다</span>
+            </div>
+          </div>
+
+          <div class="st" data-k="review">
+            <div class="sthead"><span class="num">4</span>
+              <span class="nm">검수<span class="teamchip">디자인</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <textarea id="fMemo" placeholder="검수 의견이나 수정 요청을 적으세요. 없으면 확인만 눌러도 됩니다."></textarea>
+            </div>
+          </div>
+
+          <div class="st" data-k="post">
+            <div class="sthead"><span class="num">5</span>
+              <span class="nm">최종 확인 및 파일 다운<span class="teamchip">IMC</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <div class="finalbox">
+                <img id="finalThumb" alt="최종 이미지">
+                <div>
+                  <p class="mini" id="finalNote">아직 최종 이미지가 없습니다.</p>
+                  <button class="btn sm" id="dlFinal">이 이미지 내려받기</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="logbox">
+          <div class="loghead">기록</div>
+          <div class="loglist" id="logList"></div>
+        </div>
+
+        <div class="daybar">
+          <div class="dayswitch" id="sameDay"></div>
+          <button class="btn sm" id="addSameDay">이 날짜에 게시물 추가</button>
+          <button class="btn sm warn" id="delPost">이 게시물 지우기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="panel feed-panel">
+        <div class="phone">
+        <div class="ph-top" data-el="topbar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>
+          <span class="h ce" id="pHandle" contenteditable data-key="handle" data-ph="계정 아이디"></span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 15v-4a6 6 0 1 0-12 0v4l-1.5 3h15z"/><path d="M10 21h4"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </div>
+
+        <div class="ph-head">
+          <div class="ph-row">
+            <button class="avatar" id="avatar" aria-label="프로필 사진 올리기"><span id="avPlus">+</span></button>
+            <div class="stats" data-el="stats">
+              <div><b id="stPosts">0</b><i>게시물</i></div>
+              <div><b class="ce" contenteditable data-key="followers" data-ph="0"></b><i>팔로워</i></div>
+              <div><b class="ce" contenteditable data-key="following" data-ph="0"></b><i>팔로잉</i></div>
+            </div>
+          </div>
+          <div class="ph-name ce" contenteditable data-el="name" data-key="name" data-ph="계정 이름"></div>
+          <div class="ph-cat ce" contenteditable data-el="cat" data-key="cat" data-ph="카테고리"></div>
+          <div class="ph-bio ce" contenteditable data-el="bio" data-key="bio" data-ph="소개글"></div>
+          <div class="ph-link" data-el="link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>
+            <span class="ce" contenteditable data-key="link" data-ph="링크 주소"></span>
+          </div>
+          <div class="ph-actions" data-el="actions">
+            <b class="ce" contenteditable data-key="btn1" data-ph="버튼"></b>
+            <b class="ce" contenteditable data-key="btn2" data-ph="버튼"></b>
+            <b class="ce" contenteditable data-key="btn3" data-ph="버튼"></b>
+            <b class="sq">＋</b>
+          </div>
+        </div>
+
+        <div class="hl" data-el="highlights" id="hlRow"></div>
+
+        <div class="ph-tabs" data-el="tabs" id="phTabs"></div>
+        <div class="grid" id="grid"></div>
+        <div class="ph-nav" data-el="nav">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+      </div>
+
+        <div class="underphone">
+        <button class="btn pink" id="addSlot">칸 3개 늘리기</button>
+        <button class="btn" id="lessSlot">칸 3개 줄이기</button>
+        <button class="btn" id="phoneView">폰에서 보기</button>
+      </div>
+      <p class="hint" id="summary">아직 등록된 게시물이 없습니다.</p>
+      <p class="hint">폰 화면의 글자는 눌러서 바로 고칠 수 있어요. 이미지는 끌어서 순서를 바꾸고, 달력 날짜로 끌면 발행일이 잡힙니다.</p>
+      </div>
+
+      <details class="panel elspanel">
+        <summary>화면 요소</summary>
+        <p class="sub">필요한 것만 켜서 실제 계정 화면과 똑같이 맞추세요.</p>
+        <div class="els" id="els"></div>
+        <div class="row2" style="margin-top:12px">
+          <div class="f" style="margin:0"><label for="tabCount">탭 개수</label>
+            <select id="tabCount"><option value="3">3개 (그리드·릴스·태그됨)</option><option value="4">4개 (가이드 포함)</option></select>
+          </div>
+          <div class="f" style="margin:0"><label for="hlAdd">하이라이트</label>
+            <button class="btn" id="hlAdd" style="width:100%">하이라이트 추가</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="filePick" accept="image/*" class="hidden">
+<div id="lightbox" class="hidden"><img alt="후보 이미지 크게 보기"><span class="cap"></span></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+var LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
+
+/* ================= 팀 저장 (구글 시트) =================
+   feed-apps-script.txt 를 시트에 붙여넣고 웹 앱으로 배포한 뒤,
+   나온 https://script.google.com/macros/s/....../exec 주소를
+   아래 따옴표 안에 넣어 주세요. 비워 두면 이 브라우저에만 저장됩니다. */
+var BUILD = "2026-09-08 v6";   /* 이 화면이 몇 번째 판인지 확인용 */
+var SYNC_URL = "https://script.google.com/macros/s/AKfycby839KinLDHNzqDivc3fcjbwHNI5SeOggRMwSkoQ3CYWI4AeF2lV2Xx4ttlKwb4Fy8slQ/exec";
+
+try{ var savedUrl=localStorage.getItem("brkg_feed_sync"); if(savedUrl) SYNC_URL=savedUrl; }catch(e){}
+var syncOn=false, syncTimer=null, pullTimer=null, dirty=false, lastPulled="", lastError="", dirtySeq=0;
+
+function badge(state, text){
+  var b=document.getElementById("syncBadge"); if(!b) return;
+  b.className="syncbadge "+state; b.textContent=text;
+  b.title="화면 버전 "+BUILD+" · 눌러서 상태 보기";
+}
+/* 읽기는 JSONP 로 — 브라우저 보안(CORS)에 막히지 않는다 */
+var cbSeq=0;
+function api(params){
+  return new Promise(function(res,rej){
+    var cb="brkfeedcb"+(++cbSeq)+"_"+Date.now();
+    var sc=document.createElement("script");
+    var done=false;
+    var timer=setTimeout(function(){ finish(); rej(new Error("시간 초과")); }, 15000);
+    function finish(){
+      if(done) return; done=true;
+      clearTimeout(timer);
+      try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+    }
+    window[cb]=function(data){ finish(); res(data); };
+    var q=[];
+    for(var k in params) q.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));
+    q.push("callback="+cb);
+    sc.src=SYNC_URL+(SYNC_URL.indexOf("?")<0?"?":"&")+q.join("&");
+    sc.onerror=function(){ finish(); rej(new Error("주소를 열지 못했습니다")); };
+    document.head.appendChild(sc);
+  });
+}
+function apiPost(obj){
+  if(typeof fetch!=="function") return Promise.reject(new Error("no fetch"));
+  return fetch(SYNC_URL, {
+    method:"POST", mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(obj)
+  });
+}
+function lastUser(){
+  var el=document.querySelector(".steps .stwho"); 
+  var v="";
+  document.querySelectorAll(".steps .stwho").forEach(function(e){ if(e.value.trim()) v=e.value.trim(); });
+  return v;
+}
+
+/* 손으로 저장 — 상단 저장 버튼을 누를 때만 시트로 올린다 */
+function markDirty(){
+  dirty=true; dirtySeq++;
+  var b=document.getElementById("saveBtn");
+  if(b){ b.classList.add("need"); b.textContent="저장"; }
+  if(syncOn) badge("busy","저장 안 한 변경 있음");
+}
+function pushMonth(now){
+  if(!syncOn) return;
+  if(!now){ markDirty(); return; }
+  var b=document.getElementById("saveBtn");
+  if(b) b.disabled=true;
+  var seqAtStart=dirtySeq;
+  (function(){
+    badge("busy","저장 중…");
+    var mine=JSON.stringify({slots:slots,posts:posts});
+    apiPost({type:"feed_save", month:month, data:{slots:slots,posts:posts}, by:lastUser()})
+      .then(function(){
+        /* 응답을 읽을 수 없는 방식이라, 시트를 다시 읽어 확인한다 */
+        return new Promise(function(r){ setTimeout(r,900); }).then(function(){
+          return api({action:"feed_get", month:month});
+        });
+      })
+      .then(function(r){
+        var b2=document.getElementById("saveBtn");
+        if(b2) b2.disabled=false;
+        if(r&&r.ok&&r.json){
+          lastPulled=r.updatedAt||"";
+          while(pendingDel.length){                       /* 지운 이미지도 서버에서 정리 */
+            apiPost({type:"feed_img_del", key:pendingDel.shift()}).catch(function(){});
+          }
+          if(dirtySeq===seqAtStart){        /* 저장하는 사이에 또 고쳤으면 그대로 둔다 */
+            dirty=false;
+            if(b2){ b2.classList.remove("need"); b2.textContent="저장됨"; }
+            badge("on","팀 저장 켜짐 · "+String(r.updatedAt).slice(11,16));
+          } else {
+            badge("busy","저장 안 한 변경 있음");
+          }
+        } else {
+          lastError=(r&&r.error)||"시트에 줄이 생기지 않았습니다.";
+          badge("off","저장 안 됨 · 눌러서 확인");
+        }
+      })
+      .catch(function(e){
+        var b3=document.getElementById("saveBtn"); if(b3) b3.disabled=false;
+        badge("off","저장 실패 · "+(e&&e.message||""));
+      });
+  })();
+}
+document.addEventListener("visibilitychange", function(){
+  if(!document.hidden) pullMonth(false);      /* 다른 창에 갔다 오면 곧바로 최신으로 */
+});
+window.addEventListener("focus", function(){ pullMonth(false); });
+
+document.getElementById("saveBtn").addEventListener("click", function(){
+  if(!syncOn){ toast("팀 저장에 연결되지 않았습니다. 오른쪽 상태를 눌러 확인해 주세요."); return; }
+  pushProfile(true);
+  pushMonth(true);
+  backfillImages();      /* 아직 안 올라간 이미지도 이때 함께 올린다 */
+});
+window.addEventListener("beforeunload", function(e){
+  if(!dirty||!syncOn) return;
+  e.preventDefault(); e.returnValue="";
+});
+function pushProfile(now){
+  if(!syncOn) return;
+  if(!now){ markDirty(); return; }
+  apiPost({type:"feed_save", month:"__profile__", data:profile, by:lastUser()}).catch(function(){});
+}
+
+/* 서버에서 받아오기 */
+function pullMonth(force){
+  if(!syncOn) return Promise.resolve();
+  if(dirty&&!force) return Promise.resolve();
+  return api({action:"feed_get", month:month}).then(function(r){
+    if(!r||!r.ok) return;
+    if(!r.json){ pushMonth(true); return; }
+    if(!force && r.updatedAt && r.updatedAt===lastPulled) return;
+    var same=(JSON.stringify({slots:slots,posts:posts})===r.json);
+    lastPulled=r.updatedAt||"";
+    if(same) return;
+    var o=JSON.parse(r.json);
+    var keepId=(sel>=0&&posts[sel])?posts[sel].id:null;
+    posts=o.posts||[]; slots=o.slots||12;
+    if(slots<posts.length) slots=Math.ceil(posts.length/3)*3;
+    try{ localStorage.setItem(LS_MONTH+month, JSON.stringify({slots:slots,posts:posts})); }catch(e){}
+    sel=-1;
+    if(keepId){ posts.forEach(function(p,i){ if(p&&p.id===keepId) sel=i; }); }
+    renderSteps(); renderCands(); renderLog(); renderAll();
+    badge("on","팀 저장 켜짐");
+    var bb=document.getElementById("saveBtn");
+    if(bb&&!dirty){ bb.classList.remove("need"); bb.textContent="저장됨"; }
+  }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
+}
+function pullProfile(){
+  if(!syncOn) return;
+  api({action:"feed_get", month:"__profile__"}).then(function(r){
+    if(!r||!r.ok||!r.json) return;
+    var o=JSON.parse(r.json);
+    for(var k in o) profile[k]=o[k];
+    saveProfileLocal();
+    fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
+  }).catch(function(){});
+}
+
+/* 연결 전에 이 브라우저에만 올려 둔 이미지를 팀 저장으로 밀어 올린다 */
+var backfilling=false;
+function backfillImages(){
+  if(!syncOn||backfilling) return;
+  var need=[];
+  posts.forEach(function(p){
+    if(!p) return;
+    if(p.img) need.push(p.img);
+    (p.cands||[]).forEach(function(c){ need.push(c); });
+  });
+  if(profile.avatar) need.push(profile.avatar);
+  (profile.highlights||[]).forEach(function(h){ if(h.img) need.push(h.img); });
+  need=need.filter(function(v,i){ return v && need.indexOf(v)===i; });
+  if(!need.length) return;
+  backfilling=true;
+  var i=0, sent=0;
+  function step(){
+    if(i>=need.length){
+      backfilling=false;
+      if(sent) badge("on","팀 저장 켜짐");
+      return;
+    }
+    var id=need[i++];
+    api({action:"img_has", key:id}).then(function(r){
+      if(r&&r.ok&&r.exists) return null;
+      return imgGet(id).then(function(v){
+        if(!v) return null;
+        sent++;
+        badge("busy","이미지 올리는 중 "+sent+"…");
+        return apiPost({type:"feed_img", key:id, data:v});
+      });
+    }).catch(function(){}).then(function(){ setTimeout(step, 250); });
+  }
+  step();
+}
+
+function startSync(){
+  if(!SYNC_URL){ badge("off","이 브라우저에만 저장"); return; }
+  if(typeof fetch!=="function"){ badge("off","이 브라우저에만 저장"); return; }
+  api({action:"ping"}).then(function(r){
+    if(!r||!r.ok){ badge("off","연결 안 됨"); return; }
+    syncOn=true; badge("on","팀 저장 켜짐");
+    pullProfile();
+    pullMonth(true).then(function(){ if(!dirty) backfillImages(); });
+    clearInterval(pullTimer);
+    pullTimer=setInterval(function(){
+      if(document.hidden) return;
+      pullMonth(false);
+    }, 8000);
+  }).catch(function(){ badge("off","연결 안 됨 · 이 브라우저에만"); });
+}
+document.getElementById("syncBadge").addEventListener("click", function(){
+  if(!SYNC_URL){
+    var u=prompt("팀 저장 주소(웹 앱 URL)를 넣어 주세요.\n비워 두면 이 브라우저에만 저장됩니다.", "");
+    if(u&&u.indexOf("http")===0){
+      SYNC_URL=u.trim();
+      try{ localStorage.setItem("brkg_feed_sync", SYNC_URL); }catch(e){}
+      startSync();
+    }
+    return;
+  }
+  badge("busy","확인 중…");
+  api({action:"diag"}).then(function(r){
+    var lines=[];
+    if(r&&r.ok){
+      lines.push("화면 버전: "+BUILD);
+      if(r.images===undefined) lines.push("⚠ Apps Script 가 옛 버전입니다 — 새 코드로 다시 배포해 주세요");
+      lines.push("시트: "+(r.sheetName||"?"));
+      if(r.rows!==undefined) lines.push("저장된 월: "+r.rows+"개");
+      if(r.sheetUrl) lines.push(r.sheetUrl);
+      if(r.images!==undefined){
+        var need=[];
+        posts.forEach(function(p){ if(!p) return; if(p.img) need.push(p.img); (p.cands||[]).forEach(function(c){ need.push(c); }); });
+        need=need.filter(function(v,i){ return v&&need.indexOf(v)===i; });
+        lines.push("이미지: 이 달에 "+need.length+"장 / 서버에 "+r.images+"장");
+      }
+      if(r.folderUrl) lines.push("이미지 폴더: "+r.folderUrl);
+      if(r.user) lines.push("실행 계정: "+r.user);
+      if(lastError) lines.push("\n마지막 오류: "+lastError);
+      alert("팀 저장 상태\n\n"+lines.join("\n"));
+      syncOn=true; pullMonth(true).then(function(){ backfillImages(); });
+      badge("on","팀 저장 켜짐");
+    } else {
+      alert("스크립트가 시트나 드라이브에 접근하지 못했습니다.\n\n"+
+            ((r&&(r.sheetError||r.folderError||r.error))||"이유를 알 수 없습니다.")+
+            "\n\nApps Script 편집기에서 함수 '준비확인' 을 한 번 실행해 권한을 승인한 뒤 다시 시도해 주세요.");
+      badge("off","저장 안 됨 · 눌러서 확인");
+    }
+  }).catch(function(e){
+    badge("off","연결 안 됨");
+    var msg="팀 저장에 연결하지 못했습니다.\n\n"+(e&&e.message||"")+
+      "\n\n지금 쓰는 주소\n"+SYNC_URL+
+      "\n\n확인할 것\n· 배포의 액세스 권한이 '모든 사용자' 인지\n· 코드를 고친 뒤 배포를 새 버전으로 올렸는지\n· 주소가 /exec 로 끝나는지"+
+      "\n\n새 주소로 바꾸시겠어요? (취소를 누르면 그대로 둡니다)";
+    if(!confirm(msg)) return;
+    var u=prompt("배포 관리에 적힌 웹 앱 URL 을 붙여넣어 주세요.\n(빈 칸으로 두고 확인을 누르면 저장해 둔 주소를 지웁니다)", SYNC_URL);
+    if(u===null) return;
+    u=u.trim();
+    if(u&&u.indexOf("http")!==0){ alert("http 로 시작하는 주소여야 합니다."); return; }
+    try{
+      if(u) localStorage.setItem("brkg_feed_sync", u);
+      else localStorage.removeItem("brkg_feed_sync");
+    }catch(err){}
+    SYNC_URL=u;
+    syncOn=false; badge("busy","확인 중…");
+    startSync();
+  });
+});
+/* ================= 팀 저장 끝 ================= */
+
+/* ---------- image store ---------- */
+var DB=null, cache={};
+function db(){ return new Promise(function(res,rej){
+  if(DB) return res(DB);
+  var r=indexedDB.open("brkg_feed",1);
+  r.onupgradeneeded=function(){ r.result.createObjectStore("imgs"); };
+  r.onsuccess=function(){ DB=r.result; res(DB); };
+  r.onerror=function(){ rej(r.error); };
+});}
+function imgPut(k,v){
+  if(syncOn) markDirty();      /* 이미지도 저장 버튼을 눌러야 올라간다 */
+  return db().then(function(d){ return new Promise(function(res,rej){
+    var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(v,k);
+    t.oncomplete=function(){res()}; t.onerror=function(){rej(t.error)}; });});}
+function imgGet(k){ return db().then(function(d){ return new Promise(function(res,rej){
+  var q=d.transaction("imgs","readonly").objectStore("imgs").get(k);
+  q.onsuccess=function(){res(q.result||null)}; q.onerror=function(){rej(q.error)}; });});}
+var pendingDel=[];
+function imgDel(k){
+  if(syncOn && pendingDel.indexOf(k)<0) pendingDel.push(k);   /* 저장할 때 서버에서도 지운다 */
+  return db().then(function(d){ return new Promise(function(res){
+    var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").delete(k); t.oncomplete=function(){res()}; });}).catch(function(){});}
+var pulling={};
+function loadImg(id){
+  if(!id) return Promise.resolve(null);
+  if(cache[id]) return Promise.resolve(cache[id]);
+  return imgGet(id).then(function(v){
+    if(v){ cache[id]=v; return v; }
+    return fetchImg(id);                    /* 이 브라우저에 없으면 팀 저장에서 받아온다 */
+  }).catch(function(){ return fetchImg(id); });
+}
+function fetchImg(id){
+  if(!syncOn) return null;
+  if(pulling[id]) return pulling[id];
+  pulling[id]=api({action:"img_url", key:id}).then(function(r){
+    if(r&&r.ok&&r.url){ delete pulling[id]; cache[id]=r.url; return r.url; }
+    /* 주소로 못 받으면 파일 내용을 통째로 받아온다 */
+    return api({action:"img", key:id}).then(function(r2){
+      delete pulling[id];
+      if(!r2||!r2.ok||!r2.data) return null;
+      var url="data:"+(r2.mime||"image/jpeg")+";base64,"+r2.data;
+      cache[id]=url;
+      db().then(function(d){ var t=d.transaction("imgs","readwrite"); t.objectStore("imgs").put(url,id); }).catch(function(){});
+      return url;
+    });
+  }).catch(function(){ delete pulling[id]; return null; });
+  return pulling[id];
+}
+function shrink(file,max){
+  return new Promise(function(res,rej){
+    var fr=new FileReader();
+    fr.onload=function(){
+      var im=new Image();
+      im.onload=function(){
+        var s=Math.min(1,max/Math.max(im.width,im.height));
+        var w=Math.round(im.width*s), h=Math.round(im.height*s);
+        var c=document.createElement("canvas"); c.width=w; c.height=h;
+        c.getContext("2d").drawImage(im,0,0,w,h);
+        res(c.toDataURL("image/jpeg",0.86));
+      };
+      im.onerror=function(){ rej(new Error("이미지를 읽지 못했습니다.")); };
+      im.src=fr.result;
+    };
+    fr.onerror=function(){ rej(new Error("파일을 읽지 못했습니다.")); };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- state ---------- */
+var ELEMENTS=[
+  {k:"topbar",n:"상단 바"},{k:"stats",n:"게시물·팔로워 수"},{k:"name",n:"계정 이름"},
+  {k:"cat",n:"카테고리"},{k:"bio",n:"소개글"},{k:"link",n:"링크"},
+  {k:"actions",n:"버튼 줄"},{k:"highlights",n:"하이라이트"},{k:"tabs",n:"탭"},{k:"nav",n:"하단 바"}
+];
+var STEPS=[
+  {k:"color",n:"컬러 선정",t:"IMC"},
+  {k:"cand", n:"이미지 후보",t:"피이그"},
+  {k:"pick", n:"이미지 선정",t:"지니어스"},
+  {k:"review",n:"검수",t:"디자인"},
+  {k:"post", n:"최종 확인 및 파일 다운",t:"IMC"}
+];
+var month=ymNow(), slots=12, posts=[], sel=-1;
+var profile={
+  handle:"baskinrobbinskorea", name:"배스킨라빈스 코리아", cat:"아이스크림 · 디저트",
+  bio:"31가지 맛으로 매일 새로운 즐거움", link:"www.baskinrobbins.co.kr",
+  followers:"31.0만", following:"312", btn1:"팔로우", btn2:"메시지", btn3:"저장",
+  avatar:null, ratio:"4/5", tabs:3,
+  highlights:[{label:"신제품",img:null},{label:"이달의 맛",img:null},{label:"콜라보",img:null},{label:"이벤트",img:null}],
+  show:{topbar:true,stats:true,name:true,cat:true,bio:true,link:true,actions:true,highlights:true,tabs:true,nav:true}
+};
+
+function ymNow(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1); }
+function pad(n){ return (n<10?"0":"")+n; }
+function uid(){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function toast(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},1900); }
+function saveMonth(){
+  try{ localStorage.setItem(LS_MONTH+month, JSON.stringify({slots:slots,posts:posts})); }
+  catch(e){ toast("저장 공간이 가득 찼습니다. 지난 달 자료를 백업 후 정리해 주세요."); }
+  pushMonth();
+}
+function saveProfileLocal(){ try{ localStorage.setItem(LS_PROFILE, JSON.stringify(profile)); }catch(e){} }
+function saveProfile(){ saveProfileLocal(); pushProfile(); }
+function loadMonth(){
+  var raw=localStorage.getItem(LS_MONTH+month);
+  if(raw){ try{ var o=JSON.parse(raw); posts=o.posts||[]; slots=o.slots||12; }catch(e){ posts=[]; slots=12; } }
+  else { posts=[]; slots=12; }
+  if(slots<posts.length) slots=Math.ceil(posts.length/3)*3;
+  sel=-1;
+}
+
+/* ---------- editable text ---------- */
+document.querySelectorAll(".ce[contenteditable]").forEach(function(el){
+  el.addEventListener("input", function(){ profile[el.getAttribute("data-key")]=el.textContent; saveProfile(); });
+  el.addEventListener("keydown", function(e){ if(e.key==="Enter"&&el.getAttribute("data-key")!=="bio"){ e.preventDefault(); el.blur(); } });
+  el.addEventListener("paste", function(e){
+    e.preventDefault();
+    var t=(e.clipboardData||window.clipboardData).getData("text");
+    document.execCommand("insertText",false,t);
+  });
+});
+function fillText(){
+  document.querySelectorAll(".ce[contenteditable]").forEach(function(el){
+    if(document.activeElement===el) return;
+    el.textContent=profile[el.getAttribute("data-key")]||"";
+  });
+}
+
+/* ---------- element toggles ---------- */
+function renderEls(){
+  var box=document.getElementById("els"); box.innerHTML="";
+  ELEMENTS.forEach(function(e){
+    var l=document.createElement("label");
+    var c=document.createElement("input"); c.type="checkbox"; c.checked=profile.show[e.k]!==false;
+    var s=document.createElement("span"); s.textContent=e.n;
+    c.addEventListener("change", function(){ profile.show[e.k]=c.checked; saveProfile(); applyShow(); queueFit(); });
+    l.appendChild(c); l.appendChild(s); box.appendChild(l);
+  });
+  document.getElementById("tabCount").value=String(profile.tabs||3);
+}
+function applyShow(){
+  ELEMENTS.forEach(function(e){
+    var n=document.querySelector('[data-el="'+e.k+'"]');
+    if(n) n.classList.toggle("hidden", profile.show[e.k]===false);
+  });
+}
+document.getElementById("tabCount").addEventListener("change", function(){
+  profile.tabs=Number(this.value); saveProfile(); renderTabs();
+});
+function renderTabs(){
+  var svgs=[
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 8h18M9 3l3 5M15 3l3 5M10 12.5v4l4-2z"/></svg>',
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h7v14H4zM13 5h7v14h-7z"/></svg>',
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19c1.4-2.6 3.3-3.9 5.5-3.9s4.1 1.3 5.5 3.9"/></svg>'
+  ];
+  var order=(profile.tabs===4)?[0,1,2,3]:[0,1,3];
+  var t=document.getElementById("phTabs"); t.innerHTML="";
+  order.forEach(function(i,idx){
+    var d=document.createElement("div"); if(idx===0) d.className="on";
+    d.innerHTML=svgs[i]; t.appendChild(d);
+  });
+}
+
+/* ---------- highlights ---------- */
+function renderHl(){
+  var row=document.getElementById("hlRow"); row.innerHTML="";
+  profile.highlights.forEach(function(h,i){
+    var it=document.createElement("div"); it.className="item";
+    var b=document.createElement("button"); b.className="circ"; b.setAttribute("aria-label",(i+1)+"번째 하이라이트 이미지");
+    if(h.img) loadImg(h.img).then(function(u){ if(u) b.style.backgroundImage="url("+u+")"; });
+    b.addEventListener("click", function(){ pickMode="hl"; pickIndex=i; filePick.value=""; filePick.click(); });
+    var lab=document.createElement("span"); lab.className="lab ce"; lab.contentEditable="true"; lab.textContent=h.label;
+    lab.addEventListener("input", function(){ profile.highlights[i].label=lab.textContent; saveProfile(); });
+    lab.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); lab.blur(); } });
+    var x=document.createElement("button"); x.className="x"; x.textContent="×"; x.title="삭제";
+    x.addEventListener("click", function(){
+      if(h.img) imgDel(h.img);
+      profile.highlights.splice(i,1); saveProfile(); renderHl();
+    });
+    it.appendChild(b); it.appendChild(lab); it.appendChild(x); row.appendChild(it);
+  });
+  var add=document.createElement("div"); add.className="item";
+  var ab=document.createElement("button"); ab.className="add"; ab.textContent="+"; ab.setAttribute("aria-label","하이라이트 추가");
+  ab.addEventListener("click", addHl);
+  add.appendChild(ab); row.appendChild(add);
+}
+function addHl(){
+  profile.highlights.push({label:"새 하이라이트",img:null}); saveProfile(); renderHl();
+  if(profile.show.highlights===false){ profile.show.highlights=true; saveProfile(); renderEls(); applyShow(); }
+}
+document.getElementById("hlAdd").addEventListener("click", addHl);
+
+/* ---------- ratio ---------- */
+function applyRatio(){
+  document.documentElement.style.setProperty("--tile", profile.ratio||"4/5");
+}
+
+/* ---------- avatar ---------- */
+function renderAvatar(){
+  var av=document.getElementById("avatar");
+  if(profile.avatar){
+    document.getElementById("avPlus").classList.add("hidden");
+    loadImg(profile.avatar).then(function(u){ if(u) av.style.backgroundImage="url("+u+")"; });
+  } else { av.style.backgroundImage=""; document.getElementById("avPlus").classList.remove("hidden"); }
+}
+document.getElementById("avatar").addEventListener("click", function(){ pickMode="avatar"; filePick.value=""; filePick.click(); });
+
+/* ---------- grid ---------- */
+function renderGrid(){
+  var g=document.getElementById("grid"); g.innerHTML="";
+  document.getElementById("stPosts").textContent=posts.filter(function(p){return p&&p.img}).length;
+  for(var i=0;i<slots;i++){
+    (function(i){
+      var p=posts[i];
+      var b=document.createElement("button");
+      b.className="slot"+(p&&p.img?"":" empty")+(i===sel?" sel":"");
+      b.setAttribute("data-i",i);
+      b.setAttribute("aria-label", p&&p.img?(i+1)+"번째 게시물":(i+1)+"번째 빈 칸, 이미지 올리기");
+      if(p&&p.img){
+        var im=document.createElement("img"); b.appendChild(im);
+        loadImg(p.img).then(function(u){ if(u) im.src=u; });
+        var h=document.createElement("span"); h.className="grab"; h.textContent="⠿"; h.setAttribute("aria-hidden","true"); b.appendChild(h);
+        if(p.date||p.week){ var d=document.createElement("span"); d.className="day";
+          d.textContent=p.date? Number(p.date.slice(8,10))+"일" : p.week; b.appendChild(d); }
+        if(p.type&&p.type!=="피드"){ var k=document.createElement("span"); k.className="kind"; k.textContent=p.type==="릴스"?"▶":(p.type==="캐러셀"?"❐":"◍"); b.appendChild(k); }
+      } else { b.textContent="+"; }
+      if(p){
+        var del=document.createElement("span"); del.className="del"; del.textContent="×";
+        del.title="이 칸 비우기";
+        del.addEventListener("click", function(e){ e.stopPropagation(); removePost(i); });
+        b.appendChild(del);
+        if(p.color){ var bar=document.createElement("span"); bar.className="bar"; bar.style.background=p.color; b.appendChild(bar); }
+        var pips=document.createElement("span"); pips.className="pips";
+        STEPS.forEach(function(st){
+          var dot=document.createElement("i");
+          if(p.steps&&p.steps[st.k]&&p.steps[st.k].done) dot.className="on";
+          pips.appendChild(dot);
+        });
+        b.appendChild(pips);
+        if(!p.img&&(p.week||p.date)){
+          var d2=document.createElement("span"); d2.className="day";
+          d2.textContent=p.date? Number(p.date.slice(8,10))+"일" : p.week;
+          b.appendChild(d2);
+        }
+      }
+      if(p&&p.img){
+        b.addEventListener("pointerdown", function(e){
+          if(e.pointerType==="touch"||e.button!==0) return;
+          if(e.target.classList.contains("del")||e.target.classList.contains("grab")) return;
+          e.preventDefault(); suppressClick=true;
+          startDragAt(i, e);
+        });
+      }
+      b.addEventListener("click", function(e){
+        if(suppressClick){ suppressClick=false; return; }
+        if(e.target.classList.contains("grab")) return;
+        if(p&&p.img) select(i);
+        else if(p&&(p.week||p.color||p.caption||(p.cands&&p.cands.length)||(p.steps&&Object.keys(p.steps).length))) select(i);
+        else pickFor(i);
+      });
+      g.appendChild(b);
+    })(i);
+  }
+  bindDrag(); renderSummary();
+}
+function renderSummary(){
+  var n=posts.filter(function(p){return p&&p.img}).length;
+  var dated=posts.filter(function(p){return p&&p.img&&p.date}).length;
+  var reels=posts.filter(function(p){return p&&p.type==="릴스"}).length;
+  var live=posts.filter(function(p){ return p&&p.img; });
+  var waiting=STEPS.map(function(st){
+    var c=live.filter(function(p){ return !(p.steps&&p.steps[st.k]&&p.steps[st.k].done); }).length;
+    return c? st.n+" "+c+"건" : "";
+  }).filter(Boolean).join(" · ");
+  document.getElementById("summary").textContent = n===0 ? "아직 등록된 게시물이 없습니다."
+    : "최종 선정 "+n+"장 · 날짜 확정 "+dated+"개 · 릴스 "+reels+"개 · 빈 칸 "+(slots-n)+"개"+
+      (waiting? "\n남은 확인 — "+waiting : "\n모든 단계 확인 완료");
+  document.getElementById("summary").style.whiteSpace="pre-line";
+}
+
+/* ---------- editor ---------- */
+function select(i){
+  sel=i; var p=posts[i]; if(!p) return;
+  curDate=p.date||"";
+  document.getElementById("fMemo").value=p.memo||"";
+  document.getElementById("fColorHex").value=p.color||"";
+  document.getElementById("fColor").value=/^#[0-9a-fA-F]{6}$/.test(p.color||"")?p.color:"#ffffff";
+  renderCands(); renderSteps(); renderLog();
+  renderAll();
+}
+function clearEditor(){
+  sel=-1;
+  var cb=document.getElementById("cands"); if(cb) cb.innerHTML="";
+  var pl=document.getElementById("pickList"); if(pl) pl.innerHTML="";
+  ["fMemo","fColorHex"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
+  renderSteps(); renderLog(); renderAll();
+}
+function bindField(id,key,after){
+  document.getElementById(id).addEventListener("input", function(){
+    var p=ensurePost();
+    p[key]=this.value; saveMonth(); if(after) after();
+  });
+}
+bindField("fMemo","memo");
+
+
+document.getElementById("fColorHex").addEventListener("input", function(){
+  var p=ensurePost();
+  var v=this.value.trim();
+  if(v&&v[0]!=="#") v="#"+v;
+  p.color=v;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById("fColor").value=v;
+  saveMonth(); renderGrid();
+});
+document.getElementById("fColor").addEventListener("input", function(){
+  var p=ensurePost();
+  p.color=this.value;
+  document.getElementById("fColorHex").value=this.value;
+  saveMonth(); renderGrid();
+});
+
+/* 칸을 고르지 않은 상태에서 작업을 시작하면 빈 칸을 하나 잡아 준다 */
+function blankSlot(){
+  /* 아무것도 적히지 않은 칸만 새 게시물 자리로 쓴다 */
+  for(var i=0;i<slots;i++){
+    var p=posts[i];
+    if(!p) return i;
+    if(!p.img && !p.date && !p.color && !p.memo &&
+       !(p.cands&&p.cands.length) && !(p.steps&&Object.keys(p.steps).length)) return i;
+  }
+  return -1;
+}
+function ensurePost(){
+  if(sel>=0&&posts[sel]) return posts[sel];
+  var i=blankSlot();
+  if(i<0){ slots+=3; i=slots-3; }
+  while(posts.length<i) posts.push(null);
+  posts[i]={id:uid(), img:null, type:"피드", steps:{}, cands:[]};
+  sel=i;
+  if(curDate) posts[i].date=curDate;
+  saveMonth(); renderSteps(); renderCands(); renderAll();
+  return posts[i];
+}
+
+/* ---------- 월 관리 ---------- */
+var MONTH_SPAN=8;
+function monthList(){
+  var d=new Date(), y=d.getFullYear(), m=d.getMonth()+1, out=[];
+  for(var i=0;i<MONTH_SPAN;i++){
+    var mm=m+i, yy=y+Math.floor((mm-1)/12);
+    mm=((mm-1)%12)+1;
+    out.push(yy+"-"+pad(mm));
+  }
+  return out;
+}
+function monthStats(ym){
+  var arr=[];
+  if(ym===month) arr=posts;
+  else {
+    try{ var o=JSON.parse(localStorage.getItem(LS_MONTH+ym)||"{}"); arr=o.posts||[]; }catch(e){ arr=[]; }
+  }
+  var started=0, done=0;
+  arr.forEach(function(p){
+    if(!p) return;
+    var n=doneCount(p);
+    if(n>0||p.img) started++;
+    if(n===STEPS.length) done++;
+  });
+  return {started:started, done:done};
+}
+function renderMonths(){
+  var box=document.getElementById("months"); if(!box) return;
+  box.innerHTML="";
+  monthList().forEach(function(ym){
+    var st=monthStats(ym);
+    var b=document.createElement("button");
+    b.className="mchip"+(ym===month?" on":"")+((st.started&&st.done===st.started)?" full":"");
+    b.innerHTML="<b></b><span></span>";
+    b.children[0].textContent=Number(ym.slice(5,7))+"월";
+    b.children[1].textContent=st.started? (st.done+"/"+st.started) : "－";
+    b.title=ym+(st.started? " · 진행 "+st.started+"건 중 "+st.done+"건 완료" : " · 시작 전");
+    b.addEventListener("click", function(){
+      month=ym; monthInput.value=ym;
+      switchMonth();
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 게시물 삭제 ---------- */
+function removePost(i){
+  var p=posts[i]; if(!p) return;
+  var name=p.date? prettyDate(p.date)+" 게시물" : (i+1)+"번째 칸";
+  if(!confirm(name+"을 지울까요? 올린 이미지와 확인 기록이 함께 사라집니다.")) return;
+  if(p.img) imgDel(p.img);
+  (p.cands||[]).forEach(function(c){ imgDel(c); });
+  posts.splice(i,1);
+  if(sel===i) clearEditor();
+  else { if(sel>i) sel--; renderSteps(); renderCands(); renderLog(); }
+  saveMonth(); renderAll();
+  toast("지웠습니다.");
+}
+
+/* ---------- 날짜 관리 ---------- */
+var curDate="";
+function postOfDate(d){
+  for(var i=0;i<posts.length;i++){ if(posts[i]&&posts[i].date===d) return i; }
+  return -1;
+}
+function postsOfDate(d){
+  var out=[];
+  posts.forEach(function(p,i){ if(p&&p.date===d) out.push(i); });
+  return out;
+}
+function doneCount(p){
+  if(!p||!p.steps) return 0;
+  return STEPS.filter(function(st){ return p.steps[st.k]&&p.steps[st.k].done; }).length;
+}
+function prettyDate(d){
+  if(!d) return "";
+  return Number(d.slice(5,7))+"월 "+Number(d.slice(8,10))+"일";
+}
+function renderDateLabel(){
+  var lab=document.getElementById("wkLabel"); if(!lab) return;
+  var p=(sel>=0)?posts[sel]:null;
+  if(p&&p.date) lab.textContent=prettyDate(p.date)+" 발행";
+  else if(p) lab.textContent="날짜 미정 게시물";
+  else lab.textContent="달력에서 날짜를 고르세요";
+  renderSameDay();
+}
+/* 같은 날짜에 여러 건이 있으면 그 사이를 오갈 수 있게 */
+function renderSameDay(){
+  var box=document.getElementById("sameDay"); if(!box) return;
+  box.innerHTML="";
+  var p=(sel>=0)?posts[sel]:null;
+  var d=(p&&p.date)?p.date:curDate;
+  var list=d?postsOfDate(d):[];
+  document.getElementById("addSameDay").disabled=!d;
+  if(list.length<2) return;
+  list.forEach(function(idx,n){
+    var b=document.createElement("button");
+    b.className="daychip"+(idx===sel?" on":"");
+    b.textContent=(n+1)+"번째";
+    b.title=(n+1)+"번째 게시물 열기";
+    b.addEventListener("click", function(){ select(idx); renderSteps(); renderCands(); renderLog(); });
+    box.appendChild(b);
+  });
+}
+/* 달력에서 날짜를 누르면 그 날짜의 게시물을 열고, 없으면 만든다 */
+function goDate(d){
+  curDate=d;
+  var idx=postOfDate(d);
+  if(idx>=0){ select(idx); }
+  else if(sel>=0&&posts[sel]&&!posts[sel].date){
+    posts[sel].date=d; saveMonth(); select(sel);      /* 날짜 미정이던 게시물에 날짜를 준다 */
+  } else {
+    sel=-1; var p=ensurePost(); p.date=d; saveMonth();
+  }
+  renderSteps(); renderCands(); renderLog(); renderAll();
+}
+
+/* ---------- 기록 ---------- */
+function renderLog(){
+  var box=document.getElementById("logList"); if(!box) return;
+  box.innerHTML="";
+  var p=(sel>=0)?posts[sel]:null;
+  var list=(p&&p.log)?p.log.slice(-30).reverse():[];
+  if(!list.length){
+    var n=document.createElement("div"); n.className="none";
+    n.textContent=p? "아직 확인 기록이 없습니다." : "달력에서 날짜를 고르면 기록이 보입니다.";
+    box.appendChild(n); return;
+  }
+  list.forEach(function(e){
+    var r=document.createElement("div"); r.className="row";
+    var left=document.createElement("span");
+    var b=document.createElement("b"); b.textContent=stepName(e.k);
+    var t=document.createElement("span"); t.textContent=" "+e.act+" · "+(e.by||"");
+    if(e.act==="취소") t.className="cancel";
+    left.appendChild(b); left.appendChild(t);
+    var right=document.createElement("span"); right.textContent=e.at;
+    r.appendChild(left); r.appendChild(right);
+    box.appendChild(r);
+  });
+}
+
+/* ---------- steps ---------- */
+function stepInput(k){ return document.querySelector('.steps .st[data-k="'+k+'"] .stwho'); }
+function who(k){
+  var el=stepInput(k);
+  return el? el.value.trim() : "";
+}
+/* 이름을 넣어야 확인 버튼이 열린다 */
+document.querySelectorAll(".steps .st").forEach(function(row){
+  var el=row.querySelector(".stwho"), b=row.querySelector("[data-c]");
+  el.addEventListener("input", function(){
+    if(!row.classList.contains("done")) b.disabled=!el.value.trim();
+  });
+});
+
+var stepsShownFor=-2;   /* 어느 게시물의 단계를 그려 두었는지 */
+function renderSteps(){
+  var p=(sel>=0)?posts[sel]:null;
+  if(p&&!p.steps) p.steps={};
+  var changed=(stepsShownFor!==sel);
+  stepsShownFor=sel;
+  STEPS.forEach(function(st,i){
+    var row=document.querySelector('.steps .st[data-k="'+st.k+'"]');
+    if(!row) return;
+    var s0=(p&&p.steps[st.k])||{};
+    row.classList.toggle("done", !!s0.done);
+    row.querySelector(".num").textContent=s0.done?"✓":(i+1);
+    row.querySelector(".by").textContent=s0.done&&s0.at?(" "+s0.at.slice(5)):"";
+    var nameEl=row.querySelector(".stwho");
+    /* 확인된 칸은 기록된 이름을 보여주고, 아직인 칸은 사용자가 친 값을 그대로 둔다 */
+    if(s0.done){ if(document.activeElement!==nameEl) nameEl.value=s0.by||""; }
+    else if(changed && document.activeElement!==nameEl){ nameEl.value=""; }
+    nameEl.readOnly=!!s0.done;
+    var b=row.querySelector("[data-c]");
+    b.textContent=s0.done?"취소":"확인";
+    b.className="btn sm"+(s0.done?"":" pink");
+    b.disabled=!s0.done && !nameEl.value.trim();
+    b.title=b.disabled?"확인자 이름을 넣어 주세요":"";
+    b.onclick=function(){
+      var t=p||ensurePost();
+      if(!t.steps) t.steps={};
+      if(!t.log) t.log=[];
+      if(t.steps[st.k]&&t.steps[st.k].done){
+        var was=t.steps[st.k].by||"";
+        delete t.steps[st.k];
+        t.log.push({k:st.k, act:"취소", by:(who(st.k)||was), at:nowStamp()});
+      } else {
+        var nm=who(st.k);
+        if(!nm){ toast("확인자 이름을 먼저 넣어 주세요."); nameEl.focus(); return; }
+        var when=nowStamp();
+        t.steps[st.k]={done:true, by:nm, at:when};
+        t.log.push({k:st.k, act:"확인", by:nm, at:when});
+      }
+      saveMonth(); renderSteps(); renderLog(); renderAll();
+    };
+  });
+}
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function nowStamp(){ var d=new Date(); return todayStr()+" "+pad(d.getHours())+":"+pad(d.getMinutes()); }
+function stepName(k){ for(var i=0;i<STEPS.length;i++){ if(STEPS[i].k===k) return STEPS[i].n; } return k; }
+
+/* ---------- candidates ---------- */
+function renderCands(){
+  drawCandList(document.getElementById("cands"), "view");
+  drawCandList(document.getElementById("pickList"), "pick");
+  var p=(sel>=0)?posts[sel]:null;
+  var note=document.getElementById("pickNote");
+  if(note) note.textContent=(p&&p.cands&&p.cands.length)? "고른 이미지가 최종이 되어 그리드에 올라갑니다."
+    : "먼저 후보를 올려 주세요.";
+  var th=document.getElementById("finalThumb"), fn=document.getElementById("finalNote");
+  if(th&&fn){
+    if(p&&p.img){
+      th.classList.remove("hidden");
+      loadImg(p.img).then(function(u){ if(u) th.src=u; });
+      fn.textContent=(p.week? p.week+" · ":"")+"최종 이미지가 정해졌습니다.";
+    } else {
+      th.classList.add("hidden"); th.removeAttribute("src");
+      fn.textContent="아직 최종 이미지가 없습니다.";
+    }
+  }
+}
+function drawCandList(box, mode){
+  if(!box) return;
+  box.innerHTML="";
+  var p=(sel>=0)?posts[sel]:null;
+  var list=(p&&p.cands)?p.cands:[];
+  if(!list.length){
+    if(mode==="view") box.appendChild(makeAddTile());
+    for(var z=(mode==="view"?1:0);z<3;z++){ var ph=document.createElement("span"); ph.className="ph"; box.appendChild(ph); }
+    if(mode==="pick"){ var e=document.createElement("span"); e.className="msg"; e.textContent="후보가 올라오면 고를 수 있어요"; box.appendChild(e); }
+    return;
+  }
+  list.forEach(function(cid,ci){
+    var b=document.createElement("button");
+    b.className="cand"+((mode==="pick"&&p.img===cid)?" on":"");
+    b.title=(mode==="pick")?"이 이미지를 최종으로 정합니다":"크게 보기";
+    var im=document.createElement("img"); b.appendChild(im);
+    loadImg(cid).then(function(u){ if(u) im.src=u; });
+    if(mode==="pick"&&p.img===cid){ var f=document.createElement("span"); f.className="fin"; f.textContent="최종"; b.appendChild(f); }
+    if(mode==="view"){
+      var x=document.createElement("span"); x.className="x"; x.textContent="×"; x.title="후보에서 빼기";
+      x.addEventListener("click", function(e){
+        e.stopPropagation();
+        p.cands.splice(ci,1);
+        if(p.img===cid) p.img=p.cands[0]||null;
+        imgDel(cid); saveMonth(); renderCands(); renderAll();
+      });
+      b.appendChild(x);
+      b.addEventListener("click", function(){ zoom(cid,(ci+1)+"번째 후보"); });
+    } else {
+      b.addEventListener("click", function(){
+        p.img=cid; saveMonth(); renderCands(); renderAll();
+        toast("최종 이미지로 정했습니다.");
+      });
+    }
+    box.appendChild(b);
+  });
+  if(mode==="view") box.appendChild(makeAddTile());
+  for(var q=list.length+(mode==="view"?1:0);q<3;q++){ var ph2=document.createElement("span"); ph2.className="ph"; box.appendChild(ph2); }
+}
+function makeAddTile(){
+  var a=document.createElement("button");
+  a.className="addtile"; a.textContent="＋"; a.title="후보 이미지 올리기";
+  a.addEventListener("click", addCandidate);
+  return a;
+}
+function zoom(id,label){
+  var lb=document.getElementById("lightbox");
+  loadImg(id).then(function(u){
+    if(!u){ toast("이미지를 불러오지 못했습니다."); return; }
+    lb.querySelector("img").src=u;
+    lb.querySelector(".cap").textContent=label||"";
+    lb.classList.remove("hidden");
+  });
+}
+document.getElementById("lightbox").addEventListener("click", function(){ this.classList.add("hidden"); });
+window.addEventListener("keydown", function(e){
+  if(e.key==="Escape") document.getElementById("lightbox").classList.add("hidden");
+});
+document.getElementById("addSameDay").addEventListener("click", function(){
+  var p=(sel>=0)?posts[sel]:null;
+  var d=(p&&p.date)?p.date:curDate;
+  if(!d){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
+  sel=-1;
+  var np=ensurePost(); np.date=d; saveMonth();
+  renderSteps(); renderCands(); renderLog(); renderAll();
+  toast(prettyDate(d)+"에 게시물을 하나 더 만들었습니다.");
+});
+document.getElementById("delPost").addEventListener("click", function(){
+  if(sel<0||!posts[sel]){ toast("먼저 달력에서 날짜를 골라 주세요."); return; }
+  removePost(sel);
+});
+document.getElementById("dlFinal").addEventListener("click", function(){
+  if(sel<0||!posts[sel]||!posts[sel].img){ toast("최종 이미지가 아직 없습니다."); return; }
+  var p=posts[sel];
+  loadImg(p.img).then(function(u){
+    if(!u){ toast("이미지를 불러오지 못했습니다."); return; }
+    var a=document.createElement("a");
+    a.href=u;
+    a.download=(p.week? p.week.replace(/\s/g,"") : month+"_"+(sel+1))+"_최종.jpg";
+    a.click();
+  });
+});
+function addCandidate(){
+  ensurePost();
+  pickMode="cand"; pickIndex=sel; filePick.value=""; filePick.click();
+}
+
+/* ---------- image picking ---------- */
+var filePick=document.getElementById("filePick"), pickMode="new", pickIndex=-1;
+function pickFor(i){ pickMode="new"; pickIndex=i; filePick.value=""; filePick.click(); }
+filePick.addEventListener("change", function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  if(pickMode==="avatar"){
+    shrink(f,320).then(function(u){
+      var id="av_"+Date.now().toString(36);
+      return imgPut(id,u).then(function(){ cache[id]=u; profile.avatar=id; saveProfile(); renderAvatar(); });
+    }).catch(function(e){ toast(e.message); });
+  } else if(pickMode==="hl"){
+    var i=pickIndex;
+    shrink(f,240).then(function(u){
+      var id="hl_"+Date.now().toString(36);
+      return imgPut(id,u).then(function(){ cache[id]=u; profile.highlights[i].img=id; saveProfile(); renderHl(); });
+    }).catch(function(e){ toast(e.message); });
+  } else if(pickMode==="cand"){
+    var idx=pickIndex;
+    shrink(f,1440).then(function(u){
+      var id="img_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      return imgPut(id,u).then(function(){
+        cache[id]=u;
+        var p=posts[idx]; if(!p) return;
+        if(!p.cands) p.cands=[];
+        p.cands.push(id);
+        if(!p.img) p.img=id;
+        saveMonth(); renderCands(); renderEverything();
+      });
+    }).catch(function(e){ toast(e.message||"이미지를 올리지 못했습니다."); });
+  } else {
+    setImage(pickIndex,f);
+  }
+});
+function setImage(i,f){
+  shrink(f,1440).then(function(u){
+    var id="img_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    return imgPut(id,u).then(function(){
+      cache[id]=u;
+      while(posts.length<=i) posts.push({id:uid(),img:null,type:"피드",status:"기획"});
+      if(!posts[i]) posts[i]={id:uid(),type:"피드",status:"기획"};
+      if(posts[i].img && (!posts[i].cands || posts[i].cands.indexOf(posts[i].img)<0)) imgDel(posts[i].img);
+      posts[i].img=id;
+      if(!posts[i].cands) posts[i].cands=[];
+      if(posts[i].cands.indexOf(id)<0) posts[i].cands.push(id);
+      if(!posts[i].id) posts[i].id=uid();
+      if(!posts[i].type) posts[i].type="피드";
+      saveMonth(); select(i);
+    });
+  }).catch(function(e){ toast(e.message||"이미지를 올리지 못했습니다."); });
+}
+document.getElementById("grid").addEventListener("dragover", function(e){ e.preventDefault(); });
+document.getElementById("grid").addEventListener("drop", function(e){
+  e.preventDefault();
+  var s=e.target.closest(".slot"); if(!s) return;
+  var f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f) return;
+  setImage(Number(s.getAttribute("data-i")), f);
+});
+window.addEventListener("paste", function(e){
+  if(!e.clipboardData) return;
+  if(document.activeElement&&document.activeElement.isContentEditable) return;
+  var items=e.clipboardData.items;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.indexOf("image")===0){
+      var t=sel>=0?sel:firstEmpty();
+      if(t>=0) setImage(t, items[i].getAsFile());
+      break;
+    }
+  }
+});
+function firstEmpty(){ for(var i=0;i<slots;i++){ if(!posts[i]||!posts[i].img) return i; } return -1; }
+
+/* ---------- drag ---------- */
+var dragFrom=-1, ghost=null, suppressClick=false;
+function bindDrag(){
+  document.querySelectorAll("#grid .grab").forEach(function(h){ h.addEventListener("pointerdown", startDrag); });
+}
+function startDrag(e){
+  e.preventDefault(); e.stopPropagation();
+  startDragAt(Number(e.target.closest(".slot").getAttribute("data-i")), e);
+}
+function startDragAt(i, e, srcEl){
+  var src=srcEl;
+  if(!src){
+    var slot=document.querySelector('#grid .slot[data-i="'+i+'"]');
+    if(!slot) return;
+    src=slot.querySelector("img");
+  }
+  dragFrom=i; dragMoved=false; dragStart.x=e.clientX; dragStart.y=e.clientY;
+  /* 집어 든 곳의 크기에 맞춘다 — 달력 썸네일은 작게, 그리드 칸은 그 칸만 하게 */
+  var box=src?src.getBoundingClientRect():null;
+  ghostW=box&&box.width? Math.round(Math.max(30,Math.min(96,box.width*1.15))) : 60;
+  ghostH=Math.round(ghostW*((profile.ratio==="1/1")?1:1.25));
+  ghost=document.createElement("div"); ghost.id="ghost";
+  ghost.style.width=ghostW+"px"; ghost.style.height=ghostH+"px";
+  var big=(posts[i]&&posts[i].img)?cache[posts[i].img]:null;
+  var g=document.createElement("img");
+  g.src=big||(src?src.src:"");
+  ghost.appendChild(g);
+  document.body.appendChild(ghost);
+  moveGhost(e.clientX,e.clientY);
+  window.addEventListener("pointermove", onDragMove);
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
+}
+var ghostW=72, ghostH=90;
+function moveGhost(x,y){ if(ghost) ghost.style.transform="translate3d("+(x-ghostW/2)+"px,"+(y-ghostH/2)+"px,0)"; }
+var dropTarget=null, moveQueued=false, lastPt={x:0,y:0}, dragMoved=false, dragStart={x:0,y:0};
+function onDragMove(e){
+  e.preventDefault();
+  lastPt.x=e.clientX; lastPt.y=e.clientY;
+  if(!dragMoved && (Math.abs(e.clientX-dragStart.x)+Math.abs(e.clientY-dragStart.y))>4) dragMoved=true;
+  moveGhost(e.clientX,e.clientY);
+  if(moveQueued) return;
+  moveQueued=true;
+  requestAnimationFrame(function(){
+    moveQueued=false;
+    var el=document.elementFromPoint(lastPt.x,lastPt.y);   /* ghost 는 pointer-events:none 이라 가려지지 않음 */
+    var t=null;
+    if(el&&el.closest){
+      t=el.closest(".cell[data-date]");
+      if(!t){
+        var sl=el.closest(".slot");
+        if(sl&&Number(sl.getAttribute("data-i"))!==dragFrom) t=sl;
+      }
+    }
+    if(t===dropTarget) return;
+    if(dropTarget) dropTarget.classList.remove("drop");
+    dropTarget=t;
+    if(dropTarget) dropTarget.classList.add("drop");
+  });
+}
+function endDrag(e){
+  window.removeEventListener("pointermove", onDragMove);
+  window.removeEventListener("pointerup", endDrag);
+  window.removeEventListener("pointercancel", endDrag);
+  if(ghost){ ghost.remove(); ghost=null; }
+  if(dropTarget){ dropTarget.classList.remove("drop"); }
+  dropTarget=null;
+  if(!dragMoved){                       /* 제자리에서 뗐으면 클릭으로 본다 */
+    var idx=dragFrom; dragFrom=-1; clearDrop();
+    if(idx>=0&&posts[idx]){ select(idx); renderSteps(); renderCands(); renderLog(); }
+    return;
+  }
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var cell=(el&&el.closest)?el.closest(".cell[data-date]"):null;
+  var s=(el&&el.closest)?el.closest(".slot"):null;
+  if(cell&&dragFrom>=0&&posts[dragFrom]){
+    posts[dragFrom].date=cell.getAttribute("data-date");
+    saveMonth();
+    toast(posts[dragFrom].date.slice(5).replace("-","월 ")+"일 발행으로 잡았습니다.");
+    dragFrom=-1; clearDrop(); renderAll(); return;
+  }
+  if(s&&dragFrom>=0){
+    var to=Number(s.getAttribute("data-i"));
+    if(to!==dragFrom){
+      while(posts.length<Math.max(to,dragFrom)+1) posts.push({id:uid(),img:null,type:"피드",status:"기획"});
+      var it=posts.splice(dragFrom,1)[0];
+      posts.splice(to,0,it);
+      if(sel===dragFrom) sel=to;
+      else if(sel>=0){ if(dragFrom<sel&&to>=sel) sel--; else if(dragFrom>sel&&to<=sel) sel++; }
+      saveMonth();
+    }
+  }
+  dragFrom=-1;
+  clearDrop();
+  renderAll();
+  /* 드래그 직후의 click 한 번만 무시하고, 브라우저가 click 을 안 보내도 바로 풀어 준다 */
+  setTimeout(function(){ suppressClick=false; }, 0);
+}
+function clearDrop(){
+  document.querySelectorAll("#grid .slot.drop, #cal .cell.drop").forEach(function(n){ n.classList.remove("drop"); });
+}
+
+/* ---------- buttons ---------- */
+document.getElementById("addSlot").addEventListener("click", function(){ slots+=3; saveMonth(); renderGrid(); queueFit(); });
+document.getElementById("lessSlot").addEventListener("click", function(){
+  var used=0;
+  posts.forEach(function(p,i){ if(p&&(p.img||p.date||p.color||(p.steps&&Object.keys(p.steps).length))) used=i+1; });
+  var min=Math.max(3, Math.ceil(used/3)*3);
+  if(slots-3<min){ toast("여기서 더 줄이면 쓰고 있는 칸이 사라집니다."); return; }
+  slots-=3; saveMonth(); renderGrid(); queueFit();
+});
+/* 배치가 바뀌는 동작에서만 폭을 다시 잰다 */
+var monthInput=document.getElementById("month");
+monthInput.addEventListener("change", function(){ month=this.value||ymNow(); switchMonth(); });
+document.getElementById("prevM").addEventListener("click", function(){ month=shiftMonth(month,-1); monthInput.value=month; switchMonth(); });
+document.getElementById("calPrev").addEventListener("click", function(){ month=shiftMonth(month,-1); monthInput.value=month; switchMonth(); });
+document.getElementById("calNext").addEventListener("click", function(){ month=shiftMonth(month,1); monthInput.value=month; switchMonth(); });
+document.getElementById("nextM").addEventListener("click", function(){ month=shiftMonth(month,1); monthInput.value=month; switchMonth(); });
+function shiftMonth(m,d){
+  var y=Number(m.slice(0,4)), mo=Number(m.slice(5,7))+d;
+  if(mo<1){mo=12;y--} if(mo>12){mo=1;y++}
+  return y+"-"+pad(mo);
+}
+function switchMonth(){ loadMonth(); curDate=""; clearEditor(); renderMonths(); renderCands(); renderEverything(); queueFit(); lastPulled=""; pullMonth(true).then(function(){ backfillImages(); }); }
+
+function renderAll(){ renderGrid(); renderCal(); renderMonths(); renderDateLabel(); }
+function renderEverything(){ renderAll(); }
+
+/* ---------- calendar ---------- */
+function renderCal(){
+  var y=Number(month.slice(0,4)), m=Number(month.slice(5,7));
+  document.getElementById("calTitle").textContent=m+"월";
+  var start=new Date(y,m-1,1).getDay(), days=new Date(y,m,0).getDate();
+  var cal=document.getElementById("cal"); cal.innerHTML="";
+  ["일","월","화","수","목","금","토"].forEach(function(d){
+    var e=document.createElement("div"); e.className="dow"; e.textContent=d; cal.appendChild(e);
+  });
+  for(var i=0;i<start;i++){ var o=document.createElement("div"); o.className="cell out"; cal.appendChild(o); }
+  var selDate=(sel>=0&&posts[sel])?posts[sel].date:"";
+  for(var d=1;d<=days;d++){
+    (function(d){
+      var key=y+"-"+pad(m)+"-"+pad(d);
+      var cell=document.createElement("div");
+      cell.className="cell"+(new Date(y,m-1,d).getDay()===0?" sun":"")+(selDate===key?" selday":"");
+      cell.setAttribute("data-date",key);
+      var n=document.createElement("div"); n.className="n"; n.textContent=d; cell.appendChild(n);
+      var box=document.createElement("div"); box.className="thumbs"; cell.appendChild(box);
+      var dayList=postsOfDate(key);
+      var tinted=dayList.filter(function(ix){ return posts[ix]&&posts[ix].color; });
+      if(tinted.length){                       /* 1단계에서 고른 컬러를 날짜 위쪽 띠로 */
+        var band=document.createElement("span"); band.className="colors";
+        tinted.forEach(function(ix){
+          var c=document.createElement("i"); c.style.background=posts[ix].color; band.appendChild(c);
+        });
+        cell.appendChild(band);
+        cell.setAttribute("data-colors", tinted.map(function(ix){ return posts[ix].color; }).join(", "));
+      }
+      if(dayList.length){
+        var pr=document.createElement("span"); pr.className="prog";
+        if(dayList.length===1){
+          var n=doneCount(posts[dayList[0]]);
+          pr.textContent=n+"/5";
+          if(n===STEPS.length) pr.classList.add("full");
+          pr.title="5단계 중 "+n+"단계 확인";
+        } else {
+          var fin=dayList.filter(function(ix){ return doneCount(posts[ix])===STEPS.length; }).length;
+          pr.textContent=fin+"/"+dayList.length+"건";
+          if(fin===dayList.length) pr.classList.add("full");
+          pr.title="이 날 "+dayList.length+"건 중 "+fin+"건 완료";
+        }
+        cell.appendChild(pr);
+      }
+      posts.forEach(function(p,idx){
+        if(!p||!p.img||p.date!==key) return;
+        var b=document.createElement("button");
+        if(idx===sel) b.className="on";
+        b.title=(p.time?p.time+" · ":"")+(p.type||"피드");
+        var im=document.createElement("img"); b.appendChild(im);
+        loadImg(p.img).then(function(u){ if(u) im.src=u; });
+        b.addEventListener("click", function(e){
+          e.stopPropagation();
+          if(suppressClick){ suppressClick=false; return; }
+          select(idx);
+        });
+        b.addEventListener("pointerdown", function(e){
+          if(e.pointerType==="touch"||e.button!==0) return;
+          e.preventDefault(); e.stopPropagation(); suppressClick=true;
+          startDragAt(idx, e, im);
+        });
+        box.appendChild(b);
+      });
+      var ct=cell.getAttribute("data-colors");
+      cell.title="이 날짜의 게시물을 엽니다"+(ct? " · 컬러 "+ct : "");
+      cell.addEventListener("click", function(){ if(suppressClick){ suppressClick=false; return; } goDate(key); });
+      cal.appendChild(cell);
+    })(d);
+  }
+  var und=document.getElementById("undated"); und.innerHTML=""; var count=0;
+  posts.forEach(function(p,idx){
+    if(!p||!p.img||p.date) return;
+    count++;
+    var b=document.createElement("button");
+    b.style.cssText="width:100%;aspect-ratio:var(--tile);border:0;border-radius:8px;overflow:hidden;padding:0;background:#eef0f4"+
+      (idx===sel?";box-shadow:0 0 0 2px var(--pink)":"");
+    var im=document.createElement("img"); im.style.cssText="width:100%;height:100%;object-fit:cover;display:block"; b.appendChild(im);
+    loadImg(p.img).then(function(u){ if(u) im.src=u; });
+    b.addEventListener("click", function(){ select(idx); });
+    und.appendChild(b);
+  });
+  document.getElementById("undatedSub").textContent = count? "날짜 미정 "+count+"개 — 누른 뒤 달력에서 날짜를 누르면 그 날짜로 잡힙니다." : "전부 날짜가 잡혀 있습니다.";
+}
+
+/* ---------- 폰에서 보기 ---------- */
+document.getElementById("phoneView").addEventListener("click", function(){
+  var old=document.getElementById("phonePreview");
+  if(old) old.remove();
+  var wrap=document.createElement("div"); wrap.id="phonePreview";
+  var frame=document.createElement("div"); frame.className="frame";
+  var clone=document.querySelector(".phone").cloneNode(true);
+  clone.querySelectorAll("[contenteditable]").forEach(function(e){ e.removeAttribute("contenteditable"); });
+  clone.querySelectorAll(".grab,.pips,.bar,.day,.kind").forEach(function(e){ e.remove(); });
+  clone.style.width="100%"; clone.style.border="0"; clone.style.boxShadow="none";
+  frame.appendChild(clone); wrap.appendChild(frame);
+  var x=document.createElement("button"); x.className="close"; x.textContent="닫기";
+  wrap.appendChild(x);
+  wrap.addEventListener("click", function(e){ if(e.target===wrap||e.target===x) wrap.remove(); });
+  document.body.appendChild(wrap);
+});
+
+/* ---------- fit the phone to the panel height ---------- */
+/* 달력과 피드가 같은 폭을 쓰므로, 그 폭을 줄여 세로로 한 화면에 맞춘다 */
+function fitPhone(){
+  var wrap=document.querySelector(".wrap"), col=document.querySelector(".col-right");
+  if(!wrap||!col) return;
+  if(window.innerWidth<=900){ document.documentElement.style.removeProperty("--feedW"); return; }
+  var avail=wrap.clientHeight-2, MAX=520, MIN=380, COMFY=440;
+  for(var w=MAX; w>=MIN; w-=10){
+    document.documentElement.style.setProperty("--feedW", w+"px");
+    if(col.scrollHeight<=avail) return;      // 이 폭이면 한 화면에 들어옴
+  }
+  /* 어떤 폭으로도 한 화면에 못 넣으면, 보기 편한 폭으로 두고 그 칸만 스크롤한다 */
+  document.documentElement.style.setProperty("--feedW", COMFY+"px");
+}
+var fitTimer=null;
+function queueFit(){ clearTimeout(fitTimer); fitTimer=setTimeout(function(){ fitPhone(); fitPhone(); },0); }
+window.addEventListener("resize", queueFit);
+
+/* ---------- boot ---------- */
+function boot(){
+  var raw=localStorage.getItem(LS_PROFILE);
+  if(raw){ try{
+    var o=JSON.parse(raw);
+    for(var k in o) profile[k]=o[k];
+    if(!profile.show) profile.show={topbar:true,stats:true,name:true,cat:true,bio:true,link:true,actions:true,highlights:true,tabs:true,nav:true};
+    if(!profile.highlights) profile.highlights=[];
+  }catch(e){} }
+  monthInput.value=month;
+  fillText(); renderAvatar(); renderHl(); renderEls(); applyShow(); renderTabs(); applyRatio();
+  loadMonth(); renderSteps(); renderCands(); renderLog(); renderMonths(); renderAll(); queueFit();
+  startSync();
+}
+boot();
+})();
+</script>
+</body>
+</html>
