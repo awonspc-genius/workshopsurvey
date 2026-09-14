@@ -4,6 +4,7 @@
  *
  *  ── 처음 한 번만 하면 되는 설치 순서 ────────────────────────────
  *  1. 구글 드라이브에서 새 스프레드시트를 만듭니다. 이름은 아무거나.
+ *     (이미 쓰는 시트에 합치려면 새로 만들지 말고, 아래 SHEET_ID 설명을 보세요)
  *  2. 메뉴 [확장 프로그램] > [Apps Script] 를 엽니다.
  *  3. 기본으로 있는 코드를 전부 지우고 이 파일 내용을 그대로 붙여넣습니다.
  *  4. 저장한 뒤 [배포] > [새 배포] 를 누릅니다.
@@ -24,10 +25,29 @@
  *  시트에는 사진 주소만 남으므로 칸 용량 제한에 걸리지 않습니다.
  *  (처음 한 번은 드라이브 접근 권한을 묻는 창이 뜹니다. 허용해 주세요.)
  *
+ *  ── 이미 쓰는 시트에 합치기 ────────────────────────────────────
+ *  인스타 피드 플래닝처럼 이미 돌아가는 시트가 있으면, 그 시트에
+ *  탭만 더 붙이는 편이 낫습니다. 자료가 한 파일에 모입니다.
+ *  주의: 그 시트에 붙어 있는 Apps Script 안에 이 코드를 같이 넣으면 안 됩니다.
+ *        doGet / doPost 가 두 개가 되어 둘 다 망가집니다.
+ *  대신 이렇게 하세요.
+ *    1) script.google.com 에서 [새 프로젝트] 를 만듭니다. (시트에서 열지 않습니다)
+ *    2) 이 코드를 붙여넣습니다.
+ *    3) 아래 SHEET_ID 에 그 시트의 ID 를 넣습니다.
+ *    4) 웹 앱으로 배포합니다. 주소는 기존 피드 것과 따로 생깁니다.
+ *  이러면 피드 스크립트는 그대로 두고, 같은 시트 파일에
+ *  ip · md · docs · music · ipmaster · meta 탭이 더 생깁니다.
+ *
  *  ── 코드를 고친 뒤에는 ──────────────────────────────────────────
  *  [배포] > [배포 관리] > 연필 아이콘 > 버전 '새 버전' > [배포]
  *  (새 배포를 또 만들면 주소가 바뀌니 반드시 '배포 관리'에서 고치세요)
  */
+
+/*  이미 쓰고 있는 시트(예: 인스타 피드 플래닝)에 탭만 더 붙이고 싶다면
+ *  그 시트 주소의 가운데 긴 글자를 아래 따옴표 안에 넣으세요.
+ *    https://docs.google.com/spreadsheets/d/[여기가 ID]/edit
+ *  비워 두면 이 스크립트가 붙어 있는 시트에 만듭니다. */
+var SHEET_ID = "";
 
 var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
@@ -43,7 +63,8 @@ var TABLES = {
 function sheetFor(table) {
   var cols = TABLES[table];
   if (!cols) return null;
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID)
+                    : SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(table);
   if (!sh) {
     sh = ss.insertSheet(table);
@@ -118,8 +139,15 @@ function doGet(e) {
       out = { ok: true, data: all };
     } else if (p.action === "ping") {
       out = { ok: true, tables: Object.keys(TABLES) };
+    } else if (!p.action) {
+      /* 주소만 쳤을 때 : 잘 돌아가고 있는지 한눈에 보이도록 */
+      var cnt = {};
+      for (var t2 in TABLES) cnt[t2] = readAll(t2).length;
+      out = { ok: true, msg: "BRK Genius 저장소가 정상 동작 중입니다.",
+              시트: (SHEET_ID ? SHEET_ID : "이 스크립트가 붙어 있는 시트"),
+              표별_건수: cnt };
     } else {
-      out = { ok: false, error: "action 을 알 수 없습니다" };
+      out = { ok: false, error: "action 을 알 수 없습니다 (list / all / ping)" };
     }
   } catch (err) {
     out = { ok: false, error: String(err) };

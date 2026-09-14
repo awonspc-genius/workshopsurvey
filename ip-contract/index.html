@@ -72,6 +72,16 @@
   .ex{font-size:11.5px;font-weight:700}
   .ex.y{color:var(--ok)} .ex.n{color:#B4344F} .ex.q{color:var(--mute)}
   td.s{font-size:12.5px;color:var(--mute);max-width:230px}
+  td.mg{font-size:13.5px;font-weight:800;white-space:nowrap}
+  td.mg small{display:block;font-size:11px;font-weight:500;color:var(--mute);margin-top:2px}
+  td.roy{max-width:250px}
+  td.poc{font-size:12.5px;white-space:nowrap}
+  .pocm{font-size:11px;color:var(--mute);font-weight:500}
+  .ry{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;
+      background:#EEF3FA;border:1px solid #DCE6F3;border-radius:6px;padding:2px 7px;
+      margin:0 4px 4px 0;white-space:nowrap;color:var(--blue-d)}
+  .ry i{font-style:normal;font-weight:600;color:var(--mute);font-size:10.5px}
+  .ry.m{font-weight:500;color:var(--mute);background:#F4F6F9}
   td.s b{color:var(--navy)}
 
   /* 편집 */
@@ -179,7 +189,7 @@
 (function(){
 "use strict";
 /* 팀 저장소 주소 — ip/index.html · feed/index.html 과 같은 것을 씁니다. */
-var DATA_URL = "";
+var DATA_URL = "https://script.google.com/macros/s/AKfycbxSA9G5iY2h_P5q-vtR1OSnTpr5DY8X74u4OfXLUytiFynpYJwppADUNySwxjnwlEQhrg/exec";
 try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
 var LS="brkg_ipmaster_v1", PASS="2701";
 
@@ -319,6 +329,63 @@ function pull(){
 }
 
 /* ── 그리기 ── */
+/* MG 를 짧게 */
+function shortMg(v){
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return {t:"\u2014",sub:""};
+  if(/상기/.test(v)) return {t:"연간 계약 포함",sub:""};
+  var parts=v.split(/\s*\/\s*/).filter(Boolean), nums=[], subs=[];
+  parts.forEach(function(p){
+    var lab=(p.match(/^\s*([^:]{1,12}):/)||[])[1]||"";
+    var m=p.match(/([\d,.]+\s*(?:억|만원|만|K\s*USD|USD|원))/i);
+    if(!m) return;
+    var n=m[1].replace(/만원/,"만").replace(/\s+/g,"").replace(/KUSD/i,"K USD");
+    nums.push(n);
+    if(lab) subs.push(lab.replace(/\s*계약\s*건/,"").trim()+" "+n);
+  });
+  if(!nums.length) return {t:(v.length>16?v.slice(0,16)+"\u2026":v), sub:""};
+  return {t:nums.join(" + "), sub:(subs.length>1?subs.join(" \u00b7 "):"")};
+}
+
+/* 로열티를 품목별 칩으로 */
+var ROYMAP=[[/아이스크림/,"IC"],[/케이[크익]/,"케이크"],[/디저트/,"디저트"],
+            [/음료|쉐이크/,"음료"],[/굿즈|MD/,"굿즈"]];
+function royChips(v){
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "\u2014";
+  var parts=v.split(/\s*\/\s*/).filter(Boolean), out=[], seen={};
+  parts.forEach(function(p){
+    var name="";
+    for(var i=0;i<ROYMAP.length;i++){ if(ROYMAP[i][0].test(p)){ name=ROYMAP[i][1]; break; } }
+    var pcts=(p.match(/[\d.]+\s*%/g)||[]).map(function(x){return x.replace(/\s+/g,"")});
+    if(!name||!pcts.length) return;
+    var uniq=pcts.filter(function(x,i){return pcts.indexOf(x)===i});
+    var val=(uniq.length>1) ? uniq[0].replace("%","")+"~"+uniq[uniq.length-1] : uniq[0];
+    if(seen[name]) return;
+    seen[name]=1;
+    out.push('<span class="ry"><i>'+name+'</i>'+val+'</span>');
+  });
+  if(!out.length) return '<span class="ry m">'+esc(v.length>20?v.slice(0,20)+"\u2026":v)+'</span>';
+  return out.join("");
+}
+
+/* 담당자를 이름만 : 메일 · 번호는 마우스를 올리면 보이게 */
+function shortPoc(v){
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "\u2014";
+  var names=[];
+  v.split(/\s*\/\s*/).forEach(function(p){
+    p=p.replace(/\([^)]*\)/g,"")                 /* 괄호 안(메일·번호) 제거 */
+       .replace(/[\w.+-]+@[\w.-]+/g,"")          /* 남은 메일 */
+       .replace(/[\d][\d\s-]{7,}/g,"")           /* 전화번호 */
+       .replace(/^\s*(로열티|디자인|계약)\s*:\s*/,"")
+       .replace(/[\/,·(){}\[\]]+/g," ").replace(/\s+/g," ").trim();
+    if(p && p.length<=16 && /[가-힣A-Za-z]/.test(p) && names.indexOf(p)<0) names.push(p);
+  });
+  if(!names.length) return '<span class="pocm">연락처만 있음</span>';
+  return esc(names.slice(0,2).join(" \u00b7 "))+(names.length>2?' <span class="pocm">+'+(names.length-2)+'</span>':'');
+}
+
 function stageIdx(s){for(var i=0;i<STAGES.length;i++) if(STAGES[i][0]===s) return i; return -1}
 function drawFlow(){
   $("flow").innerHTML=STAGES.map(function(s,i){
@@ -368,11 +435,13 @@ function draw(){
       '<td><span class="k '+esc(x.kind)+'">'+esc(x.kind)+'</span></td>'+
       '<td><span class="sg'+sc+'">'+esc(x.stage||"—")+'</span></td>'+
       '<td><span class="ex '+ec+'">'+esc(x.excl||"확인 필요")+'</span></td>'+
-      '<td class="s">'+esc(x.mg||"—")+'</td>'+
-      '<td class="s">'+esc(x.roy||"—")+'</td>'+
+      (function(){var g=shortMg(x.mg);
+        return '<td class="mg" title="'+esc(x.mg)+'">'+esc(g.t)+
+               (g.sub?'<small>'+esc(g.sub)+'</small>':'')+'</td>';})()+
+      '<td class="roy" title="'+esc(x.roy)+'">'+royChips(x.roy)+'</td>'+
       '<td class="s">'+esc(x.dur||"—")+'</td>'+
       '<td class="s">'+esc(x.period||"—")+'</td>'+
-      '<td class="s">'+esc(x.poc||"—")+'</td></tr>';
+      '<td class="poc" title="'+esc(x.poc)+'">'+shortPoc(x.poc)+'</td></tr>';
   });
   $("tb").innerHTML=out;
 }
