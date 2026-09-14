@@ -59,6 +59,12 @@ input.s{width:100%}
 .ip .memo{font-size:13px;margin-top:7px;white-space:pre-wrap}
 .ip .side{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
 .chip{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;background:#f1f3f7;color:var(--mid)}
+.facts{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.fact{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+      background:#F3F5F8;border:1px solid #E3E8EF;border-radius:6px;padding:2px 8px;color:#33405A}
+.fact i{font-style:normal;font-weight:600;font-size:10.5px;color:#8A94A6}
+.fact.xy{background:#E7F2EE;border-color:#CFE5DD;color:#0F6E56}
+.fact.xn{background:#FBE9EC;border-color:#F2D3D9;color:#B4344F}
 .chip.on{background:var(--pink-soft);color:#c2005f}
 .stage-sel{padding:6px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:12.5px}
 .rowbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
@@ -181,8 +187,9 @@ input.s{width:100%}
 "use strict";
 var PASS="2701", LS="brkg_ip_v1";
 var STAGES=["발굴","내부 검토","제안 발송","협의 중","계약 완료","보류","종료"];
-var CATS=["캐릭터","브랜드","아티스트","게임","방송·영화","기타"];
-var MD_STAGES=["기획","디자인","샘플","양산","출시"];
+var CATS=["캐릭터","셀럽","패션","기타"];
+var MD_STAGES=["기획","디자인","샘플","양산","출시"]
+var EXCL=["독점","비독점","확인 필요"];
 var DOC_TYPES=["제안서","시안","견적","계약","회신 기록","기타"];
 
 /* gate */
@@ -359,6 +366,34 @@ document.getElementById("fMdIp").addEventListener("change", renderBoard);
 ["fDocIp","fDocType","fDocQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderDocs); });
 
 /* ---------- IP list ---------- */
+function shortMg(v){
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "";
+  if(/상기/.test(v)) return "연간 계약 포함";
+  var nums=[];
+  v.split(/\s*\/\s*/).forEach(function(x){
+    var m=x.match(/([\d,.]+\s*(?:억|만원|만|K\s*USD|USD|원))/i);
+    if(m) nums.push(m[1].replace(/만원/,"만").replace(/\s+/g,"").replace(/KUSD/i,"K USD"));
+  });
+  return nums.length?nums.join(" + "):(v.length>14?v.slice(0,14)+"…":v);
+}
+var ROYMAP=[[/아이스크림/,"IC"],[/케이[크익]/,"케이크"],[/디저트/,"디저트"],[/음료|쉐이크/,"음료"],[/굿즈|MD/,"굿즈"]];
+function shortRoy(v){
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "";
+  var out=[],seen={};
+  v.split(/\s*\/\s*/).forEach(function(x){
+    var nm="";
+    for(var i=0;i<ROYMAP.length;i++){ if(ROYMAP[i][0].test(x)){ nm=ROYMAP[i][1]; break; } }
+    var ps=(x.match(/[\d.]+\s*%/g)||[]).map(function(y){return y.replace(/\s+/g,"")});
+    if(!nm||!ps.length||seen[nm]) return;
+    var u=ps.filter(function(y,i){return ps.indexOf(y)===i});
+    seen[nm]=1;
+    out.push(nm+" "+(u.length>1?u[0].replace("%","")+"~"+u[u.length-1]:u[0]));
+  });
+  return out.length?out.join(" · "):(v.length>18?v.slice(0,18)+"…":v);
+}
+
 function renderIps(){
   var wrap=document.getElementById("ipWrap"); wrap.innerHTML="";
   var st=document.getElementById("fStage").value, ct=document.getElementById("fCat").value;
@@ -385,9 +420,23 @@ function renderIps(){
     var left=document.createElement("div");
     var h=document.createElement("h3"); h.textContent=i.name; left.appendChild(h);
     var meta=document.createElement("div"); meta.className="meta";
-    meta.textContent=[i.cat, i.owner? "담당사 "+i.owner:"", i.contact? "연락 "+i.contact:"",
+    meta.textContent=[i.owner? "담당사 "+i.owner:"", i.contact? "연락 "+i.contact:"",
       i.season? "제안 시기 "+i.season:""].filter(Boolean).join("  ·  ");
     left.appendChild(meta);
+    /* 구분 · 독점 여부 · MG · 로열티 · 제작기간 */
+    var facts=[["구분",i.cat],["독점",i.excl||"확인 필요"],["MG",shortMg(i.mg)],
+               ["로열티",shortRoy(i.roy)],["제작기간",i.dur]].filter(function(f){return f[1]});
+    if(facts.length){
+      var fb=document.createElement("div"); fb.className="facts";
+      facts.forEach(function(f){
+        var sp=document.createElement("span"); sp.className="fact";
+        if(f[0]==="독점") sp.className+=" x"+(f[1]==="독점"?"y":(f[1]==="비독점"?"n":"q"));
+        var k=document.createElement("i"); k.textContent=f[0];
+        sp.appendChild(k); sp.appendChild(document.createTextNode(f[1]));
+        fb.appendChild(sp);
+      });
+      left.appendChild(fb);
+    }
     if(i.memo){ var mm=document.createElement("div"); mm.className="memo"; mm.textContent=i.memo; left.appendChild(mm); }
     var tags=document.createElement("div"); tags.style.marginTop="9px";
     if(mdN){ var c1=document.createElement("span"); c1.className="chip"; c1.textContent="상품 "+mdN+"건"; tags.appendChild(c1); }
@@ -461,6 +510,14 @@ function ipModal(i){
    '</div>'+
    '<div class="row2">'+
      '<div class="f"><label for="mSeason">제안 시기</label><input id="mSeason" value="'+esc(e.season||"").replace(/"/g,"&quot;")+'" placeholder="예: 2027년 상반기"></div>'+
+     '<div class="f"><label for="mExcl">콜라보 독점 여부</label><select id="mExcl">'+opts(EXCL,e.excl||"확인 필요")+'</select></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mMg">MG</label><input id="mMg" value="'+esc(e.mg||"").replace(/"/g,"&quot;")+'" placeholder="예: 3,000만원"></div>'+
+     '<div class="f"><label for="mRoy">로열티</label><input id="mRoy" value="'+esc(e.roy||"").replace(/"/g,"&quot;")+'" placeholder="예: 아이스크림 출고가의 2%"></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mDur">제작기간 (사인부터)</label><input id="mDur" value="'+esc(e.dur||"").replace(/"/g,"&quot;")+'" placeholder="예: 컨셉 5일 · 샘플 10일"></div>'+
      '<div class="f"><label for="mFee">조건 메모</label><input id="mFee" value="'+esc(e.fee||"").replace(/"/g,"&quot;")+'" placeholder="예: 최소 보증금 협의 중"></div>'+
    '</div>'+
    '<div class="f"><label for="mMemo">메모</label><textarea id="mMemo" placeholder="타깃, 팬덤 규모, 우리 브랜드와 맞는 지점">'+esc(e.memo||"")+'</textarea></div>';
@@ -471,6 +528,7 @@ function ipModal(i){
     obj.name=name; obj.cat=val(host,"mCat"); obj.stage=val(host,"mStage");
     obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
     obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee"); obj.memo=val(host,"mMemo");
+    obj.excl=val(host,"mExcl"); obj.mg=val(host,"mMg"); obj.roy=val(host,"mRoy"); obj.dur=val(host,"mDur");
     if(!i) data.ips.unshift(obj);
     save(); refreshFilters(); renderIps();
   });
