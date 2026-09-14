@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>IP 관련 업무 · BRK Genius</title>
+<title>IP 관리 | BRK Genius</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
 :root{--pink:#F0187C;--pink-soft:#FFE7F1;--ink:#191b22;--mid:#6b7180;--line:#e3e6ec;--bg:#eef0f4;--card:#fff;
@@ -70,6 +70,28 @@ input.s{width:100%}
 }
 .ip .side{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
 .chip{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;background:#f1f3f7;color:var(--mid)}
+.rategrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px}
+.rate{display:block;border:1px solid var(--line);border-radius:9px;padding:6px 10px;background:#fff}
+.rate span{display:flex;align-items:baseline;gap:4px;margin-top:2px}
+.rate i{display:block;font-style:normal;font-size:10.5px;font-weight:700;color:var(--mid)}
+.rate input{border:none;outline:none;width:100%;font:inherit;font-size:13.5px;font-weight:700;text-align:right;padding:0}
+.rate u{text-decoration:none;font-size:11.5px;color:var(--mid);flex:none}
+.ratehint{margin:7px 0 0;font-size:11.5px;color:var(--mid)}
+.flowwrap{margin-bottom:16px}
+.flowwrap > h3{margin:0 0 4px;font-size:14px;font-weight:800}
+.flowwrap > p{margin:0 0 11px;font-size:12.5px;color:var(--mid)}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
+.fst{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;position:relative;
+  cursor:pointer;transition:border-color .12s}
+.fst:hover{border-color:var(--pink)}
+.fst.on{border-color:var(--pink);background:#FFF3F8}
+.fst .no{display:inline-block;font-size:10.5px;font-weight:900;color:#fff;background:#8A94A6;
+  border-radius:999px;padding:1px 7px;margin-bottom:6px}
+.fst.sign .no{background:var(--pink)}
+.fst b{display:block;font-size:13px;font-weight:800}
+.fst span{display:block;font-size:11.5px;color:var(--mid);line-height:1.55;margin-top:2px}
+.fst .cnt{position:absolute;top:9px;right:10px;font-size:11px;font-weight:800;color:#33405A;
+  background:#EEF1F6;border-radius:999px;padding:1px 7px}
 .ipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 .ipc{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
   cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s;display:flex;flex-direction:column}
@@ -185,7 +207,7 @@ input.s{width:100%}
 <div id="app" class="hidden">
   <header class="top">
     <div class="in">
-      <div class="brand"><span class="dot"></span><b>IP 관련 업무</b></div>
+      <div class="brand"><span class="dot"></span><b>IP 관리</b></div>
       <a class="back" href="/marketing/">← 마케팅 실무</a>
       <div class="views" role="group" aria-label="보기 전환">
         <button id="tIp" aria-pressed="true">IP 후보</button>
@@ -198,6 +220,7 @@ input.s{width:100%}
   <div class="wrap">
     <!-- IP -->
     <section id="secIp">
+      <div class="flowbox" id="flowBox"></div>
       <div class="cattabs" id="catTabs"></div>
       <div class="bar">
         <button class="btn pink" id="addIp">IP 후보 추가</button>
@@ -246,7 +269,22 @@ input.s{width:100%}
 (function(){
 "use strict";
 var PASS="2701", LS="brkg_ip_v1";
-var STAGES=["발굴","내부 검토","제안 발송","협의 중","계약 완료","보류","종료"];
+var STAGES=["발굴","내부 검토","제안 발송","회신·미팅","딜 조건 협의","계약서 검토",
+            "사인","디자인 감수","샘플·증지","양산","출시","보류","종료"]
+var FLOW=[
+ ["발굴","후보를 찾아 목록에 올림"],
+ ["내부 검토","우리 브랜드와 맞는지 따져봄"],
+ ["제안 발송","제안서·소개서를 보냄"],
+ ["회신·미팅","답이 와서 만나거나 통화함"],
+ ["딜 조건 협의","MG·로열티율·독점 범위·기간을 맞춤"],
+ ["계약서 검토","법무·내부 검토와 수정"],
+ ["사인","계약 체결 · 여기부터 제작기간을 셈"],
+ ["디자인 감수","시안을 원작사에 올려 승인받음"],
+ ["샘플·증지","샘플 확인과 증지 발급"],
+ ["양산","생산 들어감"],
+ ["출시","판매 시작"]
+]
+var GRPS=["연간","월간 FOM","제안·검토"];
 var CATS=["캐릭터","패션","셀럽","기타"];
 var MD_STAGES=["기획","디자인","샘플","양산","출시"]
 var EXCL=["독점","비독점","확인 필요"];
@@ -411,7 +449,7 @@ function refreshFilters(){
   var keep1=document.getElementById("fStage").value;
   fillSelect(document.getElementById("fStage"), STAGES, "모든 단계");
   document.getElementById("fStage").value=keep1;
-  drawCatTabs();
+  drawCatTabs(); drawFlow();
   var ipOpts=data.ips.map(function(i){ return {v:i.id,t:i.name}; });
   var k3=document.getElementById("fMdIp").value, k4=document.getElementById("fDocIp").value;
   fillSelect(document.getElementById("fMdIp"), ipOpts, "모든 IP");
@@ -421,11 +459,38 @@ function refreshFilters(){
   fillSelect(document.getElementById("fDocType"), DOC_TYPES, "모든 종류");
   document.getElementById("fDocType").value=k5;
 }
-["fStage","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderIps); });
+["fStage","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", function(){ drawFlow(); renderIps(); }); });
 document.getElementById("fMdIp").addEventListener("change", renderBoard);
 ["fDocIp","fDocType","fDocQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderDocs); });
 
 /* ---------- IP list ---------- */
+var RATEKEYS=[["ic","아이스크림"],["cake","케이크"],["dessert","디저트"],["drink","음료"],["goods","굿즈"]];
+var RATEPAT={ic:/아이스크림/, cake:/케이[크익]/, dessert:/디저트/, drink:/음료|쉐이크/, goods:/굿즈|MD/};
+
+/* 예전에 적어 둔 로열티 글에서 품목별 %를 뽑아낸다 */
+function parseRates(v){
+  var out={};
+  String(v||"").split(/\s*\/\s*/).forEach(function(x){
+    RATEKEYS.forEach(function(k){
+      if(out[k[0]]) return;
+      if(!RATEPAT[k[0]].test(x)) return;
+      var ps=(x.match(/[\d.]+\s*%/g)||[]).map(function(y){return y.replace(/\s+/g,"")});
+      if(!ps.length) return;
+      var u=ps.filter(function(y,i){return ps.indexOf(y)===i});
+      out[k[0]] = (u.length>1) ? u[0].replace("%","")+"~"+u[u.length-1].replace("%","") : u[0].replace("%","");
+    });
+  });
+  return out;
+}
+/* 품목별 %를 보기 좋은 한 줄로 */
+function ratesText(r){
+  if(!r) return "";
+  var lab={ic:"IC",cake:"케이크",dessert:"디저트",drink:"음료",goods:"굿즈"};
+  return RATEKEYS.map(function(k){
+    var v=r[k[0]]; return v? lab[k[0]]+" "+v+"%" : "";
+  }).filter(Boolean).join(" · ");
+}
+
 function shortMg(v){
   v=String(v||"").trim();
   if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "";
@@ -438,7 +503,8 @@ function shortMg(v){
   return nums.length?nums.join(" + "):(v.length>14?v.slice(0,14)+"…":v);
 }
 var ROYMAP=[[/아이스크림/,"IC"],[/케이[크익]/,"케이크"],[/디저트/,"디저트"],[/음료|쉐이크/,"음료"],[/굿즈|MD/,"굿즈"]];
-function shortRoy(v){
+function shortRoy(v,rates){
+  var t=ratesText(rates); if(t) return t;
   v=String(v||"").trim();
   if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return "";
   var out=[],seen={};
@@ -465,6 +531,28 @@ function shortPoc(v){
     if(x && x.length<=16 && /[가-힣A-Za-z]/.test(x) && names.indexOf(x)<0) names.push(x);
   });
   return names.length? names.slice(0,2).join(" · ") : "연락처 있음";
+}
+
+function drawFlow(){
+  var host=document.getElementById("flowBox"); if(!host) return;
+  var cur=document.getElementById("fStage").value;
+  var inner=FLOW.map(function(f,i){
+    var n=data.ips.filter(function(x){return x.stage===f[0]}).length;
+    return '<div class="fst'+(f[0]==="사인"?" sign":"")+(cur===f[0]?" on":"")+'" data-s="'+f[0]+'">'+
+           '<span class="no">'+(i+1)+'</span>'+(n?'<span class="cnt">'+n+'</span>':'')+
+           '<b>'+f[0]+'</b><span>'+f[1]+'</span></div>';
+  }).join("");
+  host.innerHTML='<div class="flowwrap"><h3>계약 진행 순서</h3>'+
+    '<p>왼쪽에서 오른쪽으로 갑니다. 숫자는 지금 그 단계에 있는 IP 수이고, 칸을 누르면 그 단계만 봅니다. '+
+    '<b>사인(7)</b> 앞은 조건을 맞추는 구간, 뒤는 만드는 구간입니다. 제작기간은 사인한 날부터 셉니다.</p>'+
+    '<div class="flow">'+inner+'</div></div>';
+  host.querySelectorAll(".fst").forEach(function(el){
+    el.onclick=function(){
+      var sel=document.getElementById("fStage");
+      sel.value = (sel.value===el.dataset.s) ? "" : el.dataset.s;
+      drawFlow(); renderIps();
+    };
+  });
 }
 
 function drawCatTabs(){
@@ -520,7 +608,7 @@ function renderIps(){
     var bd=document.createElement("div"); bd.className="bd";
     var h=document.createElement("h4"); h.textContent=i.name; bd.appendChild(h);
     if(i.owner){ var ow=document.createElement("div"); ow.className="own"; ow.textContent=i.owner; bd.appendChild(ow); }
-    var mg=shortMg(i.mg), roy=shortRoy(i.roy);
+    var mg=shortMg(i.mg), roy=shortRoy(i.roy, i.rates);
     var kv=document.createElement("div"); kv.className="kv";
     kv.appendChild(kvRow("MG", mg));
     kv.appendChild(kvRow("로열티", roy));
@@ -557,9 +645,12 @@ function ipDetail(i){
        '<div class="sub">'+esc([i.cat,i.stage,i.owner].filter(Boolean).join("  ·  "))+'</div>'+
        '<div class="rows">'+
          row("MG", i.mg)+
-         row("로열티", i.roy)+
+         row("로열티", ratesText(i.rates) || i.roy)+
+         row("로열티 원문", (ratesText(i.rates) && i.roy) ? i.roy : "")+
          row("콜라보 독점", i.excl||"확인 필요")+
          row("제작기간", i.dur)+
+         row("계약기간", i.period)+
+         row("묶음", [i.grp,i.slot].filter(Boolean).join(" · "))+
          row("제안 시기", i.season)+
          row("조건 메모", i.fee)+
          row("담당자", i.contact)+
@@ -638,13 +729,32 @@ function ipModal(i){
      '<div class="f"><label for="mContact">연락처</label><input id="mContact" value="'+esc(e.contact||"").replace(/"/g,"&quot;")+'"></div>'+
    '</div>'+
    '<div class="row2">'+
+     '<div class="f"><label for="mGrp">묶음</label><select id="mGrp">'+opts(GRPS,e.grp||"제안·검토")+'</select></div>'+
+     '<div class="f"><label for="mSlot">월 슬롯</label><input id="mSlot" value="'+esc(e.slot||"").replace(/"/g,"&quot;")+'" placeholder="예: 26 9"></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="mPeriod">계약기간</label><input id="mPeriod" value="'+esc(e.period||"").replace(/"/g,"&quot;")+'" placeholder="예: 2026.04.01~2027.03.31"></div>'+
      '<div class="f"><label for="mSeason">제안 시기</label><input id="mSeason" value="'+esc(e.season||"").replace(/"/g,"&quot;")+'" placeholder="예: 2027년 상반기"></div>'+
      '<div class="f"><label for="mExcl">콜라보 독점 여부</label><select id="mExcl">'+opts(EXCL,e.excl||"확인 필요")+'</select></div>'+
    '</div>'+
    '<div class="row2">'+
-     '<div class="f"><label for="mMg">MG</label><input id="mMg" value="'+esc(e.mg||"").replace(/"/g,"&quot;")+'" placeholder="예: 3,000만원"></div>'+
-     '<div class="f"><label for="mRoy">로열티</label><input id="mRoy" value="'+esc(e.roy||"").replace(/"/g,"&quot;")+'" placeholder="예: 아이스크림 출고가의 2%"></div>'+
+     '<div class="f"><label for="mMg">MG</label><input id="mMg" value="'+esc(e.mg||"").replace(/"/g,"&quot;")+'" placeholder="예: 3,000만원 · 1차 1.3억 / 2차 2.7억"></div>'+
+     '<div class="f"><label for="mDur2"></label></div>'+
    '</div>'+
+   '<div class="f"><label>로열티율 (%) · 품목별로 숫자만</label>'+
+     '<div class="rategrid">'+
+       RATEKEYS.map(function(k){
+         var v=(e.rates&&e.rates[k[0]])||"";
+         return '<label class="rate"><i>'+k[1]+'</i>'+
+                '<span><input id="r_'+k[0]+'" value="'+esc(v).replace(/"/g,"&quot;")+'" placeholder="0.0"><u>%</u></span>'+
+                '</label>';
+       }).join("")+
+     '</div>'+
+     '<p class="ratehint">직영·가맹이 다르면 <b>2.3~4.5</b> 처럼 물결로 적으세요. 비우면 아래 원문에서 찾아 씁니다.</p>'+
+   '</div>'+
+   '<div class="f"><label for="mRoy">로열티 원문 · 조건 메모</label>'+
+     '<textarea id="mRoy" style="height:62px" placeholder="예: 아이스크림 출고가의 4.5% / 케이크 판매가의 2.3%(직영) & 출고가의 4.5%(가맹)">'+esc(e.roy||"")+'</textarea></div>'+
+   '<div class="row2">'+
    '<div class="row2">'+
      '<div class="f"><label for="mDur">제작기간 (사인부터)</label><input id="mDur" value="'+esc(e.dur||"").replace(/"/g,"&quot;")+'" placeholder="예: 컨셉 5일 · 샘플 10일"></div>'+
      '<div class="f"><label for="mFee">조건 메모</label><input id="mFee" value="'+esc(e.fee||"").replace(/"/g,"&quot;")+'" placeholder="예: 최소 보증금 협의 중"></div>'+
@@ -659,7 +769,13 @@ function ipModal(i){
     obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
     obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee"); obj.memo=val(host,"mMemo");
     obj.excl=val(host,"mExcl"); obj.mg=val(host,"mMg"); obj.roy=val(host,"mRoy"); obj.dur=val(host,"mDur");
+    var rt={}; RATEKEYS.forEach(function(k){
+      var v=val(host,"r_"+k[0]).replace(/[%\s]/g,"");
+      if(v) rt[k[0]]=v;
+    });
+    obj.rates = Object.keys(rt).length? rt : null;
     obj.img=val(host,"mImg");
+    obj.grp=val(host,"mGrp"); obj.slot=val(host,"mSlot"); obj.period=val(host,"mPeriod");
     if(!i) data.ips.unshift(obj);
     save(); refreshFilters(); renderIps();
   });
