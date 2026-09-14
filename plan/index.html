@@ -125,6 +125,13 @@
   .day:last-child { border-right:none; }
   .day.out { background:#F5F1ED; }
   .day.hol { background:#FDF2F6; }
+  .day.today { position:relative; background:#F4F7FF; }
+  .day.today::after { content:""; position:absolute; inset:0; pointer-events:none;
+                      border:2px solid var(--blue); border-radius:4px; }
+  .day.today .dn { color:var(--blue); font-weight:900; }
+  .day.today .dn::after { content:"오늘"; margin-left:5px; font-size:9.5px; font-weight:800;
+                          color:#fff; background:var(--blue); border-radius:999px; padding:1px 5px;
+                          vertical-align:1px; }
   .day .dn { font-size:11px; font-weight:900; line-height:1.2; }
   .day.out .dn { color:#C4B5AA; }
   .dsale .sbar { height:4px; background:#EFE3D9; border-radius:3px; overflow:hidden; margin:3px 0 2px; }
@@ -363,7 +370,7 @@
 <div class="wrap">
   <div class="backbar" id="backbar"><a href="/"><span>←</span> BRK Genius</a></div>
   <header>
-    <h1><span id="ymTitle">2026</span> <em>연간 마케팅 플랜</em></h1>
+    <h1><em>연간 마케팅 플랜</em></h1>
     <div class="ynav">
       <button type="button" id="ymPrev" aria-label="한 달 앞으로">◀</button>
       <span id="ymRange"></span>
@@ -380,11 +387,6 @@
   <div class="mdet" id="mdet" hidden></div>
 
   <div class="rule"></div>
-  <div class="gotoa">
-    <div class="gt"><b>월별 매출 × FOM &amp; IP 캘린더</b></div>
-    <a class="gobtn" href="/sales/">매출 페이지 열기 <i>→</i></a>
-  </div>
-
   <div style="margin-top:30px">
     <button class="tgl" id="srcTgl" type="button" aria-expanded="false" aria-controls="fsrc" style="margin-left:0"><i>▶</i><span>출처 · 주석</span></button>
   </div>
@@ -588,8 +590,8 @@ function drawYear(){
   document.getElementById("yrTbl").innerHTML = cols_ + head + body;
 
   var last = CS[11];
-  document.getElementById("ymTitle").textContent =
-    (startY === last.y) ? startY : startY + "–" + last.y;
+  var _yt = document.getElementById("ymTitle");
+  if(_yt) _yt.textContent = (startY === last.y) ? startY : startY + "–" + last.y;
   document.getElementById("ymRange").textContent =
     startY + "." + pad(startM) + " – " + last.y + "." + pad(last.m);
   document.getElementById("ymHome").style.visibility =
@@ -721,6 +723,9 @@ function renderMonth(key){
 
   function drawCal(){
     var list = items();
+    /* 지금 보고 있는 달이 이번 달이면 오늘 날짜 칸을 네모로 표시한다 */
+    var _now = new Date();
+    var TODAY = (_now.getFullYear() === YY && (_now.getMonth() + 1) === n) ? _now.getDate() : 0;
     var html = "<div class='calhead'>" +
       ["월","화","수","목","금","토","일"].map(function(w,i){
         return "<div" + (i===6 ? " class='sun'" : "") + ">" + w + "</div>";
@@ -745,7 +750,8 @@ function renderMonth(key){
           ? "<div class='dnew' data-nd='" + d + "' title='" + nw.map(function(x){ return x.t; }).join(" · ") + "'>▲ " +
             (nw.length > 1 ? nw.length + "종 출시" : nw[0].t) + "</div>"
           : "<div class='dnew empty'></div>";
-        days += "<div class='day" + (evMapHol[d] ? " hol" : "") + (nw ? " haslaunch" : "") + "'>" +
+        days += "<div class='day" + (evMapHol[d] ? " hol" : "") + (nw ? " haslaunch" : "") +
+                (d === TODAY ? " today" : "") + "'>" +
                 "<div class='dn'>" + d + (nw ? "<span class='ndot'>●</span>" : "") + "</div>" +
                 sale + launch + "</div>";
       }
@@ -1124,7 +1130,7 @@ var ALL_CODE = "2701";
   document.getElementById("sBtn").addEventListener("click", attempt);
   document.getElementById("sCode").addEventListener("keydown", function(e){ if (e.key === "Enter") attempt(); });
   var back = document.getElementById("sBack");
-  if (back) back.addEventListener("click", function(){ window.location.href = "index.html"; });
+  if (back) back.addEventListener("click", function(){ window.location.href = "/"; });
 })();
 </script>
 </body>

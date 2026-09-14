@@ -49,8 +49,8 @@
   .shead.info .dot{background:var(--ink-deep);}
   .shead.poll .dot{background:var(--blue);}
   .shead.work .dot{background:#7A4BC4;}
-  .shead .pw{font-size:10.5px; font-weight:700; letter-spacing:.02em; color:var(--gold);
-             background:var(--gold-soft); border-radius:999px; padding:2px 9px;}
+  .shead .pw{font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#7A8296;
+             background:#E6E9EF; border-radius:999px; padding:2px 9px;}
   .shead h2{font-size:14px; font-weight:900; letter-spacing:-.02em;}
   .shead .cnt{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
               color:var(--mute); background:var(--paper); border:1.5px solid var(--line);
@@ -97,8 +97,7 @@
   .gate h3{font-size:15.5px; font-weight:900; letter-spacing:-.03em; line-height:1.2;
            padding-right:20px;}
   .gate .yr{font-family:'Fredoka',sans-serif; font-weight:600; font-size:11px;
-            color:var(--gold-soft); margin-top:3px;}
-  .gate.poll .yr, .gate.work .yr{color:rgba(255,255,255,.8);}
+            color:rgba(255,255,255,.5); margin-top:3px;}
   .gate .desc{font-size:11.5px; line-height:1.5; margin-top:6px;
               color:rgba(255,255,255,.72);}
   .stats{display:flex; gap:12px; flex-wrap:wrap; margin-top:auto; padding-top:10px;}
@@ -145,56 +144,10 @@
 <main>
 
   <section class="sect">
-    <div class="shead plan">
-      <span class="dot"></span>
-      <h2 data-t="hP">마케팅 전략</h2>
-      <span class="cnt">2</span>
-      <span class="pw" data-t="hPpw">비밀번호</span>
-      <span class="rule"></span>
-    </div>
-    <div class="row">
-
-      <a class="gate plan" href="/plan/">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="14" y="22" width="92" height="84" rx="14" fill="none" stroke="#fff" stroke-width="6"/>
-            <path d="M14 48h92" stroke="#fff" stroke-width="5"/>
-            <path d="M38 12v20M82 12v20" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-            <rect x="30" y="62" width="17" height="15" rx="3" fill="#C9A227"/>
-            <rect x="53" y="62" width="17" height="15" rx="3" fill="#9BB6E0"/>
-            <rect x="76" y="62" width="17" height="15" rx="3" fill="#ED93B1"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t7">연간 마케팅 플랜</h3>
-          <div class="yr">2026</div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-
-      <a class="gate plan" href="/analysis/">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <path d="M18 92 L44 60 L66 76 L102 28" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M78 26h24v24" stroke="#C9A227" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="44" cy="60" r="6.5" fill="#fff"/><circle cx="66" cy="76" r="6.5" fill="#fff"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t8">2027 마케팅 전략</h3>
-          <div class="yr">2027</div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-
-    </div>
-  </section>
-
-  <section class="sect">
     <div class="shead info">
       <span class="dot"></span>
       <h2 data-t="hA">회사 기본 정보</h2>
-      <span class="cnt">3</span>
+      <span class="cnt">2</span>
       <span class="pw" data-t="hApw">비밀번호</span>
       <span class="rule"></span>
     </div>
@@ -203,10 +156,10 @@
       <a class="gate basic" href="/sales/">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="20" y="62" width="17" height="44" rx="3" fill="#6E769B"/>
-            <rect x="43" y="44" width="17" height="62" rx="3" fill="#A8B7E8"/>
-            <rect x="66" y="26" width="17" height="80" rx="3" fill="#C9A227"/>
-            <rect x="89" y="52" width="17" height="54" rx="3" fill="#F7EFD8"/>
+            <rect x="20" y="62" width="17" height="44" rx="3" fill="#fff" opacity=".45"/>
+            <rect x="43" y="44" width="17" height="62" rx="3" fill="#fff" opacity=".6"/>
+            <rect x="66" y="26" width="17" height="80" rx="3" fill="#fff"/>
+            <rect x="89" y="52" width="17" height="54" rx="3" fill="#fff" opacity=".75"/>
           </svg>
         </div>
         <div class="body">
@@ -216,27 +169,14 @@
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
 
-      <a class="gate basic" href="/market/">
-        <div class="art">
-          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="14" y="14" width="54" height="54" rx="6" fill="#5DCAA5"/>
-            <rect x="76" y="14" width="30" height="36" rx="6" fill="#F7EFD8"/>
-            <rect x="14" y="76" width="54" height="30" rx="6" fill="#ED93B1"/>
-            <rect x="76" y="58" width="30" height="48" rx="6" fill="#C9A227"/>
-          </svg>
-        </div>
-        <div class="body">
-          <h3 data-t="t3">시장 구조</h3>
-          <div class="yr">2026.09</div>
-        </div>
-        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
 
       <a class="gate basic" href="/stores/">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#7FA8DC" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
-            <circle cx="60" cy="52" r="10" fill="#C9A227" stroke="#fff" stroke-width="5"/>
+            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" fill="#fff" opacity=".3"/>
+            <path d="M18 30 L44 20 L76 32 L102 22 L102 92 L76 102 L44 90 L18 100 Z" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M44 20v70M76 32v70" stroke="#fff" stroke-width="4" opacity=".6"/>
+            <circle cx="60" cy="52" r="10" fill="#fff"/>
           </svg>
         </div>
         <div class="body">
@@ -248,50 +188,64 @@
 
     </div>
   </section>
-
   <section class="sect">
-    <div class="shead poll">
+    <div class="shead plan">
       <span class="dot"></span>
-      <h2 data-t="hC">설문조사</h2>
-      <span class="cnt">2</span>
-      <span class="pw" data-t="hCpw">비밀번호</span>
+      <h2 data-t="hP">마케팅 전략</h2>
+      <span class="cnt">3</span>
+      <span class="pw" data-t="hPpw">비밀번호</span>
       <span class="rule"></span>
     </div>
     <div class="row">
 
-      <a class="gate poll" href="/surveys.html">
+      <a class="gate plan" href="/plan/">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <path d="M42 66 L60 108 L78 66 Z" fill="#E0B87E" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
-            <circle cx="46" cy="54" r="18" fill="#8FA6E0" stroke="#fff" stroke-width="5"/>
-            <circle cx="74" cy="54" r="18" fill="#C9A227" stroke="#fff" stroke-width="5"/>
-            <circle cx="60" cy="34" r="19" fill="#fff" stroke="#fff" stroke-width="5"/>
+            <rect x="14" y="22" width="92" height="84" rx="14" fill="none" stroke="#fff" stroke-width="6"/>
+            <path d="M14 48h92" stroke="#fff" stroke-width="5"/>
+            <path d="M38 12v20M82 12v20" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+            <rect x="30" y="62" width="17" height="15" rx="3" fill="#fff" opacity=".5"/>
+            <rect x="53" y="62" width="17" height="15" rx="3" fill="#fff" opacity=".75"/>
+            <rect x="76" y="62" width="17" height="15" rx="3" fill="#fff"/>
           </svg>
         </div>
         <div class="body">
-          <h3 data-t="t1">설문조사</h3>
+          <h3 data-t="t7">연간 마케팅 플랜</h3>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
 
-      <a class="gate poll" href="/br-store-report.html">
+      <a class="gate plan" href="/analysis/">
         <div class="art">
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <rect x="12" y="34" width="96" height="64" rx="9" fill="#fff"/>
-            <path d="M42 34 L50 22 L70 22 L78 34" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
-            <circle cx="60" cy="66" r="20" fill="#EC0089"/>
-            <circle cx="60" cy="66" r="9" fill="#fff"/>
+            <path d="M18 92 L44 60 L66 76 L102 28" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M78 26h24v24" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+            <circle cx="44" cy="60" r="6.5" fill="#fff"/><circle cx="66" cy="76" r="6.5" fill="#fff"/>
           </svg>
         </div>
         <div class="body">
-          <h3 data-t="t4">ON-SITE 매장 리포트</h3>
+          <h3 data-t="t8">월간 집중 포인트 BASE Matrix</h3>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
 
+      <a class="gate plan" href="/market/">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="14" y="14" width="54" height="54" rx="6" fill="#fff"/>
+            <rect x="76" y="14" width="30" height="36" rx="6" fill="#fff" opacity=".4"/>
+            <rect x="14" y="76" width="54" height="30" rx="6" fill="#fff" opacity=".6"/>
+            <rect x="76" y="58" width="30" height="48" rx="6" fill="#fff" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t3">국내 디저트 시장 구조</h3>
+          <div class="yr">2026.09</div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
     </div>
   </section>
-
   <section class="sect">
     <div class="shead work">
       <span class="dot"></span>
@@ -306,12 +260,56 @@
           <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <rect x="16" y="16" width="88" height="88" rx="14" fill="none" stroke="#fff" stroke-width="6"/>
             <path d="M16 45h88M16 74h88M45 16v88M74 16v88" stroke="#fff" stroke-width="4.5" opacity=".55"/>
-            <circle cx="30" cy="30" r="6.5" fill="#C9A227"/>
-            <circle cx="90" cy="89" r="6.5" fill="#ED93B1"/>
+            <circle cx="30" cy="30" r="6.5" fill="#fff"/>
+            <circle cx="90" cy="89" r="6.5" fill="#fff" opacity=".6"/>
           </svg>
         </div>
         <div class="body">
           <h3 data-t="t6">마케팅 실무</h3>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+    </div>
+  </section>
+  <section class="sect">
+    <div class="shead poll">
+      <span class="dot"></span>
+      <h2 data-t="hC">설문조사 및 매장 조사</h2>
+      <span class="cnt">2</span>
+      <span class="pw" data-t="hCpw">비밀번호</span>
+      <span class="rule"></span>
+    </div>
+    <div class="row">
+
+      <a class="gate poll" href="/surveys.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path d="M42 66 L60 108 L78 66 Z" fill="#fff" opacity=".45"/>
+            <path d="M42 66 L60 108 L78 66 Z" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="46" cy="54" r="18" fill="#fff" opacity=".55" stroke="#fff" stroke-width="5"/>
+            <circle cx="74" cy="54" r="18" fill="#fff" opacity=".55" stroke="#fff" stroke-width="5"/>
+            <circle cx="60" cy="34" r="19" fill="#fff" stroke="#fff" stroke-width="5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t1">설문조사</h3>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate poll" href="/br-store-report.html">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="12" y="34" width="96" height="64" rx="9" fill="none" stroke="#fff" stroke-width="6"/>
+            <path d="M42 34 L50 22 L70 22 L78 34" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>
+            <circle cx="60" cy="66" r="20" fill="#fff" opacity=".45"/>
+            <circle cx="60" cy="66" r="20" stroke="#fff" stroke-width="5"/>
+            <circle cx="60" cy="66" r="8" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t4">ON-SITE 매장 리포트</h3>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -334,11 +332,11 @@
 
 var EN = {
   sub:'Marketing Strategy \u00b7 Genius Team',
-  hP:'Marketing strategy', hA:'Company basics', hB:'Marketing workbench', hC:'Surveys',
+  hP:'Marketing strategy', hA:'Company basics', hB:'Marketing workbench', hC:'Surveys & store checks',
   hPpw:'passcode', hApw:'passcode', hCpw:'passcode',
-  t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure',
+  t1:'Surveys', t2:'BR Total POS Sales', t3:'Korea Dessert Market Structure',
   t4:'ON-SITE Store Report', t5:'Store Location Map', t6:'Marketing Workbench',
-  t7:'Annual Marketing Plan', t8:'2027 Marketing Strategy',
+  t7:'Annual Marketing Plan', t8:'Monthly Focus · BASE Matrix',
   ft:'\u00a9 Baskin-Robbins Korea \u00b7 Marketing Strategy'
 };
 var KO = {};

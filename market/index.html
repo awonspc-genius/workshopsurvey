@@ -76,21 +76,21 @@ h3{margin:0 0 12px;font-size:15px;font-weight:700}
 .spine .d{background:var(--navy);flex:1}
 .spine .f{background:var(--br)}
 .col{display:flex;flex-direction:column;gap:6px}
-.cell{border-radius:5px;padding:16px 18px;color:#fff;overflow:hidden}
+.cell{border-radius:5px;padding:16px 18px;color:#fff}
 .cell h4{margin:0;font-size:17px;font-weight:900;letter-spacing:-.02em}
 .cell h4 span{font-weight:500;opacity:.82;font-size:14px}
 .cell ul{margin:11px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.75}
 .cell li::before{content:"·";margin-right:7px;opacity:.6}
 .cell li b{font-weight:700}
 .cell li i{font-style:normal;opacity:.72;font-size:12px}
-.c-ds{background:var(--blue-d);flex:8.87}
-.c-fs{background:var(--br-s);color:var(--navy);flex:1.55;min-height:132px}
+.c-ds{background:var(--blue-d);flex:8.87 1 auto}
+.c-fs{background:var(--br-s);color:var(--navy);flex:1.55 1 auto}
 .c-fs h4{color:var(--br)}
 .c-fs ul{columns:2;column-gap:26px}
 .c-fs li::before{color:var(--br);opacity:1}
 .c-fs .me{color:var(--br);font-weight:900}
-.c-dr{background:#8FA6C4;flex:6.2}
-.c-fr{background:#A8B8CE;flex:3.8}
+.c-dr{background:#8FA6C4;flex:6.2 1 auto}
+.c-fr{background:#A8B8CE;flex:3.8 1 auto}
 .c-dr h4,.c-fr h4{font-size:15px}
 .foot-band{display:grid;grid-template-columns:26px 74fr 26fr;gap:6px;margin-top:6px}
 .foot-band div:nth-child(2),.foot-band div:nth-child(3){
@@ -135,13 +135,24 @@ details td{background:#fff}
 footer{background:var(--navy);color:#8FA6C8;font-size:12px;padding:22px 0;margin-top:20px}
 svg{display:block;max-width:100%;height:auto}
 
+@media(max-width:1100px){
+  .c-fs ul{columns:1}
+}
 @media(max-width:900px){
   .flip{grid-template-columns:1fr}
   .arrow{transform:rotate(90deg);justify-self:center}
   .strat{grid-template-columns:1fr}
-  .matrix,.foot-band{grid-template-columns:20px 1fr}
-  .matrix .col:last-child,.foot-band div:nth-child(3){grid-column:2}
-  .c-fs ul{columns:1}
+  /* 좁은 화면에서는 면적 비례를 버리고 네 칸을 위아래로 쌓는다 */
+  .matrix{display:block;min-height:0}
+  .matrix .spine{display:none}
+  .matrix .col{display:block}
+  .matrix .cell{margin-bottom:6px}
+  .foot-band{grid-template-columns:1fr 1fr;margin-top:0}
+  .foot-band div:first-child{display:none}
+  .foot-band div:nth-child(2),.foot-band div:nth-child(3){grid-column:auto}
+}
+@media(max-width:560px){
+  .foot-band{grid-template-columns:1fr}
 }
 
   /* gate */
@@ -170,7 +181,7 @@ svg{display:block;max-width:100%;height:auto}
 
 <div class="sgate" id="sgate">
   <div class="box">
-    <h2>BR 코리아 시장 구조</h2>
+    <h2>국내 디저트 시장 구조</h2>
     <input id="sCode" type="password" inputmode="numeric" maxlength="12" placeholder="••••" autocomplete="off">
     <div class="err" id="sErr"></div>
     <button id="sBtn">열기</button>
@@ -472,25 +483,27 @@ svg{display:block;max-width:100%;height:auto}
 <!-- 4. 성·연령 -->
 <section><div class="wrap">
   <h2>성 · 연령별 BR Share와 기회 금액</h2>
-  <p class="lede">10~40대 여성의 BR Share가 전체 평균 6.14%에 못 미침. 이 세 구간을 평균까지만 올려도 405억이 생김.</p>
+  <p class="lede">10~40대 여성의 BR Share가 전체 평균 6.14%에 못 미침. 모든 금액은 다른 장과 같은 부가세 제외 기준으로 환산했음.</p>
 
   <div class="tblwrap">
   <table>
     <thead><tr><th>구분</th><th class="n">시장 규모</th><th class="n">현재 BR 금액</th><th class="n">현재 BR Share</th><th class="n">평균 도달 시 목표</th><th class="n">추가 기회</th></tr></thead>
     <tbody>
-      <tr class="lead"><td>여성 10~20대</td><td class="n">3조 5,612억</td><td class="n">2,067억</td><td class="n">5.81%</td><td class="n">2,187억</td><td class="n win">+120억</td></tr>
-      <tr class="lead"><td>여성 30~40대</td><td class="n">3조 3,516억</td><td class="n">1,901억</td><td class="n">5.68%</td><td class="n">2,058억</td><td class="n win">+157억</td></tr>
-      <tr><td>여성 50대</td><td class="n">1조 6,919억</td><td class="n">911억</td><td class="n">5.39%</td><td class="n">1,039억</td><td class="n">+128억</td></tr>
-      <tr><td>남성 10~20대</td><td class="n">3조 36억</td><td class="n">2,166억</td><td class="n">7.21%</td><td class="n">1,844억</td><td class="n">평균 이상</td></tr>
-      <tr><td>남성 30~40대</td><td class="n">3조 581억</td><td class="n">2,040억</td><td class="n">6.67%</td><td class="n">1,878억</td><td class="n">평균 이상</td></tr>
-      <tr><td>남성 50대</td><td class="n">1조 3,396억</td><td class="n">747억</td><td class="n">5.59%</td><td class="n">822억</td><td class="n">+75억</td></tr>
+      <tr class="lead"><td>여성 10~20대</td><td class="n">3조 2,375억</td><td class="n">1,879억</td><td class="n">5.81%</td><td class="n">1,988억</td><td class="n win">+109억</td></tr>
+      <tr class="lead"><td>여성 30~40대</td><td class="n">3조 469억</td><td class="n">1,728억</td><td class="n">5.68%</td><td class="n">1,871억</td><td class="n win">+143억</td></tr>
+      <tr><td>여성 50대</td><td class="n">1조 5,381억</td><td class="n">828억</td><td class="n">5.39%</td><td class="n">945억</td><td class="n">+116억</td></tr>
+      <tr><td>남성 10~20대</td><td class="n">2조 7,305억</td><td class="n">1,969억</td><td class="n">7.21%</td><td class="n">1,676억</td><td class="n">평균 이상</td></tr>
+      <tr><td>남성 30~40대</td><td class="n">2조 7,801억</td><td class="n">1,855억</td><td class="n">6.67%</td><td class="n">1,707억</td><td class="n">평균 이상</td></tr>
+      <tr><td>남성 50대</td><td class="n">1조 2,178억</td><td class="n">679억</td><td class="n">5.59%</td><td class="n">747억</td><td class="n">+68억</td></tr>
     </tbody>
   </table>
   </div>
-  <p class="fn">BR Share 평균 6.14%는 각 성 · 연령 고객군의 BR Share를 해당 고객군의 시장 규모에 따라 반영해 산출한 전체 평균임. 여성 10~40대만 평균에 도달시키면 <b>+277억</b>.</p>
+  <p class="fn">BR Share 평균 6.14%는 각 성 · 연령 고객군의 BR Share를 해당 고객군의 시장 규모에 따라 반영해 산출한 전체 평균임. 여성 10~40대만 평균에 도달시키면 <b>+252억</b>, 평균 미만 네 구간을 모두 올리면 <b>+436억</b>.</p>
 
   <div class="flag">
-    <b>확인 필요 — 이 표만 기준이 다름.</b> 시장 규모 합계가 16조 60억, BR 금액 합계가 9,832억으로 나옴. 다른 장의 전문점 14조 5,484억 · 실매출 8,940억에 각각 정확히 1.1을 곱한 값이라, 이 장만 부가세 포함 기준으로 계산된 것으로 보임. Share(6.14%)와 순위는 영향이 없지만 <b>+277억은 부가세 제외 기준으로는 252억</b>이 됨. 뒤의 옵션 C 금액도 같이 걸림.
+    <b>환산 기준.</b> 원자료는 이 표만 부가세 포함으로 계산돼 있어(시장 합계 16조 60억 · BR 합계 9,832억),
+    다른 장의 전문점 14조 5,484억 · 실매출 8,940억과 맞추기 위해 1.1로 나눠 환산했음.
+    Share와 순위는 환산 전후가 같음.
   </div>
 </div></section>
 
@@ -567,7 +580,7 @@ svg{display:block;max-width:100%;height:auto}
     <tbody>
       <tr><td><b>A</b><br>채널 정면경쟁</td><td>「함께 즐거운 시간」에서 카페 수요를 가져오기 → 착석 · 공간 등 매장 경험을 겨냥</td><td class="n">2조 9,207억<br>시장 1위</td><td>매장 포맷 · 체류 경험 투자가 전제. 난이도 최고, 성과까지 시간 김</td></tr>
       <tr><td><b>B</b><br>1순위 탈환</td><td>「생일 · 기념일」에서 파리바게뜨 · 투썸을 제치고 1순위 브랜드가 되기</td><td class="n">1조 8,914억<br>시장 2위</td><td><span class="win">아이스크림 케이크 기존 자산 강화</span><br>문제가 선택 순위로 특정돼 레버가 명확</td></tr>
-      <tr><td><b>C</b><br>세그먼트 교정</td><td>「여성 1040」의 BR Share를 평균 수준으로 끌어올리기</td><td class="n">1040 여성<br>전체 시장의 43.2%</td><td><span class="win">+277억으로 단일 최대 효과 기대</span><br>단, 이탈 원인 파악을 위한 추가 조사 필요</td></tr>
+      <tr><td><b>C</b><br>세그먼트 교정</td><td>「여성 1040」의 BR Share를 평균 수준으로 끌어올리기</td><td class="n">1040 여성<br>전체 시장의 43.2%</td><td><span class="win">+252억으로 단일 최대 효과 기대</span><br>단, 이탈 원인 파악을 위한 추가 조사 필요</td></tr>
     </tbody>
   </table>
   </div>
