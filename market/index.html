@@ -29,7 +29,7 @@ body{
   font-family:'Noto Sans KR',system-ui,sans-serif;
   font-size:15px; line-height:1.6;
 }
-.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.wrap{max-width:960px;margin:0 auto;padding:0 22px}
 
 /* ---------- 헤더 ---------- */
 header{background:var(--navy);color:#fff;padding:34px 0 30px}
@@ -41,7 +41,7 @@ header p{margin:6px 0 0;color:#A9BDD9;font-size:13.5px}
 .hdr-fig span{font-size:12.5px;color:#A9BDD9}
 
 /* ---------- 섹션 ---------- */
-section{padding:52px 0;border-top:1px solid var(--line)}
+section{padding:44px 0;border-top:1px solid var(--line)}
 section:first-of-type{border-top:0}
 h2{margin:0 0 6px;font-size:21px;font-weight:900;letter-spacing:-.02em}
 .lede{margin:0 0 26px;color:var(--mute);font-size:14px;max-width:68ch}
@@ -69,33 +69,34 @@ h3{margin:0 0 12px;font-size:15px;font-weight:700}
 .srow.on>span{color:var(--br);font-weight:700}
 .srow.on .sbar{background:var(--br)}
 
-/* ---------- 매트릭스 ---------- */
-.matrix{display:grid;grid-template-columns:26px 74fr 26fr;gap:6px;min-height:520px}
-.spine{writing-mode:vertical-rl;transform:rotate(180deg);display:grid;gap:6px}
-.spine div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.16em;border-radius:3px}
-.spine .d{background:var(--navy);flex:1}
-.spine .f{background:var(--br)}
-.col{display:flex;flex-direction:column;gap:6px}
-.cell{border-radius:5px;padding:16px 18px;color:#fff}
-.cell h4{margin:0;font-size:17px;font-weight:900;letter-spacing:-.02em}
-.cell h4 span{font-weight:500;opacity:.82;font-size:14px}
-.cell ul{margin:11px 0 0;padding:0;list-style:none;font-size:13px;line-height:1.75}
-.cell li::before{content:"·";margin-right:7px;opacity:.6}
-.cell li b{font-weight:700}
-.cell li i{font-style:normal;opacity:.72;font-size:12px}
-.c-ds{background:var(--blue-d);flex:8.87 1 auto}
-.c-fs{background:var(--br-s);color:var(--navy);flex:1.55 1 auto}
-.c-fs h4{color:var(--br)}
-.c-fs ul{columns:2;column-gap:26px}
-.c-fs li::before{color:var(--br);opacity:1}
-.c-fs .me{color:var(--br);font-weight:900}
-.c-dr{background:#8FA6C4;flex:6.2 1 auto}
-.c-fr{background:#A8B8CE;flex:3.8 1 auto}
-.c-dr h4,.c-fr h4{font-size:15px}
-.foot-band{display:grid;grid-template-columns:26px 74fr 26fr;gap:6px;margin-top:6px}
-.foot-band div:nth-child(2),.foot-band div:nth-child(3){
-  background:var(--navy);color:#fff;text-align:center;padding:9px;border-radius:3px;font-size:13px;font-weight:700}
-.foot-band div:nth-child(3){background:#7E8FA6}
+/* ---------- 시장 구조: 비중 막대 + 순차 목록 ---------- */
+  .sharebar{display:flex;height:34px;border-radius:7px;overflow:hidden;margin-bottom:8px}
+  .sharebar div{display:flex;align-items:center;justify-content:center;color:#fff;
+                font-size:12px;font-weight:700;white-space:nowrap}
+  .sb1{background:var(--blue-d)} .sb2{background:var(--br)}
+  .sb3{background:#8FA6C4}      .sb4{background:#A8B8CE}
+  .sbfoot{display:flex;gap:6px;margin-bottom:30px}
+  .sbfoot div{text-align:center;padding:7px;border-radius:5px;font-size:12.5px;font-weight:700;color:#fff}
+  .sbfoot .a{flex:74;background:var(--navy)} .sbfoot .b{flex:26;background:#7E8FA6}
+
+  .segs{display:grid;gap:12px}
+  .seg{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg > h4{margin:0;padding:12px 16px;font-size:15px;font-weight:900;letter-spacing:-.02em;color:#fff;
+            display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+  .seg > h4 span{font-weight:500;font-size:13px;opacity:.85}
+  .seg.s1 > h4{background:var(--blue-d)}
+  .seg.s2 > h4{background:var(--br)}
+  .seg.s3 > h4{background:#8FA6C4}
+  .seg.s4 > h4{background:#A8B8CE}
+  .seg ul{margin:0;padding:10px 16px 12px;list-style:none;
+          columns:2;column-gap:28px;font-size:13px;line-height:1.85}
+  .seg li{break-inside:avoid}
+  .seg li::before{content:"·";margin-right:7px;color:var(--blue-l)}
+  .seg li b{font-weight:700}
+  .seg li i{font-style:normal;color:var(--mute);font-size:12px}
+  .seg li.me{color:var(--br);font-weight:800}
+  .seg li.me::before{color:var(--br)}
+  @media(max-width:700px){ .seg ul{columns:1} }
 
 /* ---------- 표 ---------- */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -135,24 +136,13 @@ details td{background:#fff}
 footer{background:var(--navy);color:#8FA6C8;font-size:12px;padding:22px 0;margin-top:20px}
 svg{display:block;max-width:100%;height:auto}
 
-@media(max-width:1100px){
-  .c-fs ul{columns:1}
-}
 @media(max-width:900px){
   .flip{grid-template-columns:1fr}
   .arrow{transform:rotate(90deg);justify-self:center}
   .strat{grid-template-columns:1fr}
-  /* 좁은 화면에서는 면적 비례를 버리고 네 칸을 위아래로 쌓는다 */
-  .matrix{display:block;min-height:0}
-  .matrix .spine{display:none}
-  .matrix .col{display:block}
-  .matrix .cell{margin-bottom:6px}
-  .foot-band{grid-template-columns:1fr 1fr;margin-top:0}
-  .foot-band div:first-child{display:none}
-  .foot-band div:nth-child(2),.foot-band div:nth-child(3){grid-column:auto}
-}
-@media(max-width:560px){
-  .foot-band{grid-template-columns:1fr}
+  .sharebar{height:auto;flex-direction:column}
+  .sharebar div{padding:7px}
+  .sbfoot{flex-direction:column}
 }
 
   /* gate */
@@ -195,7 +185,7 @@ svg{display:block;max-width:100%;height:auto}
 <header>
   <div class="wrap">
     <div>
-      <h1>디저트 시장 구조와 BR의 위치</h1>
+      <h1>국내 디저트 시장 구조</h1>
       <p>마케팅전략실 지니어스팀 · 기준 2026.09.11 · 유로모니터(2026), aT FIS, 공정위 정보공개서, DART</p>
     </div>
     <div class="hdr-fig">
@@ -255,63 +245,66 @@ svg{display:block;max-width:100%;height:auto}
 <!-- 2. 매트릭스 -->
 <section><div class="wrap">
   <h2>국내 디저트 시장 구조</h2>
-  <p class="lede">칸 면적은 시장 비중에 비례함. 금액 뒤 %는 해당 칸 안에서의 비중, 괄호 안 %는 전체 시장 대비 비중. 반올림 때문에 합계가 100%가 아님.</p>
+  <p class="lede">위 막대는 전체 19조 6,616억을 네 갈래로 나눈 비중임. 아래 금액 뒤 %는 그 갈래 안에서의 비중, 괄호 안 %는 전체 시장 대비 비중. 반올림 때문에 합계가 100%가 아님.</p>
 
-  <div class="matrix">
-    <div class="spine">
-      <div class="d">DESSERT</div>
-      <div class="f">FROZEN</div>
-    </div>
-    <div class="col">
-      <div class="cell c-ds">
-        <h4>Dessert Specialty <span>12조 9,047억 · 66%</span></h4>
-        <ul>
-          <li>카페 <b>7조 9,763억</b> · 62% <i>(41%)</i></li>
-          <li>케이크 · 베이커리 <b>4조 4,349억</b> · 35% <i>(23%)</i></li>
-          <li>패스트푸드 브랜드 내 디저트 <b>2,520억</b> · 2% <i>(1%)</i></li>
-          <li>도넛 <b>2,415억</b> · 2% <i>(1%)</i></li>
-        </ul>
-      </div>
-      <div class="cell c-fs">
-        <h4>Frozen Specialty <span style="color:var(--navy)">1조 6,437억 · 8%</span></h4>
-        <ul>
-          <li class="me">배스킨라빈스 8,940억 · 54% (5%)</li>
-          <li>요아정 약 <b>1,932억</b> · 12% <i>(1%)</i></li>
-          <li>설빙 약 <b>2,698억</b> · 16% <i>(1%)</i></li>
-          <li>벤슨 <b>43억</b> · 0.3% <i>(0%)</i></li>
-          <li>기타 · 개인 매장 약 <b>2,809억</b> · 17% <i>(1%)</i></li>
-          <li>하겐다즈 <b>15억</b> · 0.1% <i>(0%)</i></li>
-        </ul>
-      </div>
-    </div>
-    <div class="col">
-      <div class="cell c-dr">
-        <h4>Dessert Retail <span>3조 1,722억 · 16%</span></h4>
-        <ul>
-          <li>케이크 <b>1조 8,679억</b> · 59% <i>(10%)</i></li>
-          <li>페이스트리 <b>1조 1,439억</b> · 36% <i>(6%)</i></li>
-          <li>냉동 베이커리 <b>849억</b> · 3% <i>(0%)</i></li>
-          <li>파이 · 타르트 <b>690억</b> · 2% <i>(0%)</i></li>
-          <li>디저트믹스 <b>65억</b> · 0.2% <i>(0%)</i></li>
-        </ul>
-      </div>
-      <div class="cell c-fr">
-        <h4>Frozen Retail <span>1조 9,410억 · 10%</span></h4>
-        <ul>
-          <li>편의점 <b>6,303억</b> · 32% <i>(3%)</i></li>
-          <li>온라인 · 무인점 <b>5,843억</b> · 30% <i>(3%)</i></li>
-          <li>일반슈퍼 <b>4,804억</b> · 25% <i>(2%)</i></li>
-          <li>체인슈퍼 <b>927억</b> · 5% <i>(0%)</i></li>
-          <li>식자재마트 <b>890억</b> · 5% <i>(0%)</i></li>
-          <li>할인점 <b>643억</b> · 3% <i>(0%)</i></li>
-        </ul>
-      </div>
-    </div>
+  <div class="sharebar">
+    <div class="sb1" style="flex:66">Dessert Specialty 66%</div>
+    <div class="sb2" style="flex:8">Frozen 8%</div>
+    <div class="sb3" style="flex:16">Dessert Retail 16%</div>
+    <div class="sb4" style="flex:10">Frozen Retail 10%</div>
   </div>
-  <div class="foot-band">
-    <div></div>
-    <div>전문점 14조 5,484억 · 74%</div>
-    <div>리테일 5조 1,132억 · 26%</div>
+  <div class="sbfoot">
+    <div class="a">전문점 14조 5,484억 · 74%</div>
+    <div class="b">리테일 5조 1,132억 · 26%</div>
+  </div>
+
+  <div class="segs">
+
+    <div class="seg s1">
+      <h4>Dessert Specialty <span>12조 9,047억 · 전체의 66%</span></h4>
+      <ul>
+        <li>카페 <b>7조 9,763억</b> · 62% <i>(41%)</i></li>
+        <li>케이크 · 베이커리 <b>4조 4,349억</b> · 35% <i>(23%)</i></li>
+        <li>패스트푸드 브랜드 내 디저트 <b>2,520억</b> · 2% <i>(1%)</i></li>
+        <li>도넛 <b>2,415억</b> · 2% <i>(1%)</i></li>
+      </ul>
+    </div>
+
+    <div class="seg s2">
+      <h4>Frozen Specialty <span>1조 6,437억 · 전체의 8% · BR이 속한 시장</span></h4>
+      <ul>
+        <li class="me">배스킨라빈스 8,940억 · 54% (5%)</li>
+        <li>설빙 약 <b>2,698억</b> · 16% <i>(1%)</i></li>
+        <li>기타 · 개인 매장 약 <b>2,809억</b> · 17% <i>(1%)</i></li>
+        <li>요아정 약 <b>1,932억</b> · 12% <i>(1%)</i></li>
+        <li>벤슨 <b>43억</b> · 0.3% <i>(0%)</i></li>
+        <li>하겐다즈 <b>15억</b> · 0.1% <i>(0%)</i></li>
+      </ul>
+    </div>
+
+    <div class="seg s3">
+      <h4>Dessert Retail <span>3조 1,722억 · 전체의 16%</span></h4>
+      <ul>
+        <li>케이크 <b>1조 8,679억</b> · 59% <i>(10%)</i></li>
+        <li>페이스트리 <b>1조 1,439억</b> · 36% <i>(6%)</i></li>
+        <li>냉동 베이커리 <b>849억</b> · 3% <i>(0%)</i></li>
+        <li>파이 · 타르트 <b>690억</b> · 2% <i>(0%)</i></li>
+        <li>디저트믹스 <b>65억</b> · 0.2% <i>(0%)</i></li>
+      </ul>
+    </div>
+
+    <div class="seg s4">
+      <h4>Frozen Retail <span>1조 9,410억 · 전체의 10%</span></h4>
+      <ul>
+        <li>편의점 <b>6,303억</b> · 32% <i>(3%)</i></li>
+        <li>온라인 · 무인점 <b>5,843억</b> · 30% <i>(3%)</i></li>
+        <li>일반슈퍼 <b>4,804억</b> · 25% <i>(2%)</i></li>
+        <li>체인슈퍼 <b>927억</b> · 5% <i>(0%)</i></li>
+        <li>식자재마트 <b>890억</b> · 5% <i>(0%)</i></li>
+        <li>할인점 <b>643억</b> · 3% <i>(0%)</i></li>
+      </ul>
+    </div>
+
   </div>
 
   <p class="fn"><b>목표 시장 = 디저트 · 프로즌 전문점 14조 5,484억.</b> 아래 Occasion 분석은 모두 이 금액을 배분한 값임.</p>

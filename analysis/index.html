@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <title>월간 집중 포인트 BASE Matrix | BRK Genius</title>
 <style>
-  :root { --cream:#FFFFFF; --choco:#000000; --berry:#E8447A; --mint:#0F6E56;
-          --soft:#F6E3E9; --line:#EBD9CD; --gold:#C9A227; }
+  :root { --cream:#FFFFFF; --choco:#101C2E; --berry:#2F6FB5; --mint:#0F6E56;
+          --soft:#E3ECF7; --line:#D7E1EE; --gold:#C9A227; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
          background:var(--cream); color:var(--choco); padding:48px 26px 64px; }
@@ -17,51 +17,51 @@
   [hidden] { display:none !important; }
   .backbar { margin-bottom:18px; }
   .backbar a { display:inline-flex; align-items:center; gap:7px; text-decoration:none;
-               font-size:12.5px; font-weight:800; color:#8a6f63; border:1px solid var(--line);
+               font-size:12.5px; font-weight:800; color:#5C7291; border:1px solid var(--line);
                border-radius:20px; padding:7px 15px; transition:.18s; }
   .backbar a:hover { border-color:var(--berry); color:var(--berry); }
   header { display:flex; align-items:baseline; justify-content:space-between;
            padding-bottom:14px; flex-wrap:wrap; gap:8px; }
   h1 { font-size:30px; font-weight:900; letter-spacing:-0.5px; }
   h1 em { font-style:normal; color:var(--berry); }
-  .sub-h { font-size:14px; color:#8a6f63; }
+  .sub-h { font-size:14px; color:#5C7291; }
   h2 { font-size:20px; font-weight:700; margin-bottom:14px; }
   .smark { display:flex; align-items:baseline; gap:9px; margin:58px 0 20px; padding-top:20px;
            border-top:2px solid var(--choco); font-size:21px; font-weight:900;
            color:var(--choco); letter-spacing:-0.4px; }
   .smark i { font-style:normal; color:var(--berry); font-size:23px; line-height:1; }
-  .smark small { margin-left:auto; font-size:12px; font-weight:500; color:#8a6f63; letter-spacing:0; }
+  .smark small { margin-left:auto; font-size:12px; font-weight:500; color:#5C7291; letter-spacing:0; }
   .smark.first { margin-top:0; border-top-width:3px; }
   .tgl { background:#fff; border:1.5px solid var(--line); border-radius:20px; font-family:inherit;
-         font-size:11px; font-weight:800; color:#8a6f63; padding:4px 11px; cursor:pointer; transition:.18s; }
+         font-size:11px; font-weight:800; color:#5C7291; padding:4px 11px; cursor:pointer; transition:.18s; }
   .tgl:hover { border-color:var(--berry); color:var(--berry); }
   .tgl i { font-style:normal; display:inline-block; margin-right:5px; transition:transform .22s; }
   .tgl[aria-expanded="true"] i { transform:rotate(90deg); }
   .srcbar2 { margin-top:14px; }
-  .lead { font-size:12.5px; color:#8a6f63; line-height:1.75; background:#FDF7F3;
+  .lead { font-size:12.5px; color:#5C7291; line-height:1.75; background:#F5F9FD;
           border:1px solid var(--line); border-radius:10px; padding:13px 16px; margin-top:14px; }
   .lead b { color:var(--choco); }
 
   /* ===== IP History (added) ===== */
   .ipleg { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 16px; }
   .ipleg span { display:inline-flex; align-items:center; gap:5px; font-size:10.5px;
-                font-weight:800; color:#8a6f63; }
+                font-weight:800; color:#5C7291; }
   .ipleg i { width:11px; height:11px; border-radius:3px; display:block; }
   .ipsil { text-align:center; font-size:11px; font-weight:900; border-radius:4px;
            padding:5px 0; color:#fff; white-space:nowrap; overflow:hidden;
            text-overflow:ellipsis; text-shadow:0 1px 1px rgba(0,0,0,.18); }
   .ipsil em { font-style:normal; font-size:9px; opacity:.75; margin-left:3px; }
   .ipbar { display:flex; height:9px; border-radius:3px; overflow:hidden;
-           background:#F3EEEA; margin-bottom:5px; }
+           background:#E9EEF5; margin-bottom:5px; }
   .ipbar b { display:block; }
-  .ipmix { font-size:8.5px; font-weight:800; color:#8a6f63; line-height:1.45;
+  .ipmix { font-size:8.5px; font-weight:800; color:#5C7291; line-height:1.45;
            text-align:center; letter-spacing:-0.2px; }
   .ipgrid .tc { padding:4px 4px; }
   .ipdot { height:17px; border-radius:3px; display:flex; align-items:center;
            justify-content:center; font-size:7.5px; font-weight:900; color:#fff;
            letter-spacing:-0.2px; }
-  .ipdot.own { color:#6b544b; }
-  .ipdot.na { background:repeating-linear-gradient(135deg,#FBF7F4 0 4px,#F1E9E3 4px 8px); }
+  .ipdot.own { color:#3E526E; }
+  .ipdot.na { background:repeating-linear-gradient(135deg,#F5F8FC 0 4px,#E5EBF3 4px 8px); }
   .smark .tgl { margin-left:12px; align-self:center; }
   .smark small + .tgl { margin-left:12px; }
   
@@ -77,10 +77,10 @@
              display:grid; grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);
              max-width:820px; width:100%; max-height:86vh;
              box-shadow:0 24px 70px rgba(0,0,0,.32); }
-  .mcfig { background:#F6F1ED; display:flex; align-items:center; justify-content:center; }
+  .mcfig { background:#EFF3F9; display:flex; align-items:center; justify-content:center; }
   .mcfig img { width:100%; height:100%; max-height:86vh; object-fit:contain; display:block; }
   .mcinfo { padding:28px 26px; overflow-y:auto; }
-  .mcwhen2 { font-size:11.5px; font-weight:900; color:#8a6f63; letter-spacing:.04em; }
+  .mcwhen2 { font-size:11.5px; font-weight:900; color:#5C7291; letter-spacing:.04em; }
   .mcinfo h3 { font-size:22px; font-weight:900; letter-spacing:-.4px; margin:5px 0 16px;
                line-height:1.25; }
   .mcsales { border-top:1px solid var(--line); border-bottom:1px solid var(--line);
@@ -90,7 +90,7 @@
   .mcsales span { display:block; font-size:12px; font-weight:700; margin-top:4px; }
   .mcsales span.up { color:var(--mint); } .mcsales span.down { color:#B4453F; }
   .mcinfo dl { display:grid; grid-template-columns:auto 1fr; gap:9px 14px; margin:0; }
-  .mcinfo dt { font-size:11px; font-weight:900; color:#8a6f63; }
+  .mcinfo dt { font-size:11px; font-weight:900; color:#5C7291; }
   .mcinfo dd { font-size:13px; font-weight:700; margin:0; }
   .mcx { position:absolute; top:10px; right:12px; z-index:2; width:32px; height:32px;
          border:none; border-radius:50%; background:rgba(255,255,255,.9); cursor:pointer;
@@ -105,18 +105,18 @@
   /* === 매출 기반 월별 조합 === */
   .mcgrid .tc { padding:7px 5px; }
   .mcbar { height:44px; display:flex; align-items:flex-end; justify-content:center; }
-  .mcbar i { display:block; width:20px; border-radius:3px 3px 0 0; background:#E4DCD4; }
+  .mcbar i { display:block; width:20px; border-radius:3px 3px 0 0; background:#E3EAF4; }
   .mcbar.hi i { background:var(--berry); }
   .mcbar.mid i { background:#F0A9C2; }
-  .mcbar.lo i { background:#E4DCD4; }
+  .mcbar.lo i { background:#E3EAF4; }
   .mcidx { text-align:center; font-size:13px; font-weight:900; margin-top:4px;
            font-variant-numeric:tabular-nums; }
   .mcbest { text-align:center; font-size:13.5px; font-weight:900; color:var(--berry);
             font-variant-numeric:tabular-nums; }
-  .mcwhen { text-align:center; font-size:8.5px; color:#8a6f63; line-height:1.3; margin-top:2px; }
+  .mcwhen { text-align:center; font-size:8.5px; color:#5C7291; line-height:1.3; margin-top:2px; }
   .mchd { font-size:10px; font-weight:900; line-height:1.3; margin-bottom:5px; }
   .mchd.w { color:var(--berry); }
-  .mchd.l { color:#8a6f63; }
+  .mchd.l { color:#5C7291; }
   .mcul { list-style:none; margin:0; padding:0; }
   .mcul li { display:grid; grid-template-columns:auto 1fr auto; align-items:center;
              gap:4px; padding:2px 0; }
@@ -126,7 +126,7 @@
                white-space:nowrap; color:var(--choco); font-weight:600; }
   .mcul .wsl { font-size:9.5px; font-weight:900; color:var(--berry);
                font-variant-numeric:tabular-nums; }
-  .mcul.lose .wnm { color:#8a6f63; font-weight:500; }
+  .mcul.lose .wnm { color:#5C7291; font-weight:500; }
   .mcul.lose .wsl { color:#9C8478; }
   .mcvd { display:block; text-align:center; font-size:9.5px; font-weight:900;
           border-radius:5px; padding:4px 3px; line-height:1.3; }
@@ -140,10 +140,10 @@
   .tscroll { overflow-x:auto; padding-bottom:4px; }
   .ttab { display:grid; grid-template-columns:58px repeat(12,minmax(0,1fr)); gap:0 5px; min-width:900px; }
   .rk { display:flex; align-items:center; justify-content:flex-end; text-align:right;
-        font-size:9.5px; font-weight:900; color:#8a6f63; padding:8px 6px 8px 0;
+        font-size:9.5px; font-weight:900; color:#5C7291; padding:8px 6px 8px 0;
         border-right:2px solid var(--line); line-height:1.3; }
   .rk.hd { border-right:none; }
-  .rk small { display:block; font-size:8.5px; font-weight:700; color:#B09A8C; margin-top:2px; }
+  .rk small { display:block; font-size:8.5px; font-weight:700; color:#8296AF; margin-top:2px; }
   .tc { background:#fff; border-left:1px solid var(--line); border-right:1px solid var(--line);
         padding:7px 6px; }
   .tc.h { background:#8F8F8F; color:#fff; border:none; border-radius:9px 9px 0 0;
@@ -156,9 +156,9 @@
   .tc.last.now { border-bottom-color:var(--choco); }
   .sil { text-align:center; font-size:11.5px; font-weight:900; border-radius:4px; padding:5px 0; }
   .sil.p3 { background:var(--berry); color:#fff; }
-  .sil.p2 { background:#FBD9E6; color:#A6446C; }
-  .sil.p1 { background:#F0E7E0; color:#8a6f63; }
-  .sil.p0 { background:#DED2C8; color:#6b544b; }
+  .sil.p2 { background:#CFE0F3; color:#1F4A7D; }
+  .sil.p1 { background:#EBF1F8; color:#5C7291; }
+  .sil.p0 { background:#DCE4EE; color:#3E526E; }
   .tsf.fr { background:#FDF0F4; color:#8E3358; }
   .tsf .it { display:inline-flex; align-items:center; gap:3px; margin:0 4px 3px 0;
              white-space:nowrap; vertical-align:middle; }
@@ -206,7 +206,7 @@
   .tsf em { font-style:normal; font-weight:900; }
   .tsf .none { color:#C9B3A6; font-weight:700; }
   .tgd { border-radius:6px; padding:7px 8px; font-size:10px; line-height:1.4;
-         font-weight:700; background:#F5F1EE; color:#6b544b; }
+         font-weight:700; background:#F5F1EE; color:#3E526E; }
   .tgd b { display:block; font-size:8.5px; letter-spacing:.04em; margin-bottom:2px;
            font-weight:900; color:#A8938A; }
   .tgd.hi { background:#FCE7EF; color:#9A2B54; } .tgd.hi b { color:var(--berry); }
@@ -223,7 +223,7 @@
   .tev li:last-child { margin-bottom:0; }
   .tev li:before { content:''; position:absolute; left:0; top:6px; width:3px; height:3px;
                    border-radius:50%; background:#C9B3A6; }
-  .tev li em { font-style:normal; font-weight:500; font-size:9.5px; color:#8a6f63; }
+  .tev li em { font-style:normal; font-weight:500; font-size:9.5px; color:#5C7291; }
   .tsp { display:flex; flex-wrap:wrap; gap:3px; }
   .tsp span { background:#FBEDF2; color:#9A3760; font-size:9.5px; font-weight:800;
               padding:2px 5px; border-radius:3px; }
@@ -232,11 +232,11 @@
          line-height:1.45; font-weight:700; color:#7A5E14; }
   .tsf b { display:block; font-size:8px; letter-spacing:.08em; color:#B69746; margin-bottom:2px; font-weight:900; }
   .tsf em { font-style:normal; font-weight:900; color:#5E4708; }
-  .rlab { font-size:10.5px; font-weight:800; color:#B09A8C; margin:0 0 7px; letter-spacing:.02em; }
+  .rlab { font-size:10.5px; font-weight:800; color:#8296AF; margin:0 0 7px; letter-spacing:.02em; }
   .calref { margin-top:16px; }
   .calref img { width:100%; max-width:1120px; display:block; border:1px solid var(--line);
                 border-radius:12px; margin-top:12px; }
-  footer { margin-top:18px; font-size:11.5px; color:#8a6f63; line-height:1.8; }
+  footer { margin-top:18px; font-size:11.5px; color:#5C7291; line-height:1.8; }
   /* gate */
   .sgate { position:fixed; inset:0; display:grid; place-items:center;
            background:radial-gradient(120% 80% at 50% 0%, #fff 0%, #FAFAFA 60%); z-index:99; }
@@ -248,7 +248,7 @@
   .sgate button { margin-top:12px; width:100%; padding:11px; border:none; border-radius:10px;
                   background:var(--berry); color:#fff; font-family:inherit; font-size:14px;
                   font-weight:800; cursor:pointer; }
-  .sgate .back { background:#fff; color:#8a6f63; border:1.5px solid var(--line); margin-top:8px; }
+  .sgate .back { background:#fff; color:#5C7291; border:1.5px solid var(--line); margin-top:8px; }
   .sgate .err { color:var(--berry); font-size:12px; min-height:16px; margin-top:8px; font-weight:700; }
 </style>
 </head>
@@ -265,9 +265,9 @@
 </div>
 
 <div class="wrap">
-  <div class="backbar" id="backbar"><a href="/sales/"><span>←</span> 매출 · FOM &amp; IP 캘린더</a></div>
+  <div class="backbar" id="backbar"><a href="/"><span>←</span> BRK Genius</a></div>
   <header>
-    <h1>분석: <em>2027년도 마케팅 전략</em></h1>
+    <h1>월간 집중 포인트 <em>BASE Matrix</em></h1>
   </header>
 
   <div class="smark first"><i>&gt;</i> Base Matrix</div>
@@ -305,7 +305,7 @@
        data-open="펼치기" data-close="접기"><i>&#9654;</i><span class="tglt">접기</span></button></div>
 
   <div id="iphist">
-  <div class="tscroll"><div class="ttab ipgrid"><div class="rk hd"></div><div class="tc h">1월</div><div class="tc h">2월</div><div class="tc h">3월</div><div class="tc h">4월</div><div class="tc h">5월</div><div class="tc h">6월</div><div class="tc h">7월</div><div class="tc h now">8월<em>NOW</em></div><div class="tc h">9월</div><div class="tc h">10월</div><div class="tc h">11월</div><div class="tc h">12월</div><div class="rk">2019</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.01 · 꿀꿀 허니 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.02 · 허쉬 마카다미아넛 · 원료">원료</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="19.03 · 베리 그래놀라 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.04 · 스트로베리 아보카도 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.05 · 아이스 죠리퐁 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.06 · 블랙 소르베 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="19.07 · 핑크 스타 · 자체">자체</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="19.08 · 심슨에 반하나 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.09 · 쌀떡궁합 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.10 · 아빠는 딸바봉 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.11 · 오레오 크림치즈 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.12 · 아이스 초코파이 정 · 캐릭터">캐릭터</div></div><div class="rk">2020</div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.01 · 우리끼리(Kiri) · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.02 · 아이스 킷캣 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.03 · 로투스 비스코프 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.04 · 아이스 바나나킥 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.05 · 판타스틱 트롤 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.06 · 아몬드 봉봉봉 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.07 · 펭수 아슈크림 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot cele" style="background:#E8447A" title="20.08 · 보라보라 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="20.09 · 매시업스 시리얼 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.10 · 미찐감자 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.11 · 아이스 호떡 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.12 · 아이스 촉촉한 초코칩 · 캐릭터">캐릭터</div></div><div class="rk">2021</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="21.01 · 우낀소 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.02 · 아이스 밀카 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.03 · 아이스 허니버터 아몬드 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="21.04 · 민초봉봉 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.05 · 아이스 홈런볼 · 원료">원료</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="21.06 · 오버더 레인보우 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="21.07 · 꿀.바.망 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot ing" style="background:#C9A227" title="21.08 · 아이스 꼬북칩 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="21.09 · 찰떡콩떡 · 자체">자체</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="21.10 · 치즈고구마 구마! · 자체">자체</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="21.11 · 치즈나무숲 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.12 · 고디바 아이스초콜릿 · 원료">원료</div></div><div class="rk">2022</div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.01 · 기운 센 아이스 콘푸로스트 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.02 · 아이스 로아커 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.03 · 오레오 쿠키 앤 스트로베리 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="22.04 · 사랑에 빠진 외계인 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.05 · 피카 피카 피카츄 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.06 · 너로 정했다! 이브이 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.07 · 마우나로아 마카다미아 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="22.08 · 아이스 초당 옥수수 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="22.09 · 내가 아인슈페너?! · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.10 · 짱구가 좋아하는 외계인의 바나나킥 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="22.11 · 핑크스푼 비긴즈 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.12 · 허쉬 앤 리세스 · 캐릭터">캐릭터</div></div><div class="rk">2023</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.01 · 벅스버니버니 당근당근 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="23.02 · 아이스 기라델리 초콜릿 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.03 · 딸기 연유퐁당 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.04 · 복숭아로 피치 올려 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.05 · 구름 속 시나모롤 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="23.06 · 시카고 팝콘 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.07 · 라이언 망고 마카롱 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot ing" style="background:#C9A227" title="23.08 · 아이스 노티드 우유 생크림 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.09 · 초코 퐁당 쿠키런 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="23.10 · 초코, 우리 이제 헤이즐넛 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.11 · 도라에몽의 팥붕!슈붕! · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="23.12 · 고디바 다크 크런치 · 원료">원료</div></div><div class="rk">2024</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="24.01 · 황치즈 드래곤볼 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="24.02 · 바삭한 쫀꾸렛 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="24.03 · 탕탕! 스트로베리 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.04 · 아이스 도쿄 바나나 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="24.05 · 이상한 나라의 슈팅스타 · 자체">자체</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="24.06 · 우주라이크 봉봉 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="24.07 · 블루 서퍼비치 · 자체">자체</div></div><div class="tc now"><div class="ipdot cele" style="background:#E8447A" title="24.08 · 피치팡 망고팡 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="24.09 · 우석이도 외계인 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="24.10 · 1st 숭아야 그릭다 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.11 · 치토스 밀크쉐이크 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.12 · 키세스 브라우니 · 원료">원료</div></div><div class="rk">2025</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="25.01 · 춘식이의 고구마얌 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.02 · 아이스 초코 도쿄 바나나 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="25.03 · 말랑딸기 찹쌀떡 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.04 · 아이스 그린티 킷캣 · 원료">원료</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="25.05 · 봄날의 곰을 좋아하세요? · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.06 · 카페오레 초코 크런치 · 원료">원료</div></div><div class="tc"><div class="ipdot cele" style="background:#E8447A" title="25.07 · 애플 망고빙수 · 셀럽">셀럽</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="25.08 · 블루 바나나 브륄레 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.09 · 위대한 비쵸비 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#DCD3CB" title="25.10 · 말차다미아 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.11 · 골든 프랄린 버터 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.12 · 초콜릿 쿠키 스모어 · 원료">원료</div></div><div class="rk">2026</div><div class="tc last"><div class="ipdot own" style="background:#DCD3CB" title="26.01 · 베리 굿 · 자체">자체</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.02 · 러블리 쫀꾸렛 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.03 · 두바이에서 온 엄마는 외계인 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.04 · 두바이 크런치 봉봉 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.05 · 말랑포도 메타몽 · 캐릭터">캐릭터</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.06 · 우디 후르츠 어드벤처 · 캐릭터">캐릭터</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.07 · 쵸파의 코튼캔디 크런치 외 1종 · 캐릭터">캐릭터</div></div><div class="tc now last"><div class="ipdot cele" style="background:#E8447A" title="26.08 · 산딸기가 끌리는 연유 · 셀럽">셀럽</div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div></div></div>
+  <div class="tscroll"><div class="ttab ipgrid"><div class="rk hd"></div><div class="tc h">1월</div><div class="tc h">2월</div><div class="tc h">3월</div><div class="tc h">4월</div><div class="tc h">5월</div><div class="tc h">6월</div><div class="tc h">7월</div><div class="tc h now">8월<em>NOW</em></div><div class="tc h">9월</div><div class="tc h">10월</div><div class="tc h">11월</div><div class="tc h">12월</div><div class="rk">2019</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.01 · 꿀꿀 허니 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.02 · 허쉬 마카다미아넛 · 원료">원료</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="19.03 · 베리 그래놀라 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.04 · 스트로베리 아보카도 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.05 · 아이스 죠리퐁 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.06 · 블랙 소르베 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="19.07 · 핑크 스타 · 자체">자체</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="19.08 · 심슨에 반하나 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.09 · 쌀떡궁합 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.10 · 아빠는 딸바봉 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="19.11 · 오레오 크림치즈 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="19.12 · 아이스 초코파이 정 · 캐릭터">캐릭터</div></div><div class="rk">2020</div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.01 · 우리끼리(Kiri) · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.02 · 아이스 킷캣 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.03 · 로투스 비스코프 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="20.04 · 아이스 바나나킥 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.05 · 판타스틱 트롤 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.06 · 아몬드 봉봉봉 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.07 · 펭수 아슈크림 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot cele" style="background:#2F6FB5" title="20.08 · 보라보라 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="20.09 · 매시업스 시리얼 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.10 · 미찐감자 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.11 · 아이스 호떡 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="20.12 · 아이스 촉촉한 초코칩 · 캐릭터">캐릭터</div></div><div class="rk">2021</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="21.01 · 우낀소 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.02 · 아이스 밀카 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.03 · 아이스 허니버터 아몬드 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="21.04 · 민초봉봉 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.05 · 아이스 홈런볼 · 원료">원료</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="21.06 · 오버더 레인보우 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="21.07 · 꿀.바.망 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot ing" style="background:#C9A227" title="21.08 · 아이스 꼬북칩 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="21.09 · 찰떡콩떡 · 자체">자체</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="21.10 · 치즈고구마 구마! · 자체">자체</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="21.11 · 치즈나무숲 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="21.12 · 고디바 아이스초콜릿 · 원료">원료</div></div><div class="rk">2022</div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.01 · 기운 센 아이스 콘푸로스트 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.02 · 아이스 로아커 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="22.03 · 오레오 쿠키 앤 스트로베리 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="22.04 · 사랑에 빠진 외계인 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.05 · 피카 피카 피카츄 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.06 · 너로 정했다! 이브이 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.07 · 마우나로아 마카다미아 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="22.08 · 아이스 초당 옥수수 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="22.09 · 내가 아인슈페너?! · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.10 · 짱구가 좋아하는 외계인의 바나나킥 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="22.11 · 핑크스푼 비긴즈 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="22.12 · 허쉬 앤 리세스 · 캐릭터">캐릭터</div></div><div class="rk">2023</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.01 · 벅스버니버니 당근당근 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="23.02 · 아이스 기라델리 초콜릿 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.03 · 딸기 연유퐁당 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.04 · 복숭아로 피치 올려 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.05 · 구름 속 시나모롤 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot art" style="background:#8A93B5" title="23.06 · 시카고 팝콘 · 컨셉">컨셉</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.07 · 라이언 망고 마카롱 · 캐릭터">캐릭터</div></div><div class="tc now"><div class="ipdot ing" style="background:#C9A227" title="23.08 · 아이스 노티드 우유 생크림 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.09 · 초코 퐁당 쿠키런 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="23.10 · 초코, 우리 이제 헤이즐넛 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="23.11 · 도라에몽의 팥붕!슈붕! · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="23.12 · 고디바 다크 크런치 · 원료">원료</div></div><div class="rk">2024</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="24.01 · 황치즈 드래곤볼 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="24.02 · 바삭한 쫀꾸렛 · 자체">자체</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="24.03 · 탕탕! 스트로베리 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.04 · 아이스 도쿄 바나나 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="24.05 · 이상한 나라의 슈팅스타 · 자체">자체</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="24.06 · 우주라이크 봉봉 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="24.07 · 블루 서퍼비치 · 자체">자체</div></div><div class="tc now"><div class="ipdot cele" style="background:#2F6FB5" title="24.08 · 피치팡 망고팡 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="24.09 · 우석이도 외계인 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="24.10 · 1st 숭아야 그릭다 · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.11 · 치토스 밀크쉐이크 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="24.12 · 키세스 브라우니 · 원료">원료</div></div><div class="rk">2025</div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="25.01 · 춘식이의 고구마얌 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.02 · 아이스 초코 도쿄 바나나 · 원료">원료</div></div><div class="tc"><div class="ipdot char" style="background:#2B4CC4" title="25.03 · 말랑딸기 찹쌀떡 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.04 · 아이스 그린티 킷캣 · 원료">원료</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="25.05 · 봄날의 곰을 좋아하세요? · 셀럽">셀럽</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.06 · 카페오레 초코 크런치 · 원료">원료</div></div><div class="tc"><div class="ipdot cele" style="background:#2F6FB5" title="25.07 · 애플 망고빙수 · 셀럽">셀럽</div></div><div class="tc now"><div class="ipdot char" style="background:#2B4CC4" title="25.08 · 블루 바나나 브륄레 · 캐릭터">캐릭터</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.09 · 위대한 비쵸비 · 원료">원료</div></div><div class="tc"><div class="ipdot own" style="background:#D7E1EE" title="25.10 · 말차다미아 · 자체">자체</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.11 · 골든 프랄린 버터 · 원료">원료</div></div><div class="tc"><div class="ipdot ing" style="background:#C9A227" title="25.12 · 초콜릿 쿠키 스모어 · 원료">원료</div></div><div class="rk">2026</div><div class="tc last"><div class="ipdot own" style="background:#D7E1EE" title="26.01 · 베리 굿 · 자체">자체</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.02 · 러블리 쫀꾸렛 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.03 · 두바이에서 온 엄마는 외계인 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot art" style="background:#8A93B5" title="26.04 · 두바이 크런치 봉봉 · 컨셉">컨셉</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.05 · 말랑포도 메타몽 · 캐릭터">캐릭터</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.06 · 우디 후르츠 어드벤처 · 캐릭터">캐릭터</div></div><div class="tc last"><div class="ipdot char" style="background:#2B4CC4" title="26.07 · 쵸파의 코튼캔디 크런치 외 1종 · 캐릭터">캐릭터</div></div><div class="tc now last"><div class="ipdot cele" style="background:#2F6FB5" title="26.08 · 산딸기가 끌리는 연유 · 셀럽">셀럽</div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div><div class="tc last"><div class="ipdot na"></div></div></div></div>
 
   <div style="margin-top:14px;"><button class="tgl" type="button" aria-expanded="false"
        aria-controls="ipsrc" data-open="분류 기준" data-close="닫기"><i>&#9654;</i><span class="tglt">분류 기준</span></button></div>
