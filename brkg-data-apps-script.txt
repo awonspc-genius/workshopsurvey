@@ -52,7 +52,8 @@ var SHEET_ID = "";
 var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
 var TABLES = {
-  ip:    ["id","name","cat","stage","owner","contact","memo","start","end","royalty","updated","by"],
+  ip:    ["id","name","cat","stage","grp","slot","period","owner","contact","season","fee",
+          "excl","mg","roy","rates","dur","img","temp","memo","created","updated","by"],
   md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by"],
   docs:  ["id","ipId","type","title","url","memo","updated","by"],
   music: ["id","date","title","place","memo","photos","updated","by"],
@@ -194,6 +195,32 @@ function uploadPhoto(b) {
   return url;   /* 기록을 못 찾아도 파일은 남는다 */
 }
 
+/* IP 대표 이미지를 드라이브에 올리고 ip 표의 img 칸에 주소를 적는다 */
+function uploadIpPhoto(b) {
+  var raw = String(b.data || "");
+  var comma = raw.indexOf(",");
+  if (comma > -1) raw = raw.slice(comma + 1);
+  var blob = Utilities.newBlob(Utilities.base64Decode(raw), b.mime || "image/jpeg",
+                               b.name || ("ip_" + Date.now() + ".jpg"));
+  var file = photoFolder().createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  var url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w800";
+
+  var sh = sheetFor("ip"), cols = TABLES.ip, last = sh.getLastRow();
+  if (last >= 2) {
+    var ids = sh.getRange(2, 1, last - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      if (String(ids[i][0]) !== String(b.ipId)) continue;
+      var c = cols.indexOf("img");
+      if (c < 0) break;
+      sh.getRange(i + 2, c + 1).setValue(url);
+      sh.getRange(i + 2, cols.indexOf("updated") + 1).setValue(new Date().toISOString());
+      break;
+    }
+  }
+  return url;
+}
+
 /* ── 쓰기 : POST ── */
 function doPost(e) {
   var out;
@@ -211,6 +238,8 @@ function doPost(e) {
         out = { ok: remove(b.table, b.id) };
       } else if (b.type === "photo") {
         out = { ok: true, url: uploadPhoto(b) };
+      } else if (b.type === "ipphoto") {
+        out = { ok: true, url: uploadIpPhoto(b) };
       } else {
         out = { ok: false, error: "type 을 알 수 없습니다" };
       }
