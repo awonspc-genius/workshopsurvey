@@ -11,9 +11,11 @@
  *       실행 사용자 : 나
  *       액세스 권한 : 모든 사용자
  *  5. 배포하면 나오는 https://script.google.com/macros/s/....../exec 주소를 복사합니다.
- *  6. 그 주소를 아래 두 곳의 DATA_URL 에 붙여넣으면 끝입니다.
- *       · ip/index.html
- *       · feed/index.html
+ *  6. 그 주소를 아래 세 곳의 DATA_URL 에 붙여넣으면 끝입니다.
+ *       · ip/index.html          (var DATA_URL = "";)
+ *       · ip-contract/index.html (var DATA_URL = "";)
+ *       · feed/index.html        (var DATA_URL = "";)
+ *     따옴표 안에 붙여넣습니다. 예) var DATA_URL = "https://script.google.com/macros/s/AKfy.../exec";
  *
  *  ── 뮤직쇼 사진 ────────────────────────────────────────────────
  *  사진은 시트가 아니라 구글 드라이브에 올라갑니다.
@@ -33,7 +35,9 @@ var TABLES = {
   ip:    ["id","name","cat","stage","owner","contact","memo","start","end","royalty","updated","by"],
   md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by"],
   docs:  ["id","ipId","type","title","url","memo","updated","by"],
-  music: ["id","date","title","place","memo","photos","updated","by"]
+  music: ["id","date","title","place","memo","photos","updated","by"],
+  ipmaster: ["id","grp","ip","kind","slot","agent","period","mg","roy","prod","dur","poc","excl","stage","memo","updated"],
+  meta:     ["id","by","at","n","updated"]
 };
 
 function sheetFor(table) {

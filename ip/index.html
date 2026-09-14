@@ -688,8 +688,33 @@ document.getElementById("jsonPick").addEventListener("change", function(){
 });
 
 /* boot */
+function redrawAll(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); }
+
+/* 저장소에 올려 둔 백업 파일을 읽어 합친다 */
+function loadShared(){
+  return fetch("/data/ip.json",{cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){
+      ["ips","md","docs"].forEach(function(k){
+        var rows=(j&&j[k])||[]; if(!rows.length) return;
+        var byId={}; (data[k]||[]).forEach(function(x){byId[x.id]=x});
+        rows.forEach(function(x){
+          var mine=byId[x.id];
+          if(!mine||String(x.updated||"")>=String(mine.updated||"")) byId[x.id]=x;
+        });
+        data[k]=Object.keys(byId).map(function(id){return byId[id]});
+      });
+      saveLocal();
+    })
+    .catch(function(){});
+}
+
+
+
 function boot(){
   load(); refreshFilters(); renderIps(); renderBoard(); renderDocs();
+  loadShared().then(redrawAll);
+
   pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
   /* 다른 사람이 넣은 자료를 2분마다 받아 온다 */
   setInterval(function(){
