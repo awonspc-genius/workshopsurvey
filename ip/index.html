@@ -70,6 +70,47 @@ input.s{width:100%}
 }
 .ip .side{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
 .chip{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;background:#f1f3f7;color:var(--mid)}
+.ipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.ipc{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s;display:flex;flex-direction:column}
+.ipc:hover{transform:translateY(-2px);box-shadow:0 10px 24px -16px rgba(20,28,48,.45);border-color:var(--pink)}
+.ipc .ph{position:relative;aspect-ratio:4/5;background:#EEF1F6;overflow:hidden}
+.ipc .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ipc .ph .ini{position:absolute;inset:0;display:grid;place-items:center;
+  font-size:44px;font-weight:900;color:#B9C4D4;letter-spacing:-.03em}
+.ipc .ph .sg{position:absolute;left:9px;top:9px;font-size:10.5px;font-weight:800;
+  background:rgba(16,24,40,.72);color:#fff;border-radius:999px;padding:3px 9px;backdrop-filter:blur(3px)}
+.ipc .ph .ex{position:absolute;right:9px;top:9px;font-size:10.5px;font-weight:800;
+  border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.92);color:#5C7291}
+.ipc .ph .ex.y{background:#0F6E56;color:#fff}
+.ipc .bd{padding:11px 13px 13px}
+.ipc h4{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
+.ipc .own{font-size:11.5px;color:var(--mid);margin-top:2px}
+.ipc .kv{margin-top:9px;display:flex;flex-direction:column;gap:4px}
+.ipc .kv div{display:flex;gap:7px;align-items:baseline;font-size:11.5px;line-height:1.45}
+.ipc .kv i{font-style:normal;font-weight:800;font-size:10px;color:#8A94A6;width:32px;flex:none}
+.ipc .kv b{font-weight:700;color:#22314D}
+.ipc .kv b.none{font-weight:500;color:#AEB6C4}
+
+/* 자세히 보기 */
+.dt{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px}
+.dt .dph{aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:#EEF1F6;position:relative}
+.dt .dph img{width:100%;height:100%;object-fit:cover;display:block}
+.dt .dph .ini{position:absolute;inset:0;display:grid;place-items:center;font-size:52px;font-weight:900;color:#B9C4D4}
+.dt h3{margin:0;font-size:21px;font-weight:900}
+.dt .sub{font-size:12.5px;color:var(--mid);margin-top:4px}
+.dt .rows{margin-top:14px;display:flex;flex-direction:column;gap:0}
+.dt .rows div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;
+  padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.dt .rows span{font-size:11.5px;font-weight:700;color:#8A94A6}
+.dt .rows b{font-weight:700;color:#22314D}
+.dt .memo{margin-top:14px;font-size:13px;white-space:pre-wrap;background:#F5F8FC;
+  border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+@media(max-width:640px){ .dt{grid-template-columns:1fr} .dt .dph{max-width:200px} }
+
+.modal.wide{width:min(780px,100%)}
+.modal.wide h2{display:none}
+.modal.wide .sub{display:none}
 .cattabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .cattabs button{font:inherit;font-size:13.5px;font-weight:700;padding:8px 16px;border-radius:999px;
   border:1.5px solid var(--line);background:#fff;color:var(--mid);cursor:pointer;
@@ -459,62 +500,81 @@ function renderIps(){
     e.textContent=data.ips.length? "조건에 맞는 IP가 없습니다." : "아직 등록한 IP 후보가 없습니다. 위 버튼으로 추가해 보세요.";
     wrap.appendChild(e); return;
   }
+  var grid=document.createElement("div"); grid.className="ipgrid";
   list.forEach(function(i){
-    var mdN=data.md.filter(function(m){return m.ipId===i.id}).length;
-    var docN=data.docs.filter(function(d){return d.ipId===i.id}).length;
-    var card=document.createElement("div"); card.className="ip";
+    var card=document.createElement("div"); card.className="ipc";
 
-    var left=document.createElement("div");
-    var h=document.createElement("h3"); h.textContent=i.name; left.appendChild(h);
-    var meta=document.createElement("div"); meta.className="meta";
-    meta.textContent=[i.owner? "담당사 "+i.owner:"", i.contact? "연락 "+shortPoc(i.contact):"",
-      i.season? "제안 시기 "+i.season:""].filter(Boolean).join("  ·  ");
-    left.appendChild(meta);
-    /* 독점 · 제작기간은 작은 칩으로 */
-    var facts=[["독점",i.excl||"확인 필요"],["제작기간",i.dur]].filter(function(f){return f[1]});
-    if(facts.length){
-      var fb=document.createElement("div"); fb.className="facts";
-      facts.forEach(function(f){
-        var sp=document.createElement("span"); sp.className="fact";
-        if(f[0]==="독점") sp.className+=" x"+(f[1]==="독점"?"y":(f[1]==="비독점"?"n":"q"));
-        var k=document.createElement("i"); k.textContent=f[0];
-        sp.appendChild(k); sp.appendChild(document.createTextNode(f[1]));
-        fb.appendChild(sp);
-      });
-      left.appendChild(fb);
+    var ph=document.createElement("div"); ph.className="ph";
+    if(i.img){
+      var im=document.createElement("img"); im.src=i.img; im.alt=i.name; im.loading="lazy";
+      im.onerror=function(){ im.remove(); ph.appendChild(iniBox(i.name)); };
+      ph.appendChild(im);
+    } else ph.appendChild(iniBox(i.name));
+    var sg=document.createElement("span"); sg.className="sg"; sg.textContent=i.stage||"발굴"; ph.appendChild(sg);
+    if(i.excl && i.excl!=="확인 필요"){
+      var ex=document.createElement("span");
+      ex.className="ex"+(i.excl==="독점"?" y":""); ex.textContent=i.excl; ph.appendChild(ex);
     }
-    if(i.memo){ var mm=document.createElement("div"); mm.className="memo"; mm.textContent=i.memo; left.appendChild(mm); }
-    var tags=document.createElement("div"); tags.style.marginTop="9px";
-    if(mdN){ var c1=document.createElement("span"); c1.className="chip"; c1.textContent="상품 "+mdN+"건"; tags.appendChild(c1); }
-    if(docN){ var c2=document.createElement("span"); c2.className="chip"; c2.style.marginLeft="6px"; c2.textContent="자료 "+docN+"건"; tags.appendChild(c2); }
-    left.appendChild(tags);
+    card.appendChild(ph);
 
-    var side=document.createElement("div"); side.className="side";
-    var sel=document.createElement("select"); sel.className="stage-sel";
-    STAGES.forEach(function(s){ var o=document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
-    sel.value=i.stage||"발굴";
-    sel.addEventListener("change", function(){ i.stage=sel.value; save(); renderIps(); });
-    side.appendChild(sel);
-    var btns=document.createElement("div"); btns.className="rowbtns";
-    var b1=document.createElement("button"); b1.className="btn sm"; b1.textContent="수정";
-    b1.addEventListener("click", function(){ ipModal(i); });
-    var b2=document.createElement("button"); b2.className="btn sm warn"; b2.textContent="삭제";
-    b2.addEventListener("click", function(){ delIp(i); });
-    btns.appendChild(b1); btns.appendChild(b2); side.appendChild(btns);
-
-    /* MG · 로열티를 한눈에 보이게 가운데 칸으로 */
+    var bd=document.createElement("div"); bd.className="bd";
+    var h=document.createElement("h4"); h.textContent=i.name; bd.appendChild(h);
+    if(i.owner){ var ow=document.createElement("div"); ow.className="own"; ow.textContent=i.owner; bd.appendChild(ow); }
     var mg=shortMg(i.mg), roy=shortRoy(i.roy);
-    var terms=document.createElement("div"); terms.className="terms";
-    var t1=document.createElement("div"); t1.className="t";
-    t1.innerHTML='<span class="tl">MG</span><b'+(mg?'':' class="none"')+'>'+esc(mg||"미정")+'</b>';
-    var t2=document.createElement("div"); t2.className="t";
-    t2.innerHTML='<span class="tl">로열티</span><b'+(roy?'':' class="none"')+'>'+esc(roy||"미정")+'</b>';
-    if(i.mg) t1.title=i.mg;
-    if(i.roy) t2.title=i.roy;
-    terms.appendChild(t1); terms.appendChild(t2);
+    var kv=document.createElement("div"); kv.className="kv";
+    kv.appendChild(kvRow("MG", mg));
+    kv.appendChild(kvRow("로열티", roy));
+    bd.appendChild(kv);
+    card.appendChild(bd);
 
-    card.appendChild(left); card.appendChild(terms); card.appendChild(side); wrap.appendChild(card);
+    card.onclick=function(){ ipDetail(i); };
+    grid.appendChild(card);
   });
+  wrap.appendChild(grid);
+}
+function iniBox(name){
+  var d=document.createElement("div"); d.className="ini";
+  d.textContent=(name||"?").trim().charAt(0); return d;
+}
+function kvRow(label,val){
+  var d=document.createElement("div");
+  var i1=document.createElement("i"); i1.textContent=label;
+  var b=document.createElement("b"); b.textContent=val||"미정";
+  if(!val) b.className="none";
+  d.appendChild(i1); d.appendChild(b); return d;
+}
+
+/* 카드를 누르면 자세히 */
+function ipDetail(i){
+  var mdList=data.md.filter(function(m){return m.ipId===i.id});
+  var docList=data.docs.filter(function(d){return d.ipId===i.id});
+  function row(k,v){ return v? '<div><span>'+k+'</span><b>'+esc(v)+'</b></div>' : ""; }
+  var html=
+   '<div class="dt">'+
+     '<div class="dph">'+(i.img? '<img src="'+esc(i.img)+'" alt="">' : '<div class="ini">'+esc((i.name||"?").charAt(0))+'</div>')+'</div>'+
+     '<div>'+
+       '<h3>'+esc(i.name)+'</h3>'+
+       '<div class="sub">'+esc([i.cat,i.stage,i.owner].filter(Boolean).join("  ·  "))+'</div>'+
+       '<div class="rows">'+
+         row("MG", i.mg)+
+         row("로열티", i.roy)+
+         row("콜라보 독점", i.excl||"확인 필요")+
+         row("제작기간", i.dur)+
+         row("제안 시기", i.season)+
+         row("조건 메모", i.fee)+
+         row("담당자", i.contact)+
+         row("상품", mdList.length? mdList.map(function(m){return m.item+" ("+m.stage+")"}).join(", ") : "")+
+       '</div>'+
+       (i.memo? '<div class="memo">'+esc(i.memo)+'</div>' : "")+
+       (docList.length? '<div class="memo"><b>자료</b><br>'+docList.map(function(d){
+          return '<a href="'+esc(d.url||"#")+'" target="_blank" rel="noopener">'+esc(d.title)+'</a>';
+        }).join("<br>")+'</div>' : "")+
+     '</div>'+
+   '</div>';
+  modal("", "", html, null, {wide:true, extra:[
+    {t:"수정", fn:function(){ ipModal(i); }},
+    {t:"삭제", cls:"warn", fn:function(){ delIp(i); }}
+  ]});
 }
 function delIp(i){
   var mdN=data.md.filter(function(m){return m.ipId===i.id}).length;
@@ -529,17 +589,29 @@ function delIp(i){
 }
 
 /* ---------- modal helper ---------- */
-function modal(title,sub,fieldsHtml,onSave){
+function modal(title,sub,fieldsHtml,onSave,opt){
+  opt=opt||{};
   var host=document.getElementById("modalHost");
-  host.innerHTML='<div class="mask"><div class="modal"><h2></h2><p class="sub"></p><div class="body"></div>'+
-    '<div class="foot"><button class="btn" data-x>취소</button><button class="btn pink" data-s>저장</button></div></div></div>';
+  var foot='<div class="foot">';
+  (opt.extra||[]).forEach(function(x,ix){
+    foot+='<button class="btn'+(x.cls?" "+x.cls:"")+'" data-e="'+ix+'">'+x.t+'</button>';
+  });
+  if(opt.extra&&opt.extra.length) foot+='<span style="flex:1"></span>';
+  foot+='<button class="btn" data-x>'+(onSave?"취소":"닫기")+'</button>'+
+        (onSave?'<button class="btn pink" data-s>저장</button>':'')+'</div>';
+  host.innerHTML='<div class="mask"><div class="modal'+(opt.wide?" wide":"")+'"><h2></h2><p class="sub"></p><div class="body"></div>'+foot+'</div></div>';
   host.querySelector("h2").textContent=title;
   host.querySelector(".sub").textContent=sub;
   host.querySelector(".body").innerHTML=fieldsHtml;
   function close(){ host.innerHTML=""; }
   host.querySelector("[data-x]").addEventListener("click", close);
   host.querySelector(".mask").addEventListener("click", function(e){ if(e.target===this) close(); });
-  host.querySelector("[data-s]").addEventListener("click", function(){ if(onSave(host, close)!==false) close(); });
+  var sb=host.querySelector("[data-s]");
+  if(sb) sb.addEventListener("click", function(){ if(onSave(host, close)!==false) close(); });
+  (opt.extra||[]).forEach(function(x,ix){
+    var eb=host.querySelector('[data-e="'+ix+'"]');
+    if(eb) eb.addEventListener("click", function(){ close(); x.fn(); });
+  });
   var first=host.querySelector("input,select,textarea"); if(first) first.focus();
   return host;
 }
@@ -577,6 +649,7 @@ function ipModal(i){
      '<div class="f"><label for="mDur">제작기간 (사인부터)</label><input id="mDur" value="'+esc(e.dur||"").replace(/"/g,"&quot;")+'" placeholder="예: 컨셉 5일 · 샘플 10일"></div>'+
      '<div class="f"><label for="mFee">조건 메모</label><input id="mFee" value="'+esc(e.fee||"").replace(/"/g,"&quot;")+'" placeholder="예: 최소 보증금 협의 중"></div>'+
    '</div>'+
+   '<div class="f"><label for="mImg">이미지 주소</label><input id="mImg" value="'+esc(e.img||"").replace(/"/g,"&quot;")+'" placeholder="https://... (없으면 이름 첫 글자가 나옵니다)"></div>'+
    '<div class="f"><label for="mMemo">메모</label><textarea id="mMemo" placeholder="타깃, 팬덤 규모, 우리 브랜드와 맞는 지점">'+esc(e.memo||"")+'</textarea></div>';
   modal(i?"IP 후보 수정":"IP 후보 추가","이름만 넣어도 저장됩니다.",html,function(host){
     var name=val(host,"mName");
@@ -586,6 +659,7 @@ function ipModal(i){
     obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
     obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee"); obj.memo=val(host,"mMemo");
     obj.excl=val(host,"mExcl"); obj.mg=val(host,"mMg"); obj.roy=val(host,"mRoy"); obj.dur=val(host,"mDur");
+    obj.img=val(host,"mImg");
     if(!i) data.ips.unshift(obj);
     save(); refreshFilters(); renderIps();
   });

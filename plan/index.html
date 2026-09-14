@@ -125,6 +125,32 @@
   .day:last-child { border-right:none; }
   .day.out { background:#F5F1ED; }
   .day.hol { background:#EDF3FA; }
+
+  /* 어제 요약 */
+  .ycard { border:1px solid var(--line); border-radius:14px; background:#fff; padding:18px 20px;
+           margin:4px 0 26px; }
+  .ycard .yh { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:14px; }
+  .ycard .yh b { font-size:16px; font-weight:900; letter-spacing:-.02em; }
+  .ycard .yh span { font-size:12.5px; color:var(--mute); }
+  .ycard .yk { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1px;
+               background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .ycard .yk > div { background:#fff; padding:11px 13px; }
+  .ycard .yk .l { font-size:11px; font-weight:700; color:var(--mute); }
+  .ycard .yk .v { font-size:19px; font-weight:900; letter-spacing:-.02em; margin-top:2px; }
+  .ycard .yk .v small { font-size:11.5px; font-weight:700; margin-left:2px; }
+  .ycard .yk .v.up { color:var(--mint); } .ycard .yk .v.dn { color:#B4344F; }
+  .ycard .yk em { display:block; font-style:normal; font-size:11px; color:var(--mute); margin-top:2px; }
+  .ycard .yp { margin-top:14px; }
+  .ycard .yp h4 { margin:0 0 8px; font-size:12.5px; font-weight:800; color:var(--mute); }
+  .ycard .yp ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+  .ycard .yp li { display:flex; gap:9px; align-items:baseline; font-size:13px; line-height:1.5; }
+  .ycard .yp .ch { flex:none; font-size:10.5px; font-weight:800; border-radius:5px; padding:2px 7px; }
+  .ycard .yp .ch.off { background:#F7CFDD; color:#96143F; }
+  .ycard .yp .ch.del { background:#CFE6DC; color:#0B5642; }
+  .ycard .yp .ch.gif { background:#F2E4BC; color:#7A5F0D; }
+  .ycard .yp .ch.com { background:#DFE3EE; color:#3C4667; }
+  .ycard .yp .d { color:var(--mute); font-size:12px; }
+  .ycard .none { font-size:13px; color:var(--mute); }
   .day.today { position:relative; background:#F4F7FF; }
   .day.today::after { content:""; position:absolute; inset:0; pointer-events:none;
                       border:2px solid var(--blue); border-radius:4px; }
@@ -380,6 +406,8 @@
     </div>
   </header>
 
+  <div id="ybox"></div>
+
   <div class="smark first"><i>&gt;</i> Annual Plan</div>
   <h2>연간 한눈에 보기</h2>
   <div class="yearbox"><div class="yscroll"><table class="yr" id="yrTbl"></table></div></div>
@@ -633,6 +661,69 @@ function scrollTo(el){
     el.scrollIntoView({behavior:"smooth", block:"nearest"});
   }
 }
+/* 들어오면 바로, 자료가 있는 가장 마지막 날(보통 어제)의 결과를 요약해 보여준다 */
+function renderYesterday(){
+  var host = document.getElementById("ybox");
+  if(!host) return;
+  var best = null;
+  Object.keys(DETK).forEach(function(k){
+    var C = DETK[k], dl = C && C.daily;
+    if(!dl) return;
+    Object.keys(dl).forEach(function(d){
+      var rec = dl[d];
+      if(!rec || !rec.s) return;
+      var cand = { key:k, y:+k.slice(0,4), m:+k.slice(5), d:+d, r:rec, C:C };
+      if(!best || (cand.y*10000 + cand.m*100 + cand.d) > (best.y*10000 + best.m*100 + best.d)) best = cand;
+    });
+  });
+  if(!best){ host.innerHTML=""; return; }
+
+  var r = best.r;
+  var wd = WD[(new Date(best.y, best.m-1, best.d)).getDay()===0 ? 6 : (new Date(best.y, best.m-1, best.d)).getDay()-1];
+  var yoy = r.pw ? ((r.s - r.pw) / r.pw * 100) : null;
+  var cyoy = r.pwc ? ((r.c - r.pwc) / r.pwc * 100) : null;
+  var today = new Date();
+  var isYest = (today.getFullYear()===best.y) &&
+               (today.getMonth()+1===best.m) && (today.getDate()-1===best.d);
+  var eok = function(v){ return (v/1e8).toFixed(1); };
+
+  var CHMAP = {"오프라인":"off","배달":"del","교환권":"gif","커뮤":"com"};
+
+  /* 그날 돌던 프로모션 */
+  var live = (best.C.promos||[]).filter(function(p){ return p.s<=best.d && best.d<=p.e; });
+  var born = (best.C.new||[]).filter(function(n){ return n.day===best.d; });
+
+  var kp = "";
+  kp += '<div><div class="l">실매출</div><div class="v">'+eok(r.s)+'<small>억</small></div></div>';
+  kp += '<div><div class="l">전년 동요일比</div><div class="v '+(yoy>=0?"up":"dn")+'">'+
+        (yoy===null?"—":(yoy>=0?"+":"")+yoy.toFixed(1)+"%")+'</div>'+
+        (r.pw?'<em>전년 '+eok(r.pw)+'억</em>':'')+'</div>';
+  kp += '<div><div class="l">고객수</div><div class="v">'+(r.c/1e4).toFixed(1)+'<small>만명</small></div>'+
+        (cyoy===null?'':'<em>전년비 '+(cyoy>=0?"+":"")+cyoy.toFixed(1)+'%</em>')+'</div>';
+  kp += '<div><div class="l">객단가</div><div class="v">'+(r.aov||Math.round(r.s/r.c)).toLocaleString()+'<small>원</small></div></div>';
+  kp += '<div><div class="l">진행 프로모션</div><div class="v">'+live.length+'<small>건</small></div>'+
+        (born.length?'<em>신제품 '+born.length+'종 출시</em>':'')+'</div>';
+
+  var pl = "";
+  if(live.length){
+    pl = '<div class="yp"><h4>그날 돌던 프로모션</h4><ul>'+
+      live.map(function(p){
+        var c = CHMAP[p.ch] || "com";
+        return '<li><span class="ch '+c+'">'+p.ch+'</span><span><b>'+p.t+'</b>'+
+               (p.d?' <span class="d">'+p.d+'</span>':'')+'</span></li>';
+      }).join("")+'</ul></div>';
+  } else {
+    pl = '<div class="yp"><h4>그날 돌던 프로모션</h4><p class="none">없음</p></div>';
+  }
+
+  host.innerHTML =
+    '<div class="ycard">'+
+      '<div class="yh"><b>'+(isYest?"어제":"가장 최근 자료")+' · '+best.m+'월 '+best.d+'일('+wd+')</b>'+
+      '<span>들어올 때마다 마지막 마감분을 보여줍니다</span></div>'+
+      '<div class="yk">'+kp+'</div>'+ pl +
+    '</div>';
+}
+
 function openMonth(key, quiet){
   var m = MDATA[key] || { has:false, fn:"" };
   var y = +key.slice(0,4), n = +key.slice(5);
@@ -1071,6 +1162,7 @@ openMonth("2026-09", true);   /* 처음 열 때는 스크롤하지 않습니다 
       if (Object.keys(d).length !== Object.keys(C.daily || {}).length) changed = true;
       C.daily = d;
     });
+    renderYesterday();
     if (!changed) return;
     var open = document.querySelector("#yrTbl .on");
     var key = open ? open.dataset.k : null;
@@ -1112,6 +1204,7 @@ var ALL_CODE = "2701";
   var inFrame = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
   function ok(){ try { return sessionStorage.getItem(ALLKEY) === "1"; } catch(e){ return false; } }
   function unlock(){
+  setTimeout(renderYesterday, 0);
     try { sessionStorage.setItem(ALLKEY, "1"); } catch(e){}
     document.body.classList.remove("locked");
   }
