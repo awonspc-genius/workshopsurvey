@@ -62,7 +62,7 @@
   /* ---------- compact tile ---------- */
   .gate{position:relative; overflow:hidden; text-decoration:none; color:#fff;
         border-radius:16px; padding:15px 16px; display:flex; gap:13px; align-items:flex-start;
-        min-height:132px;
+        min-height:88px;
         transition:box-shadow .25s ease, transform .25s ease;
         opacity:0; animation:rise .6s cubic-bezier(.22,1,.36,1) forwards;}
   .row .gate:nth-child(1){animation-delay:.04s;}
@@ -77,6 +77,10 @@
              box-shadow:0 14px 28px -20px rgba(30,55,149,.8);}
   .gate.work{background:linear-gradient(158deg,#7A4BC4 0%,#432574 100%);
              box-shadow:0 14px 28px -20px rgba(67,37,116,.8);}
+  .gate.plan{background:linear-gradient(158deg,#2F6FB5 0%,#123A66 100%);
+             box-shadow:0 14px 28px -20px rgba(18,58,102,.85);}
+  .gate.plan:hover{box-shadow:0 20px 36px -18px rgba(18,58,102,.95);}
+  .shead.plan .dot{background:#2F6FB5;}
   .gate:hover{transform:translateY(-3px);}
   .gate.basic:hover{box-shadow:0 20px 36px -18px rgba(21,27,54,.9);}
   .gate.poll:hover{box-shadow:0 20px 36px -18px rgba(30,55,149,.9);}
@@ -141,6 +145,52 @@
 <main>
 
   <section class="sect">
+    <div class="shead plan">
+      <span class="dot"></span>
+      <h2 data-t="hP">마케팅 전략</h2>
+      <span class="cnt">2</span>
+      <span class="pw" data-t="hPpw">비밀번호</span>
+      <span class="rule"></span>
+    </div>
+    <div class="row">
+
+      <a class="gate plan" href="/plan/">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <rect x="14" y="22" width="92" height="84" rx="14" fill="none" stroke="#fff" stroke-width="6"/>
+            <path d="M14 48h92" stroke="#fff" stroke-width="5"/>
+            <path d="M38 12v20M82 12v20" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+            <rect x="30" y="62" width="17" height="15" rx="3" fill="#C9A227"/>
+            <rect x="53" y="62" width="17" height="15" rx="3" fill="#9BB6E0"/>
+            <rect x="76" y="62" width="17" height="15" rx="3" fill="#ED93B1"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t7">연간 마케팅 플랜</h3>
+          <div class="yr">2026</div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a class="gate plan" href="/analysis/">
+        <div class="art">
+          <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path d="M18 92 L44 60 L66 76 L102 28" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M78 26h24v24" stroke="#C9A227" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="44" cy="60" r="6.5" fill="#fff"/><circle cx="66" cy="76" r="6.5" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3 data-t="t8">2027 마케팅 전략</h3>
+          <div class="yr">2027</div>
+        </div>
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="sect">
     <div class="shead info">
       <span class="dot"></span>
       <h2 data-t="hA">회사 기본 정보</h2>
@@ -162,12 +212,6 @@
         <div class="body">
           <h3 data-t="t2">BR 총 POS 매출</h3>
           <div class="yr">2019 &ndash; 2026</div>
-          <p class="desc" data-t="d2">90개월 월별 실매출 × FOM &amp; IP 캠페인 캘린더.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">90</div><div class="l" data-t="s2a">개월</div></div>
-            <div class="stat"><div class="v">742<small>억</small></div><div class="l" data-t="s2b">월평균</div></div>
-            <div class="stat"><div class="v">30</div><div class="l" data-t="s2c">800억 달성월</div></div>
-          </div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -183,13 +227,7 @@
         </div>
         <div class="body">
           <h3 data-t="t3">시장 구조</h3>
-          <div class="yr">2025 &ndash; 2026</div>
-          <p class="desc" data-t="d3">디저트 × 아이스크림, 전문점 × 소매 네 칸의 규모.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">8.2<small>조</small></div><div class="l" data-t="s3a">전체 시장</div></div>
-            <div class="stat"><div class="v">90<small>%</small></div><div class="l" data-t="s3b">전문점 점유</div></div>
-            <div class="stat"><div class="v">4</div><div class="l" data-t="s3c">세그먼트</div></div>
-          </div>
+          <div class="yr">2026.09</div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -204,12 +242,6 @@
         <div class="body">
           <h3 data-t="t5">가맹점 위치 지도</h3>
           <div class="yr">2026.07</div>
-          <p class="desc" data-t="d5">1,708개 점포를 지역·팀·상권별로 비교.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">1,708</div><div class="l" data-t="s5a">가맹점</div></div>
-            <div class="stat"><div class="v">219</div><div class="l" data-t="s5b">시·군·구</div></div>
-            <div class="stat"><div class="v">843<small>억</small></div><div class="l" data-t="s5c">7월 매출</div></div>
-          </div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -238,11 +270,6 @@
         </div>
         <div class="body">
           <h3 data-t="t1">설문조사</h3>
-          <p class="desc" data-t="d1">매장 방문객 피드백, 브랜드 헬스, FOM 컨셉 사전 반응.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">6</div><div class="l" data-t="s1a">진행 중</div></div>
-            <div class="stat"><div class="v">6</div><div class="l" data-t="s1c">직영 매장</div></div>
-          </div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -258,12 +285,6 @@
         </div>
         <div class="body">
           <h3 data-t="t4">ON-SITE 매장 리포트</h3>
-          <div class="yr">FIELD NOTE</div>
-          <p class="desc" data-t="d4">외부·내부·디핑구·메뉴보드 4컷 기록 후 A4 출력.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">4</div><div class="l" data-t="s4a">촬영 컷</div></div>
-            <div class="stat"><div class="v">A4</div><div class="l" data-t="s4b">출력 양식</div></div>
-          </div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -291,12 +312,6 @@
         </div>
         <div class="body">
           <h3 data-t="t6">마케팅 실무</h3>
-          <div class="yr">인스타 피드 · IP</div>
-          <p class="desc" data-t="d6">월 피드 그리드와 발행 일정, IP 후보와 MD 진행.</p>
-          <div class="stats">
-            <div class="stat"><div class="v">2</div><div class="l" data-t="s6a">도구</div></div>
-            <div class="stat"><div class="v">5</div><div class="l" data-t="s6b">확인 단계</div></div>
-          </div>
         </div>
         <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -318,24 +333,13 @@
 })();
 
 var EN = {
-  sub:'Marketing Strategy · Genius Team',
-  hA:'Company basics', hB:'Marketing workbench', hC:'Surveys',
-  hApw:'passcode', hCpw:'passcode',
+  sub:'Marketing Strategy \u00b7 Genius Team',
+  hP:'Marketing strategy', hA:'Company basics', hB:'Marketing workbench', hC:'Surveys',
+  hPpw:'passcode', hApw:'passcode', hCpw:'passcode',
   t1:'Surveys', t2:'BR Total POS Sales', t3:'Market Structure',
   t4:'ON-SITE Store Report', t5:'Store Location Map', t6:'Marketing Workbench',
-  d1:'Visitor feedback, brand health, FOM concept pre-tests.',
-  d2:'90 months of revenue × the FOM &amp; IP campaign calendar.',
-  d3:'Dessert × ice cream, specialty × retail — four segments.',
-  d4:'Exterior, interior, dipping cabinet, menu board — then A4.',
-  d5:'1,708 stores compared by region, team and trade area.',
-  d6:'Monthly feed grid and posting calendar, IP leads and MD progress.',
-  s1a:'running', s1c:'stores',
-  s2a:'months', s2b:'monthly avg', s2c:'months over 80B',
-  s3a:'total market', s3b:'specialty share', s3c:'segments',
-  s4a:'shots', s4b:'print format',
-  s5a:'stores', s5b:'districts', s5c:'July sales',
-  s6a:'tools', s6b:'approval steps',
-  ft:'© Baskin-Robbins Korea · Marketing Strategy'
+  t7:'Annual Marketing Plan', t8:'2027 Marketing Strategy',
+  ft:'\u00a9 Baskin-Robbins Korea \u00b7 Marketing Strategy'
 };
 var KO = {};
 document.querySelectorAll('[data-t]').forEach(function(el){ KO[el.dataset.t]=el.innerHTML; });

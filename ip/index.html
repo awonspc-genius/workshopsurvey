@@ -137,6 +137,7 @@ input.s{width:100%}
         <select class="s" id="fStage"><option value="">모든 단계</option></select>
         <select class="s" id="fCat"><option value="">모든 종류</option></select>
         <span class="grow"><input class="s" id="fQ" placeholder="이름, 담당사, 메모에서 찾기"></span>
+        <span class="chip" id="syncChip" title="팀 저장소 연결 상태">확인 중…</span>
         <button class="btn" id="expJson">백업 저장</button>
         <button class="btn" id="impJson">백업 불러오기</button>
       </div>
@@ -218,11 +219,95 @@ function fileDel(k){ return db().then(function(d){ return new Promise(function(r
 /* state */
 var data={ips:[],md:[],docs:[]};
 function uid(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function save(){ try{ localStorage.setItem(LS, JSON.stringify(data)); }
-  catch(e){ toast("저장 공간이 가득 찼습니다. 큰 파일은 지우고 링크로 걸어 주세요."); } }
+/* ================= 팀 저장소 (구글 시트) =================
+   brkg-data-apps-script.txt 를 새 스프레드시트의 Apps Script 에 붙여넣고
+   웹 앱으로 배포한 뒤, 나온 .../exec 주소를 아래 따옴표 안에 넣어 주세요.
+   비워 두면 지금처럼 이 브라우저에만 저장됩니다.                        */
+var DATA_URL = "";
+try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
+
+var TBL={ips:"ip", md:"md", docs:"docs"};      /* 화면 이름 → 시트 이름 */
+var syncOn=false, lastIds={ips:[],md:[],docs:[]}, pushTimer=null;
+
+function chip(t,c){ var el=document.getElementById("syncChip"); if(!el) return;
+  el.textContent=t; el.style.background = c==="ok" ? "#E7F2EE" : (c==="err" ? "#FDE7F3" : "");
+  el.style.color = c==="ok" ? "#0F6E56" : (c==="err" ? "#9E0060" : ""); }
+
+var _cb=0;
+function apiGet(params){
+  return new Promise(function(res,rej){
+    var cb="brkipcb"+(++_cb)+"_"+Date.now(), sc=document.createElement("script"), done=false;
+    var t=setTimeout(function(){ fin(); rej(new Error("시간 초과")); },15000);
+    function fin(){ if(done)return; done=true; clearTimeout(t);
+      try{delete window[cb]}catch(e){window[cb]=undefined}
+      if(sc.parentNode) sc.parentNode.removeChild(sc); }
+    window[cb]=function(d){ fin(); res(d); };
+    var q=[]; for(var k in params) q.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));
+    q.push("callback="+cb);
+    sc.src=DATA_URL+(DATA_URL.indexOf("?")<0?"?":"&")+q.join("&");
+    sc.onerror=function(){ fin(); rej(new Error("주소를 열지 못했습니다")); };
+    document.head.appendChild(sc);
+  });
+}
+function apiPost(obj){
+  return fetch(DATA_URL,{method:"POST",mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
+}
+
+function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify(data)); }
+  catch(e){ toast("이 브라우저 저장 공간이 가득 찼습니다. 큰 파일은 링크로 걸어 주세요."); } }
+
+function pushAll(){
+  if(!syncOn) return;
+  chip("올리는 중…","");
+  var jobs=[];
+  Object.keys(TBL).forEach(function(k){
+    var recs=data[k].map(function(r){ var c={}; for(var f in r) if(f!=="file") c[f]=r[f]; return c; });
+    if(recs.length) jobs.push(apiPost({type:"saveMany", table:TBL[k], recs:recs}));
+    var now=recs.map(function(r){return r.id});
+    lastIds[k].forEach(function(id){ if(now.indexOf(id)<0) jobs.push(apiPost({type:"delete",table:TBL[k],id:id})); });
+    lastIds[k]=now;
+  });
+  Promise.all(jobs)
+    .then(function(){ chip("팀 저장소에 올림","ok"); })
+    .catch(function(){ chip("올리지 못함 — 이 브라우저에만 있음","err"); });
+}
+
+function save(){
+  saveLocal();
+  if(!syncOn) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(pushAll, 900);          /* 연속 수정은 묶어서 한 번만 올린다 */
+}
+
 function load(){
   var raw=localStorage.getItem(LS);
   if(raw){ try{ var o=JSON.parse(raw); data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[]; }catch(e){} }
+}
+
+function pull(){
+  if(!DATA_URL){ chip("이 브라우저에만 저장됨","err"); return Promise.resolve(); }
+  chip("불러오는 중…","");
+  return apiGet({action:"all"}).then(function(r){
+    if(!r || !r.ok) throw new Error(r && r.error || "응답이 이상합니다");
+    syncOn=true;
+    Object.keys(TBL).forEach(function(k){
+      var remote=r.data[TBL[k]]||[], byId={};
+      data[k].forEach(function(x){ byId[x.id]=x; });
+      remote.forEach(function(x){
+        var mine=byId[x.id];
+        /* 시트 쪽이 더 최근이면 시트 것을 쓴다 */
+        if(!mine || String(x.updated||"") >= String(mine.updated||"")) byId[x.id]=x;
+      });
+      data[k]=Object.keys(byId).map(function(id){ return byId[id]; });
+      lastIds[k]=data[k].map(function(x){ return x.id; });
+    });
+    saveLocal();
+    chip("팀 저장소 연결됨","ok");
+  }).catch(function(e){
+    syncOn=false;
+    chip("연결 안 됨 — 이 브라우저에만 저장","err");
+  });
 }
 function toast(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2000); }
 function ipName(id){ var f=data.ips.filter(function(x){return x.id===id})[0]; return f? f.name : ""; }
@@ -603,7 +688,15 @@ document.getElementById("jsonPick").addEventListener("change", function(){
 });
 
 /* boot */
-function boot(){ load(); refreshFilters(); renderIps(); renderBoard(); renderDocs(); }
+function boot(){
+  load(); refreshFilters(); renderIps(); renderBoard(); renderDocs();
+  pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
+  /* 다른 사람이 넣은 자료를 2분마다 받아 온다 */
+  setInterval(function(){
+    if(!DATA_URL) return;
+    pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
+  }, 120000);
+}
 if(opened()) openApp(); else document.getElementById("gateInput").focus();
 })();
 </script>

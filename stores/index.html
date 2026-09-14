@@ -1213,6 +1213,30 @@ tableCtl({
 var NAVER_KEY   = "";
 var NAVER_PARAM = "ncpKeyId";
 
+/* =====================================================================
+   구글 지도 · 아래 따옴표 안에 키만 넣으면 구글 지도로 바뀝니다.
+
+     var GOOGLE_KEY = "여기에_붙여넣기";
+
+   비워 두면 지금처럼 파일 안에 들어 있는 기본 지도(Leaflet)를 씁니다.
+
+   [키 받는 법]
+     1. console.cloud.google.com 접속 → 프로젝트 만들기
+     2. 'API 및 서비스 > 라이브러리'에서 Maps JavaScript API 사용 설정
+        (결제 수단 등록이 필요하지만 월 무료 한도 안에서는 청구되지 않습니다)
+     3. '사용자 인증 정보 > 사용자 인증 정보 만들기 > API 키'
+     4. 만든 키를 눌러 [애플리케이션 제한사항]을 반드시 이렇게 잠그세요
+          · HTTP 리퍼러(웹사이트) 선택
+          · 항목 추가:  https://www.brkgenius.com/*
+                        https://brkgenius.com/*
+        이렇게 해두면 우리 주소 밖에서는 이 키를 못 씁니다.
+     5. [API 제한사항]은 'Maps JavaScript API'만 고르세요.
+
+   [주의] 이 파일은 누구나 소스를 볼 수 있으므로 위 리퍼러 제한을
+     걸지 않은 키는 절대 넣지 마세요.
+   ===================================================================== */
+var GOOGLE_KEY = "";
+
 var mapStarted = false;
 
 function useLeaflet(why){
@@ -1249,6 +1273,51 @@ function useLeaflet(why){
   } catch(e) {
     box.innerHTML = "<div class='mapfail'>지도를 그리는 중 문제가 생겼습니다.<br>" +
       "아래 표는 그대로 보실 수 있습니다.</div>";
+  }
+}
+
+function useGoogle(){
+  if (mapStarted) return; mapStarted = true;
+  var box = document.getElementById("map");
+  box.innerHTML = "";
+  try {
+    map = new google.maps.Map(box, {
+      center: { lat: 36.4, lng: 127.9 }, zoom: 7,
+      scrollwheel: false, mapTypeControl: false, streetViewControl: false,
+      fullscreenControl: false, clickableIcons: false,
+      styles: [
+        { featureType:"poi", stylers:[{visibility:"off"}] },
+        { featureType:"transit", stylers:[{visibility:"off"}] },
+        { featureType:"road", elementType:"labels.icon", stylers:[{visibility:"off"}] },
+        { featureType:"water", stylers:[{color:"#E3ECF7"}] },
+        { featureType:"landscape", stylers:[{color:"#F7F9FC"}] }
+      ]
+    });
+    var marks = [], iw = new google.maps.InfoWindow({ maxWidth: 330 });
+    map.addListener("click", function(){ iw.close(); });
+    API = {
+      clear: function(){ marks.forEach(function(m){ m.setMap(null); }); marks = []; iw.close(); },
+      add: function(o){
+        var m = new google.maps.Marker({
+          position: { lat:o.lat, lng:o.lng }, map: map, title: o.tip,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: o.r, fillColor: "#2F6FB5", fillOpacity: .32,
+            strokeColor: "#2F6FB5", strokeOpacity: .85, strokeWeight: 1.5
+          }
+        });
+        m.addListener("click", function(){
+          iw.setContent("<div class='niw'>" + o.html + "</div>"); iw.open(map, m);
+        });
+        marks.push(m);
+      },
+      resize: function(){ google.maps.event.trigger(map, "resize"); }
+    };
+    mapMsg("구글 지도로 보고 있습니다.");
+    draw();
+  } catch(e) {
+    mapStarted = false;
+    useLeaflet("구글 지도를 여는 중 문제가 생겨 기본 지도로 보여 드립니다.");
   }
 }
 
@@ -1298,7 +1367,37 @@ window.navermap_authFailure = function(){
              "등록돼 있는지 확인해 주세요. 지금은 기본 지도로 보여 드립니다.");
 };
 
+function loadGoogle(){
+  var settled = false;
+  window.__brkGmapReady = function(){
+    if (settled) return; settled = true;
+    if (window.google && google.maps) useGoogle();
+    else useLeaflet("구글 지도를 읽지 못해 기본 지도로 보여 드립니다.");
+  };
+  window.gm_authFailure = function(){
+    if (settled && mapStarted) { mapStarted = false; map = null; API = null; }
+    settled = true;
+    useLeaflet("구글 지도 인증에 실패했습니다. API 키가 맞는지, 이 주소가 " +
+               "허용 리퍼러에 등록돼 있는지 확인해 주세요. 지금은 기본 지도로 보여 드립니다.");
+  };
+  var sc = document.createElement("script");
+  sc.async = true; sc.defer = true;
+  sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GOOGLE_KEY) +
+           "&callback=__brkGmapReady&language=ko&region=KR";
+  sc.onerror = function(){
+    if (settled) return; settled = true;
+    useLeaflet("구글 지도 주소에 연결하지 못했습니다. 사내망에서 막혀 있을 수 있습니다. " +
+               "지금은 기본 지도로 보여 드립니다.");
+  };
+  setTimeout(function(){
+    if (settled) return; settled = true;
+    useLeaflet("구글 지도 응답이 없어 기본 지도로 보여 드립니다.");
+  }, 7000);
+  document.head.appendChild(sc);
+}
+
 (function bootMap(){
+  if (GOOGLE_KEY && GOOGLE_KEY.indexOf("여기에") !== 0) { loadGoogle(); return; }
   if (!NAVER_KEY || NAVER_KEY.indexOf("여기에") === 0 || NAVER_KEY === "YOUR_CLIENT_ID") {
     useLeaflet(""); return;
   }

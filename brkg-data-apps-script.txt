@@ -1,0 +1,146 @@
+/*  BRK Genius 공용 데이터 저장소 — Google Apps Script
+ *  IP 업무(후보·상품·자료)와 뮤직쇼 사진을 한 시트에 모아 둡니다.
+ *  한 건이 한 줄로 들어가므로 자료가 늘어도 칸 용량 제한에 걸리지 않습니다.
+ *
+ *  ── 처음 한 번만 하면 되는 설치 순서 ────────────────────────────
+ *  1. 구글 드라이브에서 새 스프레드시트를 만듭니다. 이름은 아무거나.
+ *  2. 메뉴 [확장 프로그램] > [Apps Script] 를 엽니다.
+ *  3. 기본으로 있는 코드를 전부 지우고 이 파일 내용을 그대로 붙여넣습니다.
+ *  4. 저장한 뒤 [배포] > [새 배포] 를 누릅니다.
+ *       유형        : 웹 앱
+ *       실행 사용자 : 나
+ *       액세스 권한 : 모든 사용자
+ *  5. 배포하면 나오는 https://script.google.com/macros/s/....../exec 주소를 복사합니다.
+ *  6. 그 주소를 아래 두 곳의 DATA_URL 에 붙여넣으면 끝입니다.
+ *       · ip/index.html
+ *       · feed/index.html
+ *
+ *  ── 코드를 고친 뒤에는 ──────────────────────────────────────────
+ *  [배포] > [배포 관리] > 연필 아이콘 > 버전 '새 버전' > [배포]
+ *  (새 배포를 또 만들면 주소가 바뀌니 반드시 '배포 관리'에서 고치세요)
+ */
+
+var TABLES = {
+  ip:    ["id","name","cat","stage","owner","contact","memo","start","end","royalty","updated","by"],
+  md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by"],
+  docs:  ["id","ipId","type","title","url","memo","updated","by"],
+  music: ["id","date","title","place","memo","photos","updated","by"]
+};
+
+function sheetFor(table) {
+  var cols = TABLES[table];
+  if (!cols) return null;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(table);
+  if (!sh) {
+    sh = ss.insertSheet(table);
+    sh.getRange(1, 1, 1, cols.length).setValues([cols]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+function readAll(table) {
+  var cols = TABLES[table], sh = sheetFor(table);
+  var last = sh.getLastRow();
+  if (last < 2) return [];
+  var vals = sh.getRange(2, 1, last - 1, cols.length).getValues();
+  var out = [];
+  for (var i = 0; i < vals.length; i++) {
+    if (!vals[i][0]) continue;                 // id 없는 줄은 지워진 것으로 본다
+    var o = {};
+    for (var c = 0; c < cols.length; c++) o[cols[c]] = vals[i][c];
+    if (table === "music" && o.photos) {
+      try { o.photos = JSON.parse(o.photos); } catch (e) { o.photos = []; }
+    }
+    out.push(o);
+  }
+  return out;
+}
+
+function upsert(table, rec) {
+  var cols = TABLES[table], sh = sheetFor(table);
+  if (!rec.id) rec.id = table + "_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+  rec.updated = new Date().toISOString();
+  if (table === "music" && rec.photos && typeof rec.photos !== "string") {
+    rec.photos = JSON.stringify(rec.photos);
+  }
+  var row = cols.map(function (c) { return rec[c] === undefined ? "" : rec[c]; });
+
+  var last = sh.getLastRow();
+  if (last >= 2) {
+    var ids = sh.getRange(2, 1, last - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      if (String(ids[i][0]) === String(rec.id)) {
+        sh.getRange(i + 2, 1, 1, cols.length).setValues([row]);
+        return rec.id;
+      }
+    }
+  }
+  sh.appendRow(row);
+  return rec.id;
+}
+
+function remove(table, id) {
+  var sh = sheetFor(table);
+  var last = sh.getLastRow();
+  if (last < 2) return false;
+  var ids = sh.getRange(2, 1, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === String(id)) { sh.deleteRow(i + 2); return true; }
+  }
+  return false;
+}
+
+/* ── 읽기 : JSONP (브라우저 보안에 막히지 않음) ── */
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  var out;
+  try {
+    if (p.action === "list") {
+      out = { ok: true, table: p.table, rows: readAll(p.table) };
+    } else if (p.action === "all") {
+      var all = {};
+      for (var t in TABLES) all[t] = readAll(t);
+      out = { ok: true, data: all };
+    } else if (p.action === "ping") {
+      out = { ok: true, tables: Object.keys(TABLES) };
+    } else {
+      out = { ok: false, error: "action 을 알 수 없습니다" };
+    }
+  } catch (err) {
+    out = { ok: false, error: String(err) };
+  }
+  var body = JSON.stringify(out);
+  if (p.callback) {
+    return ContentService.createTextOutput(p.callback + "(" + body + ")")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ── 쓰기 : POST ── */
+function doPost(e) {
+  var out;
+  try {
+    var b = JSON.parse(e.postData.contents);
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      if (b.type === "save") {
+        out = { ok: true, id: upsert(b.table, b.rec) };
+      } else if (b.type === "saveMany") {
+        var ids = (b.recs || []).map(function (r) { return upsert(b.table, r); });
+        out = { ok: true, ids: ids };
+      } else if (b.type === "delete") {
+        out = { ok: remove(b.table, b.id) };
+      } else {
+        out = { ok: false, error: "type 을 알 수 없습니다" };
+      }
+    } finally { lock.releaseLock(); }
+  } catch (err) {
+    out = { ok: false, error: String(err) };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out))
+    .setMimeType(ContentService.MimeType.JSON);
+}

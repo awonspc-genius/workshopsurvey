@@ -296,6 +296,10 @@ button{cursor:pointer}
   <header class="top">
     <div class="in">
       <div class="brand"><span class="dot"></span><div><b>피드 플래너</b> <em>인스타그램 그리드 · 발행 일정</em></div></div>
+      <div class="views" role="group" aria-label="화면 전환" style="margin-left:12px">
+        <button id="tabFeed" aria-pressed="true">피드</button>
+        <button id="tabMusic" aria-pressed="false">뮤직쇼 사진</button>
+      </div>
       <button class="btn savebtn" id="saveBtn">저장</button>
       <button class="syncbadge" id="syncBadge" title="팀 저장 상태">확인 중…</button>
       <div class="monthpick">
@@ -473,6 +477,241 @@ button{cursor:pointer}
       </details>
     </div>
   </div>
+<style>
+  .wrap[hidden],#musicView[hidden]{display:none !important}
+  #musicView{padding:22px clamp(14px,3vw,26px) 60px;max-width:1180px;margin:0 auto}
+  #musicView .mbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px}
+  #musicView input[type=month],#musicView input[type=date],#musicView input[type=text],#musicView textarea{
+    font:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);width:100%}
+  #musicView .mbar input[type=month]{width:auto}
+  #musicView .nav{width:34px;height:34px;border:1.5px solid var(--line);background:var(--card);
+    border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;color:var(--mid)}
+  #musicView .grow{flex:1}
+  #musicView .b{font:inherit;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:10px;
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+  #musicView .b.pri{background:var(--pink);border-color:var(--pink);color:#fff}
+  #musicView .b.gh{border-color:transparent;color:var(--mid);padding:9px 10px}
+  #musicView .chip{font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px;background:#eef0f4;color:var(--mid)}
+  #musicView .show{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:18px 18px 14px;margin-bottom:18px}
+  #musicView .sh{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+  #musicView .sh .dt{font-size:15px;font-weight:900}
+  #musicView .sh .ti{font-size:15px;font-weight:700}
+  #musicView .sh .pl{font-size:13px;color:var(--mid)}
+  #musicView .memo{font-size:13.5px;color:var(--mid);line-height:1.7;margin:0 0 12px}
+  #musicView .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  #musicView .shot{position:relative;aspect-ratio:var(--tile);border-radius:11px;overflow:hidden;
+    background:#eef0f4;border:1px solid var(--line)}
+  #musicView .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  #musicView .shot .x{position:absolute;top:6px;right:6px;width:24px;height:24px;border:0;border-radius:50%;
+    background:rgba(25,27,34,.72);color:#fff;font-size:13px;line-height:1;cursor:pointer}
+  #musicView .shot .bad{display:flex;align-items:center;justify-content:center;height:100%;
+    font-size:12px;color:var(--mid);text-align:center;padding:10px;line-height:1.6}
+  #musicView .addbox{border:1.5px dashed var(--line);border-radius:11px;padding:14px;margin-top:12px}
+  #musicView .addbox textarea{height:74px;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace}
+  #musicView .row{display:grid;grid-template-columns:150px 1fr 1fr;gap:10px;margin-bottom:10px}
+  #musicView .empty{padding:48px 20px;text-align:center;color:var(--mid);font-size:14px;line-height:1.9}
+  #musicView .hint{font-size:12.5px;color:var(--mid);line-height:1.85}
+  #musicView .hint code{background:#eef0f4;border-radius:4px;padding:1px 6px;font-size:12px}
+  @media(max-width:700px){ #musicView .row{grid-template-columns:1fr} }
+</style>
+
+<div id="musicView" hidden>
+  <div class="mbar">
+    <button class="nav" id="mPrev" aria-label="이전 달">‹</button>
+    <input type="month" id="mMonth" aria-label="볼 달">
+    <button class="nav" id="mNext" aria-label="다음 달">›</button>
+    <span class="chip" id="mChip">확인 중…</span>
+    <span class="grow"></span>
+    <button class="b pri" id="mAdd">이번 주 공연 추가</button>
+  </div>
+  <div id="mList"></div>
+</div>
+
+<script>
+(function(){
+  /* 시트 주소는 ip/index.html 과 같은 것을 씁니다.
+     brkg-data-apps-script.txt 를 배포하고 나온 .../exec 주소를 넣어 주세요. */
+  var DATA_URL = "";
+  try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
+  var LSM="brkg_music_v1";
+  var shows=[], syncOn=false;
+
+  var $=function(i){return document.getElementById(i)};
+  function p2(n){return (n<10?"0":"")+n}
+  function chip(t){ $("mChip").textContent=t; }
+  function uid(){ return "mus_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function saveLocal(){ try{localStorage.setItem(LSM,JSON.stringify(shows))}catch(e){} }
+  function loadLocal(){ try{var r=localStorage.getItem(LSM); if(r) shows=JSON.parse(r)||[];}catch(e){} }
+
+  var _c=0;
+  function apiGet(p){
+    return new Promise(function(res,rej){
+      var cb="brkmuscb"+(++_c)+"_"+Date.now(), sc=document.createElement("script"), done=false;
+      var t=setTimeout(function(){fin();rej(new Error("시간 초과"))},15000);
+      function fin(){ if(done)return; done=true; clearTimeout(t);
+        try{delete window[cb]}catch(e){window[cb]=undefined}
+        if(sc.parentNode) sc.parentNode.removeChild(sc); }
+      window[cb]=function(d){fin();res(d)};
+      var q=[]; for(var k in p) q.push(encodeURIComponent(k)+"="+encodeURIComponent(p[k]));
+      q.push("callback="+cb);
+      sc.src=DATA_URL+(DATA_URL.indexOf("?")<0?"?":"&")+q.join("&");
+      sc.onerror=function(){fin();rej(new Error("주소를 열지 못했습니다"))};
+      document.head.appendChild(sc);
+    });
+  }
+  function apiPost(o){ return fetch(DATA_URL,{method:"POST",mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o)}); }
+
+  function pushOne(rec){
+    if(!syncOn) return;
+    chip("올리는 중…");
+    apiPost({type:"save",table:"music",rec:rec})
+      .then(function(){ chip("팀 저장소에 올림"); })
+      .catch(function(){ chip("올리지 못함"); });
+  }
+  function delOne(id){
+    if(!syncOn) return;
+    apiPost({type:"delete",table:"music",id:id}).catch(function(){});
+  }
+  function pull(){
+    if(!DATA_URL){ chip("이 브라우저에만 저장됨"); return Promise.resolve(); }
+    chip("불러오는 중…");
+    return apiGet({action:"list",table:"music"}).then(function(r){
+      if(!r||!r.ok) throw 0;
+      syncOn=true;
+      var byId={}; shows.forEach(function(s){byId[s.id]=s});
+      (r.rows||[]).forEach(function(x){
+        x.photos = Array.isArray(x.photos)? x.photos : [];
+        var mine=byId[x.id];
+        if(!mine || String(x.updated||"")>=String(mine.updated||"")) byId[x.id]=x;
+      });
+      shows=Object.keys(byId).map(function(k){return byId[k]});
+      saveLocal(); chip("팀 저장소 연결됨");
+    }).catch(function(){ syncOn=false; chip("연결 안 됨 — 이 브라우저에만 저장"); });
+  }
+
+  /* ---------- 그리기 ---------- */
+  function render(){
+    var mo=$("mMonth").value;
+    var list=shows.filter(function(s){ return String(s.date||"").slice(0,7)===mo; })
+                  .sort(function(a,b){ return a.date<b.date?-1:1; });
+    if(!list.length){
+      $("mList").innerHTML='<div class="empty">이 달 뮤직쇼 기록이 아직 없습니다.<br>'+
+        '오른쪽 위 <b>이번 주 공연 추가</b>를 눌러 시작하세요.</div>';
+      return;
+    }
+    $("mList").innerHTML=list.map(function(s){
+      var shots=(s.photos||[]).map(function(u,i){
+        return '<div class="shot"><img src="'+esc(u)+'" alt="" loading="lazy" '+
+               'onerror="this.parentNode.innerHTML=&quot;<div class=\\&quot;bad\\&quot;>사진을 못 불러왔습니다<br>링크 공개 설정을 확인해 주세요</div>&quot;">'+
+               '<button class="x" data-del="'+s.id+'" data-i="'+i+'" title="이 사진 빼기">✕</button></div>';
+      }).join("");
+      return '<div class="show" data-id="'+s.id+'">'+
+        '<div class="sh"><span class="dt">'+esc(s.date)+'</span>'+
+          '<span class="ti">'+esc(s.title||"(제목 없음)")+'</span>'+
+          (s.place?'<span class="pl">'+esc(s.place)+'</span>':'')+
+          '<span class="grow" style="flex:1"></span>'+
+          '<button class="b gh" data-edit="'+s.id+'">고치기</button>'+
+          '<button class="b gh" data-rm="'+s.id+'">삭제</button></div>'+
+        (s.memo?'<p class="memo">'+esc(s.memo)+'</p>':'')+
+        (shots?'<div class="shots">'+shots+'</div>':'')+
+        '<div class="addbox">'+
+          '<p class="hint">사진 주소를 한 줄에 하나씩 붙여넣으세요. '+
+          '구글 드라이브는 <b>링크가 있는 모든 사용자</b>로 공개해야 보입니다.</p>'+
+          '<textarea data-urls="'+s.id+'" placeholder="https://..."></textarea>'+
+          '<button class="b" data-addurl="'+s.id+'" style="margin-top:9px">사진 넣기</button>'+
+        '</div></div>';
+    }).join("");
+  }
+
+  function editForm(s){
+    var host=document.createElement("div");
+    host.className="show";
+    host.innerHTML='<div class="row">'+
+      '<input type="date" id="fDate" value="'+esc(s.date||"")+'">'+
+      '<input type="text" id="fTitle" placeholder="공연 이름 · 아티스트" value="'+esc(s.title||"")+'">'+
+      '<input type="text" id="fPlace" placeholder="장소" value="'+esc(s.place||"")+'"></div>'+
+      '<textarea id="fMemo" placeholder="메모" style="height:66px">'+esc(s.memo||"")+'</textarea>'+
+      '<div style="display:flex;gap:9px;margin-top:11px">'+
+      '<button class="b pri" id="fOk">저장</button><button class="b" id="fNo">취소</button></div>';
+    $("mList").insertBefore(host,$("mList").firstChild);
+    host.querySelector("#fOk").onclick=function(){
+      s.date=host.querySelector("#fDate").value||s.date;
+      s.title=host.querySelector("#fTitle").value.trim();
+      s.place=host.querySelector("#fPlace").value.trim();
+      s.memo=host.querySelector("#fMemo").value.trim();
+      s.updated=new Date().toISOString();
+      if(shows.indexOf(s)<0) shows.push(s);
+      saveLocal(); pushOne(s);
+      $("mMonth").value=String(s.date).slice(0,7);
+      render();
+    };
+    host.querySelector("#fNo").onclick=render;
+    host.querySelector("#fTitle").focus();
+  }
+
+  /* ---------- 이벤트 ---------- */
+  $("mAdd").onclick=function(){
+    var mo=$("mMonth").value, d=new Date();
+    var day = (mo===d.toISOString().slice(0,7))
+      ? d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())
+      : mo+"-01";
+    editForm({id:uid(),date:day,title:"",place:"",memo:"",photos:[]});
+  };
+  $("mList").addEventListener("click",function(e){
+    var t=e.target;
+    var id=t.getAttribute("data-edit")||t.getAttribute("data-rm")||
+           t.getAttribute("data-addurl")||t.getAttribute("data-del");
+    if(!id) return;
+    var s=shows.filter(function(x){return x.id===id})[0];
+    if(t.hasAttribute("data-edit")){ if(s) editForm(s); return; }
+    if(t.hasAttribute("data-rm")){
+      if(!confirm("이 공연 기록을 지웁니다. 계속할까요?")) return;
+      shows=shows.filter(function(x){return x.id!==id}); saveLocal(); delOne(id); render(); return;
+    }
+    if(t.hasAttribute("data-del")){
+      var i=+t.getAttribute("data-i");
+      s.photos.splice(i,1); s.updated=new Date().toISOString();
+      saveLocal(); pushOne(s); render(); return;
+    }
+    if(t.hasAttribute("data-addurl")){
+      var ta=$("mList").querySelector('[data-urls="'+id+'"]');
+      var urls=(ta.value||"").split(/\s+/).map(function(u){return u.trim()})
+                 .filter(function(u){return /^https?:\/\//.test(u)});
+      if(!urls.length){ alert("http 로 시작하는 주소를 한 줄에 하나씩 넣어 주세요."); return; }
+      s.photos=(s.photos||[]).concat(urls); s.updated=new Date().toISOString();
+      saveLocal(); pushOne(s); render();
+    }
+  });
+  $("mPrev").onclick=function(){ var v=$("mMonth").value; var d=new Date(+v.slice(0,4),+v.slice(5,7)-2,1);
+    $("mMonth").value=d.getFullYear()+"-"+p2(d.getMonth()+1); render(); };
+  $("mNext").onclick=function(){ var v=$("mMonth").value; var d=new Date(+v.slice(0,4),+v.slice(5,7),1);
+    $("mMonth").value=d.getFullYear()+"-"+p2(d.getMonth()+1); render(); };
+  $("mMonth").onchange=render;
+
+  /* ---------- 탭 전환 ---------- */
+  function setTab(v){
+    document.querySelector(".wrap").hidden = (v!=="feed");
+    $("musicView").hidden = (v!=="music");
+    $("tabFeed").setAttribute("aria-pressed", v==="feed");
+    $("tabMusic").setAttribute("aria-pressed", v==="music");
+    if(v==="music") render();
+  }
+  $("tabFeed").onclick=function(){setTab("feed")};
+  $("tabMusic").onclick=function(){setTab("music")};
+
+  /* ---------- 시작 ---------- */
+  var n=new Date();
+  $("mMonth").value=n.getFullYear()+"-"+p2(n.getMonth()+1);
+  loadLocal();
+  pull().then(function(){ if(!$("musicView").hidden) render(); });
+})();
+</script>
+
 </div>
 
 <input type="file" id="filePick" accept="image/*" class="hidden">
