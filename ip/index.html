@@ -70,6 +70,12 @@ input.s{width:100%}
 }
 .ip .side{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
 .chip{display:inline-block;font-size:11.5px;padding:3px 10px;border-radius:999px;background:#f1f3f7;color:var(--mid)}
+.more{position:relative}
+.more > summary{list-style:none;cursor:pointer}
+.more > summary::-webkit-details-marker{display:none}
+.morebox{position:absolute;right:0;top:calc(100% + 6px);background:var(--card);
+  border:1px solid var(--line);border-radius:11px;padding:8px;display:flex;flex-direction:column;
+  gap:6px;box-shadow:var(--shadow);z-index:20;white-space:nowrap}
 .imgrow{display:grid;grid-template-columns:86px minmax(0,1fr);gap:12px;align-items:start}
 .imgprev{aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:#EEF1F6;
   display:grid;place-items:center;font-size:26px;font-weight:900;color:#B9C4D4}
@@ -271,8 +277,14 @@ input.s{width:100%}
         <select class="s" id="fStage"><option value="">모든 단계</option></select>
         <span class="grow"><input class="s" id="fQ" placeholder="이름, 담당사, 메모에서 찾기"></span>
         <span class="chip" id="syncChip" title="팀 저장소 연결 상태">확인 중…</span>
-        <button class="btn" id="expJson">백업 저장</button>
-        <button class="btn" id="impJson">백업 불러오기</button>
+        <span class="chip" id="lastChip">마지막 저장 —</span>
+        <button class="btn pink" id="saveBtn">저장</button>
+        <details class="more"><summary class="btn">백업</summary>
+          <div class="morebox">
+            <button class="btn" id="expJson">백업 저장</button>
+            <button class="btn" id="impJson">백업 불러오기</button>
+          </div>
+        </details>
       </div>
       <div id="ipWrap" class="iplist"></div>
       </div>
@@ -430,11 +442,70 @@ function pushAll(){
     .catch(function(){ chip("올리지 못함 — 이 브라우저에만 있음","err"); });
 }
 
-function save(){
-  saveLocal();
-  if(!syncOn) return;
-  clearTimeout(pushTimer);
-  pushTimer=setTimeout(pushAll, 900);          /* 연속 수정은 묶어서 한 번만 올린다 */
+var dirty=false, seenStamp="";
+
+/* 고친 내용은 이 브라우저에만 둡니다. 팀에 올리려면 저장 버튼을 눌러야 합니다. */
+function save(){ saveLocal(); dirty=true; markDirty(); }
+
+function markDirty(){
+  var b=document.getElementById("saveBtn"); if(!b) return;
+  b.textContent = dirty ? "저장 (안 한 변경 있음)" : "저장";
+  b.style.opacity = dirty ? "1" : ".6";
+}
+function whoAmI(){
+  var n="";
+  try{ n=localStorage.getItem("brkg_user")||""; }catch(e){}
+  if(!n){
+    n=(prompt("저장한 사람을 남깁니다. 이름을 적어 주세요.")||"").trim();
+    if(!n) return "";
+    try{ localStorage.setItem("brkg_user",n); }catch(e){}
+  }
+  return n;
+}
+function stampText(m){
+  if(!m||!m.at) return "마지막 저장 —";
+  var d=new Date(m.at);
+  var t=isNaN(d)?String(m.at).slice(0,16):
+        (d.getMonth()+1)+"/"+d.getDate()+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+  return "마지막 저장 "+(m.by||"?")+" · "+t;
+}
+function showStamp(m){
+  var el=document.getElementById("lastChip");
+  if(el) el.textContent=stampText(m);
+}
+
+/* 저장 — 화면에 있는 내용으로 팀 저장소를 통째로 덮어씁니다 (마지막에 누른 사람 것이 남음) */
+function saveNow(){
+  if(!DATA_URL || !syncOn){
+    saveLocal(); dirty=false; markDirty();
+    alert("팀 저장소에 연결되어 있지 않습니다.\n이 브라우저에만 저장했습니다.\n\n" +
+          "오른쪽 «연결 안 됨» 표시에 마우스를 올리면 이유가 나옵니다.\n" +
+          "그 전까지는 «백업 저장»으로 파일을 받아 두시면 됩니다.");
+    return;
+  }
+  var me=whoAmI(); if(!me) return;
+  chip("다른 사람 저장 확인 중…","");
+  apiGet({action:"list",table:"meta"}).then(function(r){
+    var cur=((r&&r.rows)||[]).filter(function(x){return x.id==="ip"})[0];
+    if(cur && seenStamp && String(cur.updated||"")>seenStamp){
+      if(!confirm("내가 화면을 연 뒤에 "+(cur.by||"다른 사람")+"님이 저장했습니다.\n" +
+                  "지금 저장하면 그 내용은 사라지고 이 화면 내용만 남습니다.\n계속할까요?")){
+        chip("저장 안 함","err"); return;
+      }
+    }
+    doSave(me);
+  }).catch(function(){ doSave(me); });
+}
+function doSave(me){
+  var at=new Date().toISOString();
+  pushAll();
+  apiPost({type:"save",table:"meta",
+           rec:{id:"ip",by:me,at:at,n:data.ips.length,updated:at}})
+    .then(function(){
+      dirty=false; markDirty(); seenStamp=at; showStamp({by:me,at:at});
+      toast("저장했습니다 · IP "+data.ips.length+"건");
+    })
+    .catch(function(){ alert("저장하지 못했습니다. 잠시 뒤 다시 눌러 주세요."); });
 }
 
 function load(){
@@ -443,8 +514,15 @@ function load(){
 }
 
 var remoteEmpty=false;
+var lastSyncErr="";
 function pull(){
-  if(!DATA_URL){ chip("이 브라우저에만 저장됨","err"); return Promise.resolve(); }
+  if(!DATA_URL){
+    lastSyncErr="DATA_URL 이 비어 있습니다";
+    chip("이 브라우저에만 저장됨","err");
+    var c0=document.getElementById("syncChip");
+    if(c0) c0.title="ip/index.html 의 var DATA_URL 에 Apps Script 배포 주소를 넣어 주세요.";
+    return Promise.resolve();
+  }
   chip("불러오는 중…","");
   return apiGet({action:"all"}).then(function(r){
     if(!r || !r.ok) throw new Error(r && r.error || "응답이 이상합니다");
@@ -463,9 +541,22 @@ function pull(){
     saveLocal();
     remoteEmpty = !((r.data[TBL.ips]||[]).length || (r.data[TBL.md]||[]).length || (r.data[TBL.docs]||[]).length);
     chip("팀 저장소 연결됨","ok");
+    return apiGet({action:"list",table:"meta"}).then(function(r2){
+      var m=((r2&&r2.rows)||[]).filter(function(x){return x.id==="ip"})[0];
+      if(m){ seenStamp=String(m.updated||m.at||""); showStamp(m); }
+    }).catch(function(){});
   }).catch(function(e){
     syncOn=false;
-    chip("연결 안 됨 — 이 브라우저에만 저장","err");
+    lastSyncErr=(e && e.message) || "알 수 없는 오류";
+    chip("연결 안 됨 — 눌러서 다시 시도","err");
+    var c=document.getElementById("syncChip");
+    if(c){
+      c.title="이유: "+lastSyncErr+
+        "\n주소: "+(DATA_URL? DATA_URL.slice(0,64)+"…" : "(비어 있음)")+
+        "\n눌러서 다시 시도합니다.";
+      c.style.cursor="pointer";
+      c.onclick=function(){ chip("다시 해보는 중…",""); pull().then(redrawAll); };
+    }
   });
 }
 function toast(m){ var t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); setTimeout(function(){t.classList.remove("on")},2000); }
@@ -1175,6 +1266,13 @@ function loadShared(){
 }
 
 function boot(){
+  var sb=document.getElementById("saveBtn");
+  if(sb) sb.onclick=saveNow;
+  markDirty();
+  window.addEventListener("beforeunload",function(e){
+    if(!dirty) return;
+    e.preventDefault(); e.returnValue="";
+  });
   load(); refreshFilters(); renderIps(); renderBoard(); renderDocs();
   /* 시트를 먼저 읽고, 저장소 파일(data/ip.json)을 나중에 합친다.
      파일 쪽이 더 최근이면 파일 내용이 이기고, 그 결과를 시트에 다시 올린다. */
@@ -1183,16 +1281,16 @@ function boot(){
     return loadShared();
   }).then(function(changed){
     redrawAll();
-    if(syncOn && (changed || remoteEmpty)){
+    if(syncOn && (changed || remoteEmpty) && !dirty){
       pushAll(); toast("저장소 파일 내용으로 맞췄습니다");
     }
   });
 
-  pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
-  /* 다른 사람이 넣은 자료를 2분마다 받아 온다 */
+  /* 다른 사람이 저장한 내용을 2분마다 받아 옵니다.
+     내가 아직 저장을 안 눌렀으면 건드리지 않습니다. */
   setInterval(function(){
-    if(!DATA_URL) return;
-    pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
+    if(!DATA_URL || dirty) return;
+    pull().then(redrawAll);
   }, 120000);
 }
 if(opened()) openApp(); else document.getElementById("gateInput").focus();

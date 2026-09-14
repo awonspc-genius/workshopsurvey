@@ -75,6 +75,24 @@ function sheetFor(table) {
   return sh;
 }
 
+/* 칸에 넣을 수 있는 값으로 바꾼다. 객체·배열은 글자로 접어 넣는다. */
+function pack(v) {
+  if (v === undefined || v === null) return "";
+  if (typeof v === "object") {
+    try { return JSON.stringify(v); } catch (e) { return ""; }
+  }
+  return v;
+}
+/* 접어 넣었던 값을 되돌린다 */
+function unpack(v) {
+  if (typeof v !== "string") return v;
+  var t = v.trim();
+  if (t.length > 1 && (t.charAt(0) === "{" || t.charAt(0) === "[")) {
+    try { return JSON.parse(t); } catch (e) { return v; }
+  }
+  return v;
+}
+
 function readAll(table) {
   var cols = TABLES[table], sh = sheetFor(table);
   var last = sh.getLastRow();
@@ -84,10 +102,8 @@ function readAll(table) {
   for (var i = 0; i < vals.length; i++) {
     if (!vals[i][0]) continue;                 // id 없는 줄은 지워진 것으로 본다
     var o = {};
-    for (var c = 0; c < cols.length; c++) o[cols[c]] = vals[i][c];
-    if (table === "music" && o.photos) {
-      try { o.photos = JSON.parse(o.photos); } catch (e) { o.photos = []; }
-    }
+    for (var c = 0; c < cols.length; c++) o[cols[c]] = unpack(vals[i][c]);
+    if (table === "music" && !(o.photos instanceof Array)) o.photos = [];
     out.push(o);
   }
   return out;
@@ -97,10 +113,7 @@ function upsert(table, rec) {
   var cols = TABLES[table], sh = sheetFor(table);
   if (!rec.id) rec.id = table + "_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
   rec.updated = new Date().toISOString();
-  if (table === "music" && rec.photos && typeof rec.photos !== "string") {
-    rec.photos = JSON.stringify(rec.photos);
-  }
-  var row = cols.map(function (c) { return rec[c] === undefined ? "" : rec[c]; });
+  var row = cols.map(function (c) { return pack(rec[c]); });
 
   var last = sh.getLastRow();
   if (last >= 2) {
