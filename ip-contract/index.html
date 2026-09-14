@@ -532,7 +532,7 @@ function loadShared(){
       rows.forEach(function(x){
         var mine=byId[x.id];
         /* 내 쪽이 더 최근에 고친 것이면 내 것을 남긴다 */
-        if(!mine||String(x.updated||"")>=String(mine.updated||"")) byId[x.id]=x;
+        if(!mine||String(x.updated||"")>String(mine.updated||"")) byId[x.id]=x;
       });
       data=Object.keys(byId).map(function(k){return byId[k]});
       saveLocal();
@@ -569,7 +569,8 @@ function importFile(f){
 function boot(){
   if(booted) return; booted=true;
   loadLocal(); seedIn(); draw(); markDirty();
-  loadShared().then(function(){ draw(); return pull(); }).then(draw);
+  /* 시트를 먼저 읽고 저장소 파일을 나중에 합친다 (파일이 더 최근이면 파일이 이김) */
+  pull().then(function(){ draw(); return loadShared(); }).then(draw);
 }
 try{ if(sessionStorage.getItem("br_all_ok")==="1"){ document.body.classList.remove("locked"); boot(); }
      else $("sCode").focus(); }catch(e){ $("sCode").focus(); }

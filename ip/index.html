@@ -812,33 +812,34 @@ function loadShared(){
   return fetch("/data/ip.json",{cache:"no-store"})
     .then(function(r){ if(!r.ok) throw 0; return r.json(); })
     .then(function(j){
+      var changed=false;
       ["ips","md","docs"].forEach(function(k){
         var rows=(j&&j[k])||[]; if(!rows.length) return;
         var byId={}; (data[k]||[]).forEach(function(x){byId[x.id]=x});
         rows.forEach(function(x){
           var mine=byId[x.id];
-          if(!mine||String(x.updated||"")>=String(mine.updated||"")) byId[x.id]=x;
+          if(!mine || String(x.updated||"") > String(mine.updated||"")){ byId[x.id]=x; changed=true; }
         });
         data[k]=Object.keys(byId).map(function(id){return byId[id]});
       });
       saveLocal();
+      return changed;
     })
-    .catch(function(){});
+    .catch(function(){ return false; });
 }
-
-
 
 function boot(){
   load(); refreshFilters(); renderIps(); renderBoard(); renderDocs();
-  loadShared().then(function(){
+  /* 시트를 먼저 읽고, 저장소 파일(data/ip.json)을 나중에 합친다.
+     파일 쪽이 더 최근이면 파일 내용이 이기고, 그 결과를 시트에 다시 올린다. */
+  pull().then(function(){
     redrawAll();
-    /* 시트가 비어 있고 여기에는 자료가 있으면, 처음 한 번 시트에 올려 둔다 */
-    return pull().then(function(){
-      redrawAll();
-      if(syncOn && remoteEmpty && (data.ips.length||data.md.length||data.docs.length)){
-        pushAll(); toast("팀 저장소에 처음 올렸습니다");
-      }
-    });
+    return loadShared();
+  }).then(function(changed){
+    redrawAll();
+    if(syncOn && (changed || remoteEmpty)){
+      pushAll(); toast("저장소 파일 내용으로 맞췄습니다");
+    }
   });
 
   pull().then(function(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); });
