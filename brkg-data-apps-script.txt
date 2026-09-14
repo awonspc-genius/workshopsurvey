@@ -15,10 +15,19 @@
  *       · ip/index.html
  *       · feed/index.html
  *
+ *  ── 뮤직쇼 사진 ────────────────────────────────────────────────
+ *  사진은 시트가 아니라 구글 드라이브에 올라갑니다.
+ *  처음 올릴 때 내 드라이브에 'BRK 뮤직쇼 사진' 폴더가 자동으로 만들어지고,
+ *  올린 사진은 '링크가 있는 사람은 누구나 보기'로 공개됩니다.
+ *  시트에는 사진 주소만 남으므로 칸 용량 제한에 걸리지 않습니다.
+ *  (처음 한 번은 드라이브 접근 권한을 묻는 창이 뜹니다. 허용해 주세요.)
+ *
  *  ── 코드를 고친 뒤에는 ──────────────────────────────────────────
  *  [배포] > [배포 관리] > 연필 아이콘 > 버전 '새 버전' > [배포]
  *  (새 배포를 또 만들면 주소가 바뀌니 반드시 '배포 관리'에서 고치세요)
  */
+
+var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
 var TABLES = {
   ip:    ["id","name","cat","stage","owner","contact","memo","start","end","royalty","updated","by"],
@@ -119,6 +128,40 @@ function doGet(e) {
   return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
 }
 
+function photoFolder() {
+  var it = DriveApp.getFoldersByName(PHOTO_FOLDER);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(PHOTO_FOLDER);
+}
+
+/* 사진 한 장을 드라이브에 올리고, 해당 공연 기록의 photos 에 주소를 덧붙인다 */
+function uploadPhoto(b) {
+  var raw = String(b.data || "");
+  var comma = raw.indexOf(",");
+  if (comma > -1) raw = raw.slice(comma + 1);           // data:image/...;base64, 잘라내기
+  var bytes = Utilities.base64Decode(raw);
+  var blob = Utilities.newBlob(bytes, b.mime || "image/jpeg", b.name || ("photo_" + Date.now() + ".jpg"));
+  var file = photoFolder().createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  var url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1400";
+
+  var sh = sheetFor("music"), cols = TABLES.music;
+  var last = sh.getLastRow();
+  if (last >= 2) {
+    var ids = sh.getRange(2, 1, last - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      if (String(ids[i][0]) !== String(b.showId)) continue;
+      var cell = sh.getRange(i + 2, cols.indexOf("photos") + 1);
+      var arr = [];
+      try { arr = JSON.parse(cell.getValue() || "[]"); } catch (e) { arr = []; }
+      arr.push(url);
+      cell.setValue(JSON.stringify(arr));
+      sh.getRange(i + 2, cols.indexOf("updated") + 1).setValue(new Date().toISOString());
+      return url;
+    }
+  }
+  return url;   /* 기록을 못 찾아도 파일은 남는다 */
+}
+
 /* ── 쓰기 : POST ── */
 function doPost(e) {
   var out;
@@ -134,6 +177,8 @@ function doPost(e) {
         out = { ok: true, ids: ids };
       } else if (b.type === "delete") {
         out = { ok: remove(b.table, b.id) };
+      } else if (b.type === "photo") {
+        out = { ok: true, url: uploadPhoto(b) };
       } else {
         out = { ok: false, error: "type 을 알 수 없습니다" };
       }
