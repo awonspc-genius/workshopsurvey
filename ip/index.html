@@ -130,6 +130,16 @@ input.s{width:100%}
   font-size:44px;font-weight:900;color:#B9C4D4;letter-spacing:-.03em}
 .ipc .ph .sg{position:absolute;left:9px;top:9px;font-size:10.5px;font-weight:800;
   background:rgba(16,24,40,.72);color:#fff;border-radius:999px;padding:3px 9px;backdrop-filter:blur(3px)}
+.ipc .ph .addimg{position:absolute;inset:0;border:none;background:transparent;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:#8A94A6;font:inherit;opacity:0;transition:opacity .12s,background .12s}
+.ipc .ph .addimg span{font-size:30px;line-height:1;font-weight:300}
+.ipc .ph .addimg u{text-decoration:none;font-size:11.5px;font-weight:700}
+.ipc:hover .ph .addimg{opacity:1;background:rgba(255,255,255,.78)}
+.ipc .ph .addimg.has{inset:auto 9px 9px auto;width:30px;height:30px;border-radius:999px;
+  background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(20,24,40,.18);opacity:0}
+.ipc .ph .addimg.has span{font-size:17px}
+.ipc:hover .ph .addimg.has{opacity:1}
 .ipc .ph .tmp{position:absolute;left:9px;bottom:9px;font-size:10.5px;font-weight:800;
   border-radius:999px;padding:3px 9px;color:#fff}
 .tmp.hot{background:#D64545} .tmp.warm{background:#E08A2E} .tmp.mild{background:#7E8AA0}
@@ -638,6 +648,13 @@ function renderIps(){
       im.onerror=function(){ im.remove(); ph.appendChild(iniBox(i.name)); };
       ph.appendChild(im);
     } else ph.appendChild(iniBox(i.name));
+    /* 이미지 칸을 눌러 대표 이미지를 넣는다 */
+    var add=document.createElement("button");
+    add.type="button"; add.className="addimg"+(i.img?" has":"");
+    add.innerHTML='<span>＋</span>'+(i.img?'':'<u>대표 이미지</u>');
+    add.title=i.img? "대표 이미지 바꾸기" : "대표 이미지 넣기";
+    add.onclick=function(ev){ ev.stopPropagation(); pickImage(i); };
+    ph.appendChild(add);
     var sg=document.createElement("span"); sg.className="sg"; sg.textContent=i.stage||"발굴"; ph.appendChild(sg);
     var tp=tempOf(i.temp);
     if(tp){ var td=document.createElement("span"); td.className="tmp "+tp[0];
@@ -814,7 +831,7 @@ function ipModal(i){
          '<button type="button" class="btn sm pink" id="mImgPick">이미지 올리기</button>'+
          '<input type="file" id="mImgFile" accept="image/*" hidden>'+
          '<input id="mImg" value="'+esc(e.img||"").replace(/"/g,"&quot;")+'" placeholder="또는 이미지 주소 붙여넣기">'+
-         '<p class="ratehint" id="mImgNote">파일을 고르면 드라이브에 올라가고 주소가 자동으로 들어갑니다.</p>'+
+         '<p class="ratehint" id="mImgNote">파일을 고르면 작게 줄여서 바로 넣습니다. 주소를 붙여넣어도 됩니다.</p>'+
        '</div>'+
      '</div>'+
    '</div>'+
@@ -839,60 +856,79 @@ function ipModal(i){
     save(); refreshFilters(); renderIps();
   });
 
-  /* 대표 이미지 올리기 */
-  var pick=host0.querySelector("#mImgPick"), file=host0.querySelector("#mImgFile");
-  var urlBox=host0.querySelector("#mImg"), prev=host0.querySelector("#mImgPrev"),
-      note=host0.querySelector("#mImgNote");
-  function showPrev(u){ prev.innerHTML = u ? '<img src="'+u+'" alt="">'
-                                           : '<span>'+esc((val(host0,"mName")||"?").charAt(0))+'</span>'; }
+  /* 대표 이미지 */
+  var pick=host0.querySelector("#mImgPick"), urlBox=host0.querySelector("#mImg"),
+      prev=host0.querySelector("#mImgPrev"), note=host0.querySelector("#mImgNote");
+  function showPrev(u){
+    prev.innerHTML = u ? '<img src="'+u+'" alt="">'
+                       : '<span>'+esc((val(host0,"mName")||"?").charAt(0))+'</span>';
+  }
   if(urlBox) urlBox.addEventListener("input", function(){ showPrev(this.value.trim()); });
-  if(pick) pick.onclick=function(){ file.click(); };
-  if(file) file.onchange=function(){
-    var f=this.files[0]; this.value="";
-    if(!f) return;
-    if(!/^image\//.test(f.type)){ note.textContent="사진 파일만 올릴 수 있습니다."; return; }
-    if(!syncOn){
-      note.textContent="팀 저장소에 연결되어야 파일을 올릴 수 있습니다. 그 전에는 주소를 붙여넣어 주세요.";
-      return;
-    }
-    var id=(i&&i.id)||null;
-    if(!id){ note.textContent="먼저 저장한 뒤에 이미지를 올려 주세요."; return; }
-    note.textContent="줄여서 올리는 중…";
-    shrinkImg(f).then(function(dataUrl){
-      showPrev(dataUrl);
-      return apiPost({type:"ipphoto", ipId:id, name:f.name, mime:"image/jpeg", data:dataUrl});
-    }).then(function(){
-      note.textContent="올렸습니다. 주소를 받아오는 중…";
-      setTimeout(function(){
-        pull().then(function(){
-          var me=data.ips.filter(function(x){return x.id===id})[0];
-          if(me && me.img){ urlBox.value=me.img; showPrev(me.img); note.textContent="이미지 주소가 들어왔습니다."; }
-          else note.textContent="아직 안 왔습니다. 잠시 뒤 창을 다시 열어 보세요.";
-        });
-      }, 2600);
-    }).catch(function(){ note.textContent="올리지 못했습니다."; });
+  if(pick) pick.onclick=function(){
+    var f=document.createElement("input");
+    f.type="file"; f.accept="image/*"; f.style.display="none";
+    document.body.appendChild(f);
+    f.onchange=function(){
+      var file=this.files[0]; document.body.removeChild(f);
+      if(!file) return;
+      note.textContent="줄이는 중…";
+      shrinkImg(file).then(function(u){
+        urlBox.value=u; showPrev(u);
+        note.textContent="넣었습니다. 저장을 누르면 반영됩니다.";
+      }).catch(function(e){ note.textContent=e.message||"넣지 못했습니다."; });
+    };
+    f.click();
   };
 }
 
-/* 사진을 브라우저에서 줄인다 (긴 변 800px, JPEG) */
-function shrinkImg(f){
+/* 사진을 칸 하나에 들어갈 만큼 작게 줄인다 (시트 한 칸 5만 자 제한) */
+function shrinkImg(f, maxPx, budget){
+  maxPx=maxPx||320; budget=budget||40000;
   return new Promise(function(res,rej){
     var fr=new FileReader();
-    fr.onerror=function(){rej(new Error("읽기 실패"))};
+    fr.onerror=function(){ rej(new Error("파일을 읽지 못했습니다")); };
     fr.onload=function(){
       var img=new Image();
-      img.onerror=function(){rej(new Error("사진이 아님"))};
+      img.onerror=function(){ rej(new Error("사진이 아닌 것 같습니다")); };
       img.onload=function(){
-        var M=800,w=img.width,h=img.height;
-        if(Math.max(w,h)>M){ var r=M/Math.max(w,h); w=Math.round(w*r); h=Math.round(h*r); }
+        var w=img.width,h=img.height;
+        if(Math.max(w,h)>maxPx){ var r=maxPx/Math.max(w,h); w=Math.round(w*r); h=Math.round(h*r); }
         var cv=document.createElement("canvas"); cv.width=w; cv.height=h;
         cv.getContext("2d").drawImage(img,0,0,w,h);
-        res(cv.toDataURL("image/jpeg",0.82));
+        var q=0.72, out=cv.toDataURL("image/jpeg",q);
+        while(out.length>budget && q>0.35){ q-=0.08; out=cv.toDataURL("image/jpeg",q); }
+        if(out.length>budget){          /* 그래도 크면 한 번 더 줄인다 */
+          var w2=Math.round(w*0.75), h2=Math.round(h*0.75);
+          cv.width=w2; cv.height=h2;
+          cv.getContext("2d").drawImage(img,0,0,w2,h2);
+          out=cv.toDataURL("image/jpeg",0.6);
+        }
+        res(out);
       };
       img.src=fr.result;
     };
     fr.readAsDataURL(f);
   });
+}
+
+/* 어디서든 부르는 대표 이미지 고르기 */
+function pickImage(ip, after){
+  var f=document.createElement("input");
+  f.type="file"; f.accept="image/*"; f.style.display="none";
+  document.body.appendChild(f);
+  f.onchange=function(){
+    var file=this.files[0]; document.body.removeChild(f);
+    if(!file) return;
+    if(!/^image\//.test(file.type)){ toast("사진 파일만 넣을 수 있습니다."); return; }
+    toast("이미지를 줄이는 중…");
+    shrinkImg(file).then(function(dataUrl){
+      ip.img=dataUrl; ip.updated=new Date().toISOString();
+      save(); renderIps();
+      toast("대표 이미지를 넣었습니다.");
+      if(after) after(dataUrl);
+    }).catch(function(e){ toast(e.message||"넣지 못했습니다."); });
+  };
+  f.click();
 }
 
 /* ---------- MD board ---------- */
@@ -1113,20 +1149,26 @@ function redrawAll(){ refreshFilters(); renderIps(); renderBoard(); renderDocs()
 
 /* 저장소에 올려 둔 백업 파일을 읽어 합친다 */
 function loadShared(){
+  /* 저장소 파일은 '판 번호'가 올라갔을 때만 한 번 덮어씁니다.
+     그래야 내가 고친 내용(대표 이미지 등)이 다시 파일 내용으로 되돌아가지 않습니다. */
+  var SEEDKEY="brkg_ip_seed";
   return fetch("/data/ip.json",{cache:"no-store"})
     .then(function(r){ if(!r.ok) throw 0; return r.json(); })
     .then(function(j){
-      var changed=false;
+      var ver=+(j.seed||0), had=0;
+      try{ had=+(localStorage.getItem(SEEDKEY)||0); }catch(e){}
+      var fresh=(ver>had), changed=false;
       ["ips","md","docs"].forEach(function(k){
         var rows=(j&&j[k])||[]; if(!rows.length) return;
         var byId={}; (data[k]||[]).forEach(function(x){byId[x.id]=x});
         rows.forEach(function(x){
-          var mine=byId[x.id];
-          if(!mine || String(x.updated||"") > String(mine.updated||"")){ byId[x.id]=x; changed=true; }
+          if(!byId[x.id]){ byId[x.id]=x; changed=true; return; }   /* 없는 건 언제나 넣는다 */
+          if(fresh){ byId[x.id]=x; changed=true; }                 /* 새 판일 때만 덮어쓴다 */
         });
         data[k]=Object.keys(byId).map(function(id){return byId[id]});
       });
-      saveLocal();
+      if(fresh){ try{ localStorage.setItem(SEEDKEY,String(ver)); }catch(e){} }
+      if(changed) saveLocal();
       return changed;
     })
     .catch(function(){ return false; });
