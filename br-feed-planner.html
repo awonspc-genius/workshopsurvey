@@ -226,7 +226,7 @@ button{cursor:pointer}
 .colorrow{display:flex;gap:8px;align-items:center}
 .colorrow input[type=color]{width:44px;height:36px;padding:3px;border:1px solid var(--line);border-radius:9px;background:#fff}
 .colorrow #fColorHex{width:118px;padding:8px 10px;border:1px solid var(--line);border-radius:9px}
-#fMemo{width:100%;min-height:92px;font-size:11.5px;line-height:1.6;padding:9px 11px;
+#fMemo,#fImc{width:100%;min-height:92px;font-size:11.5px;line-height:1.6;padding:9px 11px;
   border:1px solid var(--line);border-radius:10px;resize:vertical}
 .stwho{width:88px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px;flex:none}
 .stwho[readonly]{background:#f6f7f9;color:var(--mid)}
@@ -362,6 +362,15 @@ button{cursor:pointer}
             <div class="stbody">
               <div class="cands" id="pickList"></div>
               <span class="mini" id="pickNote">후보 중 하나를 누르면 최종이 됩니다</span>
+            </div>
+          </div>
+
+          <div class="st" data-k="imc">
+            <div class="sthead"><span class="num">4</span>
+              <span class="nm">IMC 의견<span class="teamchip">IMC</span><span class="by"></span></span>
+              <input class="stwho" placeholder="이름"><button class="btn sm pink" data-c>확인</button></div>
+            <div class="stbody">
+              <textarea id="fImc" placeholder="고른 이미지에 대한 의견이나 바꿨으면 하는 점을 적으세요. 없으면 확인만 눌러도 됩니다."></textarea>
             </div>
           </div>
 
@@ -830,6 +839,7 @@ var STEPS=[
   {k:"color",n:"컬러 선정",t:"IMC"},
   {k:"cand", n:"이미지 후보",t:"피이그"},
   {k:"pick", n:"이미지 선정",t:"지니어스"},
+  {k:"imc",  n:"IMC 의견",t:"IMC"},
   {k:"review",n:"검수",t:"디자인"},
   {k:"post", n:"최종 확인 및 파일 다운",t:"IMC"}
 ];
@@ -1037,6 +1047,7 @@ function select(i){
   sel=i; var p=posts[i]; if(!p) return;
   curDate=p.date||"";
   document.getElementById("fMemo").value=p.memo||"";
+  document.getElementById("fImc").value=p.imcMemo||"";
   document.getElementById("fColorHex").value=p.color||"";
   document.getElementById("fColor").value=/^#[0-9a-fA-F]{6}$/.test(p.color||"")?p.color:"#ffffff";
   renderCands(); renderSteps(); renderLog();
@@ -1046,7 +1057,7 @@ function clearEditor(){
   sel=-1;
   var cb=document.getElementById("cands"); if(cb) cb.innerHTML="";
   var pl=document.getElementById("pickList"); if(pl) pl.innerHTML="";
-  ["fMemo","fColorHex"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
+  ["fMemo","fImc","fColorHex"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
   renderSteps(); renderLog(); renderAll();
 }
 function bindField(id,key,after){
@@ -1056,6 +1067,7 @@ function bindField(id,key,after){
   });
 }
 bindField("fMemo","memo");
+bindField("fImc","imcMemo");
 
 
 document.getElementById("fColorHex").addEventListener("input", function(){
