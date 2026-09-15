@@ -518,6 +518,15 @@ button{cursor:pointer}
   #musicView .shot .bad{display:flex;align-items:center;justify-content:center;height:100%;
     font-size:12px;color:var(--mid);text-align:center;padding:10px;line-height:1.6}
   #musicView .addbox{border:1.5px dashed var(--line);border-radius:11px;padding:14px;margin-top:12px}
+  #musicView .shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+  #musicView .shots.on{outline:2px dashed var(--pink);outline-offset:4px;border-radius:10px}
+  #musicView .shotadd{aspect-ratio:1/1;border:1.5px dashed var(--line);border-radius:10px;
+    background:#fafbfc;cursor:pointer;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:4px;color:var(--mid);font:inherit;transition:border-color .12s,background .12s}
+  #musicView .shotadd:hover{border-color:var(--pink);background:var(--pink-soft);color:var(--pink)}
+  #musicView .shotadd span{font-size:26px;line-height:1;font-weight:300}
+  #musicView .shotadd u{text-decoration:none;font-size:11.5px;font-weight:700}
+  #musicView .shots.busy{opacity:.55;pointer-events:none}
   #musicView .drop{border:1.5px dashed var(--line);border-radius:11px;padding:22px 14px;text-align:center;
     cursor:pointer;background:#fafbfc;transition:background .15s,border-color .15s}
   #musicView .drop:hover,#musicView .drop.on{border-color:var(--pink);background:var(--pink-soft)}
@@ -549,7 +558,7 @@ button{cursor:pointer}
 (function(){
   /* 시트 주소는 ip/index.html 과 같은 것을 씁니다.
      brkg-data-apps-script.txt 를 배포하고 나온 .../exec 주소를 넣어 주세요. */
-  var DATA_URL = "https://script.google.com/macros/s/AKfycbwmtOGfBYgP_7UU22I3CiAazxWPUTlxQz4QXiWXQnZJ8P-cLvC6JMgEu-F08nX-RqfVCw/exec";
+  var DATA_URL = "https://script.google.com/macros/s/AKfycbxcDLbLMflK8bWhV1Qj9HxU1D54PdK8CSHi0TN75jCCCoa5anJIyaEFtB65exR5pL81og/exec";
   try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
   var LSM="brkg_music_v1";
   var shows=[], syncOn=false;
@@ -607,6 +616,17 @@ button{cursor:pointer}
     if(!syncOn){ alert("팀 저장소에 연결되어 있어야 사진을 올릴 수 있습니다.\n" +
       "brkg-data-apps-script.txt 를 배포하고 이 파일의 DATA_URL 에 주소를 넣어 주세요.\n" +
       "그 전까지는 '주소로 넣기'를 쓰시면 됩니다."); return; }
+    /* 사진은 곧바로 팀 저장소에 올라갑니다.
+       안 저장한 기록이 남아 있으면 먼저 저장해야 내용이 엉키지 않습니다. */
+    if(mDirty){
+      if(!confirm("아직 저장하지 않은 기록이 있습니다.\n먼저 저장한 뒤 사진을 올릴까요?")) return;
+      var pend=files;
+      window.saveMusicNow().then(function(ok){
+        if(ok) uploadFiles(showId, pend);
+        else alert("저장하지 못했습니다. 잠시 뒤 다시 해주세요.");
+      });
+      return;
+    }
     var list=[].slice.call(files).filter(function(f){ return /^image\//.test(f.type); });
     if(!list.length){ alert("사진 파일만 올릴 수 있습니다."); return; }
     var box=$("mList").querySelector('[data-drop="'+showId+'"]');
@@ -629,17 +649,30 @@ button{cursor:pointer}
     step(0);
   }
 
-  function pushOne(rec){
-    if(!syncOn) return;
+  var mDirty=false, mDeleted=[];
+
+  /* 고친 내용은 이 브라우저에만 둡니다. 위쪽 저장 버튼을 눌러야 팀에 올라갑니다. */
+  function pushOne(rec){ mDirty=true; markMusicDirty(); }
+  function delOne(id){ mDeleted.push(id); mDirty=true; markMusicDirty(); }
+
+  function markMusicDirty(){
+    chip(mDirty ? "저장 안 한 변경 있음" : (syncOn ? "팀 저장소 연결됨" : "이 브라우저에만 저장됨"));
+    var b=document.getElementById("saveBtn");
+    if(b && mDirty) b.classList.add("need");
+  }
+
+  /* 위쪽 저장 버튼이 부릅니다 — 화면 내용으로 팀 저장소를 덮어씁니다 */
+  window.saveMusicNow=function(){
+    if(!syncOn){ return Promise.resolve(false); }
     chip("올리는 중…");
-    apiPost({type:"save",table:"music",rec:rec})
-      .then(function(){ chip("팀 저장소에 올림"); })
-      .catch(function(){ chip("올리지 못함"); });
-  }
-  function delOne(id){
-    if(!syncOn) return;
-    apiPost({type:"delete",table:"music",id:id}).catch(function(){});
-  }
+    var jobs=[];
+    if(shows.length) jobs.push(apiPost({type:"saveMany",table:"music",recs:shows}));
+    mDeleted.forEach(function(id){ jobs.push(apiPost({type:"delete",table:"music",id:id})); });
+    return Promise.all(jobs).then(function(){
+      mDeleted=[]; mDirty=false; chip("팀 저장소에 올림"); return true;
+    }).catch(function(){ chip("올리지 못함"); return false; });
+  };
+  window.musicDirty=function(){ return mDirty; };
   function pull(){
     if(!DATA_URL){ chip("이 브라우저에만 저장됨"); return Promise.resolve(); }
     chip("불러오는 중…");
@@ -681,12 +714,13 @@ button{cursor:pointer}
           '<button class="b gh" data-edit="'+s.id+'">고치기</button>'+
           '<button class="b gh" data-rm="'+s.id+'">삭제</button></div>'+
         (s.memo?'<p class="memo">'+esc(s.memo)+'</p>':'')+
-        (shots?'<div class="shots">'+shots+'</div>':'')+
+        '<div class="shots" data-drop="'+s.id+'">'+shots+
+          '<button class="shotadd" data-pick="'+s.id+'" title="사진 올리기">'+
+            '<span>＋</span><u>사진 올리기</u>'+
+          '</button>'+
+          '<input type="file" accept="image/*" multiple hidden data-file="'+s.id+'">'+
+        '</div>'+
         '<div class="addbox">'+
-          '<div class="drop" data-drop="'+s.id+'">'+
-            '<b>사진 올리기</b><span>여기로 끌어다 놓거나 눌러서 고르세요 · 여러 장 한 번에 됩니다</span>'+
-            '<input type="file" accept="image/*" multiple hidden data-file="'+s.id+'">'+
-          '</div>'+
           '<details style="margin-top:10px"><summary class="mini">주소로 넣기</summary>'+
             '<p class="hint">이미 어딘가에 올린 사진이면 주소를 한 줄에 하나씩 넣으세요.</p>'+
             '<textarea data-urls="'+s.id+'" placeholder="https://..."></textarea>'+
@@ -732,8 +766,10 @@ button{cursor:pointer}
   };
   /* 끌어다 놓기 · 눌러서 고르기 */
   $("mList").addEventListener("click",function(e){
-    var d=e.target.closest && e.target.closest("[data-drop]");
-    if(d){ var inp=d.querySelector("[data-file]"); if(inp) inp.click(); }
+    var a=e.target.closest && e.target.closest("[data-pick]");
+    if(!a) return;
+    var box=a.closest("[data-drop]"), inp=box && box.querySelector("[data-file]");
+    if(inp) inp.click();
   });
   $("mList").addEventListener("change",function(e){
     var inp=e.target.closest && e.target.closest("[data-file]");
@@ -928,8 +964,13 @@ document.getElementById("saveBtn").addEventListener("click", function(){
   pushProfile(true);
   pushMonth(true);
   backfillImages();      /* 아직 안 올라간 이미지도 이때 함께 올린다 */
+  /* 뮤직쇼 사진도 같은 버튼으로 함께 올린다 */
+  if(window.saveMusicNow) window.saveMusicNow().then(function(ok){
+    if(ok) toast("뮤직쇼 기록도 저장했습니다.");
+  });
 });
 window.addEventListener("beforeunload", function(e){
+  if(window.musicDirty && window.musicDirty()){ e.preventDefault(); e.returnValue=""; return; }
   if(!dirty||!syncOn) return;
   e.preventDefault(); e.returnValue="";
 });
