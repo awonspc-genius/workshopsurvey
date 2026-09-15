@@ -94,8 +94,11 @@
 
   /* ── 월 상세 ── */
   .mdet { margin:16px auto 0; max-width:1060px; background:#fff; border:1.5px solid var(--choco);
-          border-radius:14px; padding:20px 24px; }
+          border-radius:14px; padding:26px 30px 24px; }
   .mdet[hidden] { display:none; }
+  .mkv { display:flex; gap:6px; flex:none; }
+  .mkv img { width:62px; height:62px; object-fit:cover; border-radius:9px;
+             border:1px solid var(--line); background:#fff; display:block; }
   .mtop { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
   .mtop .mno { font-size:22px; font-weight:900; letter-spacing:-.6px; }
   .mtop .mth { font-size:14px; font-weight:800; color:var(--choco); }
@@ -199,7 +202,7 @@
   .prow span { flex:none; width:42px; font-size:11px; font-weight:800; color:#8a6f63; padding-top:1px; }
   .prow b { font-weight:700; line-height:1.5; }
   .prow b i { font-style:normal; font-weight:500; color:#8a6f63; font-size:11.5px; }
-  .mcols { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .mcols { display:grid; grid-template-columns:1fr 1fr; gap:40px; padding:0 2px; }
   .mbox h4 { display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:.06em;
                color:#A6446C; background:#FBD9E6; padding:4px 9px; border-radius:4px;
                margin-bottom:11px; }
@@ -238,7 +241,17 @@
   .cy.flat { color:#8a6f63; }
   .mbox h4 { color:#6b544b !important; background:var(--soft) !important; }
 
-  .fcast { border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-top:9px; }
+  .fdet, .mdet2 { margin-top:11px; }
+  .fdet > summary, .mdet2 > summary { cursor:pointer; list-style:none; font-size:11px;
+        font-weight:800; color:#8a6f63; padding:5px 0; user-select:none; }
+  .mdet2 > summary { font-size:13px; color:var(--choco); border-top:1px solid var(--line);
+        margin-top:16px; padding-top:13px; }
+  .mdet2 > summary i { font-style:normal; font-size:10.5px; font-weight:700; color:#8a6f63; margin-left:7px; }
+  .fdet > summary::-webkit-details-marker, .mdet2 > summary::-webkit-details-marker { display:none; }
+  .fdet > summary::before, .mdet2 > summary::before { content:"▶ "; font-size:9px; }
+  .fdet[open] > summary::before, .mdet2[open] > summary::before { content:"▼ "; }
+  .fcast { border:1px solid var(--line); border-radius:12px; padding:18px 22px 16px;
+           margin:8px 2px 4px; background:#FCFAF8; }
   .fsub { font-size:11.5px; color:#8a6f63; margin:6px 0 14px; }
   .fsub b.up { color:var(--mint); } .fsub b.dn { color:var(--berry); }
   .fbar { position:relative; height:24px; border-radius:7px; background:#F1EAE3; overflow:hidden; }
@@ -699,6 +712,13 @@ function scrollTo(el){
   }
 }
 function openMonth(key, quiet){
+  /* 열려 있는 달을 다시 누르면 접습니다 */
+  if (!mdet.hasAttribute("hidden") && mdet.dataset.key === key) {
+    mdet.setAttribute("hidden", "");
+    markSel(null);
+    return;
+  }
+  mdet.dataset.key = key;
   var m = MDATA[key] || { has:false, fn:"" };
   var y = +key.slice(0,4), n = +key.slice(5);
   markSel(key);
@@ -749,6 +769,7 @@ function fcastBlock(C, key, n){
       "<div class='fcrow'>" + card("보수", F.lo, "") + card("중립 전망", F.mid, " mid") +
         card("낙관", F.hi, "") +
         (GOAL ? card("목표", GOAL, " goal") : "") + "</div>" +
+      "<details class='fdet'><summary>계산 근거 · 주석</summary>" +
       "<table class='ftab'><thead><tr><th>계산</th><th>금액</th><th>설명</th></tr></thead><tbody>" +
         "<tr><td>전년 진척률 환산</td><td>" + F.base + "억</td><td>전년 9월 1~" + F.n +
           "일이 월 전체의 " + (F.done25 / F.p25 * 100).toFixed(1) + "%</td></tr>" +
@@ -760,7 +781,7 @@ function fcastBlock(C, key, n){
       "<div class='fnote'>2025년 추석은 10월 6일이라 작년 9월에는 추석이 없었고 올해는 9월 25일에 있습니다. " +
       "과거 8년 중 추석이 9월이었던 5개 해는 9월이 8월의 0.858배, 10월이었던 2개 해는 0.791배였습니다. " +
       "이 차이를 8월 실적에 적용해 추석 효과를 잡았습니다. " +
-      "추석이 월말에 가까워 연휴 후반 수요가 10월로 넘어갈 수 있습니다.</div>" +
+      "추석이 월말에 가까워 연휴 후반 수요가 10월로 넘어갈 수 있습니다.</div></details>" +
     "</div>";
 }
 
@@ -783,13 +804,13 @@ function mixBlock(C){
         "<div class='cy " + cls(x[2]) + "'>" + (x[2] >= 0 ? "+" : "") + x[2].toFixed(0) + "%</div></div>";
     }).join("") + "</div>";
   }).join("");
-  return "<h2 style='font-size:15px;margin:22px 0 0'>제품군 판매 현황<small>전년 동일자 기준</small></h2>" +
+  return "<details class='mdet2' open><summary>제품군 판매 현황<i>전년 동일자 기준</i></summary>" +
     "<div class='mcols'>" +
       "<div class='mbox'><h4>제품군 구성비 · 전년비</h4>" +
       "<div class='chead'><span class='a'>구성비</span><span class='b'>전년비</span></div>" + mix + "</div>" +
       "<div class='mbox'><h4>주요 제품군 판매 수량</h4>" +
       "<div class='qhead'><span class='a'>수량(EA)</span><span class='b'>전년비</span></div>" + qty + "</div>" +
-    "</div>";
+    "</div></details>";
 }
 
 function renderMonth(key){
@@ -994,7 +1015,13 @@ function renderMonth(key){
   var sgn = function(v){ return (v>=0?"+":"") + v.toFixed(1) + "%"; };
 
   mdet.innerHTML =
-    "<div class='mtop'><span class='mno'>" + YY + "." + n + "월</span><span class='mth'>" + C.theme + "</span>" +
+    "<div class='mtop'>" +
+      (MDATA[key] && MDATA[key].kv && MDATA[key].kv.length
+        ? "<div class='mkv'>" + MDATA[key].kv.map(function(v){
+            return "<img src='" + v.src + "' alt='" + v.alt + "' title='" + (v.title || v.alt) + "'>";
+          }).join("") + "</div>"
+        : "") +
+      "<span class='mno'>" + YY + "." + n + "월</span><span class='mth'>" + C.theme + "</span>" +
     "<button class='mx' type='button' id='mclose'>닫기 ✕</button></div>" +
     "<div class='mkpi'>" +
       "<div class='k'><div class='l'>" + (hasSale ? n + "/1~" + Math.max.apply(null,Object.keys(daily).map(Number)) + " 실매출" : "월 실매출") + "</div>" +
@@ -1015,7 +1042,8 @@ function renderMonth(key){
         var sv = num((MDATA[key] && MDATA[key].sv) || 0);
         var r = sv / g * 100;
         return "<div class='k'><div class='l'>목표 " + g + "억 대비</div>" +
-               "<div class='v " + (r >= 100 ? "up" : "") + "'>" + r.toFixed(1) + "<small>%</small></div></div>";
+               "<div class='v " + (r >= 100 ? "up" : "") + "'>" + sv.toFixed(1) +
+               "<small>억 (" + r.toFixed(1) + "%)</small></div></div>";
       })() +
     "</div>" +
 
@@ -1189,6 +1217,7 @@ mdet.addEventListener("click", function(e){
     b.querySelector("span").textContent = open ? "접기" : "출처 · 주석";
   });
 })();
+mdet.dataset.key = "";
 openMonth("2026-09", true);   /* 처음 열 때는 스크롤하지 않습니다 */
 
 /* ── 매출은 /data/sales.json 에서 새로 읽어옵니다 ──
