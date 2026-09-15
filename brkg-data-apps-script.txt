@@ -109,24 +109,70 @@ function readAll(table) {
   return out;
 }
 
+function newId(table) {
+  return table + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+}
+
+/* 한 건만 저장할 때 */
 function upsert(table, rec) {
+  return upsertMany(table, [rec])[0];
+}
+
+/*  여러 건을 한 번에 저장한다.
+ *  예전에는 한 줄 쓸 때마다 시트를 다시 읽어서 89건이면 백 번 넘게 왕복했다.
+ *  지금은 ID를 한 번만 읽고, 고칠 줄은 이어진 덩어리로 묶어서 한 번에 쓴다.  */
+function upsertMany(table, recs) {
   var cols = TABLES[table], sh = sheetFor(table);
-  if (!rec.id) rec.id = table + "_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-  rec.updated = new Date().toISOString();
-  var row = cols.map(function (c) { return pack(rec[c]); });
+  if (!recs || !recs.length) return [];
 
   var last = sh.getLastRow();
+  var rowOf = {};                                  /* id → 줄 번호 */
   if (last >= 2) {
     var ids = sh.getRange(2, 1, last - 1, 1).getValues();
     for (var i = 0; i < ids.length; i++) {
-      if (String(ids[i][0]) === String(rec.id)) {
-        sh.getRange(i + 2, 1, 1, cols.length).setValues([row]);
-        return rec.id;
-      }
+      var v = String(ids[i][0]);
+      if (v) rowOf[v] = i + 2;
     }
   }
-  sh.appendRow(row);
-  return rec.id;
+
+  var now = new Date().toISOString();
+  var edits = [], adds = [], outIds = [];
+
+  for (var j = 0; j < recs.length; j++) {
+    var rec = recs[j];
+    if (!rec.id) rec.id = newId(table);
+    rec.updated = now;
+    var row = cols.map(function (c) { return pack(rec[c]); });
+    outIds.push(rec.id);
+
+    var key = String(rec.id);
+    if (rowOf[key]) {
+      edits.push({ r: rowOf[key], v: row });
+    } else {
+      rowOf[key] = -1;                             /* 같은 요청 안에서 중복 추가 막기 */
+      adds.push(row);
+    }
+  }
+
+  /* 고칠 줄 : 번호순으로 정렬한 뒤 이어진 것끼리 묶어서 한 번에 쓴다 */
+  edits.sort(function (a, b) { return a.r - b.r; });
+  var k = 0;
+  while (k < edits.length) {
+    var start = k, block = [edits[k].v];
+    while (k + 1 < edits.length && edits[k + 1].r === edits[k].r + 1) {
+      k++; block.push(edits[k].v);
+    }
+    sh.getRange(edits[start].r, 1, block.length, cols.length).setValues(block);
+    k++;
+  }
+
+  /* 새로 넣을 줄 : 맨 아래에 한 번에 붙인다 */
+  if (adds.length) {
+    sh.getRange(sh.getLastRow() + 1, 1, adds.length, cols.length).setValues(adds);
+  }
+
+  SpreadsheetApp.flush();
+  return outIds;
 }
 
 function remove(table, id) {
@@ -245,8 +291,7 @@ function doPost(e) {
       if (b.type === "save") {
         out = { ok: true, id: upsert(b.table, b.rec) };
       } else if (b.type === "saveMany") {
-        var ids = (b.recs || []).map(function (r) { return upsert(b.table, r); });
-        out = { ok: true, ids: ids };
+        out = { ok: true, ids: upsertMany(b.table, b.recs || []) };
       } else if (b.type === "delete") {
         out = { ok: remove(b.table, b.id) };
       } else if (b.type === "photo") {

@@ -164,6 +164,11 @@ input.s{width:100%}
 .ipc .kv i{font-style:normal;font-weight:800;font-size:10px;color:#8A94A6;width:32px;flex:none}
 .ipc .kv b{font-weight:700;color:#22314D}
 .ipc .kv b.none{font-weight:500;color:#AEB6C4}
+.ipc .roy{margin-top:6px;display:flex;gap:7px;font-size:11.5px}
+.ipc .roy>i{font-style:normal;font-weight:800;font-size:10px;color:#8A94A6;width:32px;flex:none;line-height:1.45}
+.ipc .roy .rl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 8px;min-width:0;flex:1}
+.ipc .roy .rl span{font-size:10.5px;font-weight:700;color:#8A94A6;line-height:1.4}
+.ipc .roy .rl b{font-weight:700;color:#22314D;font-size:11.5px;line-height:1.4}
 
 /* 자세히 보기 */
 .dt{display:grid;grid-template-columns:190px minmax(0,1fr);gap:20px}
@@ -429,20 +434,51 @@ function apiPost(obj){
 function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify(data)); }
   catch(e){ toast("이 브라우저 저장 공간이 가득 찼습니다. 큰 파일은 링크로 걸어 주세요."); } }
 
+/*  대표 이미지를 드라이브로 옮긴다.
+ *  사진을 글자로 바꿔 시트 칸에 넣으면 칸 한도(5만 자)를 넘겨 저장이 깨진다.
+ *  드라이브에 올리고 시트에는 주소만 남긴다.  */
+var imgLiftOff=false;
+function uploadImg(ip){
+  return fetch(DATA_URL,{method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({type:"ipphoto", ipId:ip.id, data:ip.img,
+                           mime:"image/jpeg", name:(ip.name||"ip")+".jpg"})})
+    .then(function(r){ return r.json(); })
+    .then(function(j){ if(j && j.url) ip.img=j.url; })
+    .catch(function(){ imgLiftOff=true; });   /* 막히면 그냥 이 브라우저에만 둔다 */
+}
+function liftImages(){
+  if(imgLiftOff) return Promise.resolve();
+  var big=data.ips.filter(function(i){ return /^data:/.test(i.img||""); });
+  if(!big.length) return Promise.resolve();
+  chip("이미지 올리는 중…","");
+  var p=Promise.resolve();
+  big.forEach(function(ip){ p=p.then(function(){ return imgLiftOff? null : uploadImg(ip); }); });
+  return p.then(function(){ saveLocal(); renderIps(); });
+}
+
+var lastSent={};   /* 표별로 마지막에 올린 내용. 그대로면 다시 올리지 않습니다. */
 function pushAll(){
   if(!syncOn) return;
   chip("올리는 중…","");
-  var jobs=[];
+  liftImages().then(pushRows);
+}
+function pushRows(){
+  chip("올리는 중…","");
+  var jobs=[], sending={};
   Object.keys(TBL).forEach(function(k){
     var recs=data[k].map(function(r){ var c={}; for(var f in r) if(f!=="file") c[f]=r[f]; return c; });
-    if(recs.length) jobs.push(apiPost({type:"saveMany", table:TBL[k], recs:recs}));
+    var snap=JSON.stringify(recs);
+    sending[k]=snap;
+    if(recs.length && snap!==lastSent[k]) jobs.push(apiPost({type:"saveMany", table:TBL[k], recs:recs}));
     var now=recs.map(function(r){return r.id});
     lastIds[k].forEach(function(id){ if(now.indexOf(id)<0) jobs.push(apiPost({type:"delete",table:TBL[k],id:id})); });
     lastIds[k]=now;
   });
+  if(!jobs.length){ chip("팀 저장소에 올림","ok"); return; }
   Promise.all(jobs)
-    .then(function(){ chip("팀 저장소에 올림","ok"); })
-    .catch(function(){ chip("올리지 못함 — 이 브라우저에만 있음","err"); });
+    .then(function(){ lastSent=sending; chip("팀 저장소에 올림","ok"); })
+    .catch(function(){ lastSent={}; chip("올리지 못함 — 이 브라우저에만 있음","err"); });
 }
 
 var dirty=false, seenStamp="";
@@ -666,6 +702,29 @@ function shortRoy(v,rates){
   return out.length?out.join(" · "):(v.length>18?v.slice(0,18)+"…":v);
 }
 
+/* 로열티를 [이름, 비율] 짝으로 돌려준다. 카드에서 세로로 줄 맞춰 보여주기 위함. */
+function royRows(v, rates){
+  var lab={ic:"IC",cake:"케이크",dessert:"디저트",drink:"음료",goods:"굿즈"};
+  var out=[];
+  if(rates){
+    RATEKEYS.forEach(function(k){ var x=rates[k[0]]; if(x) out.push([lab[k[0]], x+"%"]); });
+    if(out.length) return out;
+  }
+  v=String(v||"").trim();
+  if(!v||/^(TBD|N\/A|미정)$/i.test(v)) return [];
+  var seen={};
+  v.split(/\s*\/\s*/).forEach(function(x){
+    var nm="";
+    for(var i=0;i<ROYMAP.length;i++){ if(ROYMAP[i][0].test(x)){ nm=ROYMAP[i][1]; break; } }
+    var ps=(x.match(/[\d.]+\s*%/g)||[]).map(function(y){return y.replace(/\s+/g,"")});
+    if(!nm||!ps.length||seen[nm]) return;
+    var u=ps.filter(function(y,i){return ps.indexOf(y)===i});
+    seen[nm]=1;
+    out.push([nm, u.length>1? u[0].replace("%","")+"~"+u[u.length-1] : u[0]]);
+  });
+  return out;
+}
+
 var curCat="";
 function shortPoc(v){
   v=String(v||"").trim(); if(!v) return "";
@@ -762,11 +821,26 @@ function renderIps(){
     var bd=document.createElement("div"); bd.className="bd";
     var h=document.createElement("h4"); h.textContent=i.name; bd.appendChild(h);
     if(i.owner){ var ow=document.createElement("div"); ow.className="own"; ow.textContent=i.owner; bd.appendChild(ow); }
-    var mg=shortMg(i.mg), roy=shortRoy(i.roy, i.rates);
     var kv=document.createElement("div"); kv.className="kv";
-    kv.appendChild(kvRow("MG", mg));
-    kv.appendChild(kvRow("로열티", roy));
+    kv.appendChild(kvRow("MG", shortMg(i.mg)));
     bd.appendChild(kv);
+
+    var rows=royRows(i.roy, i.rates);
+    if(rows.length){
+      var rw=document.createElement("div"); rw.className="roy";
+      var rlab=document.createElement("i"); rlab.textContent="로열티"; rw.appendChild(rlab);
+      var rl=document.createElement("div"); rl.className="rl";
+      rows.forEach(function(r){
+        var sp=document.createElement("span"); sp.textContent=r[0];
+        var bb=document.createElement("b");   bb.textContent=r[1];
+        rl.appendChild(sp); rl.appendChild(bb);
+      });
+      rw.appendChild(rl); bd.appendChild(rw);
+    } else {
+      var kv2=document.createElement("div"); kv2.className="kv";
+      kv2.appendChild(kvRow("로열티", shortRoy(i.roy, i.rates)));
+      bd.appendChild(kv2);
+    }
     card.appendChild(bd);
 
     card.onclick=function(){ ipDetail(i); };
