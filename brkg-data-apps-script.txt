@@ -53,7 +53,8 @@ var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
 var TABLES = {
   ip:    ["id","name","cat","stage","grp","slot","period","owner","contact","season","fee",
-          "excl","mg","roy","rates","dur","img","temp","memo","created","updated","by"],
+          "excl","mg","roy","rates","dur","img","temp","memo","created","updated","by",
+          "memoAt"],   /* memoAt = 현재상황을 적은 날짜. 맨 끝에 붙여야 기존 칸 순서가 안 밀린다 */
   md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by"],
   docs:  ["id","ipId","type","title","url","memo","updated","by"],
   music: ["id","date","title","place","memo","photos","updated","by"],

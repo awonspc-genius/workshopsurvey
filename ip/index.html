@@ -59,6 +59,15 @@ input.s{width:100%}
 .ip h3{margin:0;font-size:15.5px;letter-spacing:-.01em}
 .ip .meta{color:var(--mid);font-size:12.5px;margin-top:3px}
 .ip .memo{font-size:13px;margin-top:7px;white-space:pre-wrap}
+.dt .memo.now{margin-top:10px;border-left:3px solid #7A5AF8}
+.dt .memo.now b{color:#5B3FD6}
+.f.now{background:#F7F5FF;border:1px solid #E4DDFB;border-radius:12px;padding:11px 12px 9px}
+.f.now>label{color:#5B3FD6;font-weight:800}
+.f.now textarea{height:74px}
+.nowat{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
+.nowat>label{font-size:11.5px;color:#7A8497;font-weight:700;margin:0}
+.nowat input{width:150px;flex:none}
+.nowat .ratehint{margin:0}
 .ip .terms{display:flex;flex-direction:column;gap:7px;justify-content:center;
   padding:0 18px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
 .ip .terms .t{display:flex;align-items:baseline;gap:9px}
@@ -886,6 +895,7 @@ function ipDetail(i){
      '<div>'+
        '<h3>'+esc(i.name)+'</h3>'+
        '<div class="sub">'+esc([i.cat,i.stage,i.owner].filter(Boolean).join("  ·  "))+'</div>'+
+       (i.memo? '<div class="memo now"><b>현재상황'+(i.memoAt? ' · '+esc(i.memoAt) : '')+'</b><br>'+esc(i.memo)+'</div>' : "")+
        '<div class="rows">'+
          row("MG", i.mg)+
          row("로열티", ratesText(i.rates) || i.roy)+
@@ -900,7 +910,7 @@ function ipDetail(i){
          row("담당자", i.contact)+
          row("상품", mdList.length? mdList.map(function(m){return m.item+" ("+m.stage+")"}).join(", ") : "")+
        '</div>'+
-       (i.memo? '<div class="memo">'+esc(i.memo)+'</div>' : "")+
+
        (docList.length? '<div class="memo"><b>자료</b><br>'+docList.map(function(d){
           return '<a href="'+esc(d.url||"#")+'" target="_blank" rel="noopener">'+esc(d.title)+'</a>';
         }).join("<br>")+'</div>' : "")+
@@ -963,6 +973,13 @@ document.getElementById("addIp").addEventListener("click", function(){ ipModal(n
 function ipModal(i){
   var e=i||{};
   var html=
+   '<div class="f now"><label for="mMemo">현재상황</label>'+
+     '<textarea id="mMemo" placeholder="지금 어디까지 왔는지 · 다음에 할 일 · 타깃이나 팬덤 규모">'+esc(e.memo||"")+'</textarea>'+
+     '<div class="nowat"><label for="mMemoAt">적은 날짜</label>'+
+       '<input id="mMemoAt" type="date" value="'+esc(e.memoAt||"")+'">'+
+       '<span class="ratehint">내용을 고치면 오늘 날짜가 자동으로 들어갑니다.</span>'+
+     '</div>'+
+   '</div>'+
    '<div class="f"><label for="mName">IP 이름</label><input id="mName" value="'+esc(e.name||"").replace(/"/g,"&quot;")+'" placeholder="예: 산리오 캐릭터즈"></div>'+
    '<div class="row2">'+
      '<div class="f"><label for="mCat">종류</label><select id="mCat">'+opts(CATS,e.cat||"캐릭터")+'</select></div>'+
@@ -1018,14 +1035,15 @@ function ipModal(i){
        '</div>'+
      '</div>'+
    '</div>'+
-   '<div class="f"><label for="mMemo">메모</label><textarea id="mMemo" placeholder="타깃, 팬덤 규모, 우리 브랜드와 맞는 지점">'+esc(e.memo||"")+'</textarea></div>';
+   '';
   var host0=modal(i?"IP 후보 수정":"IP 후보 추가","이름만 넣어도 저장됩니다.",html,function(host){
     var name=val(host,"mName");
     if(!name){ toast("IP 이름을 넣어 주세요."); return false; }
     var obj=i||{id:uid("ip"),created:today()};
     obj.name=name; obj.cat=val(host,"mCat"); obj.stage=val(host,"mStage");
     obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
-    obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee"); obj.memo=val(host,"mMemo");
+    obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee");
+    obj.memo=val(host,"mMemo"); obj.memoAt=val(host,"mMemoAt");
     obj.excl=val(host,"mExcl"); obj.mg=val(host,"mMg"); obj.roy=val(host,"mRoy"); obj.dur=val(host,"mDur");
     var rt={}; RATEKEYS.forEach(function(k){
       var v=val(host,"r_"+k[0]).replace(/[%\s]/g,"");
@@ -1037,6 +1055,15 @@ function ipModal(i){
     obj.temp=val(host,"mTemp");
     if(!i) data.ips.unshift(obj);
     save(); refreshFilters(); renderIps();
+  });
+
+  /* 현재상황을 고치면 적은 날짜를 오늘로 맞춘다 */
+  var memoBox=host0.querySelector("#mMemo"), memoAt=host0.querySelector("#mMemoAt"), memoWas=(e.memo||"");
+  if(memoBox && memoAt) memoBox.addEventListener("input", function(){
+    if(this.value!==memoWas){
+      var d=new Date(), m=("0"+(d.getMonth()+1)).slice(-2), y=("0"+d.getDate()).slice(-2);
+      memoAt.value=d.getFullYear()+"-"+m+"-"+y;
+    }
   });
 
   /* 대표 이미지 */
