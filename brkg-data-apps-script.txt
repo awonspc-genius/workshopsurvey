@@ -135,6 +135,15 @@ function upsertMany(table, recs) {
     }
   }
 
+  /*  대표 이미지 지킴이.
+   *  사진이 없는 컴퓨터에서 저장을 눌러도 시트에 있는 사진을 지우지 않는다.
+   *  (사진은 한 사람 브라우저에만 있을 수 있어서, 빈 값으로 덮이면 되살릴 길이 없다)  */
+  var imgAt = cols.indexOf("img"), oldImg = {};
+  if (imgAt >= 0 && last >= 2) {
+    var col = sh.getRange(2, imgAt + 1, last - 1, 1).getValues();
+    for (var q = 0; q < col.length; q++) oldImg[q + 2] = String(col[q][0] || "");
+  }
+
   var now = new Date().toISOString();
   var edits = [], adds = [], outIds = [];
 
@@ -147,8 +156,17 @@ function upsertMany(table, recs) {
 
     var key = String(rec.id);
     if (rowOf[key]) {
-      edits.push({ r: rowOf[key], v: row });
+      var r0 = rowOf[key];
+      if (imgAt >= 0) {
+        var incoming = String(row[imgAt] || "");
+        /* 보내온 사진이 비었으면 시트에 있던 것을 그대로 둔다 */
+        if (!incoming && oldImg[r0]) row[imgAt] = oldImg[r0];
+        /* 칸 한도(5만 자)를 넘는 사진은 시트가 거부하므로 있던 것을 지킨다 */
+        if (String(row[imgAt] || "").length > 49000) row[imgAt] = oldImg[r0] || "";
+      }
+      edits.push({ r: r0, v: row });
     } else {
+      if (imgAt >= 0 && String(row[imgAt] || "").length > 49000) row[imgAt] = "";
       rowOf[key] = -1;                             /* 같은 요청 안에서 중복 추가 막기 */
       adds.push(row);
     }

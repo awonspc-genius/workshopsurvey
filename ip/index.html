@@ -400,7 +400,7 @@ function uid(p){ return p+Date.now().toString(36)+Math.random().toString(36).sli
    brkg-data-apps-script.txt 를 새 스프레드시트의 Apps Script 에 붙여넣고
    웹 앱으로 배포한 뒤, 나온 .../exec 주소를 아래 따옴표 안에 넣어 주세요.
    비워 두면 지금처럼 이 브라우저에만 저장됩니다.                        */
-var DATA_URL = "https://script.google.com/macros/s/AKfycbxcDLbLMflK8bWhV1Qj9HxU1D54PdK8CSHi0TN75jCCCoa5anJIyaEFtB65exR5pL81og/exec";
+var DATA_URL = "https://script.google.com/macros/s/AKfycbwa42Avu6K35gUEB1MW2e-5Pcu6WKnHaL9Qh_QgfhxQ0myuNHGjIyHuu2emqcl7Sd-JPQ/exec";
 try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
 
 var TBL={ips:"ip", md:"md", docs:"docs"};      /* 화면 이름 → 시트 이름 */
@@ -439,17 +439,28 @@ function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify(data)); }
  *  드라이브에 올리고 시트에는 주소만 남긴다.  */
 var imgLiftOff=false;
 function uploadImg(ip){
-  return fetch(DATA_URL,{method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({type:"ipphoto", ipId:ip.id, data:ip.img,
-                           mime:"image/jpeg", name:(ip.name||"ip")+".jpg"})})
+  var body=JSON.stringify({type:"ipphoto", ipId:ip.id, data:ip.img,
+                           mime:"image/jpeg", name:(ip.name||"ip")+".jpg"});
+  var hd={"Content-Type":"text/plain;charset=utf-8"};
+  return fetch(DATA_URL,{method:"POST",headers:hd,body:body})
     .then(function(r){ return r.json(); })
     .then(function(j){ if(j && j.url) ip.img=j.url; })
-    .catch(function(){ imgLiftOff=true; });   /* 막히면 그냥 이 브라우저에만 둔다 */
+    .catch(function(){
+      /* 브라우저가 답을 못 읽는 경우 : 그냥 보내 두고, 시트에 적힌 주소를 다시 읽어 온다 */
+      return fetch(DATA_URL,{method:"POST",mode:"no-cors",headers:hd,body:body})
+        .then(function(){ return apiGet({action:"list",table:"ip"}); })
+        .then(function(r){
+          var row=((r&&r.rows)||[]).filter(function(x){ return x.id===ip.id; })[0];
+          if(row && /^https?:/.test(row.img||"")) ip.img=row.img;
+        })
+        .catch(function(){ imgLiftOff=true; });   /* 끝내 막히면 이 브라우저에만 둔다 */
+    });
 }
 function liftImages(){
   if(imgLiftOff) return Promise.resolve();
-  var big=data.ips.filter(function(i){ return /^data:/.test(i.img||""); });
+  /* 사진은 4만 자 아래로 줄여 넣으므로 시트 칸(5만 자)에 그대로 들어간다.
+     한도를 넘는 아주 큰 것만 드라이브로 옮긴다. */
+  var big=data.ips.filter(function(i){ return /^data:/.test(i.img||"") && i.img.length>45000; });
   if(!big.length) return Promise.resolve();
   chip("이미지 올리는 중…","");
   var p=Promise.resolve();
@@ -572,7 +583,11 @@ function pull(){
       remote.forEach(function(x){
         var mine=byId[x.id];
         /* 시트 쪽이 더 최근이면 시트 것을 쓴다 */
-        if(!mine || String(x.updated||"") >= String(mine.updated||"")) byId[x.id]=x;
+        if(!mine || String(x.updated||"") >= String(mine.updated||"")){
+          /* 단, 시트에 대표 이미지가 비어 있으면 이 브라우저에 있는 사진을 지킨다 */
+          if(mine && mine.img && !x.img) x.img=mine.img;
+          byId[x.id]=x;
+        }
       });
       data[k]=Object.keys(byId).map(function(id){ return byId[id]; });
       lastIds[k]=data[k].map(function(x){ return x.id; });
