@@ -764,8 +764,7 @@ function fcastBlock(C, key, n){
           "<div class='fsub'>진한색 = 지금까지 " + F.tot.toFixed(1) + "억 · 연한색 = 중립 전망 " +
           F.mid + "억 · 세로선 = 목표 페이스(" + pace.toFixed(0) + "억) &nbsp;" +
           "<b class='" + (F.tot >= pace ? "up" : "dn") + "'>목표 대비 " +
-          (F.tot - pace >= 0 ? "+" : "") + (F.tot - pace).toFixed(1) + "억 (" +
-          (F.tot - pace >= 0 ? "+" : "") + ((F.tot / pace - 1) * 100).toFixed(1) + "%)</b></div>"
+          (F.tot - pace >= 0 ? "+" : "") + (F.tot - pace).toFixed(1) + "억 (달성률 " + (F.tot / pace * 100).toFixed(1) + "%)</b></div>"
         : "<div class='fsub'>매출 목표를 넣으면 목표 대비 진행률이 함께 나옵니다.</div>") +
       "<div class='fcrow'>" + card("보수", F.lo, "") + card("중립 전망", F.mid, " mid") +
         card("낙관", F.hi, "") +
