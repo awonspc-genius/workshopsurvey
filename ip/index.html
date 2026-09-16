@@ -90,7 +90,12 @@ input.s{width:100%}
   display:grid;place-items:center;font-size:26px;font-weight:900;color:#B9C4D4}
 .imgprev img{width:100%;height:100%;object-fit:cover}
 .imgbtns{display:flex;flex-direction:column;gap:7px}
-.rategrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px}
+.rategrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.rategrid .rate{padding:5px 7px}
+.rategrid .rate i{font-size:9.5px;letter-spacing:-.3px;white-space:nowrap}
+.rategrid .rate input{font-size:12.5px}
+.rategrid .rate u{font-size:10.5px}
+@media(max-width:420px){.rategrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .rate{display:block;border:1px solid var(--line);border-radius:9px;padding:6px 10px;background:#fff}
 .rate span{display:flex;align-items:baseline;gap:4px;margin-top:2px}
 .rate i{display:block;font-style:normal;font-size:10.5px;font-weight:700;color:var(--mid)}
@@ -241,6 +246,11 @@ input.s{width:100%}
 .mask{position:fixed;inset:0;background:rgba(15,18,28,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:18px}
 .modal{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:22px;width:min(520px,100%);max-height:88vh;overflow:auto}
 .modal h2{font-size:16px;margin:0 0 4px}
+.mhead{position:sticky;top:-22px;z-index:5;background:var(--card);
+  margin:-22px -22px 10px;padding:22px 22px 10px;border-bottom:1px solid var(--line);
+  display:flex;align-items:flex-start;gap:10px}
+.mhead .mttl{flex:1;min-width:0}
+.mhead .mbtns{display:flex;gap:6px;flex:none}
 .modal .sub{color:var(--mid);font-size:12.5px;margin:0 0 16px}
 .f{margin-bottom:12px}
 .f label{display:block;font-size:12.5px;color:var(--mid);margin-bottom:5px}
@@ -889,13 +899,21 @@ function ipDetail(i){
   var mdList=data.md.filter(function(m){return m.ipId===i.id});
   var docList=data.docs.filter(function(d){return d.ipId===i.id});
   function row(k,v){ return v? '<div><span>'+k+'</span><b>'+esc(v)+'</b></div>' : ""; }
+  /* 현재상황에 붙일 날짜. 손으로 적은 날짜가 없으면 마지막 저장 날짜를 쓴다. */
+  function memoDate(x){
+    if(x.memoAt) return String(x.memoAt).slice(0,10);
+    var u=String(x.updated||x.created||"");
+    return u? u.slice(0,10) : "";
+  }
   var html=
    '<div class="dt">'+
      '<div class="dph">'+(i.img? '<img src="'+esc(i.img)+'" alt="">' : '<div class="ini">'+esc((i.name||"?").charAt(0))+'</div>')+'</div>'+
      '<div>'+
        '<h3>'+esc(i.name)+'</h3>'+
        '<div class="sub">'+esc([i.cat,i.stage,i.owner].filter(Boolean).join("  ·  "))+'</div>'+
-       (i.memo? '<div class="memo now"><b>현재상황'+(i.memoAt? ' · '+esc(i.memoAt) : '')+'</b><br>'+esc(i.memo)+'</div>' : "")+
+       (i.memo? '<div class="memo now"><b>현재상황'+
+          (function(){ var d=memoDate(i); return d? ' · '+esc(d)+(i.memoAt?'':' 기준') : ''; })()+
+          '</b><br>'+esc(i.memo)+'</div>' : "")+
        '<div class="rows">'+
          row("MG", i.mg)+
          row("로열티", ratesText(i.rates) || i.roy)+
@@ -908,7 +926,7 @@ function ipDetail(i){
          row("제안 시기", i.season)+
          row("조건 메모", i.fee)+
          row("담당자", i.contact)+
-         row("상품", mdList.length? mdList.map(function(m){return m.item+" ("+m.stage+")"}).join(", ") : "")+
+         row("상품", mdList.length? mdList.map(function(m){return (m.name||m.item||"이름 없음")+" ("+m.stage+")"}).join(", ") : "")+
        '</div>'+
 
        (docList.length? '<div class="memo"><b>자료</b><br>'+docList.map(function(d){
@@ -944,19 +962,30 @@ function modal(title,sub,fieldsHtml,onSave,opt){
   if(opt.extra&&opt.extra.length) foot+='<span style="flex:1"></span>';
   foot+='<button class="btn" data-x>'+(onSave?"취소":"닫기")+'</button>'+
         (onSave?'<button class="btn pink" data-s>저장</button>':'')+'</div>';
-  host.innerHTML='<div class="mask"><div class="modal'+(opt.wide?" wide":"")+'"><h2></h2><p class="sub"></p><div class="body"></div>'+foot+'</div></div>';
+  /* 제목줄에도 저장·닫기를 둔다. 창이 길어도 위에서 바로 누를 수 있다. */
+  var head='<div class="mhead"><div class="mttl"><h2></h2><p class="sub"></p></div><div class="mbtns">'+
+    '<button class="btn" data-x2>'+(onSave?"취소":"닫기")+'</button>'+
+    (onSave?'<button class="btn pink" data-s2>저장</button>':'')+'</div></div>';
+  host.innerHTML='<div class="mask"><div class="modal'+(opt.wide?" wide":"")+'">'+head+'<div class="body"></div>'+foot+'</div></div>';
   host.querySelector("h2").textContent=title;
   host.querySelector(".sub").textContent=sub;
   host.querySelector(".body").innerHTML=fieldsHtml;
   function close(){ host.innerHTML=""; }
   host.querySelector("[data-x]").addEventListener("click", close);
+  var x2=host.querySelector("[data-x2]"); if(x2) x2.addEventListener("click", close);
   host.querySelector(".mask").addEventListener("click", function(e){ if(e.target===this) close(); });
+  function doSave(){ if(onSave(host, close)!==false) close(); }
   var sb=host.querySelector("[data-s]");
-  if(sb) sb.addEventListener("click", function(){ if(onSave(host, close)!==false) close(); });
+  if(sb) sb.addEventListener("click", doSave);
+  var sb2=host.querySelector("[data-s2]");
+  if(sb2) sb2.addEventListener("click", doSave);
   (opt.extra||[]).forEach(function(x,ix){
     var eb=host.querySelector('[data-e="'+ix+'"]');
     if(eb) eb.addEventListener("click", function(){ close(); x.fn(); });
   });
+  if(!title && !sub && !onSave){
+    var hd=host.querySelector(".mhead .mttl"); if(hd) hd.style.display="none";
+  }
   var first=host.querySelector("input,select,textarea"); if(first) first.focus();
   return host;
 }
