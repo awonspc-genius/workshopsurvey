@@ -1,6 +1,12 @@
 /*  BRK Genius 공용 데이터 저장소 — Google Apps Script
- *  IP 업무(후보·상품·자료)와 뮤직쇼 사진을 한 시트에 모아 둡니다.
+ *  IP 업무(후보·상품·로열티 정산·자료)와 뮤직쇼 사진을 한 시트에 모아 둡니다.
  *  한 건이 한 줄로 들어가므로 자료가 늘어도 칸 용량 제한에 걸리지 않습니다.
+ *
+ *  ── 이미 쓰고 계시다면 (칸을 새로 붙인 판) ──────────────────────
+ *  이 파일 내용을 다시 붙여넣고 [배포] > [배포 관리] 에서 기존 배포를
+ *  «수정» 해 새 버전으로 올리면 됩니다. 주소는 그대로입니다.
+ *  시트에 없던 칸(ip 의 src, md 의 item·type·owner·due·img)과
+ *  roy 시트는 스스로 만들어 붙으니 손댈 것이 없습니다.
  *
  *  ── 처음 한 번만 하면 되는 설치 순서 ────────────────────────────
  *  1. 구글 드라이브에서 새 스프레드시트를 만듭니다. 이름은 아무거나.
@@ -51,12 +57,25 @@ var SHEET_ID = "";
 
 var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
+/*  칸 이름을 새로 넣을 때는 반드시 줄 맨 끝에 붙입니다.
+ *  가운데 끼워 넣으면 이미 쌓여 있는 줄의 칸이 한 칸씩 밀려 내용이 어긋납니다. */
 var TABLES = {
   ip:    ["id","name","cat","stage","grp","slot","period","owner","contact","season","fee",
           "excl","mg","roy","rates","dur","img","temp","memo","created","updated","by",
-          "memoAt"],   /* memoAt = 현재상황을 적은 날짜. 맨 끝에 붙여야 기존 칸 순서가 안 밀린다 */
-  md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by"],
+          "memoAt",   /* memoAt = 현재상황을 적은 날짜. 맨 끝에 붙여야 기존 칸 순서가 안 밀린다 */
+          "src"],     /* src = 유입 경로. in(인바운드) / out(아웃바운드) */
+  /* md 의 앞쪽 name·qty·cost·price 는 예전에 쓰던 칸입니다.
+     지금 화면은 item·type·owner·due·img 를 쓰므로 뒤에 붙여 두었습니다.
+     앞쪽 칸은 비어 있어도 그대로 두세요. 지우면 줄이 밀립니다. */
+  md:    ["id","ipId","name","stage","qty","cost","price","memo","updated","by",
+          "item","type","owner","due","img"],
   docs:  ["id","ipId","type","title","url","memo","updated","by"],
+  /* roy = 로열티 정산 리스트. 한 줄이 제품 하나입니다.
+     합계는 화면에서 셈해서 넣습니다.
+       · ship(출하가) 가 있으면        : qty × ship × rate
+       · ship 이 비어 있으면           : 반올림(price ÷ 1.1) × rate × qty          */
+  roy:   ["id","ipId","period","no","item","qty","ship","price","rate",
+          "state","memo","updated","by"],
   music: ["id","date","title","place","memo","photos","updated","by"],
   ipmaster: ["id","grp","ip","kind","slot","agent","period","mg","roy","prod","dur","poc","excl","stage","memo","updated"],
   meta:     ["id","by","at","n","updated"]
@@ -72,6 +91,14 @@ function sheetFor(table) {
     sh = ss.insertSheet(table);
     sh.getRange(1, 1, 1, cols.length).setValues([cols]);
     sh.setFrozenRows(1);
+    return sh;
+  }
+  /*  이미 있는 시트에 칸을 새로 붙였을 때 머리글을 채워 준다.
+      (칸 이름은 늘 뒤에만 붙이므로 기존 줄 내용은 그대로 있습니다)  */
+  var have = sh.getLastColumn();
+  if (have < cols.length) {
+    sh.getRange(1, have + 1, 1, cols.length - have)
+      .setValues([cols.slice(have)]);
   }
   return sh;
 }
