@@ -242,6 +242,52 @@ input.s{width:100%}
 .doc b{font-size:14.5px}
 .doc .m{color:var(--mid);font-size:12.5px;margin-top:2px}
 
+/* 유입 경로 뱃지 */
+.ipc .ph .sr{position:absolute;right:9px;bottom:9px;font-size:10.5px;font-weight:800;
+  border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.92);color:#5C7291}
+.ipc .ph .sr.in{background:#1F5FBF;color:#fff}
+
+/* MD 카드 사진 */
+.mdcard .mph{position:relative;aspect-ratio:16/10;background:#EEF1F6;border-radius:9px;overflow:hidden;margin-bottom:9px}
+.mdcard .mph img{width:100%;height:100%;object-fit:cover;display:block}
+.mdcard .mph .addimg{position:absolute;inset:0;border:none;cursor:pointer;font:inherit;color:#8A94A6;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:transparent;transition:opacity .12s,background .12s}
+.mdcard .mph .addimg span{font-size:26px;line-height:1;font-weight:300}
+.mdcard .mph .addimg u{text-decoration:none;font-size:11px;font-weight:700}
+.mdcard .mph .addimg.has{inset:auto 7px 7px auto;width:28px;height:28px;border-radius:999px;
+  background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(20,24,40,.18);opacity:0}
+.mdcard .mph .addimg.has span{font-size:16px}
+.mdcard:hover .mph .addimg.has{opacity:1}
+
+/* 로열티 정산 */
+.roysum{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:16px}
+.roysum .rs{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+.roysum .rs b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-.01em}
+.roysum .rs .n{display:flex;justify-content:space-between;font-size:12px;color:var(--mid);margin-top:7px}
+.roysum .rs .n em{font-style:normal;font-weight:700;color:#22314D}
+.roysum .rs .gz{height:6px;border-radius:999px;background:#EDF0F5;margin-top:8px;overflow:hidden}
+.roysum .rs .gz i{display:block;height:100%;background:var(--pink)}
+.roysum .rs .gz i.over{background:#0F6E56}
+.rwrap{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:auto}
+table.rtbl{width:100%;border-collapse:collapse;font-size:13px;min-width:820px}
+table.rtbl th{text-align:left;font-size:11px;font-weight:800;color:#8A94A6;padding:10px 12px;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+table.rtbl td{padding:10px 12px;border-bottom:1px solid #f0f2f6;vertical-align:middle}
+table.rtbl tr:last-child td{border-bottom:0}
+table.rtbl tr:hover td{background:#fafbfd}
+table.rtbl td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:#22314D;white-space:nowrap}
+table.rtbl td.ipn{font-weight:700}
+.rst{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;background:#f1f3f7;color:var(--mid)}
+.rst.s1{background:#FFF3D6;color:#8A6300}
+.rst.s2{background:#E7F2EE;color:#0F6E56}
+.rgh{display:flex;align-items:center;gap:10px;margin:18px 2px 8px}
+.rgh:first-child{margin-top:0}
+.rgh b{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.rgh span{flex:1;font-size:12px;color:var(--mid)}
+table.rtbl tr.tot td{background:#f7f8fb;font-weight:800;border-top:1px solid var(--line)}
+table.rtbl tr.tot:hover td{background:#f7f8fb}
+
 /* modal */
 .mask{position:fixed;inset:0;background:rgba(15,18,28,.45);z-index:70;display:flex;align-items:center;justify-content:center;padding:18px}
 .modal{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:22px;width:min(520px,100%);max-height:88vh;overflow:auto}
@@ -287,6 +333,7 @@ input.s{width:100%}
       <div class="views" role="group" aria-label="보기 전환">
         <button id="tIp" aria-pressed="true">IP 후보</button>
         <button id="tMd" aria-pressed="false">MD 현황판</button>
+        <button id="tRoy" aria-pressed="false">로열티 정산</button>
         <button id="tDoc" aria-pressed="false">자료함</button>
       </div>
     </div>
@@ -302,6 +349,7 @@ input.s{width:100%}
       <div class="bar">
         <button class="btn pink" id="addIp">IP 후보 추가</button>
         <select class="s" id="fStage"><option value="">모든 단계</option></select>
+        <select class="s" id="fSrc" title="누가 먼저 연락했는지로 거르기"><option value="">모든 유입</option></select>
         <span class="grow"><input class="s" id="fQ" placeholder="이름, 담당사, 메모에서 찾기"></span>
         <span class="chip" id="syncChip" title="팀 저장소 연결 상태">확인 중…</span>
         <span class="chip" id="lastChip">마지막 저장 —</span>
@@ -327,6 +375,27 @@ input.s{width:100%}
         <span class="chip" id="mdCount"></span>
       </div>
       <div class="board" id="board"></div>
+    </section>
+
+    <!-- ROY -->
+    <section id="secRoy" class="hidden">
+      <div class="bar">
+        <button class="btn pink" id="addRoy">정산 내역 추가</button>
+        <button class="btn" id="royUp">엑셀 올리기</button>
+        <button class="btn" id="royDown">엑셀 내려받기</button>
+        <select class="s" id="fRoyIp"><option value="">모든 IP</option></select>
+        <select class="s" id="fRoyPeriod"><option value="">모든 기간</option></select>
+        <select class="s" id="fRoyState"><option value="">모든 상태</option></select>
+        <span class="grow"><input class="s" id="fRoyQ" placeholder="제품명, 기간, 메모에서 찾기"></span>
+        <span class="chip" id="royCount"></span>
+      </div>
+      <div class="roysum" id="roySum"></div>
+      <div id="royWrap"></div>
+      <p class="sub" style="color:var(--mid);font-size:12.5px;margin-top:14px">
+        늘 쓰시던 정산 리스트 엑셀을 그대로 올리면 제품별로 읽어 들입니다.
+        출하가가 있으면 <b>제작수량 × 출하가 × 로열티율</b>, 출하가가 비어 있고 판매가만 있으면
+        <b>판매가 ÷ 1.1 (반올림) × 로열티율 × 제작수량</b> 으로 셉니다. 내려받으면 같은 양식으로 나옵니다.
+      </p>
     </section>
 
     <!-- DOC -->
@@ -380,6 +449,11 @@ var CATS=["캐릭터","패션","셀럽","기타"];
 var MD_STAGES=["기획","디자인","샘플","양산","출시"]
 var EXCL=["독점","비독점","확인 필요"];
 var DOC_TYPES=["제안서","시안","견적","계약","회신 기록","기타"];
+/* 유입 경로 — 누가 먼저 연락했는지 */
+var SRCS=[["in","인바운드","상대가 먼저 우리에게 제안해 온 건"],
+          ["out","아웃바운드","우리가 먼저 찾아가 제안한 건"]];
+function srcOf(k){ for(var i=0;i<SRCS.length;i++) if(SRCS[i][0]===k) return SRCS[i]; return null; }
+var ROY_STATES=["청구 전","청구함","입금됨"];
 
 /* gate */
 var gate=document.getElementById("gate"), app=document.getElementById("app");
@@ -413,7 +487,7 @@ function fileDel(k){ return db().then(function(d){ return new Promise(function(r
   var t=d.transaction("files","readwrite"); t.objectStore("files").delete(k); t.oncomplete=function(){res()}; });}).catch(function(){});}
 
 /* state */
-var data={ips:[],md:[],docs:[]};
+var data={ips:[],md:[],docs:[],roy:[]};
 function uid(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 /* ================= 팀 저장소 (구글 시트) =================
    brkg-data-apps-script.txt 를 새 스프레드시트의 Apps Script 에 붙여넣고
@@ -422,8 +496,8 @@ function uid(p){ return p+Date.now().toString(36)+Math.random().toString(36).sli
 var DATA_URL = "https://script.google.com/macros/s/AKfycbwa42Avu6K35gUEB1MW2e-5Pcu6WKnHaL9Qh_QgfhxQ0myuNHGjIyHuu2emqcl7Sd-JPQ/exec";
 try{ var _u=localStorage.getItem("brkg_data_url"); if(_u) DATA_URL=_u; }catch(e){}
 
-var TBL={ips:"ip", md:"md", docs:"docs"};      /* 화면 이름 → 시트 이름 */
-var syncOn=false, lastIds={ips:[],md:[],docs:[]}, pushTimer=null;
+var TBL={ips:"ip", md:"md", docs:"docs", roy:"roy"};      /* 화면 이름 → 시트 이름 */
+var syncOn=false, lastIds={ips:[],md:[],docs:[],roy:[]}, pushTimer=null;
 
 function chip(t,c){ var el=document.getElementById("syncChip"); if(!el) return;
   el.textContent=t; el.style.background = c==="ok" ? "#E7F2EE" : (c==="err" ? "#FDE7F3" : "");
@@ -579,7 +653,7 @@ function doSave(me){
 
 function load(){
   var raw=localStorage.getItem(LS);
-  if(raw){ try{ var o=JSON.parse(raw); data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[]; }catch(e){} }
+  if(raw){ try{ var o=JSON.parse(raw); data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[]; data.roy=o.roy||[]; }catch(e){} }
 }
 
 var remoteEmpty=false;
@@ -612,7 +686,7 @@ function pull(){
       lastIds[k]=data[k].map(function(x){ return x.id; });
     });
     saveLocal();
-    remoteEmpty = !((r.data[TBL.ips]||[]).length || (r.data[TBL.md]||[]).length || (r.data[TBL.docs]||[]).length);
+    remoteEmpty = !((r.data[TBL.ips]||[]).length || (r.data[TBL.md]||[]).length || (r.data[TBL.docs]||[]).length || (r.data[TBL.roy]||[]).length);
     chip("팀 저장소 연결됨","ok");
     return apiGet({action:"list",table:"meta"}).then(function(r2){
       var m=((r2&&r2.rows)||[]).filter(function(x){return x.id==="ip"})[0];
@@ -640,15 +714,17 @@ function esc(s){ return (s==null?"":String(s)); }
 
 /* tabs */
 function setTab(v){
-  ["Ip","Md","Doc"].forEach(function(k){
+  ["Ip","Md","Roy","Doc"].forEach(function(k){
     document.getElementById("t"+k).setAttribute("aria-pressed", String(k.toLowerCase()===v));
     document.getElementById("sec"+k).classList.toggle("hidden", k.toLowerCase()!==v);
   });
   if(v==="md") renderBoard();
   if(v==="doc") renderDocs();
+  if(v==="roy") renderRoy();
 }
 document.getElementById("tIp").addEventListener("click", function(){ setTab("ip"); });
 document.getElementById("tMd").addEventListener("click", function(){ setTab("md"); });
+document.getElementById("tRoy").addEventListener("click", function(){ setTab("roy"); });
 document.getElementById("tDoc").addEventListener("click", function(){ setTab("doc"); });
 
 /* selects */
@@ -665,6 +741,10 @@ function refreshFilters(){
   var keep1=document.getElementById("fStage").value;
   fillSelect(document.getElementById("fStage"), STAGES, "모든 단계");
   document.getElementById("fStage").value=keep1;
+  var keep2=document.getElementById("fSrc").value;
+  fillSelect(document.getElementById("fSrc"),
+             SRCS.map(function(s){ return {v:s[0],t:s[1]}; }), "모든 유입");
+  document.getElementById("fSrc").value=keep2;
   drawCatTabs(); drawFlow();
   var ipOpts=data.ips.map(function(i){ return {v:i.id,t:i.name}; });
   var k3=document.getElementById("fMdIp").value, k4=document.getElementById("fDocIp").value;
@@ -674,10 +754,18 @@ function refreshFilters(){
   var k5=document.getElementById("fDocType").value;
   fillSelect(document.getElementById("fDocType"), DOC_TYPES, "모든 종류");
   document.getElementById("fDocType").value=k5;
+  var k6=document.getElementById("fRoyIp").value, k7=document.getElementById("fRoyState").value;
+  var k8=document.getElementById("fRoyPeriod").value;
+  fillSelect(document.getElementById("fRoyIp"), ipOpts, "모든 IP");
+  fillSelect(document.getElementById("fRoyState"), ROY_STATES, "모든 상태");
+  fillSelect(document.getElementById("fRoyPeriod"), periodsOf(), "모든 기간");
+  document.getElementById("fRoyIp").value=k6; document.getElementById("fRoyState").value=k7;
+  document.getElementById("fRoyPeriod").value=k8;
 }
-["fStage","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", function(){ drawFlow(); renderIps(); }); });
+["fStage","fSrc","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", function(){ drawFlow(); renderIps(); }); });
 document.getElementById("fMdIp").addEventListener("change", renderBoard);
 ["fDocIp","fDocType","fDocQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderDocs); });
+["fRoyIp","fRoyPeriod","fRoyState","fRoyQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderRoy); });
 
 /* ---------- IP list ---------- */
 var RATEKEYS=[["ic","아이스크림"],["cake","케이크"],["dessert","디저트"],["drink","음료"],["goods","굿즈"]];
@@ -810,10 +898,12 @@ function drawCatTabs(){
 function renderIps(){
   var wrap=document.getElementById("ipWrap"); wrap.innerHTML="";
   var st=document.getElementById("fStage").value, ct=curCat;
+  var sr=document.getElementById("fSrc").value;
   var q=document.getElementById("fQ").value.trim().toLowerCase();
   var list=data.ips.filter(function(i){
     if(st&&i.stage!==st) return false;
     if(ct&&i.cat!==ct) return false;
+    if(sr&&(i.src||"")!==sr) return false;
     if(q){
       var hay=(i.name+" "+(i.owner||"")+" "+(i.contact||"")+" "+(i.memo||"")).toLowerCase();
       if(hay.indexOf(q)<0) return false;
@@ -850,6 +940,10 @@ function renderIps(){
       var ex=document.createElement("span");
       ex.className="ex"+(i.excl==="독점"?" y":""); ex.textContent=i.excl; ph.appendChild(ex);
     }
+    var sc=srcOf(i.src);
+    if(sc){ var sd=document.createElement("span");
+            sd.className="sr"+(sc[0]==="in"?" in":""); sd.textContent=sc[1];
+            sd.title="유입 경로 · "+sc[2]; ph.appendChild(sd); }
     card.appendChild(ph);
 
     var bd=document.createElement("div"); bd.className="bd";
@@ -915,6 +1009,7 @@ function ipDetail(i){
           (function(){ var d=memoDate(i); return d? ' · '+esc(d)+(i.memoAt?'':' 기준') : ''; })()+
           '</b><br>'+esc(i.memo)+'</div>' : "")+
        '<div class="rows">'+
+         row("유입 경로", (function(){ var s=srcOf(i.src); return s? s[1] : ""; })())+
          row("MG", i.mg)+
          row("로열티", ratesText(i.rates) || i.roy)+
          row("로열티 원문", (ratesText(i.rates) && i.roy) ? i.roy : "")+
@@ -1013,6 +1108,10 @@ function ipModal(i){
    '<div class="row2">'+
      '<div class="f"><label for="mCat">종류</label><select id="mCat">'+opts(CATS,e.cat||"캐릭터")+'</select></div>'+
      '<div class="f"><label for="mStage">검토 단계</label><select id="mStage">'+opts(STAGES,e.stage||"발굴")+'</select></div>'+
+     '<div class="f"><label for="mSrc">유입 경로</label><select id="mSrc">'+
+       '<option value="">아직 모름</option>'+
+       SRCS.map(function(s){ return '<option value="'+s[0]+'"'+((e.src===s[0])?" selected":"")+'>'+s[1]+' — '+s[2]+'</option>'; }).join("")+
+     '</select></div>'+
    '</div>'+
    '<div class="row2">'+
      '<div class="f"><label for="mOwner">담당사·에이전시</label><input id="mOwner" value="'+esc(e.owner||"").replace(/"/g,"&quot;")+'"></div>'+
@@ -1069,7 +1168,7 @@ function ipModal(i){
     var name=val(host,"mName");
     if(!name){ toast("IP 이름을 넣어 주세요."); return false; }
     var obj=i||{id:uid("ip"),created:today()};
-    obj.name=name; obj.cat=val(host,"mCat"); obj.stage=val(host,"mStage");
+    obj.name=name; obj.cat=val(host,"mCat"); obj.stage=val(host,"mStage"); obj.src=val(host,"mSrc");
     obj.owner=val(host,"mOwner"); obj.contact=val(host,"mContact");
     obj.season=val(host,"mSeason"); obj.fee=val(host,"mFee");
     obj.memo=val(host,"mMemo"); obj.memoAt=val(host,"mMemoAt");
@@ -1150,8 +1249,8 @@ function shrinkImg(f, maxPx, budget){
   });
 }
 
-/* 어디서든 부르는 대표 이미지 고르기 */
-function pickImage(ip, after){
+/* 어디서든 부르는 대표 이미지 고르기 · redraw 를 주면 그 화면을 다시 그린다 */
+function pickImage(ip, after, redraw){
   var f=document.createElement("input");
   f.type="file"; f.accept="image/*"; f.style.display="none";
   document.body.appendChild(f);
@@ -1162,8 +1261,8 @@ function pickImage(ip, after){
     toast("이미지를 줄이는 중…");
     shrinkImg(file).then(function(dataUrl){
       ip.img=dataUrl; ip.updated=new Date().toISOString();
-      save(); renderIps();
-      toast("대표 이미지를 넣었습니다.");
+      save(); (redraw||renderIps)();
+      toast("사진을 넣었습니다.");
       if(after) after(dataUrl);
     }).catch(function(e){ toast(e.message||"넣지 못했습니다."); });
   };
@@ -1185,6 +1284,22 @@ function renderBoard(){
     col.appendChild(h);
     items.forEach(function(m){
       var c=document.createElement("div"); c.className="mdcard";
+
+      /* 사진 칸 — 눌러서 넣거나 바꾼다 */
+      var mph=document.createElement("div"); mph.className="mph";
+      if(m.img){
+        var mi=document.createElement("img"); mi.src=m.img; mi.alt=m.item||""; mi.loading="lazy";
+        mi.onerror=function(){ mi.remove(); };
+        mph.appendChild(mi);
+      }
+      var madd=document.createElement("button");
+      madd.type="button"; madd.className="addimg"+(m.img?" has":"");
+      madd.innerHTML='<span>＋</span>'+(m.img?'':'<u>사진 넣기</u>');
+      madd.title=m.img? "사진 바꾸기" : "사진 넣기";
+      madd.onclick=function(ev){ ev.stopPropagation(); pickImage(m, null, renderBoard); };
+      mph.appendChild(madd);
+      c.appendChild(mph);
+
       var t=document.createElement("b"); t.textContent=m.item; c.appendChild(t);
       var meta=document.createElement("div"); meta.className="m";
       meta.textContent=[ipName(m.ipId), m.type, m.owner? "담당 "+m.owner:""].filter(Boolean).join("  ·  ");
@@ -1229,6 +1344,16 @@ function mdModal(m){
    '</div>'+
    '<div class="f"><label for="dDue">목표 날짜</label><input type="date" id="dDue" value="'+esc(e.due||"")+'"></div>'+
    '<div class="f"><label for="dMemo">메모</label><textarea id="dMemo">'+esc(e.memo||"")+'</textarea></div>'+
+   '<div class="f"><label>사진</label>'+
+     '<div class="imgrow">'+
+       '<div class="imgprev" id="dImgPrev">'+(e.img? '<img src="'+esc(e.img)+'" alt="">' : '<span>＋</span>')+'</div>'+
+       '<div class="imgbtns">'+
+         '<button type="button" class="btn sm pink" id="dImgPick">사진 올리기</button>'+
+         '<input id="dImg" value="'+esc(e.img||"").replace(/"/g,"&quot;")+'" placeholder="또는 이미지 주소 붙여넣기">'+
+         '<p class="ratehint">현황판 카드에 바로 보입니다. 파일을 고르면 작게 줄여서 넣습니다.</p>'+
+       '</div>'+
+     '</div>'+
+   '</div>'+
    (m?'<button class="btn warn" id="dDel" style="width:100%">이 상품 삭제</button>':"");
   var host=modal(m?"상품 수정":"상품 추가","현황판에 카드로 올라갑니다.",html,function(host){
     var item=val(host,"dItem");
@@ -1236,15 +1361,511 @@ function mdModal(m){
     var obj=m||{id:uid("md")};
     obj.item=item; obj.ipId=val(host,"dIp"); obj.stage=val(host,"dStage");
     obj.type=val(host,"dType"); obj.owner=val(host,"dOwner"); obj.due=val(host,"dDue"); obj.memo=val(host,"dMemo");
+    obj.img=val(host,"dImg");
     if(!m) data.md.push(obj);
     save(); renderBoard(); renderIps();
   });
+
+  /* 사진 */
+  var dPick=host.querySelector("#dImgPick"), dUrl=host.querySelector("#dImg"), dPrev=host.querySelector("#dImgPrev");
+  function dShow(u){ dPrev.innerHTML = u ? '<img src="'+u+'" alt="">' : '<span>＋</span>'; }
+  if(dUrl) dUrl.addEventListener("input", function(){ dShow(this.value.trim()); });
+  if(dPick) dPick.onclick=function(){
+    var f=document.createElement("input");
+    f.type="file"; f.accept="image/*"; f.style.display="none";
+    document.body.appendChild(f);
+    f.onchange=function(){
+      var file=this.files[0]; document.body.removeChild(f);
+      if(!file) return;
+      if(!/^image\//.test(file.type)){ toast("사진 파일만 넣을 수 있습니다."); return; }
+      toast("이미지를 줄이는 중…");
+      shrinkImg(file).then(function(u){ dUrl.value=u; dShow(u); toast("넣었습니다. 저장을 눌러 주세요."); })
+                     .catch(function(err){ toast(err.message||"넣지 못했습니다."); });
+    };
+    f.click();
+  };
+
   var del=host.querySelector("#dDel");
   if(del) del.addEventListener("click", function(){
     if(!confirm(m.item+"을(를) 지울까요?")) return;
     data.md=data.md.filter(function(x){ return x.id!==m.id; });
     save(); document.getElementById("modalHost").innerHTML=""; renderBoard(); renderIps();
   });
+}
+
+/* ---------- 로열티 정산 ---------- */
+/*  늘 쓰시는 «[부서별] IP 로열티 정산 리스트» 양식을 그대로 담습니다.
+    한 줄 = 제품 한 개.  셈은 엑셀에 있던 두 가지 식을 그대로 씁니다.
+      · 출하가가 있으면        : 제작수량 × 출하가 × 로열티율
+      · 출하가가 비어 있으면   : 반올림(판매가 ÷ 1.1) × 로열티율 × 제작수량        */
+
+/* 적어 둔 MG 글에서 돈 액수를 뽑아 원 단위 숫자로 바꾼다. 못 읽으면 0. */
+function parseWon(v){
+  var s=String(v||"").replace(/\s+/g,"");
+  if(!s||/^(TBD|N\/A|미정)$/i.test(s)) return 0;
+  var sum=0, hit=false;
+  s.replace(/([\d,.]+)\s*(억|만원|만|원)?/g, function(all,n,unit){
+    var x=parseFloat(String(n).replace(/,/g,""));
+    if(isNaN(x)) return all;
+    if(unit==="억") x*=100000000;
+    else if(unit==="만원"||unit==="만") x*=10000;
+    else if(unit!=="원") return all;      /* 단위가 없으면 액수로 보지 않는다 */
+    sum+=x; hit=true; return all;
+  });
+  return hit? sum : 0;
+}
+function num(v){ var n=parseFloat(String(v==null?"":v).replace(/[^\d.\-]/g,"")); return isNaN(n)?0:n; }
+function won(n){ return Math.round(+n||0).toLocaleString("ko-KR"); }
+function wonShort(n){
+  n=Math.round(+n||0);
+  if(!n) return "0원";
+  if(n>=100000000) return (Math.round(n/1000000)/100).toLocaleString("ko-KR")+"억원";
+  if(n>=10000) return Math.round(n/10000).toLocaleString("ko-KR")+"만원";
+  return n.toLocaleString("ko-KR")+"원";
+}
+
+/* 한 줄의 합계 — 엑셀 식과 똑같이 */
+function royAmount(r){
+  var qty=num(r.qty), rate=num(r.rate)/100;
+  if(num(r.ship)>0) return qty*num(r.ship)*rate;
+  if(num(r.price)>0) return Math.round(num(r.price)/1.1)*rate*qty;
+  return 0;
+}
+/* 그 IP에 적어 둔 품목별 요율 중 굿즈 값을 기본으로 끌어온다 */
+function defaultRate(ipId){
+  var ip=data.ips.filter(function(x){return x.id===ipId})[0];
+  if(!ip||!ip.rates) return "";
+  var v=ip.rates.goods||ip.rates.ic||ip.rates.cake||ip.rates.dessert||ip.rates.drink||"";
+  return v? String(v).split("~")[0].replace(/[^\d.]/g,"") : "";
+}
+function periodsOf(){
+  var seen={}, out=[];
+  data.roy.forEach(function(r){ var p=r.period||""; if(p&&!seen[p]){ seen[p]=1; out.push(p); } });
+  out.sort(function(a,b){ return String(b).localeCompare(String(a)); });
+  return out;
+}
+
+function renderRoy(){
+  var wrap=document.getElementById("royWrap"); wrap.innerHTML="";
+  var sumBox=document.getElementById("roySum"); sumBox.innerHTML="";
+  var fi=document.getElementById("fRoyIp").value;
+  var fp=document.getElementById("fRoyPeriod").value;
+  var fs=document.getElementById("fRoyState").value;
+  var q=document.getElementById("fRoyQ").value.trim().toLowerCase();
+
+  var list=data.roy.filter(function(r){
+    if(fi&&r.ipId!==fi) return false;
+    if(fp&&(r.period||"")!==fp) return false;
+    if(fs&&(r.state||"청구 전")!==fs) return false;
+    if(q){
+      var hay=((r.item||"")+" "+(r.period||"")+" "+(r.memo||"")+" "+ipName(r.ipId)).toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+
+  var total=list.reduce(function(s,r){ return s+royAmount(r); },0);
+  document.getElementById("royCount").textContent="모두 "+list.length+"줄 · "+wonShort(total);
+
+  /* IP별 요약 — 정산액 합계와 MG 채운 정도 */
+  var byIp={};
+  data.roy.forEach(function(r){
+    if(fi&&r.ipId!==fi) return;
+    var k=r.ipId||"";
+    if(!byIp[k]) byIp[k]={sum:0,paid:0,n:0};
+    byIp[k].sum+=royAmount(r); byIp[k].n++;
+    if((r.state||"")==="입금됨") byIp[k].paid+=royAmount(r);
+  });
+  Object.keys(byIp).forEach(function(k){
+    var ip=data.ips.filter(function(x){return x.id===k})[0];
+    var s=byIp[k], mg=ip? parseWon(ip.mg) : 0;
+    var box=document.createElement("div"); box.className="rs";
+    var t=document.createElement("b"); t.textContent=(ip&&ip.name)||"IP 없음"; box.appendChild(t);
+    function line(lab,v){
+      var d=document.createElement("div"); d.className="n";
+      var a=document.createElement("span"); a.textContent=lab;
+      var b=document.createElement("em"); b.textContent=v;
+      d.appendChild(a); d.appendChild(b); box.appendChild(d);
+    }
+    line("정산액 합계", wonShort(s.sum));
+    line("입금된 금액", wonShort(s.paid));
+    line("제품 줄 수", s.n+"줄");
+    if(mg){
+      line("MG", wonShort(mg));
+      var pct=Math.min(100, Math.round(s.sum/mg*100));
+      var gz=document.createElement("div"); gz.className="gz";
+      var bar=document.createElement("i");
+      bar.style.width=pct+"%";
+      if(s.sum>=mg) bar.className="over";
+      gz.appendChild(bar); box.appendChild(gz);
+      var d2=document.createElement("div"); d2.className="n";
+      var a2=document.createElement("span");
+      a2.textContent = s.sum>=mg ? "MG 다 채움 · 넘은 금액" : "MG 채운 정도";
+      var b2=document.createElement("em");
+      b2.textContent = s.sum>=mg ? wonShort(s.sum-mg) : pct+"%";
+      d2.appendChild(a2); d2.appendChild(b2); box.appendChild(d2);
+    }
+    sumBox.appendChild(box);
+  });
+
+  if(!list.length){
+    var e=document.createElement("div"); e.className="empty";
+    e.textContent=data.roy.length? "조건에 맞는 정산 내역이 없습니다."
+                                 : "아직 넣은 정산 내역이 없습니다. «엑셀 올리기»로 늘 쓰시던 파일을 그대로 올려 보세요.";
+    wrap.appendChild(e); return;
+  }
+
+  /* IP · 기간 묶음별로 엑셀과 같은 표를 하나씩 그린다 */
+  var groups={}, order=[];
+  list.forEach(function(r){
+    var k=(r.ipId||"")+"|"+(r.period||"");
+    if(!groups[k]){ groups[k]=[]; order.push(k); }
+    groups[k].push(r);
+  });
+  order.sort(function(a,b){
+    var pa=a.split("|")[1], pb=b.split("|")[1];
+    return String(pb).localeCompare(String(pa));
+  });
+
+  order.forEach(function(k){
+    var rows=groups[k].slice();
+    rows.sort(function(a,b){ return (num(a.no)||9999)-(num(b.no)||9999); });
+    var ipId=k.split("|")[0], period=k.split("|")[1];
+
+    var head=document.createElement("div"); head.className="rgh";
+    var h=document.createElement("b");
+    h.textContent=(ipName(ipId)||"IP 없음")+(period? "  ·  "+period : "");
+    head.appendChild(h);
+    var hs=document.createElement("span");
+    hs.textContent=rows.length+"줄 · 총합계 "+won(rows.reduce(function(s,r){return s+royAmount(r)},0))+"원";
+    head.appendChild(hs);
+    var dl=document.createElement("button"); dl.className="btn sm"; dl.textContent="이 표만 엑셀로";
+    dl.onclick=function(){ exportRoy(rows, ipName(ipId), period); };
+    head.appendChild(dl);
+    wrap.appendChild(head);
+
+    var box2=document.createElement("div"); box2.className="rwrap";
+    var tb=document.createElement("table"); tb.className="rtbl";
+    var hr=document.createElement("tr");
+    ["No.","제품명","제작수량","출하가","판매가","로열티율","합계","상태","메모",""].forEach(function(t2){
+      var th=document.createElement("th"); th.textContent=t2; hr.appendChild(th);
+    });
+    var thead=document.createElement("thead"); thead.appendChild(hr); tb.appendChild(thead);
+
+    var tbody=document.createElement("tbody");
+    rows.forEach(function(r,idx){
+      var tr=document.createElement("tr");
+      function cell(txt,cls){
+        var td=document.createElement("td"); if(cls) td.className=cls;
+        td.textContent=txt; tr.appendChild(td); return td;
+      }
+      cell(r.no||(idx+1),"num");
+      cell(r.item||"—","ipn");
+      cell(num(r.qty)? won(r.qty) : "—","num");
+      cell(num(r.ship)? won(r.ship)+"원" : "—","num");
+      cell(num(r.price)? won(r.price)+"원" : "—","num");
+      cell(num(r.rate)? r.rate+"%" : "—","num");
+      cell(won(royAmount(r))+"원","num");
+
+      var st=r.state||"청구 전";
+      var tdS=document.createElement("td");
+      var sp=document.createElement("span");
+      sp.className="rst"+(st==="청구함"?" s1":(st==="입금됨"?" s2":""));
+      sp.textContent=st; tdS.appendChild(sp); tr.appendChild(tdS);
+
+      cell(r.memo||"");
+
+      var tdB=document.createElement("td");
+      var ed=document.createElement("button"); ed.className="btn sm"; ed.textContent="수정";
+      ed.onclick=function(){ royModal(r); };
+      tdB.appendChild(ed); tr.appendChild(tdB);
+      tbody.appendChild(tr);
+    });
+
+    var trT=document.createElement("tr"); trT.className="tot";
+    var tdT=document.createElement("td"); tdT.colSpan=6; tdT.textContent="총합계"; trT.appendChild(tdT);
+    var tdV=document.createElement("td"); tdV.className="num";
+    tdV.textContent=won(rows.reduce(function(s,r){return s+royAmount(r)},0))+"원"; trT.appendChild(tdV);
+    var tdE=document.createElement("td"); tdE.colSpan=3; trT.appendChild(tdE);
+    tbody.appendChild(trT);
+
+    tb.appendChild(tbody);
+    box2.appendChild(tb);
+    wrap.appendChild(box2);
+  });
+}
+
+/* ---------- 정산 한 줄 고치기 ---------- */
+document.getElementById("addRoy").addEventListener("click", function(){ royModal(null); });
+function royModal(r){
+  var e=r||{};
+  var ipOpts=[{v:"",t:"IP 없음"}].concat(data.ips.map(function(i){ return {v:i.id,t:i.name}; }));
+  var html=
+   '<div class="row2">'+
+     '<div class="f"><label for="yIp">IP</label><select id="yIp">'+opts(ipOpts,e.ipId||"")+'</select></div>'+
+     '<div class="f"><label for="yPeriod">정산 기간</label><input id="yPeriod" value="'+esc(e.period||"").replace(/"/g,"&quot;")+'" placeholder="예: 2026-07 · 2026 7월"></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="yNo">No.</label><input id="yNo" inputmode="numeric" value="'+esc(e.no==null?"":e.no)+'"></div>'+
+     '<div class="f"><label for="yState">상태</label><select id="yState">'+opts(ROY_STATES,e.state||"청구 전")+'</select></div>'+
+   '</div>'+
+   '<div class="f"><label for="yItem">제품명</label><input id="yItem" value="'+esc(e.item||"").replace(/"/g,"&quot;")+'" placeholder="예: 쵸파의 코튼캔디 크런치"></div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="yQty">제작수량</label><input id="yQty" inputmode="numeric" value="'+esc(e.qty==null?"":e.qty)+'"></div>'+
+     '<div class="f"><label for="yRate">로열티율 (%)</label><input id="yRate" inputmode="decimal" value="'+esc(e.rate==null?"":e.rate)+'" placeholder="예: 5"></div>'+
+   '</div>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="yShip">출하가 (원)</label><input id="yShip" inputmode="numeric" value="'+esc(e.ship==null?"":e.ship)+'" placeholder="있으면 이 값으로 셉니다"></div>'+
+     '<div class="f"><label for="yPrice">판매가 (원)</label><input id="yPrice" inputmode="numeric" value="'+esc(e.price==null?"":e.price)+'" placeholder="출하가가 없을 때 씁니다"></div>'+
+   '</div>'+
+   '<p class="ratehint" id="yCalc" style="margin-top:-4px"></p>'+
+   '<div class="f"><label for="yMemo">메모</label><textarea id="yMemo" style="height:62px" placeholder="예: 세금계산서 7/31 발행 · 입금 예정 8/20">'+esc(e.memo||"")+'</textarea></div>'+
+   (r?'<button class="btn warn" id="yDel" style="width:100%">이 줄 삭제</button>':"");
+
+  var host=modal(r?"정산 줄 수정":"정산 줄 추가",
+    "출하가가 있으면 제작수량 × 출하가 × 요율, 없으면 판매가 ÷ 1.1 로 셉니다.",html,function(host){
+    var item=val(host,"yItem");
+    if(!item){ toast("제품명을 넣어 주세요."); return false; }
+    var obj=r||{id:uid("roy")};
+    obj.ipId=val(host,"yIp"); obj.period=val(host,"yPeriod"); obj.item=item;
+    obj.no=val(host,"yNo"); obj.state=val(host,"yState"); obj.memo=val(host,"yMemo");
+    obj.qty=val(host,"yQty").replace(/[^\d.]/g,"");
+    obj.ship=val(host,"yShip").replace(/[^\d.]/g,"");
+    obj.price=val(host,"yPrice").replace(/[^\d.]/g,"");
+    obj.rate=val(host,"yRate").replace(/[^\d.]/g,"");
+    obj.updated=new Date().toISOString();
+    if(!r) data.roy.unshift(obj);
+    save(); refreshFilters(); renderRoy();
+  });
+
+  var yIp=host.querySelector("#yIp"), yRate=host.querySelector("#yRate"),
+      yQty=host.querySelector("#yQty"), yShip=host.querySelector("#yShip"),
+      yPrice=host.querySelector("#yPrice"), yCalc=host.querySelector("#yCalc");
+  function pullRate(){
+    var got=defaultRate(yIp.value);
+    if(got){ yRate.placeholder=got+" (이 IP에 적어 둔 요율)"; if(!yRate.value) yRate.value=got; }
+    showCalc();
+  }
+  function showCalc(){
+    var q=num(yQty.value), sh=num(yShip.value), pr=num(yPrice.value), rt=num(yRate.value);
+    if(!q||!rt){ yCalc.textContent="제작수량과 로열티율을 넣으면 여기에 계산 결과가 나옵니다."; return; }
+    if(sh>0) yCalc.textContent=won(q)+" × "+won(sh)+"원 × "+rt+"% = "+won(q*sh*rt/100)+"원";
+    else if(pr>0) yCalc.textContent="반올림("+won(pr)+" ÷ 1.1) = "+won(Math.round(pr/1.1))+"원 × "+rt+"% × "+won(q)+" = "+won(Math.round(pr/1.1)*rt/100*q)+"원";
+    else yCalc.textContent="출하가나 판매가 중 하나를 넣어 주세요.";
+  }
+  if(yIp) yIp.addEventListener("change", pullRate);
+  [yQty,yShip,yPrice,yRate].forEach(function(el){ if(el) el.addEventListener("input", showCalc); });
+  pullRate();
+
+  var del=host.querySelector("#yDel");
+  if(del) del.addEventListener("click", function(){
+    if(!confirm("이 줄을 지울까요?")) return;
+    data.roy=data.roy.filter(function(x){ return x.id!==r.id; });
+    save(); document.getElementById("modalHost").innerHTML=""; refreshFilters(); renderRoy();
+  });
+}
+
+/* ---------- 엑셀 읽고 쓰기 ---------- */
+/*  표 만드는 연장(SheetJS)은 누를 때 한 번만 받아 옵니다. */
+var XLSJS=null;
+function needXlsx(){
+  if(XLSJS) return Promise.resolve(XLSJS);
+  if(window.XLSX){ XLSJS=window.XLSX; return Promise.resolve(XLSJS); }
+  return new Promise(function(res,rej){
+    var sc=document.createElement("script");
+    sc.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    sc.onload=function(){ XLSJS=window.XLSX; XLSJS? res(XLSJS) : rej(new Error("연장을 읽지 못했습니다")); };
+    sc.onerror=function(){ rej(new Error("인터넷에서 연장을 받지 못했습니다")); };
+    document.head.appendChild(sc);
+  });
+}
+
+/* 머리글 줄을 찾아 칸 번호를 알아낸다. 띄어쓰기나 줄 위치가 달라도 견딥니다. */
+var ROY_COLS=[
+  ["no",    /^(no|번호|순번)\.?$/i],
+  ["item",  /제품|품명|상품/],
+  ["qty",   /제작수량|수량|생산/],
+  ["ship",  /출하/],
+  ["price", /판매가|소비자가|정가/],
+  ["rate",  /로열티율|요율|율$/],
+  ["amount",/합계|금액|정산/]
+];
+function readRoySheet(rows){
+  var hdr=-1, map={};
+  for(var i=0;i<Math.min(rows.length,25);i++){
+    var row=rows[i]||[], hit={}, n=0;
+    for(var c=0;c<row.length;c++){
+      var t=String(row[c]==null?"":row[c]).trim();
+      if(!t) continue;
+      ROY_COLS.forEach(function(k){
+        if(hit[k[0]]!=null) return;
+        if(k[1].test(t)){ hit[k[0]]=c; n++; }
+      });
+    }
+    if(hit.item!=null && n>=3){ hdr=i; map=hit; break; }
+  }
+  if(hdr<0) return null;
+
+  var out=[];
+  for(var r=hdr+1;r<rows.length;r++){
+    var row=rows[r]||[];
+    function g(k){ return map[k]==null? "" : row[map[k]]; }
+    var nameCell=String(g("item")==null?"":g("item")).trim();
+    if(!nameCell) continue;
+    if(/^(총\s*합계|합계|총계|소계)/.test(nameCell)) continue;
+    var qty=num(g("qty"));
+    if(!qty && !num(g("ship")) && !num(g("price"))) continue;   /* 빈 줄·꼬리말 건너뛰기 */
+    var rate=num(g("rate"));
+    if(rate>0 && rate<=1) rate=rate*100;                        /* 0.05 로 적힌 값 */
+    out.push({
+      no:    String(g("no")==null?"":g("no")).trim() || String(out.length+1),
+      item:  nameCell,
+      qty:   qty? String(qty) : "",
+      ship:  num(g("ship"))? String(num(g("ship"))) : "",
+      price: num(g("price"))? String(num(g("price"))) : "",
+      rate:  rate? String(Math.round(rate*1000)/1000) : ""
+    });
+  }
+  return out;
+}
+
+/* 파일 이름에서 IP 이름과 달을 짐작한다 (원피스_로열티_7월_정산_리스트.xlsx) */
+function guessFromName(fn){
+  var base=String(fn||"").replace(/\.(xlsx|xlsm|xls|csv)$/i,"");
+  var m=base.match(/(20\d{2})/), y=m? m[1] : String(new Date().getFullYear());
+  var mm=base.match(/(\d{1,2})\s*월/);
+  var period=mm? (y+"-"+("0"+mm[1]).slice(-2)) : "";
+  var first=base.split(/[_\-\s]+/)[0]||"";
+  var ipId="";
+  data.ips.forEach(function(i){
+    if(!ipId && i.name && (base.indexOf(i.name)>=0 || (first && i.name.indexOf(first)>=0))) ipId=i.id;
+  });
+  return {ipId:ipId, period:period, guessName:first};
+}
+
+document.getElementById("royUp").addEventListener("click", function(){
+  var f=document.createElement("input");
+  f.type="file"; f.accept=".xlsx,.xlsm,.xls,.csv"; f.style.display="none";
+  document.body.appendChild(f);
+  f.onchange=function(){
+    var file=this.files[0]; document.body.removeChild(f);
+    if(!file) return;
+    toast("엑셀을 읽는 중…");
+    needXlsx().then(function(X){
+      var fr=new FileReader();
+      fr.onload=function(){
+        var wb, rowsAll=null, usedSheet="";
+        try{ wb=X.read(new Uint8Array(fr.result),{type:"array"}); }
+        catch(err){ toast("엑셀을 열지 못했습니다."); return; }
+        for(var i=0;i<wb.SheetNames.length;i++){
+          var rows=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[i]],{header:1,raw:true,defval:""});
+          var got=readRoySheet(rows);
+          if(got && got.length){ rowsAll=got; usedSheet=wb.SheetNames[i]; break; }
+        }
+        if(!rowsAll){ toast("제품명·제작수량·로열티율 칸을 찾지 못했습니다."); return; }
+        royImportModal(rowsAll, file.name, usedSheet);
+      };
+      fr.readAsArrayBuffer(file);
+    }).catch(function(err){ toast(err.message||"연장을 받지 못했습니다."); });
+  };
+  f.click();
+});
+
+function royImportModal(rows, fileName, sheetName){
+  var g=guessFromName(fileName);
+  var ipOpts=[{v:"",t:"IP 없음"}].concat(data.ips.map(function(i){ return {v:i.id,t:i.name}; }));
+  var sum=rows.reduce(function(s,r){ return s+royAmount(r); },0);
+
+  var prev='<div class="rwrap" style="max-height:240px"><table class="rtbl" style="min-width:560px">'+
+    '<thead><tr><th>No.</th><th>제품명</th><th>제작수량</th><th>출하가</th><th>판매가</th><th>로열티율</th><th>합계</th></tr></thead><tbody>'+
+    rows.map(function(r){
+      return '<tr><td class="num">'+esc(r.no)+'</td><td class="ipn">'+esc(r.item)+'</td>'+
+             '<td class="num">'+(num(r.qty)?won(r.qty):"—")+'</td>'+
+             '<td class="num">'+(num(r.ship)?won(r.ship)+"원":"—")+'</td>'+
+             '<td class="num">'+(num(r.price)?won(r.price)+"원":"—")+'</td>'+
+             '<td class="num">'+(num(r.rate)?r.rate+"%":"—")+'</td>'+
+             '<td class="num">'+won(royAmount(r))+'원</td></tr>';
+    }).join("")+
+    '<tr class="tot"><td colspan="6">총합계</td><td class="num">'+won(sum)+'원</td></tr>'+
+    '</tbody></table></div>';
+
+  var html=
+   '<p style="margin:0 0 14px;font-size:14px;font-weight:700">'+esc(fileName)+'</p>'+
+   '<div class="row2">'+
+     '<div class="f"><label for="uIp">어느 IP 건가요</label><select id="uIp">'+opts(ipOpts,g.ipId)+'</select></div>'+
+     '<div class="f"><label for="uPeriod">정산 기간</label><input id="uPeriod" value="'+esc(g.period).replace(/"/g,"&quot;")+'" placeholder="예: 2026-07"></div>'+
+   '</div>'+
+   '<div class="f"><label for="uState">상태</label><select id="uState">'+opts(ROY_STATES,"청구 전")+'</select></div>'+
+   '<div class="f"><label>읽어 온 내용 · '+rows.length+'줄'+(sheetName?' ('+esc(sheetName)+' 시트)':'')+'</label>'+prev+'</div>'+
+   '<p class="ratehint">같은 IP·같은 기간에 이미 넣어 둔 줄이 있으면 제품명이 같은 것은 새 값으로 바꿉니다.</p>';
+
+  modal("엑셀에서 정산 읽어 오기", esc(fileName), html, function(host){
+    var ipId=val(host,"uIp"), period=val(host,"uPeriod"), state=val(host,"uState");
+    if(!period){ toast("정산 기간을 넣어 주세요."); return false; }
+    var now=new Date().toISOString(), added=0, updated=0;
+    rows.forEach(function(r){
+      var old=data.roy.filter(function(x){
+        return x.ipId===ipId && (x.period||"")===period && (x.item||"")===r.item;
+      })[0];
+      var obj=old||{id:uid("roy")};
+      obj.ipId=ipId; obj.period=period; obj.state=old? (old.state||state) : state;
+      obj.no=r.no; obj.item=r.item; obj.qty=r.qty; obj.ship=r.ship; obj.price=r.price; obj.rate=r.rate;
+      obj.updated=now;
+      if(old) updated++; else { data.roy.push(obj); added++; }
+    });
+    save(); refreshFilters(); renderRoy();
+    toast("새로 "+added+"줄, 고친 것 "+updated+"줄 넣었습니다.");
+  }, {wide:true});
+}
+
+/* 늘 쓰시던 양식 그대로 내보내기 */
+document.getElementById("royDown").addEventListener("click", function(){
+  var fi=document.getElementById("fRoyIp").value;
+  var fp=document.getElementById("fRoyPeriod").value;
+  var rows=data.roy.filter(function(r){
+    if(fi&&r.ipId!==fi) return false;
+    if(fp&&(r.period||"")!==fp) return false;
+    return true;
+  });
+  if(!rows.length){ toast("내려받을 내용이 없습니다."); return; }
+  exportRoy(rows, fi? ipName(fi) : "전체", fp||"");
+});
+
+function exportRoy(rows, ipLabel, period){
+  needXlsx().then(function(X){
+    rows=rows.slice().sort(function(a,b){ return (num(a.no)||9999)-(num(b.no)||9999); });
+    var aoa=[[],[],["[부서별] IP 로열티 정산 리스트"],
+             ["No. ","제품명 ","제작수량 ","출하가 ","판매가 ","로열티율 ","합계 "]];
+    rows.forEach(function(r,i){
+      aoa.push([ num(r.no)||i+1, r.item||"", num(r.qty)||0,
+                 num(r.ship)||0, num(r.price)||"", num(r.rate)/100, 0 ]);
+    });
+    aoa.push(["총합계 ","","","","","",0]);
+
+    var ws=X.utils.aoa_to_sheet(aoa, {origin:"B1"});
+    /* 합계 칸은 엑셀 식 그대로 넣어 둔다 — 파일에서 숫자를 고치면 다시 셉니다 */
+    for(var i=0;i<rows.length;i++){
+      var rn=5+i;                                    /* 표는 5번째 줄부터 */
+      var useShip=num(rows[i].ship)>0;
+      var cell={t:"n", v:royAmount(rows[i]), z:"#,##0",
+                f: useShip ? ("D"+rn+"*E"+rn+"*G"+rn)
+                           : ("ROUND(F"+rn+"/1.1,0)*G"+rn+"*D"+rn)};
+      ws["H"+rn]=cell;
+      ["D","E","F"].forEach(function(c){ if(ws[c+rn]) ws[c+rn].z="#,##0"; });
+      if(ws["G"+rn]) ws["G"+rn].z="0.0%";
+    }
+    var last=5+rows.length;
+    ws["H"+last]={t:"n", v:rows.reduce(function(s,r){return s+royAmount(r)},0),
+                  z:"#,##0", f:"SUM(H5:H"+(last-1)+")"};
+    ws["!merges"]=[{s:{r:2,c:1},e:{r:2,c:7}},{s:{r:last-1,c:1},e:{r:last-1,c:6}}];
+    ws["!cols"]=[{wch:3},{wch:5},{wch:30},{wch:11},{wch:11},{wch:11},{wch:10},{wch:15}];
+
+    var wb=X.utils.book_new();
+    X.utils.book_append_sheet(wb, ws, "Sheet1");
+    var nm=[ipLabel||"IP","로열티",period||today(),"정산_리스트"].join("_")+".xlsx";
+    X.writeFile(wb, nm);
+    toast("내려받았습니다.");
+  }).catch(function(err){ toast(err.message||"연장을 받지 못했습니다."); });
 }
 
 /* ---------- docs ---------- */
@@ -1348,7 +1969,7 @@ function docModal(d){
 
 /* ---------- backup ---------- */
 document.getElementById("expJson").addEventListener("click", function(){
-  var out={ips:data.ips,md:data.md,docs:JSON.parse(JSON.stringify(data.docs))};
+  var out={ips:data.ips,md:data.md,roy:data.roy,docs:JSON.parse(JSON.stringify(data.docs))};
   var jobs=out.docs.map(function(d,i){
     if(!d.fileId) return Promise.resolve();
     return fileGet(d.fileId).then(function(u){ out.docs[i].fileData=u||null; });
@@ -1370,21 +1991,21 @@ document.getElementById("jsonPick").addEventListener("change", function(){
     try{
       var o=JSON.parse(fr.result);
       if(!confirm("지금 저장된 내용은 덮어써집니다. 불러올까요?")) return;
-      data.ips=o.ips||[]; data.md=o.md||[]; data.docs=o.docs||[];
+      data.ips=o.ips||[]; data.md=o.md||[]; data.roy=o.roy||[]; data.docs=o.docs||[];
       var jobs=data.docs.map(function(d){
         var fd=d.fileData; delete d.fileData;
         if(!fd) return Promise.resolve();
         var fid=uid("f");
         return filePut(fid,fd).then(function(){ d.fileId=fid; });
       });
-      Promise.all(jobs).then(function(){ save(); refreshFilters(); renderIps(); renderBoard(); renderDocs(); toast("불러왔습니다."); });
+      Promise.all(jobs).then(function(){ save(); redrawAll(); toast("불러왔습니다."); });
     }catch(e){ toast("파일 형식이 맞지 않습니다."); }
   };
   fr.readAsText(f);
 });
 
 /* boot */
-function redrawAll(){ refreshFilters(); renderIps(); renderBoard(); renderDocs(); }
+function redrawAll(){ refreshFilters(); renderIps(); renderBoard(); renderRoy(); renderDocs(); }
 
 /* 저장소에 올려 둔 백업 파일을 읽어 합친다 */
 function loadShared(){
@@ -1397,7 +2018,7 @@ function loadShared(){
       var ver=+(j.seed||0), had=0;
       try{ had=+(localStorage.getItem(SEEDKEY)||0); }catch(e){}
       var fresh=(ver>had), changed=false;
-      ["ips","md","docs"].forEach(function(k){
+      ["ips","md","roy","docs"].forEach(function(k){
         var rows=(j&&j[k])||[]; if(!rows.length) return;
         var byId={}; (data[k]||[]).forEach(function(x){byId[x.id]=x});
         rows.forEach(function(x){
@@ -1421,7 +2042,7 @@ function boot(){
     if(!dirty) return;
     e.preventDefault(); e.returnValue="";
   });
-  load(); refreshFilters(); renderIps(); renderBoard(); renderDocs();
+  load(); redrawAll();
   /* 시트를 먼저 읽고, 저장소 파일(data/ip.json)을 나중에 합친다.
      파일 쪽이 더 최근이면 파일 내용이 이기고, 그 결과를 시트에 다시 올린다. */
   pull().then(function(){
