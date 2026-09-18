@@ -281,8 +281,20 @@ table.rtbl td.ipn{font-weight:700}
 .rst{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;background:#f1f3f7;color:var(--mid)}
 .rst.s1{background:#FFF3D6;color:#8A6300}
 .rst.s2{background:#E7F2EE;color:#0F6E56}
-.rgh{display:flex;align-items:center;gap:10px;margin:18px 2px 8px}
-.rgh:first-child{margin-top:0}
+.rtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:4px}
+.rtiles .rt{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+.rtiles .rt .l{display:block;font-size:11.5px;font-weight:700;color:#8A94A6}
+.rtiles .rt b{display:block;margin-top:6px;font-size:21px;font-weight:800;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;color:#22314D}
+.rtiles .rt i{display:block;margin-top:3px;font-style:normal;font-size:11.5px;color:var(--mid)}
+table.rtbl td.shr{min-width:150px}
+table.rtbl td.shr i{display:inline-block;height:7px;border-radius:999px;background:var(--pink);vertical-align:middle}
+table.rtbl td.shr u{text-decoration:none;margin-left:8px;font-size:11.5px;font-weight:700;color:var(--mid);
+  font-variant-numeric:tabular-nums}
+select.gsel{font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:7px;
+  background:#fff;color:#22314D;cursor:pointer}
+select.gsel.guess{color:#8A94A6;border-style:dashed}
+.rgh{display:flex;align-items:center;gap:10px;margin:18px 2px 8px}.rgh:first-child{margin-top:0}
 .rgh b{font-size:15px;font-weight:800;letter-spacing:-.01em}
 .rgh span{flex:1;font-size:12px;color:var(--mid)}
 table.rtbl tr.tot td{background:#f7f8fb;font-weight:800;border-top:1px solid var(--line)}
@@ -390,6 +402,7 @@ table.rtbl tr.tot:hover td{background:#f7f8fb}
         <span class="chip" id="royCount"></span>
       </div>
       <div class="roysum" id="roySum"></div>
+      <div id="royStats"></div>
       <div id="royWrap"></div>
       <p class="sub" style="color:var(--mid);font-size:12.5px;margin-top:14px">
         늘 쓰시던 정산 리스트 엑셀을 그대로 올리면 제품별로 읽어 들입니다.
@@ -1431,6 +1444,25 @@ function royAmount(r){
   if(num(r.price)>0) return Math.round(num(r.price)/1.1)*rate*qty;
   return 0;
 }
+/* 제품군 — 로열티율 품목과 같은 갈래로 묶는다 */
+var GRPS=[["cake","케이크"],["ic","아이스크림"],["dessert","디저트"],["drink","음료"],["goods","굿즈"],["etc","기타"]];
+var GRPPAT={
+  cake:    /케이[크익]|홀케|롤케|와츄원|아이스케/,
+  drink:   /블라스트|쉐이크|스무디|라떼|커피|에이드|소다|주스|프라페|버블티|음료/,
+  ic:      /파인트|쿼터|패밀리|하프갤런|싱글레귤러|더블주니어|아이스크림|스푼/,
+  dessert: /마카롱|크런치|쿠키|와플|브라우니|타르트|푸딩|치즈볼|파이|초코볼|디저트|샌드/,
+  goods:   /키링|키체인|타월|타프|인형|텀블러|머그|파우치|가방|에코백|스티커|담요|블랭킷|우산|볼펜|모자|피규어|쿠션|러그|굿즈|MD/
+};
+function grpLabel(k){ for(var i=0;i<GRPS.length;i++) if(GRPS[i][0]===k) return GRPS[i][1]; return "기타"; }
+/* 제품명에서 제품군을 짐작한다. 못 알아보면 기타로 두고 표에서 바로 고칠 수 있게 한다. */
+function guessGrp(name){
+  var s=String(name||"");
+  var order=["cake","drink","ic","dessert","goods"];
+  for(var i=0;i<order.length;i++) if(GRPPAT[order[i]].test(s)) return order[i];
+  return "etc";
+}
+function grpOf(r){ return r.grp || guessGrp(r.item); }
+
 /* 그 IP에 적어 둔 품목별 요율 중 굿즈 값을 기본으로 끌어온다 */
 function defaultRate(ipId){
   var ip=data.ips.filter(function(x){return x.id===ipId})[0];
@@ -1512,8 +1544,10 @@ function renderRoy(){
     var e=document.createElement("div"); e.className="empty";
     e.textContent=data.roy.length? "조건에 맞는 정산 내역이 없습니다."
                                  : "아직 넣은 정산 내역이 없습니다. «엑셀 올리기»로 늘 쓰시던 파일을 그대로 올려 보세요.";
-    wrap.appendChild(e); return;
+    wrap.appendChild(e); document.getElementById("royStats").innerHTML=""; return;
   }
+
+  renderRoyStats(list);
 
   /* IP · 기간 묶음별로 엑셀과 같은 표를 하나씩 그린다 */
   var groups={}, order=[];
@@ -1547,7 +1581,7 @@ function renderRoy(){
     var box2=document.createElement("div"); box2.className="rwrap";
     var tb=document.createElement("table"); tb.className="rtbl";
     var hr=document.createElement("tr");
-    ["No.","제품명","제작수량","출하가","판매가","로열티율","합계","상태","메모",""].forEach(function(t2){
+    ["No.","제품명","제품군","제작수량","출하가","판매가","로열티율","합계","상태","메모",""].forEach(function(t2){
       var th=document.createElement("th"); th.textContent=t2; hr.appendChild(th);
     });
     var thead=document.createElement("thead"); thead.appendChild(hr); tb.appendChild(thead);
@@ -1561,6 +1595,21 @@ function renderRoy(){
       }
       cell(r.no||(idx+1),"num");
       cell(r.item||"—","ipn");
+
+      var tdG=document.createElement("td");
+      var sel=document.createElement("select"); sel.className="gsel";
+      GRPS.forEach(function(g){
+        var o=document.createElement("option"); o.value=g[0]; o.textContent=g[1];
+        if(g[0]===grpOf(r)) o.selected=true; sel.appendChild(o);
+      });
+      if(!r.grp) sel.classList.add("guess");
+      sel.title=r.grp? "직접 고른 제품군" : "제품명으로 짐작한 제품군 — 고치면 그대로 남습니다";
+      sel.onchange=function(){
+        r.grp=this.value; r.updated=new Date().toISOString();
+        save(); renderRoy();
+      };
+      tdG.appendChild(sel); tr.appendChild(tdG);
+
       cell(num(r.qty)? won(r.qty) : "—","num");
       cell(num(r.ship)? won(r.ship)+"원" : "—","num");
       cell(num(r.price)? won(r.price)+"원" : "—","num");
@@ -1583,7 +1632,7 @@ function renderRoy(){
     });
 
     var trT=document.createElement("tr"); trT.className="tot";
-    var tdT=document.createElement("td"); tdT.colSpan=6; tdT.textContent="총합계"; trT.appendChild(tdT);
+    var tdT=document.createElement("td"); tdT.colSpan=7; tdT.textContent="총합계"; trT.appendChild(tdT);
     var tdV=document.createElement("td"); tdV.className="num";
     tdV.textContent=won(rows.reduce(function(s,r){return s+royAmount(r)},0))+"원"; trT.appendChild(tdV);
     var tdE=document.createElement("td"); tdE.colSpan=3; trT.appendChild(tdE);
@@ -1593,6 +1642,109 @@ function renderRoy(){
     box2.appendChild(tb);
     wrap.appendChild(box2);
   });
+}
+
+/* ---------- 총금액 · 제품군별 보기 ---------- */
+function renderRoyStats(list){
+  var box=document.getElementById("royStats"); box.innerHTML="";
+  if(!list.length) return;
+
+  var totAmt=0, totQty=0;
+  list.forEach(function(r){ totAmt+=royAmount(r); totQty+=num(r.qty); });
+
+  /* 큰 숫자 세 칸 */
+  var tiles=document.createElement("div"); tiles.className="rtiles";
+  [["총 정산액", won(totAmt)+"원", wonShort(totAmt)],
+   ["총 제작수량", won(totQty)+"개", list.length+"개 제품"],
+   ["제품 한 개당 평균 정산액", won(totQty? totAmt/totQty : 0)+"원", ""]
+  ].forEach(function(t){
+    var d=document.createElement("div"); d.className="rt";
+    var l=document.createElement("span"); l.className="l"; l.textContent=t[0];
+    var v=document.createElement("b"); v.textContent=t[1];
+    d.appendChild(l); d.appendChild(v);
+    if(t[2]){ var s=document.createElement("i"); s.textContent=t[2]; d.appendChild(s); }
+    tiles.appendChild(d);
+  });
+  box.appendChild(tiles);
+
+  /* 묶어 세는 공통 틀 */
+  function agg(keyFn, labFn){
+    var m={}, order=[];
+    list.forEach(function(r){
+      var k=keyFn(r);
+      if(!m[k]){ m[k]={lab:labFn(k), n:0, qty:0, amt:0}; order.push(k); }
+      m[k].n++; m[k].qty+=num(r.qty); m[k].amt+=royAmount(r);
+    });
+    return {m:m, order:order};
+  }
+
+  /* 표 그리기 — 비중은 칸 안에 막대로 함께 보여 준다 */
+  function drawTable(title, hint, rows, sortByAmt){
+    var h=document.createElement("div"); h.className="rgh";
+    var b=document.createElement("b"); b.textContent=title; h.appendChild(b);
+    var sp=document.createElement("span"); sp.textContent=hint||""; h.appendChild(sp);
+    box.appendChild(h);
+
+    if(sortByAmt) rows.sort(function(a,b2){ return b2.amt-a.amt; });
+
+    var w=document.createElement("div"); w.className="rwrap";
+    var tb=document.createElement("table"); tb.className="rtbl";
+    var hr=document.createElement("tr");
+    ["구분","제품 수","제작수량","정산액","정산액 비중"].forEach(function(t){
+      var th=document.createElement("th"); th.textContent=t; hr.appendChild(th);
+    });
+    var th0=document.createElement("thead"); th0.appendChild(hr); tb.appendChild(th0);
+
+    var tbody=document.createElement("tbody");
+    rows.forEach(function(g){
+      var tr=document.createElement("tr");
+      function cell(txt,cls){ var td=document.createElement("td"); if(cls) td.className=cls;
+                              td.textContent=txt; tr.appendChild(td); return td; }
+      cell(g.lab,"ipn");
+      cell(g.n+"개","num");
+      cell(won(g.qty)+"개","num");
+      cell(won(g.amt)+"원","num");
+      var pct=totAmt? g.amt/totAmt*100 : 0;
+      var td=document.createElement("td"); td.className="shr";
+      var bar=document.createElement("i"); bar.style.width=Math.max(pct,0.6)+"%";
+      var lab=document.createElement("u"); lab.textContent=(Math.round(pct*10)/10)+"%";
+      td.appendChild(bar); td.appendChild(lab); tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+    var trT=document.createElement("tr"); trT.className="tot";
+    var c1=document.createElement("td"); c1.textContent="합계"; trT.appendChild(c1);
+    var c2=document.createElement("td"); c2.className="num"; c2.textContent=list.length+"개"; trT.appendChild(c2);
+    var c3=document.createElement("td"); c3.className="num"; c3.textContent=won(totQty)+"개"; trT.appendChild(c3);
+    var c4=document.createElement("td"); c4.className="num"; c4.textContent=won(totAmt)+"원"; trT.appendChild(c4);
+    var c5=document.createElement("td"); c5.className="num"; c5.textContent="100%"; trT.appendChild(c5);
+    tbody.appendChild(trT);
+    tb.appendChild(tbody); w.appendChild(tb); box.appendChild(w);
+  }
+
+  /* 제품군별 — 값이 없는 갈래도 빼지 않고 0으로 보여 준다 */
+  var byG=agg(grpOf, grpLabel);
+  var grows=GRPS.map(function(g){
+    return byG.m[g[0]] || {lab:g[1], n:0, qty:0, amt:0};
+  });
+  var etc=byG.m.etc? byG.m.etc.n : 0;
+  drawTable("제품군별", etc? ("제품군을 못 알아본 것 "+etc+"개 — 아래 표에서 고칠 수 있습니다")
+                          : "정산액이 큰 갈래부터", grows, true);
+
+  /* IP별 */
+  var byI=agg(function(r){ return r.ipId||""; }, function(k){ return ipName(k)||"IP 없음"; });
+  drawTable("IP별", "", byI.order.map(function(k){ return byI.m[k]; }), true);
+
+  /* 기간별 — 최근 기간부터 */
+  var byP=agg(function(r){ return r.period||""; }, function(k){ return k||"기간 없음"; });
+  var prows=byP.order.map(function(k){ return byP.m[k]; });
+  prows.sort(function(a,b2){ return String(b2.lab).localeCompare(String(a.lab)); });
+  drawTable("기간별", "최근 기간부터", prows, false);
+
+  var note=document.createElement("p");
+  note.className="sub";
+  note.style.cssText="color:var(--mid);font-size:12.5px;margin:12px 2px 0";
+  note.textContent="여기서 세는 수량은 정산 리스트에 적힌 제작수량입니다. 실제 팔린 개수가 아니라 로열티를 매기는 기준 수량입니다.";
+  box.appendChild(note);
 }
 
 /* ---------- 정산 한 줄 고치기 ---------- */
@@ -1610,6 +1762,9 @@ function royModal(r){
      '<div class="f"><label for="yState">상태</label><select id="yState">'+opts(ROY_STATES,e.state||"청구 전")+'</select></div>'+
    '</div>'+
    '<div class="f"><label for="yItem">제품명</label><input id="yItem" value="'+esc(e.item||"").replace(/"/g,"&quot;")+'" placeholder="예: 쵸파의 코튼캔디 크런치"></div>'+
+   '<div class="f"><label for="yGrp">제품군</label><select id="yGrp">'+
+     opts(GRPS.map(function(g){ return {v:g[0],t:g[1]}; }), e.grp||guessGrp(e.item))+
+   '</select><p class="ratehint">비워 두면 제품명으로 짐작합니다. 여기서 고르면 그 값으로 굳습니다.</p></div>'+
    '<div class="row2">'+
      '<div class="f"><label for="yQty">제작수량</label><input id="yQty" inputmode="numeric" value="'+esc(e.qty==null?"":e.qty)+'"></div>'+
      '<div class="f"><label for="yRate">로열티율 (%)</label><input id="yRate" inputmode="decimal" value="'+esc(e.rate==null?"":e.rate)+'" placeholder="예: 5"></div>'+
@@ -1629,6 +1784,7 @@ function royModal(r){
     var obj=r||{id:uid("roy")};
     obj.ipId=val(host,"yIp"); obj.period=val(host,"yPeriod"); obj.item=item;
     obj.no=val(host,"yNo"); obj.state=val(host,"yState"); obj.memo=val(host,"yMemo");
+    obj.grp=val(host,"yGrp");
     obj.qty=val(host,"yQty").replace(/[^\d.]/g,"");
     obj.ship=val(host,"yShip").replace(/[^\d.]/g,"");
     obj.price=val(host,"yPrice").replace(/[^\d.]/g,"");
@@ -1723,7 +1879,8 @@ function readRoySheet(rows){
       qty:   qty? String(qty) : "",
       ship:  num(g("ship"))? String(num(g("ship"))) : "",
       price: num(g("price"))? String(num(g("price"))) : "",
-      rate:  rate? String(Math.round(rate*1000)/1000) : ""
+      rate:  rate? String(Math.round(rate*1000)/1000) : "",
+      grp:   guessGrp(nameCell)
     });
   }
   return out;
@@ -1776,17 +1933,18 @@ function royImportModal(rows, fileName, sheetName){
   var ipOpts=[{v:"",t:"IP 없음"}].concat(data.ips.map(function(i){ return {v:i.id,t:i.name}; }));
   var sum=rows.reduce(function(s,r){ return s+royAmount(r); },0);
 
-  var prev='<div class="rwrap" style="max-height:240px"><table class="rtbl" style="min-width:560px">'+
-    '<thead><tr><th>No.</th><th>제품명</th><th>제작수량</th><th>출하가</th><th>판매가</th><th>로열티율</th><th>합계</th></tr></thead><tbody>'+
+  var prev='<div class="rwrap" style="max-height:240px"><table class="rtbl" style="min-width:660px">'+
+    '<thead><tr><th>No.</th><th>제품명</th><th>제품군</th><th>제작수량</th><th>출하가</th><th>판매가</th><th>로열티율</th><th>합계</th></tr></thead><tbody>'+
     rows.map(function(r){
       return '<tr><td class="num">'+esc(r.no)+'</td><td class="ipn">'+esc(r.item)+'</td>'+
+             '<td>'+esc(grpLabel(r.grp))+'</td>'+
              '<td class="num">'+(num(r.qty)?won(r.qty):"—")+'</td>'+
              '<td class="num">'+(num(r.ship)?won(r.ship)+"원":"—")+'</td>'+
              '<td class="num">'+(num(r.price)?won(r.price)+"원":"—")+'</td>'+
              '<td class="num">'+(num(r.rate)?r.rate+"%":"—")+'</td>'+
              '<td class="num">'+won(royAmount(r))+'원</td></tr>';
     }).join("")+
-    '<tr class="tot"><td colspan="6">총합계</td><td class="num">'+won(sum)+'원</td></tr>'+
+    '<tr class="tot"><td colspan="7">총합계</td><td class="num">'+won(sum)+'원</td></tr>'+
     '</tbody></table></div>';
 
   var html=
@@ -1810,6 +1968,7 @@ function royImportModal(rows, fileName, sheetName){
       var obj=old||{id:uid("roy")};
       obj.ipId=ipId; obj.period=period; obj.state=old? (old.state||state) : state;
       obj.no=r.no; obj.item=r.item; obj.qty=r.qty; obj.ship=r.ship; obj.price=r.price; obj.rate=r.rate;
+      if(!(old&&old.grp)) obj.grp=r.grp;   /* 손으로 고른 제품군은 덮어쓰지 않는다 */
       obj.updated=now;
       if(old) updated++; else { data.roy.push(obj); added++; }
     });

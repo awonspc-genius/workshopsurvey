@@ -75,7 +75,8 @@ var TABLES = {
        · ship(출하가) 가 있으면        : qty × ship × rate
        · ship 이 비어 있으면           : 반올림(price ÷ 1.1) × rate × qty          */
   roy:   ["id","ipId","period","no","item","qty","ship","price","rate",
-          "state","memo","updated","by"],
+          "state","memo","updated","by",
+          "grp"],    /* grp = 제품군. cake/ic/dessert/drink/goods/etc. 비어 있으면 제품명으로 짐작한다 */
   music: ["id","date","title","place","memo","photos","updated","by"],
   ipmaster: ["id","grp","ip","kind","slot","agent","period","mg","roy","prod","dur","poc","excl","stage","memo","updated"],
   meta:     ["id","by","at","n","updated"]
