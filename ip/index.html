@@ -291,6 +291,12 @@ table.rtbl td.shr{min-width:150px}
 table.rtbl td.shr i{display:inline-block;height:7px;border-radius:999px;background:var(--pink);vertical-align:middle}
 table.rtbl td.shr u{text-decoration:none;margin-left:8px;font-size:11.5px;font-weight:700;color:var(--mid);
   font-variant-numeric:tabular-nums}
+.vd{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap;
+  background:#f1f3f7;color:var(--mid)}
+.vd.good{background:#E7F2EE;color:#0F6E56}
+.vd.rate{background:#FFF3D6;color:#8A6300}
+.vd.vol{background:#EEF2FA;color:#3C5A87}
+.vd.bad{background:#FCE8EC;color:#A3243C}
 select.gsel{font:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:7px;
   background:#fff;color:#22314D;cursor:pointer}
 select.gsel.guess{color:#8A94A6;border-style:dashed}
@@ -398,6 +404,7 @@ table.rtbl tr.tot:hover td{background:#f7f8fb}
         <select class="s" id="fRoyIp"><option value="">모든 IP</option></select>
         <select class="s" id="fRoyPeriod"><option value="">모든 기간</option></select>
         <select class="s" id="fRoyState"><option value="">모든 상태</option></select>
+        <select class="s" id="fRoyVd" title="잘된 건 · 안 좋은 건으로 거르기"><option value="">전체 평가</option></select>
         <span class="grow"><input class="s" id="fRoyQ" placeholder="제품명, 기간, 메모에서 찾기"></span>
         <span class="chip" id="royCount"></span>
       </div>
@@ -772,13 +779,17 @@ function refreshFilters(){
   fillSelect(document.getElementById("fRoyIp"), ipOpts, "모든 IP");
   fillSelect(document.getElementById("fRoyState"), ROY_STATES, "모든 상태");
   fillSelect(document.getElementById("fRoyPeriod"), periodsOf(), "모든 기간");
+  var k9=document.getElementById("fRoyVd").value;
+  fillSelect(document.getElementById("fRoyVd"),
+             VERDICTS.map(function(v){ return {v:v[0],t:v[1]}; }), "전체 평가");
+  document.getElementById("fRoyVd").value=k9;
   document.getElementById("fRoyIp").value=k6; document.getElementById("fRoyState").value=k7;
   document.getElementById("fRoyPeriod").value=k8;
 }
 ["fStage","fSrc","fQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", function(){ drawFlow(); renderIps(); }); });
 document.getElementById("fMdIp").addEventListener("change", renderBoard);
 ["fDocIp","fDocType","fDocQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderDocs); });
-["fRoyIp","fRoyPeriod","fRoyState","fRoyQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderRoy); });
+["fRoyIp","fRoyPeriod","fRoyState","fRoyVd","fRoyQ"].forEach(function(id){ document.getElementById(id).addEventListener("input", renderRoy); });
 
 /* ---------- IP list ---------- */
 var RATEKEYS=[["ic","아이스크림"],["cake","케이크"],["dessert","디저트"],["drink","음료"],["goods","굿즈"]];
@@ -1483,9 +1494,14 @@ function renderRoy(){
   var fi=document.getElementById("fRoyIp").value;
   var fp=document.getElementById("fRoyPeriod").value;
   var fs=document.getElementById("fRoyState").value;
+  var fv=document.getElementById("fRoyVd").value;
   var q=document.getElementById("fRoyQ").value.trim().toLowerCase();
 
-  var list=data.roy.filter(function(r){
+  /*  base = 평가 거르기를 뺀 목록.
+      잘된 건·안 좋은 건을 가리는 기준선은 이 base 로 잡습니다. 걸러낸 목록으로
+      기준선을 다시 잡으면 «안 좋은 건»만 봤을 때 그 안에서 또 절반이 잘된 건이
+      되어 버려서, 평가가 볼 때마다 달라집니다.                              */
+  var base=data.roy.filter(function(r){
     if(fi&&r.ipId!==fi) return false;
     if(fp&&(r.period||"")!==fp) return false;
     if(fs&&(r.state||"청구 전")!==fs) return false;
@@ -1495,6 +1511,8 @@ function renderRoy(){
     }
     return true;
   });
+  ROYSTAT=royStat(base);
+  var list=fv? base.filter(function(r){ return royVerdict(r)===fv; }) : base;
 
   var total=list.reduce(function(s,r){ return s+royAmount(r); },0);
   document.getElementById("royCount").textContent="모두 "+list.length+"줄 · "+wonShort(total);
@@ -1540,14 +1558,16 @@ function renderRoy(){
     sumBox.appendChild(box);
   });
 
+  /* 집계는 평가 거르기를 뺀 base 로 그린다 — 네 갈래 개수가 늘 다 보이도록 */
+  if(base.length) renderRoyStats(base);
+  else document.getElementById("royStats").innerHTML="";
+
   if(!list.length){
     var e=document.createElement("div"); e.className="empty";
     e.textContent=data.roy.length? "조건에 맞는 정산 내역이 없습니다."
                                  : "아직 넣은 정산 내역이 없습니다. «엑셀 올리기»로 늘 쓰시던 파일을 그대로 올려 보세요.";
-    wrap.appendChild(e); document.getElementById("royStats").innerHTML=""; return;
+    wrap.appendChild(e); return;
   }
-
-  renderRoyStats(list);
 
   /* IP · 기간 묶음별로 엑셀과 같은 표를 하나씩 그린다 */
   var groups={}, order=[];
@@ -1581,7 +1601,7 @@ function renderRoy(){
     var box2=document.createElement("div"); box2.className="rwrap";
     var tb=document.createElement("table"); tb.className="rtbl";
     var hr=document.createElement("tr");
-    ["No.","제품명","제품군","제작수량","출하가","판매가","로열티율","합계","상태","메모",""].forEach(function(t2){
+    ["No.","제품명","제품군","평가","제작수량","출하가","판매가","로열티율","합계","개당 로열티","상태","메모",""].forEach(function(t2){
       var th=document.createElement("th"); th.textContent=t2; hr.appendChild(th);
     });
     var thead=document.createElement("thead"); thead.appendChild(hr); tb.appendChild(thead);
@@ -1610,11 +1630,18 @@ function renderRoy(){
       };
       tdG.appendChild(sel); tr.appendChild(tdG);
 
+      var vk=royVerdict(r);
+      var tdV=document.createElement("td");
+      var vp=document.createElement("span");
+      vp.className="vd "+vk; vp.textContent=verdictLabel(vk);
+      vp.title=verdictHint(vk); tdV.appendChild(vp); tr.appendChild(tdV);
+
       cell(num(r.qty)? won(r.qty) : "—","num");
       cell(num(r.ship)? won(r.ship)+"원" : "—","num");
       cell(num(r.price)? won(r.price)+"원" : "—","num");
       cell(num(r.rate)? r.rate+"%" : "—","num");
       cell(won(royAmount(r))+"원","num");
+      cell(num(r.qty)? won(royAmount(r)/num(r.qty))+"원" : "—","num");
 
       var st=r.state||"청구 전";
       var tdS=document.createElement("td");
@@ -1632,16 +1659,61 @@ function renderRoy(){
     });
 
     var trT=document.createElement("tr"); trT.className="tot";
-    var tdT=document.createElement("td"); tdT.colSpan=7; tdT.textContent="총합계"; trT.appendChild(tdT);
+    var tdT=document.createElement("td"); tdT.colSpan=8; tdT.textContent="총합계"; trT.appendChild(tdT);
     var tdV=document.createElement("td"); tdV.className="num";
     tdV.textContent=won(rows.reduce(function(s,r){return s+royAmount(r)},0))+"원"; trT.appendChild(tdV);
-    var tdE=document.createElement("td"); tdE.colSpan=3; trT.appendChild(tdE);
+    var tdE=document.createElement("td"); tdE.colSpan=4; trT.appendChild(tdE);
     tbody.appendChild(trT);
 
     tb.appendChild(tbody);
     box2.appendChild(tb);
     wrap.appendChild(box2);
   });
+}
+
+/* ---------- 잘된 건 · 안 좋은 건 가리기 ----------
+   많이 팔리고 요율이 낮으면 잘된 건, 적게 팔리는데 요율이 높으면 안 좋은 건입니다.
+   기준선은 지금 화면에 걸린 목록의 중간값(가운데 값)입니다. 평균은 몇 개 큰
+   제품에 끌려가서 기준선이 엉뚱해지기 때문에 중간값을 씁니다.            */
+var VERDICTS=[
+  ["good", "잘된 건",              "많이 나가고 요율도 낮음"],
+  ["rate", "요율 아쉬움",          "많이 나가지만 요율이 높음"],
+  ["vol",  "물량 아쉬움",          "요율은 낮지만 적게 나감"],
+  ["bad",  "안 좋은 건",           "적게 나가는데 요율까지 높음"],
+  ["none", "판단 보류",            "수량이나 요율이 비어 있음"]
+];
+function verdictLabel(k){ for(var i=0;i<VERDICTS.length;i++) if(VERDICTS[i][0]===k) return VERDICTS[i][1]; return "판단 보류"; }
+function verdictHint(k){ for(var i=0;i<VERDICTS.length;i++) if(VERDICTS[i][0]===k) return VERDICTS[i][2]; return ""; }
+
+function median(arr){
+  var a=arr.filter(function(x){ return x>0; }).sort(function(x,y){ return x-y; });
+  if(!a.length) return 0;
+  var h=Math.floor(a.length/2);
+  return a.length%2 ? a[h] : (a[h-1]+a[h])/2;
+}
+/* 지금 목록의 기준선을 잡는다. 견줄 제품이 너무 적으면 기준선을 안 잡는다. */
+var ROYSTAT={ready:false, qtyMid:0, rateMid:0};
+function royStat(list){
+  var qs=list.map(function(r){ return num(r.qty); });
+  var rs=list.map(function(r){ return num(r.rate); }).filter(function(x){ return x>0; });
+  var ok = list.length>=4 && median(qs)>0 && median(rs)>0;
+  /*  요율이 다 같으면 요율 쪽으로는 갈라지지 않습니다. 한 IP의 한 달 리스트는
+      보통 전 제품이 같은 요율이라, 그럴 때는 사실상 수량만 보는 셈이 됩니다.
+      그 사정을 감춰 두면 «잘된 건»을 잘못 읽게 되니 겉으로 알려 줍니다.      */
+  var lo=Math.min.apply(null, rs.length?rs:[0]), hi=Math.max.apply(null, rs.length?rs:[0]);
+  return {ready:ok, qtyMid:median(qs), rateMid:median(rs), n:list.length,
+          rateFlat: rs.length>0 && lo===hi, rateLo:lo, rateHi:hi};
+}
+function royVerdict(r){
+  if(!ROYSTAT.ready) return "none";
+  var q=num(r.qty), rt=num(r.rate);
+  if(!q || !rt) return "none";
+  var manyQ = q >= ROYSTAT.qtyMid;
+  var lowR  = rt <= ROYSTAT.rateMid;
+  if(manyQ && lowR)  return "good";
+  if(manyQ && !lowR) return "rate";
+  if(!manyQ && lowR) return "vol";
+  return "bad";
 }
 
 /* ---------- 총금액 · 제품군별 보기 ---------- */
@@ -1729,6 +1801,26 @@ function renderRoyStats(list){
   var etc=byG.m.etc? byG.m.etc.n : 0;
   drawTable("제품군별", etc? ("제품군을 못 알아본 것 "+etc+"개 — 아래 표에서 고칠 수 있습니다")
                           : "정산액이 큰 갈래부터", grows, true);
+
+  /* 잘된 건 · 안 좋은 건 — 네 갈래 모두 보여 준다 */
+  var byV=agg(royVerdict, verdictLabel);
+  var vrows=VERDICTS.map(function(v){
+    var g=byV.m[v[0]] || {lab:v[1], n:0, qty:0, amt:0};
+    return {lab:v[1]+" — "+v[2], n:g.n, qty:g.qty, amt:g.amt};
+  });
+  var vhint;
+  if(!ROYSTAT.ready) vhint="견줄 제품이 "+ROYSTAT.n+"개뿐이라 기준선을 잡지 않았습니다";
+  else if(ROYSTAT.rateFlat) vhint="이 목록은 로열티율이 모두 "+(Math.round(ROYSTAT.rateHi*100)/100)+"% 로 같아서 수량만으로 갈립니다 · 기준선 제작수량 "+won(ROYSTAT.qtyMid)+"개";
+  else vhint="기준선 · 제작수량 "+won(ROYSTAT.qtyMid)+"개 · 로열티율 "+(Math.round(ROYSTAT.rateMid*100)/100)+"% (지금 목록의 가운데 값)";
+  drawTable("잘된 건 · 안 좋은 건", vhint, vrows, false);
+
+  if(ROYSTAT.ready && ROYSTAT.rateFlat){
+    var w2=document.createElement("p");
+    w2.className="sub";
+    w2.style.cssText="color:#8A6300;background:#FFF8E6;border-radius:9px;padding:10px 13px;font-size:12.5px;margin:8px 2px 0";
+    w2.textContent="요율이 다 같을 때는 «개당 로열티»(정산액 ÷ 제작수량)로 보는 편이 낫습니다. 아래 표 오른쪽에 있습니다. 요율이 갈리는 그림을 보려면 IP를 «모든 IP»로 두고 여러 IP를 함께 보세요.";
+    box.appendChild(w2);
+  }
 
   /* IP별 */
   var byI=agg(function(r){ return r.ipId||""; }, function(k){ return ipName(k)||"IP 없음"; });
