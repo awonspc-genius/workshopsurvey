@@ -2,6 +2,14 @@
  *  IP 업무(후보·상품·로열티 정산·자료)와 뮤직쇼 사진을 한 시트에 모아 둡니다.
  *  한 건이 한 줄로 들어가므로 자료가 늘어도 칸 용량 제한에 걸리지 않습니다.
  *
+ *  ── 2026.09 슬랙 매출 알림 추가 ──────────────────────────────────
+ *  이 코드를 붙여넣고 저장한 뒤, 딱 한 번만:
+ *    위쪽 함수 고르는 칸에서 authorize 를 고르고 [실행] → 권한 창에서 [허용]
+ *  (슬랙으로 글을 보내고 그래프 이미지를 만드는 권한입니다)
+ *  그다음 [배포 관리] > 연필 > '새 버전' 으로 배포하면 됩니다.
+ *  슬랙 토큰·채널 ID는 코드에 적지 않습니다. 플랜 페이지 «슬랙 연결 설정»에서 넣으면
+ *  이 스크립트 안(스크립트 속성)에만 저장됩니다.
+ *
  *  ── 2026.09 매출 엑셀 올리기 추가 ─────────────────────────────
  *  연간 마케팅 플랜 페이지 맨 아래 «매출 엑셀 올리기» 칸이 이 스크립트의
  *  sales 탭에 일매출을 적습니다. 매출 페이지·플랜 페이지는 여기서 읽어 갑니다.
@@ -263,7 +271,7 @@ function doGet(e) {
       for (var t in TABLES) if (!NOT_IN_ALL[t]) all[t] = readAll(t);
       out = { ok: true, data: all };
     } else if (p.action === "sales") {
-      out = { ok: true, rows: readAll("sales") };
+      out = { ok: true, rows: readAll("sales"), slack: !!slackUrl() };
     } else if (p.action === "ping") {
       out = { ok: true, tables: Object.keys(TABLES) };
     } else if (!p.action) {
@@ -358,6 +366,10 @@ function doPost(e) {
       /* 매출 표는 비밀번호가 맞을 때만 쓴다 */
       if (b.table === "sales" && b.type !== "sales") {
         out = { ok: false, error: "매출은 올리기 칸에서만 바꿀 수 있습니다" };
+      } else if (b.type === "slackSetup" || b.type === "slack") {
+        if (String(b.key || "") !== SALES_KEY) out = { ok: false, error: "비밀번호가 맞지 않습니다" };
+        else if (b.type === "slackSetup") out = slackSetup(b.conf);
+        else out = slackPost(b.payload || {});
       } else if (b.type === "sales") {
         if (String(b.key || "") !== SALES_KEY) out = { ok: false, error: "올리기 비밀번호가 맞지 않습니다" };
         else out = { ok: true, ids: upsertMany("sales", b.recs || []) };
@@ -380,4 +392,110 @@ function doPost(e) {
   }
   return ContentService.createTextOutput(JSON.stringify(out))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   슬랙 매출 알림
+   플랜 페이지가 요약 글과 월별 숫자를 보내 오면
+   올해·전년 월별 막대 그래프 이미지를 만들어 슬랙 채널에 파일로 올립니다.
+   (이미지가 슬랙 안에 바로 보이고, 드라이브에 공개 링크를 만들지 않습니다)
+   필요한 것 : 슬랙 앱 봇 토큰(xoxb-…, 권한 chat:write · files:write) + 채널 ID
+   토큰과 채널은 코드에 적지 않고 스크립트 속성에만 저장됩니다.
+   ════════════════════════════════════════════════════════════════ */
+
+/* 처음 한 번 [실행] 해서 권한을 허용하기 위한 함수 (하는 일은 없습니다) */
+function authorize() {
+  UrlFetchApp.getRequest("https://slack.com/api/auth.test");
+  Charts.newDataTable();
+  return "권한 확인 끝";
+}
+
+function slackConf() {
+  var pr = PropertiesService.getScriptProperties();
+  return { token: pr.getProperty("SLACK_TOKEN") || "", channel: pr.getProperty("SLACK_CHANNEL") || "" };
+}
+function slackUrl() { var c = slackConf(); return c.token && c.channel ? "on" : ""; }
+
+function slackApi(method, token, form) {
+  var r = UrlFetchApp.fetch("https://slack.com/api/" + method, {
+    method: "post", headers: { Authorization: "Bearer " + token }, payload: form, muteHttpExceptions: true });
+  var j = {}; try { j = JSON.parse(r.getContentText()); } catch (e) { j = { ok: false, error: r.getContentText() }; }
+  return j;
+}
+function slackErr(e) {
+  var M = { not_in_channel: "앱이 채널에 없습니다. 채널에서 /invite @앱이름 으로 초대해 주세요.",
+            channel_not_found: "채널 ID를 찾지 못했습니다. 채널 정보 맨 아래의 ID(C로 시작)를 넣어 주세요.",
+            invalid_auth: "토큰이 맞지 않습니다. xoxb- 로 시작하는 Bot User OAuth Token 을 넣어 주세요.",
+            not_authed: "토큰이 비어 있습니다.",
+            missing_scope: "앱 권한이 부족합니다. chat:write, files:write 를 넣고 앱을 다시 설치해 주세요." };
+  return M[e] || ("슬랙 오류: " + e);
+}
+
+function slackSetup(conf) {
+  conf = conf || {};
+  var pr = PropertiesService.getScriptProperties();
+  var token = String(conf.token || "").trim(), channel = String(conf.channel || "").trim();
+  if (!token && !channel) {                          /* 둘 다 비우면 연결 끊기 */
+    pr.deleteProperty("SLACK_TOKEN"); pr.deleteProperty("SLACK_CHANNEL");
+    return { ok: true, off: true };
+  }
+  if (!/^xoxb-/.test(token)) return { ok: false, error: "토큰은 xoxb- 로 시작해야 합니다 (Bot User OAuth Token)" };
+  if (!/^[CG][A-Z0-9]{6,}$/.test(channel)) return { ok: false, error: "채널 ID는 C로 시작하는 영문·숫자입니다 (채널 이름 말고 ID)" };
+  var j = slackApi("chat.postMessage", token, { channel: channel, text: "BRK Genius 매출 알림이 이 채널에 연결되었습니다." });
+  if (!j.ok) return { ok: false, error: slackErr(j.error) };
+  pr.setProperty("SLACK_TOKEN", token); pr.setProperty("SLACK_CHANNEL", channel);
+  return { ok: true };
+}
+
+/* 올해·전년 월별 막대 그래프 PNG */
+function slackChart(p) {
+  var months = p.months || [];
+  if (!months.length) return null;
+  var dt = Charts.newDataTable()
+    .addColumn(Charts.ColumnType.STRING, "월")
+    .addColumn(Charts.ColumnType.NUMBER, (p.year - 1) + "년")
+    .addColumn(Charts.ColumnType.NUMBER, p.year + "년");
+  months.forEach(function (r) { dt.addRow([String(r.m), Number(r.prev) || 0, Number(r.cur) || 0]); });
+  var chart = Charts.newColumnChart()
+    .setDataTable(dt.build())
+    .setColors(["#C9CED8", "#E8447A"])
+    .setDimensions(1200, 560)
+    .setTitle(p.chartTitle || "")
+    .setLegendPosition(Charts.Position.TOP)
+    .setYAxisTitle("억 원")
+    .build();
+  return chart.getAs("image/png").setName("BR_매출_" + Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd_HHmm") + ".png");
+}
+
+function slackPost(p) {
+  var c = slackConf();
+  if (!c.token || !c.channel) return { ok: false, error: "슬랙이 아직 연결되지 않았습니다. «슬랙 연결 설정»에서 토큰과 채널 ID를 넣어 주세요." };
+  var text = "*" + (p.title || "BR 총 POS 매출") + "*\n" +
+             (p.lines || []).map(function (l) { return "• " + l; }).join("\n") +
+             "\n<" + (p.link || "https://www.brkgenius.com/sales/") + "|자세히 보기 · 총 POS 매출 페이지> (비밀번호 필요)" +
+             (p.by ? "  ·  올린 사람 " + p.by : "");
+  var blob = null;
+  try { blob = slackChart(p); } catch (e) { blob = null; }
+
+  if (blob) {
+    var bytes = blob.getBytes();
+    var j1 = slackApi("files.getUploadURLExternal", c.token, { filename: blob.getName(), length: String(bytes.length) });
+    if (j1.ok) {
+      var up = UrlFetchApp.fetch(j1.upload_url, { method: "post", payload: blob, muteHttpExceptions: true });
+      if (up.getResponseCode() === 200) {
+        var j3 = slackApi("files.completeUploadExternal", c.token, {
+          files: JSON.stringify([{ id: j1.file_id, title: p.chartTitle || "월별 실매출" }]),
+          channel_id: c.channel, initial_comment: text });
+        if (j3.ok) return { ok: true, image: true };
+        if (j3.error !== "missing_scope") return { ok: false, error: slackErr(j3.error) };
+      }
+    } else if (j1.error !== "missing_scope") {
+      return { ok: false, error: slackErr(j1.error) };
+    }
+  }
+  /* 그래프를 못 만들었거나 파일 권한이 없으면 글만 보냄 */
+  var j = slackApi("chat.postMessage", c.token, { channel: c.channel, text: text });
+  if (!j.ok) return { ok: false, error: slackErr(j.error) };
+  return { ok: true, image: false, note: blob ? "파일 올리기 권한(files:write)이 없어 글만 올렸습니다." : "그래프를 만들지 못해 글만 올렸습니다." };
 }
