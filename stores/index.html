@@ -718,7 +718,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .maplg .bub i { display:inline-block; border-radius:50%; background:rgba(232,68,122,.45); border:1.5px solid var(--berry); }
   .provnote { margin-top:11px; font-size:12px; line-height:1.65; color:#8a6f63;
                background:var(--soft); border:1px solid #F0C8D8; border-radius:10px; padding:10px 14px; }
-  .nbub { border-radius:50%; background:rgba(232,68,122,.32); border:1.5px solid var(--berry); box-sizing:border-box; }
+  .nbub { border-radius:50%; background:var(--berry); border:1px solid #fff; box-sizing:border-box; cursor:pointer; }
   .niw { background:#fff; border:1px solid var(--line); border-radius:12px; padding:13px 15px;
          box-shadow:0 12px 28px -14px rgba(62,39,35,.45); }
   .mapfail { display:grid; place-items:center; height:100%; text-align:center; font-size:13.5px;
@@ -854,7 +854,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <h2>전국 분포</h2>
   <div class="mapbox">
     <div class="mapctl">
-      <div class="ctlg">
+      <div class="ctlg" hidden>
         <div class="cl">원 크기 기준</div>
         <div class="chips" id="modeChips">
           <button class="chip on" data-mode="sales" type="button">매출 합계</button>
@@ -869,18 +869,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
     <div id="map"></div>
     <div class="maplg">
-      <span>원이 클수록 값이 큽니다</span>
-      <span class="bub"><i style="width:9px;height:9px"></i> 작음</span>
-      <span class="bub"><i style="width:17px;height:17px"></i> 보통</span>
-      <span class="bub"><i style="width:29px;height:29px"></i> 큼</span>
-      <span style="margin-left:auto">원을 누르면 그 지역 점포가 모두 나옵니다</span>
+      <span><b style="color:#000">점포 매출 (7월)</b></span>
+      <span class="bub"><i style="width:11px;height:11px;background:#F5B8CB;border-color:#fff"></i> <span id="lg0">하위 1/3</span></span>
+      <span class="bub"><i style="width:11px;height:11px;background:#E0527F;border-color:#fff"></i> <span id="lg1">중간 1/3</span></span>
+      <span class="bub"><i style="width:11px;height:11px;background:#9C1446;border-color:#fff"></i> <span id="lg2">상위 1/3</span></span>
+      <span style="margin-left:auto">점을 누르면 점포 정보가 나옵니다</span>
     </div>
     <div class="provnote" id="provNote" style="display:none"></div>
-    <div class="mapnote">
-      <b>위치는 시·군·구 단위입니다.</b> 점포현황 파일의 도로명 주소에서 시·군·구를 가져와 그 지역 중심 좌표에 찍었습니다.
-      1,708개 점포가 <b>219곳</b>으로 묶여 있고, 같은 지역 점포는 한 원에 모입니다. 주소록에 없는 34개 점포만 점포명으로 추정했고
-      표에 「추정」으로 표시했습니다. 점포 하나하나를 정확한 자리에 찍으려면 주소를 위경도로 바꾸는 작업이 한 번 필요합니다.
+    <div class="mapnote" id="coordNote">
+      점포 하나하나를 점으로 찍고, 7월 매출을 3단계 색으로 나눴습니다. 전체 점포를 매출 순으로 줄 세워 3등분한 구간이라 세 색의 점포 수가 비슷합니다.
     </div>
+    <div id="geoAdmin" hidden></div>
   </div>
 
   <div class="smark"><i>&gt;</i> By Team</div>
@@ -1043,33 +1042,53 @@ function agg(){
   });
 }
 
+/* ===== 점포 점 · 매출 3단계 색 =====
+   색 구간 = 전체 점포를 매출 순으로 줄 세워 3등분 (점포 수가 비슷하게 나뉨)
+   위치 = /data/store-coords.json (관리자 주소에서 만든 좌표). 없으면 시·군·구 중심 근처에 둠 */
+var TIER_COL = ["#F5B8CB", "#E0527F", "#9C1446"];
+var TIER_TXT = ["하위 1/3", "중간 1/3", "상위 1/3"];
+var CUTS = (function(){
+  var v = STORES.map(function(s){ return s.s; }).filter(function(x){ return x > 0; }).sort(function(a,b){ return a-b; });
+  return [v[Math.floor(v.length/3)], v[Math.floor(v.length*2/3)]];
+})();
+function tierOf(v){ return v < CUTS[0] ? 0 : v < CUTS[1] ? 1 : 2; }
+var XY = {};           /* 점포코드 → [위도, 경도] */
+function jit(code, k){ /* 좌표가 없을 때 같은 지역 점포가 한 점에 겹치지 않게 조금 흩음 (항상 같은 자리) */
+  var h = 0; for (var i = 0; i < code.length; i++) h = (h * 31 + code.charCodeAt(i) + k * 7) % 100000;
+  return (h / 100000 - 0.5) * 0.06;
+}
+function posOf(s){
+  if (XY[s.c]) return { lat: XY[s.c][0], lng: XY[s.c][1], exact: true };
+  var c = COORD[s.r]; if (!c) return null;
+  return { lat: c.lat + jit(s.c, 1), lng: c.lng + jit(s.c, 2), exact: false };
+}
 function draw(){
   if (!API) return;
   API.clear();
-  var rows = agg();
-  if(!rows.length) return;
-  var vals = rows.map(function(o){ return o[mode]; });
-  var mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
-  rows.sort(function(a,b){ return b[mode] - a[mode]; });
-  rows.forEach(function(o){
-    var t = mx === mn ? 1 : (Math.sqrt(o[mode]) - Math.sqrt(mn)) / (Math.sqrt(mx) - Math.sqrt(mn));
-    var list = o.list.slice().sort(function(a,b){ return b.s - a.s; }).map(function(s){
-      var f = s.g ? " <span class='flag " + (s.g==="폐점"?"c":s.g==="임시휴점"?"h":"n") + "'>" + s.g + "</span>" : "";
-      return "<div class='pr'><span>" + s.n.replace(/\(.*?\)/,"") + f +
-             (s.s2 ? "<i class='pm'>" + s.s2 + "</i>" : "") + "</span><b>" + man(s.s) + "만원</b></div>";
-    }).join("");
+  var list = STORES.filter(function(s){ return active[s.t]; })
+                   .sort(function(a,b){ return a.s - b.s; });   /* 진한 점이 위로 오게 */
+  list.forEach(function(s){
+    var p = posOf(s); if (!p) return;
+    var t = tierOf(s.s), nm = s.n.replace(/\(.*?\)/, "");
+    var f = s.g ? " <span class='flag " + (s.g==="폐점"?"c":s.g==="임시휴점"?"h":"n") + "'>" + s.g + "</span>" : "";
     API.add({
-      lat:o.lat, lng:o.lng, r:5 + t * 23,
-      tip:o.r + " · " + o.cnt + "점 · " + eok(o.sales) + "억",
-      html:"<div class='pop'><h5>" + o.r + "</h5>" +
-        "<div class='psub'>" + o.sido + " · 점포 " + o.cnt + "개</div>" +
-        "<div class='pk'>" +
-          "<div><b>" + eok(o.sales) + "억</b><span>7월 매출</span></div>" +
-          "<div><b>" + man(o.avg) + "만원</b><span>점포당 평균</span></div>" +
-        "</div><div class='plist'>" + list + "</div></div>"
+      lat: p.lat, lng: p.lng, r: 4.5, color: TIER_COL[t],
+      tip: nm + " · " + man(s.s) + "만원",
+      html: "<div class='pop'><h5>" + nm + f + "</h5>" +
+        "<div class='psub'>" + s.t + (s.s1 ? " · " + s.s1 : "") + (s.s2 ? " · " + s.s2 : "") + "</div>" +
+        "<div class='psub' style='margin-top:4px'>" + (s.a || s.r + " (주소 없음)") + (p.exact ? "" : " <i style='color:#B08E7F'>· 위치 대략</i>") + "</div>" +
+        "<div class='pk'><div><b>" + man(s.s) + "만원</b><span>7월 매출</span></div>" +
+        "<div><b style='color:" + TIER_COL[t] + "'>" + TIER_TXT[t] + "</b><span>전체 점포 중</span></div></div></div>"
     });
   });
 }
+function loadCoords(){
+  return fetch("/data/store-coords.json?v=" + Date.now(), { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : {}; })
+    .then(function(j){ XY = (j && j.coords) || {}; return XY; })
+    .catch(function(){ XY = {}; return XY; });
+}
+loadCoords().then(function(){ draw(); paintCoordNote(); });
 
 document.getElementById("modeChips").addEventListener("click", function(e){
   var b = e.target.closest(".chip"); if(!b) return;
@@ -1257,11 +1276,12 @@ function useLeaflet(why){
     map.on("click", function(){ map.scrollWheelZoom.enable(); });
     map.on("mouseout", function(){ map.scrollWheelZoom.disable(); });
     var lg = L.layerGroup().addTo(map);
+    var CANVAS = L.canvas({ padding: .3 });
     API = {
       clear: function(){ lg.clearLayers(); },
       add: function(o){
-        var c = L.circleMarker([o.lat, o.lng], { radius:o.r, color:"#E8447A", weight:1.5,
-                 opacity:.85, fillColor:"#E8447A", fillOpacity:.32 });
+        var c = L.circleMarker([o.lat, o.lng], { radius:o.r, color:"#fff", weight:1,
+                 opacity:.9, fillColor:o.color || "#E8447A", fillOpacity:.95, renderer: CANVAS });
         c.bindPopup(o.html, { maxWidth:320, minWidth:250 });
         c.bindTooltip(o.tip, { direction:"top", offset:[0,-4] });
         lg.addLayer(c);
@@ -1302,8 +1322,8 @@ function useGoogle(){
           position: { lat:o.lat, lng:o.lng }, map: map, title: o.tip,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
-            scale: o.r, fillColor: "#2F6FB5", fillOpacity: .32,
-            strokeColor: "#2F6FB5", strokeOpacity: .85, strokeWeight: 1.5
+            scale: o.r, fillColor: o.color || "#E8447A", fillOpacity: .95,
+            strokeColor: "#fff", strokeOpacity: .9, strokeWeight: 1
           }
         });
         m.addListener("click", function(){
@@ -1342,7 +1362,7 @@ function useNaver(){
         var d = Math.round(o.r * 2);
         var m = new naver.maps.Marker({
           position: new naver.maps.LatLng(o.lat, o.lng), map: map, title: o.tip,
-          icon: { content:"<div class='nbub' style='width:"+d+"px;height:"+d+"px'></div>",
+          icon: { content:"<div class='nbub' style='width:"+d+"px;height:"+d+"px;background:"+(o.color||"#E8447A")+"'></div>",
                   anchor: new naver.maps.Point(d/2, d/2) }
         });
         naver.maps.Event.addListener(m, "click", function(){
@@ -1350,10 +1370,22 @@ function useNaver(){
         });
         marks.push(m);
       },
-      resize: function(){ if (map.refresh) map.refresh(); }
+      /* 상자 크기가 바뀌면(처음 그릴 때 폭이 덜 잡힌 경우 포함) 지도 크기를 다시 맞춤 */
+      resize: function(){
+        var w = box.clientWidth, h = box.clientHeight;
+        if (!w || !h) return;
+        var c = map.getCenter();
+        map.setSize(new naver.maps.Size(w, h));
+        map.setCenter(c);
+      }
     };
     mapMsg("네이버 지도로 보고 있습니다.");
     draw();
+    /* 처음 폭이 좁게 잡히는 문제 방지: 그린 직후와 상자 크기가 바뀔 때마다 맞춤 */
+    setTimeout(function(){ API.resize(); map.setCenter(new naver.maps.LatLng(36.4, 127.9)); }, 50);
+    setTimeout(function(){ API.resize(); }, 600);
+    if (window.ResizeObserver) new ResizeObserver(function(){ API.resize(); }).observe(box);
+    window.addEventListener("resize", function(){ API.resize(); });
   } catch(e) {
     mapStarted = false;
     useLeaflet("네이버 지도를 여는 중 문제가 생겨 기본 지도로 보여 드립니다.");
@@ -1396,6 +1428,87 @@ function loadGoogle(){
   document.head.appendChild(sc);
 }
 
+/* 범례에 금액 구간 표시 */
+function fmtCut(v){ return (Math.round(v/1e6)*100).toLocaleString("ko-KR") + "만"; }
+(function(){
+  var L0 = document.getElementById("lg0"), L1 = document.getElementById("lg1"), L2 = document.getElementById("lg2");
+  if (L0) L0.textContent = fmtCut(CUTS[0]) + " 미만";
+  if (L1) L1.textContent = fmtCut(CUTS[0]) + "~" + fmtCut(CUTS[1]);
+  if (L2) L2.textContent = fmtCut(CUTS[1]) + " 이상";
+})();
+function paintCoordNote(){
+  var el = document.getElementById("coordNote"); if (!el) return;
+  var n = STORES.filter(function(s){ return XY[s.c]; }).length;
+  el.innerHTML = "점포 하나하나를 점으로 찍고, 7월 매출을 3단계 색으로 나눴습니다. 전체 점포를 매출 순으로 줄 세워 3등분한 구간이라 세 색의 점포 수가 비슷합니다. " +
+    (n ? "<b>정확한 위치 " + n.toLocaleString() + "곳</b>, 나머지 " + (STORES.length - n) + "곳은 시·군·구 근처에 대략 찍었습니다."
+       : "<b>아직 정확한 좌표가 없어</b> 점포를 시·군·구 근처에 대략 찍었습니다.");
+}
+
+/* ===== 관리자: 점포 좌표 만들기 (brkgenius.com/stores/admin 으로 들어온 탭에서만) =====
+   네이버 Geocoding 으로 주소 → 좌표. 끝나면 store-coords.json 을 받아 GitHub data 폴더에 올림 */
+var STORES_ADMIN = (function(){
+  try {
+    if (location.hash === "#admin") { sessionStorage.setItem("brk_stores_admin", "1"); history.replaceState(null, "", location.pathname); }
+    return sessionStorage.getItem("brk_stores_admin") === "1";
+  } catch (e) { return false; }
+})();
+function mountGeoAdmin(){
+  var box = document.getElementById("geoAdmin"); if (!box || !STORES_ADMIN) return;
+  box.hidden = false;
+  box.innerHTML =
+    "<div style='margin-top:14px;border:1.5px dashed #E3C9BB;border-radius:14px;padding:16px 18px'>" +
+    "<b style='font-size:15px'>점포 좌표 만들기</b> <span style='font-size:12px;color:#8A7A70'>관리자</span>" +
+    "<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px'>" +
+      "<button type='button' id='geoMiss' class='chip on'>좌표 없는 점포만</button>" +
+      "<button type='button' id='geoAll' class='chip'>전부 다시</button>" +
+    "</div>" +
+    "<div id='geoMsg' style='margin-top:10px;font-size:13px;color:#6E5E55'></div>" +
+    "<a id='geoDl' style='display:none;margin-top:10px;font-weight:800;color:#E8447A' download='store-coords.json'>store-coords.json 받기</a>" +
+    "</div>";
+  document.getElementById("geoMiss").onclick = function(){ runGeo(false); };
+  document.getElementById("geoAll").onclick = function(){ runGeo(true); };
+}
+var geoBusy = false;
+function runGeo(all){
+  if (geoBusy) return;
+  var msg = document.getElementById("geoMsg");
+  if (!(window.naver && naver.maps && naver.maps.Service)) {
+    msg.innerHTML = "<span style='color:#C0483C'>네이버 주소 변환을 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 눌러 주세요.</span>"; return;
+  }
+  geoBusy = true;
+  var out = {}; if (!all) Object.keys(XY).forEach(function(k){ out[k] = XY[k]; });
+  var todo = STORES.filter(function(s){ return s.a && (all || !XY[s.c]); });
+  var done = 0, ok = 0, fail = [], i = 0, running = 0, LIMIT = 5;
+  function paint(){ msg.textContent = "주소를 좌표로 바꾸는 중 " + done + " / " + todo.length + " (성공 " + ok + ")"; }
+  function next(){
+    while (running < LIMIT && i < todo.length) {
+      (function(s){
+        running++;
+        naver.maps.Service.geocode({ query: s.a.replace(/\(.*?\)/g, "").trim() }, function(st, res){
+          running--; done++;
+          var a = st === naver.maps.Service.Status.OK && res && res.v2 && res.v2.addresses && res.v2.addresses[0];
+          if (a) { out[s.c] = [Math.round(+a.y * 1e6) / 1e6, Math.round(+a.x * 1e6) / 1e6]; ok++; }
+          else fail.push(s.n + " (" + s.a + ")");
+          paint();
+          if (done === todo.length) finish(); else setTimeout(next, 40);
+        });
+      })(todo[i++]);
+    }
+  }
+  function finish(){
+    geoBusy = false;
+    XY = out; draw(); paintCoordNote();
+    var blob = new Blob([JSON.stringify({ made: new Date().toISOString().slice(0,10), coords: out })], { type: "application/json" });
+    var dl = document.getElementById("geoDl"); dl.href = URL.createObjectURL(blob); dl.style.display = "inline-block";
+    msg.innerHTML = "끝났습니다. <b>" + ok + "곳</b> 좌표를 만들었습니다" + (fail.length ? ", <b>" + fail.length + "곳</b>은 주소를 찾지 못했습니다" : "") + ". " +
+      "아래 파일을 받아 GitHub의 <b>data</b> 폴더에 올리면 모든 사람 화면에 반영됩니다." +
+      (fail.length ? "<details style='margin-top:6px'><summary>못 찾은 점포</summary><div style='font-size:12px'>" + fail.map(function(x){ return x.replace(/</g,"&lt;"); }).join("<br>") + "</div></details>" : "");
+  }
+  if (!todo.length) { geoBusy = false; msg.textContent = "좌표가 없는 점포가 없습니다."; return; }
+  paint(); next();
+}
+mountGeoAdmin();
+
 (function bootMap(){
   if (GOOGLE_KEY && GOOGLE_KEY.indexOf("여기에") !== 0) { loadGoogle(); return; }
   if (!NAVER_KEY || NAVER_KEY.indexOf("여기에") === 0 || NAVER_KEY === "YOUR_CLIENT_ID") {
@@ -1404,7 +1517,7 @@ function loadGoogle(){
   var settled = false;
   var sc = document.createElement("script");
   sc.type = "text/javascript";
-  sc.src = "https://oapi.map.naver.com/openapi/v3/maps.js?" + NAVER_PARAM + "=" + encodeURIComponent(NAVER_KEY);
+  sc.src = "https://oapi.map.naver.com/openapi/v3/maps.js?" + NAVER_PARAM + "=" + encodeURIComponent(NAVER_KEY) + (STORES_ADMIN ? "&submodules=geocoder" : "");
   sc.onload = function(){
     if (settled) return; settled = true;
     if (window.naver && naver.maps) useNaver();
