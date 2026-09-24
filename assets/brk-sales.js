@@ -635,7 +635,7 @@
     ".brks .lead2{font-size:13px;color:#6E5E55;line-height:1.7;margin:0 0 14px}" +
     ".brks .now{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:#6E5E55;padding:10px 14px;background:#FBF6F2;border-radius:10px;margin-bottom:14px}" +
     ".brks .now b{color:#000;font-weight:800}" +
-    ".brks .now .bad{color:#C0483C}" +
+    ".brks .now .bad{color:#C0483C;font-weight:700}" +
     ".brks .drop{display:block;border:2px dashed #E3C9BB;border-radius:14px;padding:28px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}" +
     ".brks .drop:hover,.brks .drop:focus-visible,.brks .drop.on{border-color:#E8447A;background:#FFF5F8;outline:none}" +
     ".brks .drop b{display:block;font-size:15px;font-weight:800;margin-bottom:4px}" +
@@ -709,18 +709,16 @@
     box.classList.add("brks");
     box.innerHTML =
       "<h3>매출 엑셀 올리기</h3>" +
-      "<p class='lead2'>BR 일매출 엑셀을 넣으면 이 페이지와 <a href='/sales/'>총 POS 매출</a> 페이지의 매출·고객수·그래프가 함께 바뀝니다. 같은 날짜를 다시 올리면 새 값으로 바뀝니다.</p>" +
-      "<div class='now' id='brksNow'>지금 들어 있는 매출을 확인하는 중…</div>" +
+      "<div class='now' id='brksNow' hidden></div>" +
       "<div class='drop' id='brksDrop' tabindex='0' role='button' aria-label='엑셀 파일 고르기'>" +
         "<b>엑셀 파일을 여기에 끌어다 놓거나 눌러서 고르세요</b>" +
-        "<span>.xlsx · .xls · .csv · 여러 개를 한 번에 넣어도 됩니다</span>" +
+        "<span>.xlsx · .xls · .csv</span>" +
       "</div>" +
       "<input type='file' id='brksFile' accept='.xlsx,.xls,.xlsm,.csv,.tsv,.txt' multiple style='display:none'>" +
-      "<div class='row'><button type='button' class='lnk' id='brksTpl'>양식 파일 받기</button>" +
-        "<span style='font-size:12px;color:#8A7A70'>MKT 일매출 엑셀을 그대로 넣어도 제목 줄을 보고 칸을 찾습니다.</span></div>" +
+      "<button type='button' id='brksTpl' hidden></button>" +
       "<div class='msg' id='brksMsg' role='status' aria-live='polite'></div>" +
       "<div class='pv' id='brksPv' hidden></div>" +
-      (opt.slackPayload ?
+      (opt.slackPayload && opt.admin ?
       "<details class='slkd'><summary>슬랙 알림 <span id='brksSlkState'>확인 중…</span></summary>" +
       "<div class='slk'>" +
         "<button type='button' class='lnk' id='brksSlkNow'>지금 매출을 슬랙에 보내기</button>" +
@@ -755,16 +753,16 @@
     }
 
     function showNow() {
+      /* 평소에는 숨기고, 구글시트 연결에 문제가 있을 때만 알림 */
       load().then(function (M) {
         model = M;
-        var ks = M.keys(), lastK = ks[ks.length - 1], a = lastK ? M.month(lastK) : null;
-        var html = "<span>들어 있는 마지막 달 <b>" + (a ? lastK.slice(0, 4) + "년 " + rangeText(a) : "—") + "</b></span>";
-        if (M.sheetOk) html += "<span>엑셀로 올린 날 <b>" + M.sheetRows + "</b>건" + (M.lastUpload ? " · 마지막 " + fmtTime(M.lastUpload) + (M.lastBy ? " " + esc(M.lastBy) : "") : "") + "</span>";
-        else html += "<span class='bad'>구글시트에 연결하지 못했습니다 (" + esc(M.sheetErr || "") + ") — Apps Script 새 버전 배포가 필요할 수 있습니다</span>";
-        $("brksNow").innerHTML = html;
+        var el = $("brksNow");
+        if (M.sheetOk) { el.hidden = true; el.innerHTML = ""; }
+        else { el.hidden = false; el.innerHTML = "<span class='bad'>구글시트에 연결하지 못했습니다 (" + esc(M.sheetErr || "") + ")</span>"; }
         paintSlack();
       }).catch(function (e) {
-        $("brksNow").innerHTML = "<span class='bad'>지금 들어 있는 매출을 읽지 못했습니다 (" + esc(e && e.message || e) + "). 엑셀 올리기는 그대로 됩니다.</span>";
+        var el = $("brksNow"); el.hidden = false;
+        el.innerHTML = "<span class='bad'>지금 들어 있는 매출을 읽지 못했습니다 (" + esc(e && e.message || e) + ")</span>";
       });
     }
     showNow();
@@ -819,13 +817,13 @@
       var catSet = {};
       Object.keys(R.days).forEach(function (k) { var c = R.days[k].cats; if (c) for (var x in c) catSet[x] = 1; });
       var warn = [];
-      Object.keys(mkeys).forEach(function (key) { var a = monthOf(after, key); if (a && a.gaps) warn.push(key.slice(5) + "월에 빠진 날짜가 있습니다 — 빠진 날은 기존 값이 있으면 그대로 두고, 없으면 비어 있게 됩니다."); });
+      Object.keys(mkeys).forEach(function (key) { var a = monthOf(after, key); if (a && a.gaps) warn.push(key.slice(5) + "월에 빠진 날짜가 있습니다. 빠진 날은 기존 값이 있으면 그대로 두고, 없으면 비어 있게 됩니다."); });
       if (!Object.keys(R.days).some(function (k) { return R.days[k].c; }) && Object.keys(R.days).length) warn.push("고객수 칸을 찾지 못했습니다. 매출만 바뀝니다.");
       if (!Object.keys(R.days).some(function (k) { return R.days[k].pw; }) && Object.keys(R.days).length) warn.push("전년 동요일 칸을 찾지 못했습니다. 전년비는 월 합계끼리 비교합니다.");
 
       var units = [[1, "원"], [1e3, "천원"], [1e4, "만원"], [1e6, "백만원"], [1e8, "억원"]];
       pv.innerHTML =
-        "<h4>읽은 내용 확인 <span style='font-weight:500;font-size:12px;color:#8A7A70'>— 이미 들어 있는 날과 합친, 올린 뒤의 달 합계입니다</span></h4>" +
+        "<h4>읽은 내용 확인</h4>" +
         "<div class='tw'><table><thead><tr><th>달</th><th>들어온 날짜</th><th style='text-align:right'>매출</th><th style='text-align:right'>고객수</th><th style='text-align:right'>전년 동요일 대비</th><th>바뀌는 점</th></tr></thead><tbody>" +
         rows.join("") + "</tbody></table></div>" +
         "<details class='mapd'><summary>자세히</summary>" +
@@ -877,7 +875,7 @@
           var ks = Object.keys(parsed.days).map(function (k) { return k.slice(0, 7); }).concat(Object.keys(parsed.mon));
           ks = ks.filter(function (k, i) { return ks.indexOf(k) === i; }).sort();
           var wantSlack = $("brksSlkOn") && $("brksSlkOn").checked;
-          var done = "반영했습니다 — " + ks.map(function (k) { return k.slice(0, 4) + "." + k.slice(5); }).join(", ") + " · " + recs.length + "건. 매출 페이지도 새로 열면 같은 숫자가 나옵니다.";
+          var done = "반영했습니다: " + ks.map(function (k) { return k.slice(0, 4) + "." + k.slice(5); }).join(", ") + " · " + recs.length + "건. 매출 페이지도 새로 열면 같은 숫자가 나옵니다.";
           say(done + (wantSlack ? " 슬랙에 올리는 중…" : ""), "ok");
           pv.hidden = true; parsed = null;
           showNow();
@@ -904,7 +902,7 @@
     drop.addEventListener("drop", function (e) { pick(e.dataTransfer && e.dataTransfer.files); });
     $("brksTpl").addEventListener("click", function () { template().catch(function (e) { say(esc(e.message || e), "err"); }); });
 
-    if (opt.slackPayload) {
+    if (opt.slackPayload && opt.admin) {   /* 슬랙 연결 설정은 관리자 주소(/plan/admin)에서만 */
       var f = $("brksSlkF"), mode = "";
       var openF = function (m) {
         mode = m; f.hidden = false;
