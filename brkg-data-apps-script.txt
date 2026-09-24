@@ -476,7 +476,14 @@ function slackPost(p) {
              "\n<" + (p.link || "https://www.brkgenius.com/sales/") + "|자세히 보기 · 총 POS 매출 페이지> (비밀번호 필요)" +
              (p.by ? "  ·  올린 사람 " + p.by : "");
   var blob = null;
-  try { blob = slackChart(p); } catch (e) { blob = null; }
+  /* 페이지가 그려 보낸 그래프(매출 페이지와 같은 모양)가 있으면 그걸 쓰고, 없으면 여기서 그린다 */
+  if (p.png) {
+    try {
+      blob = Utilities.newBlob(Utilities.base64Decode(String(p.png).replace(/^data:image\/png;base64,/, "")), "image/png",
+                               "BR_매출_" + Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd_HHmm") + ".png");
+    } catch (e) { blob = null; }
+  }
+  if (!blob) { try { blob = slackChart(p); } catch (e) { blob = null; } }
 
   if (blob) {
     var bytes = blob.getBytes();

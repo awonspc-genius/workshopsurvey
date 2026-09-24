@@ -2146,7 +2146,13 @@ var TRUST_ADMIN_SESSION = false;
     ".brks .go:focus-visible,.brks .ghost:focus-visible{outline:2px solid #000;outline-offset:2px}" +
     ".brks .ghost{font:inherit;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:11px;border:1.5px solid #EBD9CD;background:#fff;color:#000;cursor:pointer}" +
     ".brks .sp{flex:1}" +
-    ".brks .slk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:14px;padding-top:14px;border-top:1px solid #F1E6DE;font-size:12.5px;color:#6E5E55}" +
+    ".brks .slkd{margin-top:14px;padding-top:12px;border-top:1px solid #F1E6DE}" +
+    ".brks .slkd summary{cursor:pointer;font-size:13px;color:#6E5E55;list-style:none;display:inline-flex;align-items:center;gap:6px}" +
+    ".brks .slkd summary::-webkit-details-marker{display:none}" +
+    ".brks .slkd summary::before{content:'▸';font-size:11px;transition:transform .15s}" +
+    ".brks .slkd[open] summary::before{transform:rotate(90deg)}" +
+    ".brks .slkd summary:focus-visible{outline:2px solid #000;outline-offset:3px;border-radius:4px}" +
+    ".brks .slk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px;font-size:12.5px;color:#6E5E55}" +
     ".brks .slk b{color:#000}.brks .slk .on{color:#0F6E56;font-weight:800}.brks .slk .off{color:#9A5B00;font-weight:800}" +
     ".brks .slkf{margin-top:12px;padding:14px;background:#FBF6F2;border-radius:12px;display:flex;flex-direction:column;gap:10px}" +
     ".brks .slkf .r{display:flex;flex-wrap:wrap;gap:8px;align-items:center}" +
@@ -2191,9 +2197,11 @@ var TRUST_ADMIN_SESSION = false;
       "<div class='msg' id='brksMsg' role='status' aria-live='polite'></div>" +
       "<div class='pv' id='brksPv' hidden></div>" +
       (opt.slackPayload ?
-      "<div class='slk'><span>슬랙 알림 <span id='brksSlkState'>확인 중…</span></span>" +
+      "<details class='slkd'><summary>슬랙 알림 <span id='brksSlkState'>확인 중…</span></summary>" +
+      "<div class='slk'>" +
         "<button type='button' class='lnk' id='brksSlkNow'>지금 매출을 슬랙에 보내기</button>" +
-        "<button type='button' class='lnk' id='brksSlkSet'>슬랙 연결 설정</button></div>" +
+        "<button type='button' class='lnk' id='brksSlkSet'>슬랙 연결 설정</button>" +
+        "<span>엑셀을 반영하면 슬랙에도 자동으로 올라갑니다.</span></div>" +
       "<div class='slkf' id='brksSlkF' hidden>" +
         "<div class='r' id='brksSlkUrlRow'><input type='text' id='brksSlkTok' placeholder='봇 토큰 xoxb-…' aria-label='슬랙 봇 토큰' autocomplete='off'>" +
           "<input type='text' id='brksSlkCh' placeholder='채널 ID  C0…' aria-label='슬랙 채널 ID' style='flex:0 1 170px;min-width:150px' autocomplete='off'>" +
@@ -2202,14 +2210,13 @@ var TRUST_ADMIN_SESSION = false;
         "<div class='r'><input type='password' id='brksSlkKey' placeholder='비밀번호' aria-label='비밀번호' autocomplete='off'>" +
           "<button type='button' class='go' id='brksSlkGo' hidden>슬랙에 보내기</button></div>" +
         "<p id='brksSlkHelp'>슬랙 앱의 Bot User OAuth Token(xoxb-)과 올릴 채널의 ID를 넣으세요. 앱을 채널에 먼저 초대해 두어야 합니다. 토큰은 구글 스크립트 안에만 저장되고 사이트 파일에는 남지 않습니다.</p>" +
-      "</div>" : "");
+      "</div></details>" : "");
 
     var $ = function (id) { return document.getElementById(id); };
     var drop = $("brksDrop"), file = $("brksFile"), msg = $("brksMsg"), pv = $("brksPv");
     var parsed = null, model = null;
 
     function say(t, cls) { msg.className = "msg" + (cls ? " " + cls : ""); msg.innerHTML = t; }
-    function slackPref() { try { return localStorage.getItem("brks_slack") !== "0"; } catch (e) { return true; } }
     function paintSlack() {
       var st = $("brksSlkState"); if (!st || !model) return;
       st.innerHTML = model.slack ? "<span class='on'>연결됨</span>" : "<span class='off'>연결 안 됨</span>";
@@ -2217,9 +2224,10 @@ var TRUST_ADMIN_SESSION = false;
     }
     function sendSlack(key, M) {
       var by = ""; try { by = localStorage.getItem("brks_by") || ""; } catch (e) {}
-      var pl = opt.slackPayload(M || model, by);
-      if (!pl) return Promise.reject(new Error("보낼 매출이 없습니다"));
-      return slackSend(pl, key);
+      return Promise.resolve(opt.slackPayload(M || model, by)).then(function (pl) {
+        if (!pl) throw new Error("보낼 매출이 없습니다");
+        return slackSend(pl, key);
+      });
     }
 
     function showNow() {
@@ -2307,7 +2315,7 @@ var TRUST_ADMIN_SESSION = false;
           "<span class='sp'></span>" +
           "<input type='text' id='brksBy' placeholder='올린 사람' aria-label='올린 사람 이름' autocomplete='name'>" +
           "<input type='password' id='brksKey' placeholder='올리기 비밀번호' aria-label='올리기 비밀번호' autocomplete='off'>" +
-          (opt.slackPayload && model && model.slack ? "<label class='chk'><input type='checkbox' id='brksSlkOn'" + (slackPref() ? " checked" : "") + "> 슬랙에도 올리기</label>" : "") +
+          (opt.slackPayload && model && model.slack ? "<label class='chk'><input type='checkbox' id='brksSlkOn' checked> 슬랙에도 알림 보내기</label>" : "") +
           "<button type='button' class='ghost' id='brksCancel'>취소</button>" +
           "<button type='button' class='go' id='brksGo'>사이트에 반영하기</button>" +
         "</div>";
@@ -2317,7 +2325,6 @@ var TRUST_ADMIN_SESSION = false;
       $("brksCancel").onclick = function () { parsed = null; pv.hidden = true; say(""); };
       $("brksKey").onkeydown = function (e) { if (e.key === "Enter") $("brksGo").click(); };
       $("brksGo").onclick = go;
-      if ($("brksSlkOn")) $("brksSlkOn").onchange = function () { try { localStorage.setItem("brks_slack", this.checked ? "1" : "0"); } catch (e) {} };
     }
 
     function go() {

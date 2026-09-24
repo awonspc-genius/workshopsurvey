@@ -1134,7 +1134,13 @@
     ".brks .go:focus-visible,.brks .ghost:focus-visible{outline:2px solid #000;outline-offset:2px}" +
     ".brks .ghost{font:inherit;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:11px;border:1.5px solid #EBD9CD;background:#fff;color:#000;cursor:pointer}" +
     ".brks .sp{flex:1}" +
-    ".brks .slk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:14px;padding-top:14px;border-top:1px solid #F1E6DE;font-size:12.5px;color:#6E5E55}" +
+    ".brks .slkd{margin-top:14px;padding-top:12px;border-top:1px solid #F1E6DE}" +
+    ".brks .slkd summary{cursor:pointer;font-size:13px;color:#6E5E55;list-style:none;display:inline-flex;align-items:center;gap:6px}" +
+    ".brks .slkd summary::-webkit-details-marker{display:none}" +
+    ".brks .slkd summary::before{content:'▸';font-size:11px;transition:transform .15s}" +
+    ".brks .slkd[open] summary::before{transform:rotate(90deg)}" +
+    ".brks .slkd summary:focus-visible{outline:2px solid #000;outline-offset:3px;border-radius:4px}" +
+    ".brks .slk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px;font-size:12.5px;color:#6E5E55}" +
     ".brks .slk b{color:#000}.brks .slk .on{color:#0F6E56;font-weight:800}.brks .slk .off{color:#9A5B00;font-weight:800}" +
     ".brks .slkf{margin-top:12px;padding:14px;background:#FBF6F2;border-radius:12px;display:flex;flex-direction:column;gap:10px}" +
     ".brks .slkf .r{display:flex;flex-wrap:wrap;gap:8px;align-items:center}" +
@@ -1179,9 +1185,11 @@
       "<div class='msg' id='brksMsg' role='status' aria-live='polite'></div>" +
       "<div class='pv' id='brksPv' hidden></div>" +
       (opt.slackPayload ?
-      "<div class='slk'><span>슬랙 알림 <span id='brksSlkState'>확인 중…</span></span>" +
+      "<details class='slkd'><summary>슬랙 알림 <span id='brksSlkState'>확인 중…</span></summary>" +
+      "<div class='slk'>" +
         "<button type='button' class='lnk' id='brksSlkNow'>지금 매출을 슬랙에 보내기</button>" +
-        "<button type='button' class='lnk' id='brksSlkSet'>슬랙 연결 설정</button></div>" +
+        "<button type='button' class='lnk' id='brksSlkSet'>슬랙 연결 설정</button>" +
+        "<span>엑셀을 반영하면 슬랙에도 자동으로 올라갑니다.</span></div>" +
       "<div class='slkf' id='brksSlkF' hidden>" +
         "<div class='r' id='brksSlkUrlRow'><input type='text' id='brksSlkTok' placeholder='봇 토큰 xoxb-…' aria-label='슬랙 봇 토큰' autocomplete='off'>" +
           "<input type='text' id='brksSlkCh' placeholder='채널 ID  C0…' aria-label='슬랙 채널 ID' style='flex:0 1 170px;min-width:150px' autocomplete='off'>" +
@@ -1190,14 +1198,13 @@
         "<div class='r'><input type='password' id='brksSlkKey' placeholder='비밀번호' aria-label='비밀번호' autocomplete='off'>" +
           "<button type='button' class='go' id='brksSlkGo' hidden>슬랙에 보내기</button></div>" +
         "<p id='brksSlkHelp'>슬랙 앱의 Bot User OAuth Token(xoxb-)과 올릴 채널의 ID를 넣으세요. 앱을 채널에 먼저 초대해 두어야 합니다. 토큰은 구글 스크립트 안에만 저장되고 사이트 파일에는 남지 않습니다.</p>" +
-      "</div>" : "");
+      "</div></details>" : "");
 
     var $ = function (id) { return document.getElementById(id); };
     var drop = $("brksDrop"), file = $("brksFile"), msg = $("brksMsg"), pv = $("brksPv");
     var parsed = null, model = null;
 
     function say(t, cls) { msg.className = "msg" + (cls ? " " + cls : ""); msg.innerHTML = t; }
-    function slackPref() { try { return localStorage.getItem("brks_slack") !== "0"; } catch (e) { return true; } }
     function paintSlack() {
       var st = $("brksSlkState"); if (!st || !model) return;
       st.innerHTML = model.slack ? "<span class='on'>연결됨</span>" : "<span class='off'>연결 안 됨</span>";
@@ -1205,9 +1212,10 @@
     }
     function sendSlack(key, M) {
       var by = ""; try { by = localStorage.getItem("brks_by") || ""; } catch (e) {}
-      var pl = opt.slackPayload(M || model, by);
-      if (!pl) return Promise.reject(new Error("보낼 매출이 없습니다"));
-      return slackSend(pl, key);
+      return Promise.resolve(opt.slackPayload(M || model, by)).then(function (pl) {
+        if (!pl) throw new Error("보낼 매출이 없습니다");
+        return slackSend(pl, key);
+      });
     }
 
     function showNow() {
@@ -1295,7 +1303,7 @@
           "<span class='sp'></span>" +
           "<input type='text' id='brksBy' placeholder='올린 사람' aria-label='올린 사람 이름' autocomplete='name'>" +
           "<input type='password' id='brksKey' placeholder='올리기 비밀번호' aria-label='올리기 비밀번호' autocomplete='off'>" +
-          (opt.slackPayload && model && model.slack ? "<label class='chk'><input type='checkbox' id='brksSlkOn'" + (slackPref() ? " checked" : "") + "> 슬랙에도 올리기</label>" : "") +
+          (opt.slackPayload && model && model.slack ? "<label class='chk'><input type='checkbox' id='brksSlkOn' checked> 슬랙에도 알림 보내기</label>" : "") +
           "<button type='button' class='ghost' id='brksCancel'>취소</button>" +
           "<button type='button' class='go' id='brksGo'>사이트에 반영하기</button>" +
         "</div>";
@@ -1305,7 +1313,6 @@
       $("brksCancel").onclick = function () { parsed = null; pv.hidden = true; say(""); };
       $("brksKey").onkeydown = function (e) { if (e.key === "Enter") $("brksGo").click(); };
       $("brksGo").onclick = go;
-      if ($("brksSlkOn")) $("brksSlkOn").onchange = function () { try { localStorage.setItem("brks_slack", this.checked ? "1" : "0"); } catch (e) {} };
     }
 
     function go() {
@@ -2243,9 +2250,96 @@ function slackPayload(M, by){
     var q = MDATA[y + "-" + P(j)] || {};
     months.push({ m: j + "월", cur: q.has ? num(q.sv) : 0, prev: q.prev || 0 });
   }
-  return { title: "BR 총 POS 매출 · " + y + "년 " + n + "월 (" + rng + ")", lines: lines, year: y, months: months,
-           chartTitle: y + "년 월별 실매출 (억 원)" + (a.full ? "" : " · " + n + "월은 " + n + "/" + a.last + "까지"),
-           link: "https://www.brkgenius.com/sales/", by: by || "" };
+  /* 최근 13개월 막대 — 매출 페이지와 같은 모양으로 그린다 */
+  var bars = [];
+  for (var b = 12; b >= 0; b--) {
+    var t = (y * 12 + n - 1) - b, by_ = Math.floor(t / 12), bm = t % 12 + 1;
+    var bk = by_ + "-" + P(bm), nk = (by_ + 1) + "-" + P(bm), q2 = MDATA[bk], v = 0, wip = false;
+    if (q2 && q2.has) { v = num(q2.sv); wip = !!q2.wip; }
+    else if (MDATA[nk] && MDATA[nk].prev) v = MDATA[nk].prev;
+    if (bk === key && !a.full) { v = a.s / 1e8; wip = true; }
+    bars.push({ lab: String(by_).slice(2) + "." + P(bm), y: by_, v: v, wip: wip });
+  }
+  var sub = "최근 13개월 월별 실매출 (억 원)" + (a.full ? "" : " · " + String(y).slice(2) + "." + P(n) + "는 " + n + "/1~" + a.last + " 누계");
+  return drawSlackChart(bars, sub).then(function (png) {
+    return { title: "BR 총 POS 매출 · " + y + "년 " + n + "월 (" + rng + ")", lines: lines, year: y, months: months,
+             chartTitle: "BR 총 POS 매출 · " + sub, png: png,
+             link: "https://www.brkgenius.com/sales/", by: by || "" };
+  });
+}
+
+/* 슬랙용 막대그래프 PNG (매출 페이지 모양: 연도별 색 · 800억 이상 테두리 · 진행중 분홍 · 평균 점선) */
+function drawSlackChart(bars, sub){
+  var YC = {2019:"#9BB0E0",2020:"#66B8A5",2021:"#E0A048",2022:"#D96E6E",2023:"#A88BD4",2024:"#8C8C85",
+            2025:"#C9A227",2026:"#5B8FCB",2027:"#3E9C8F",2028:"#C77DA8",2029:"#7A8FB8",2030:"#B08D57"};
+  var F = "'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif";
+  var ready = (document.fonts && document.fonts.load)
+    ? Promise.all([document.fonts.load("900 30px 'Noto Sans KR'"), document.fonts.load("500 16px 'Noto Sans KR'")]).catch(function(){})
+    : Promise.resolve();
+  return ready.then(function(){
+    var W = 1400, H = 720, S = 2;
+    var cv = document.createElement("canvas"); cv.width = W*S; cv.height = H*S;
+    var g = cv.getContext("2d"); g.scale(S, S);
+    g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+    var L = 48, R = W - 40, T = 190, B = H - 70, n = bars.length, step = (R - L) / n, bw = step * 0.74;
+    var closed = bars.filter(function(x){ return !x.wip && x.v; });
+    var avg = closed.reduce(function(s, x){ return s + x.v; }, 0) / (closed.length || 1);
+    var top = Math.max.apply(null, bars.map(function(x){ return x.v; }).concat([800])) * 1.1;
+    var Y = function(v){ return B - (B - T) * v / top; };
+    var lastY = bars[n-1].y, hero = -1, hv = -1;
+    bars.forEach(function(x, i){ if (x.y === lastY && !x.wip && x.v > hv) { hv = x.v; hero = i; } });
+
+    /* 제목 */
+    g.fillStyle = "#101C2E"; g.font = "900 30px " + F; g.textBaseline = "alphabetic";
+    g.fillText("BR 총 POS 매출", L, 62);
+    g.fillStyle = "#5C7291"; g.font = "500 17px " + F;
+    g.fillText(sub, L, 94);
+    /* 범례 */
+    var lx = L, ly = 132, item = function(draw, label){
+      draw(lx, ly - 12); g.fillStyle = "#3E526E"; g.font = "500 14px " + F;
+      g.fillText(label, lx + 22, ly); lx += 22 + g.measureText(label).width + 22;
+    };
+    var ys = []; bars.forEach(function(x){ if (ys.indexOf(x.y) < 0) ys.push(x.y); });
+    ys.forEach(function(yy){ item(function(x0, y0){ g.fillStyle = YC[yy] || "#8C8C85"; g.fillRect(x0, y0, 14, 14); }, yy + "년"); });
+    item(function(x0, y0){ g.fillStyle = "#2F6FB5"; g.fillRect(x0, y0, 14, 14); }, "올해 최고");
+    item(function(x0, y0){ g.strokeStyle = "#000"; g.lineWidth = 2; g.strokeRect(x0+1, y0+1, 12, 12); }, "800억 이상");
+    if (bars.some(function(x){ return x.wip; }))
+      item(function(x0, y0){ g.fillStyle = "#F7C9DC"; g.fillRect(x0, y0, 14, 14); g.strokeStyle = "#2F6FB5"; g.lineWidth = 1.5; g.strokeRect(x0+.75, y0+.75, 12.5, 12.5); }, "진행중");
+    item(function(x0, y0){ g.strokeStyle = "#000"; g.lineWidth = 2; g.setLineDash([5,4]); g.beginPath(); g.moveTo(x0, y0+7); g.lineTo(x0+16, y0+7); g.stroke(); g.setLineDash([]); }, "평균 " + Math.round(avg) + "억");
+
+    /* 바닥선 */
+    g.strokeStyle = "#D7E1EE"; g.lineWidth = 1; g.beginPath(); g.moveTo(L, B + .5); g.lineTo(R, B + .5); g.stroke();
+
+    /* 막대 */
+    var rr = function(x, y, w, h, r){
+      g.beginPath(); g.moveTo(x, y + h); g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+      g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r); g.lineTo(x + w, y + h); g.closePath();
+    };
+    bars.forEach(function(x, i){
+      var cx = L + step * i + (step - bw) / 2;
+      if (x.v) {
+        var yy = Y(x.v), h = B - yy;
+        g.fillStyle = x.wip ? "#F7C9DC" : (i === hero ? "#2F6FB5" : (YC[x.y] || "#8C8C85"));
+        rr(cx, yy, bw, h, 6); g.fill();
+        if (x.wip) { g.strokeStyle = "#2F6FB5"; g.lineWidth = 2; rr(cx + 1, yy + 1, bw - 2, h - 1, 5); g.stroke(); }
+        else if (x.v >= 800) { g.strokeStyle = "#000"; g.lineWidth = 3; rr(cx + 1.5, yy + 1.5, bw - 3, h - 1.5, 5); g.stroke(); }
+        g.fillStyle = "#000"; g.font = "800 19px " + F; g.textAlign = "center";
+        g.fillText(x.wip ? x.v.toFixed(0) + "*" : Math.round(x.v).toLocaleString("ko-KR"), cx + bw / 2, yy - 10);
+      }
+      g.fillStyle = "#5C7291"; g.font = "500 15px " + F; g.textAlign = "center";
+      g.fillText(x.lab, cx + bw / 2, B + 28);
+      g.textAlign = "left";
+    });
+
+    /* 평균 점선 */
+    var ay = Math.round(Y(avg)) + .5;
+    g.strokeStyle = "#000"; g.lineWidth = 2; g.setLineDash([9, 7]);
+    g.beginPath(); g.moveTo(L, ay); g.lineTo(R, ay); g.stroke(); g.setLineDash([]);
+
+    g.fillStyle = "#8A9AB2"; g.font = "500 13px " + F; g.textAlign = "right";
+    g.fillText("brkgenius.com/sales · 평균은 이 그래프에서 마감한 달 기준", R, H - 22);
+    return cv.toDataURL("image/png");
+  }).catch(function(){ return ""; });
 }
 if (window.BRKSales) BRKSales.mountUploader(document.getElementById("salesUp"), {
   onApplied: function(M){ applySheetSales(M); },
