@@ -704,6 +704,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .mapbox { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 16px 14px; }
   .mapctl { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; margin-bottom:13px; }
   .ctlg { display:flex; flex-direction:column; gap:7px; }
+  .ctlg[hidden] { display:none !important; }
   .ctlg .cl { font-size:11px; font-weight:700; color:#8a6f63; }
   .chips { display:flex; gap:5px; flex-wrap:wrap; }
   .chip { font:inherit; font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer;
@@ -718,6 +719,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .maplg .bub i { display:inline-block; border-radius:50%; background:rgba(232,68,122,.45); border:1.5px solid var(--berry); }
   .provnote { margin-top:11px; font-size:12px; line-height:1.65; color:#8a6f63;
                background:var(--soft); border:1px solid #F0C8D8; border-radius:10px; padding:10px 14px; }
+  .nvbtn { display:block; margin-top:10px; padding:8px 0; border-radius:16px; background:#03C75A; color:#fff !important;
+           text-align:center; font-weight:800; font-size:13px; text-decoration:none; }
+  .nvbtn:hover { background:#02B351; }
   .nbub { border-radius:50%; background:var(--berry); border:1px solid #fff; box-sizing:border-box; cursor:pointer; }
   .niw { background:#fff; border:1px solid var(--line); border-radius:12px; padding:13px 15px;
          box-shadow:0 12px 28px -14px rgba(62,39,35,.45); }
@@ -1045,6 +1049,13 @@ function agg(){
 /* ===== 점포 점 · 매출 3단계 색 =====
    색 구간 = 전체 점포를 매출 순으로 줄 세워 3등분 (점포 수가 비슷하게 나뉨)
    위치 = /data/store-coords.json (관리자 주소에서 만든 좌표). 없으면 시·군·구 중심 근처에 둠 */
+/* 쉬운 금액: 백만원 단위로 반올림 → 4,800만원 / 1억 6,400만원 */
+function easyWon(v){
+  var m = Math.round(v / 1e6) * 100;            /* 만원, 백만원 단위 반올림 */
+  var e = Math.floor(m / 10000), r = m % 10000;
+  if (!e) return r.toLocaleString("ko-KR") + "만원";
+  return e + "억" + (r ? " " + r.toLocaleString("ko-KR") + "만원" : "원");
+}
 var TIER_COL = ["#F5B8CB", "#E0527F", "#9C1446"];
 var TIER_TXT = ["하위 1/3", "중간 1/3", "상위 1/3"];
 var CUTS = (function(){
@@ -1070,15 +1081,18 @@ function draw(){
   list.forEach(function(s){
     var p = posOf(s); if (!p) return;
     var t = tierOf(s.s), nm = s.n.replace(/\(.*?\)/, "");
+    var title = "BR" + nm.replace(/점$/, "") + "점";
     var f = s.g ? " <span class='flag " + (s.g==="폐점"?"c":s.g==="임시휴점"?"h":"n") + "'>" + s.g + "</span>" : "";
     API.add({
       lat: p.lat, lng: p.lng, r: 4.5, color: TIER_COL[t],
-      tip: nm + " · " + man(s.s) + "만원",
-      html: "<div class='pop'><h5>" + nm + f + "</h5>" +
-        "<div class='psub'>" + s.t + (s.s1 ? " · " + s.s1 : "") + (s.s2 ? " · " + s.s2 : "") + "</div>" +
-        "<div class='psub' style='margin-top:4px'>" + (s.a || s.r + " (주소 없음)") + (p.exact ? "" : " <i style='color:#B08E7F'>· 위치 대략</i>") + "</div>" +
-        "<div class='pk'><div><b>" + man(s.s) + "만원</b><span>7월 매출</span></div>" +
-        "<div><b style='color:" + TIER_COL[t] + "'>" + TIER_TXT[t] + "</b><span>전체 점포 중</span></div></div></div>"
+      tip: title + " · " + easyWon(s.s),
+      html: "<div class='pop'><h5>" + title + f + "</h5>" +
+        "<div class='psub' style='color:#333'>" + (s.a || s.r + " (주소 없음)") + (p.exact ? "" : " <i style='color:#B08E7F'>· 위치 대략</i>") + "</div>" +
+        "<div class='pk'><div><b>" + easyWon(s.s) + "</b><span>7월 매출</span></div>" +
+        "<div><b style='color:" + TIER_COL[t] + "'>" + TIER_TXT[t] + "</b><span>전체 점포 중</span></div></div>" +
+        "<div class='psub' style='margin-top:8px'>" + s.t + (s.s1 ? " · " + s.s1 : "") + (s.s2 ? " · " + s.s2 : "") + "</div>" +
+        "<a class='nvbtn' target='_blank' rel='noopener' href='https://map.naver.com/p/search/" +
+          encodeURIComponent("배스킨라빈스 " + nm.replace(/점$/, "") + "점") + "'>N&nbsp; 네이버 지도에서 보기 ↗</a></div>"
     });
   });
 }
@@ -1351,6 +1365,7 @@ function useNaver(){
       scrollWheel:false, scaleControl:false, mapDataControl:false, logoControlOptions:{},
       zoomControl:true, zoomControlOptions:{ position: naver.maps.Position.TOP_RIGHT }
     });
+    var lastW = 0, lastH = 0;
     var marks = [], iw = new naver.maps.InfoWindow({
       content:"", maxWidth:330, borderWidth:0, backgroundColor:"transparent",
       disableAnchor:true, pixelOffset:new naver.maps.Point(0,-6)
@@ -1372,10 +1387,16 @@ function useNaver(){
       },
       /* 상자 크기가 바뀌면(처음 그릴 때 폭이 덜 잡힌 경우 포함) 지도 크기를 다시 맞춤 */
       resize: function(){
+        /* 네이버 setSize 는 상자에 px 크기를 박아 넣어서, 그대로 두면 테두리만큼 계속 줄어듦.
+           그래서 원래 CSS 크기로 되돌려 잰 뒤 맞추고, 다시 원래대로 풀어 둔다 */
+        box.style.width = ""; box.style.height = "";
         var w = box.clientWidth, h = box.clientHeight;
         if (!w || !h) return;
+        if (Math.abs(w - lastW) < 2 && Math.abs(h - lastH) < 2) return;
+        lastW = w; lastH = h;
         var c = map.getCenter();
         map.setSize(new naver.maps.Size(w, h));
+        box.style.width = ""; box.style.height = "";
         map.setCenter(c);
       }
     };
