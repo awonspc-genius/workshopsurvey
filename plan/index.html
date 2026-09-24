@@ -2183,7 +2183,7 @@ function applySheetSales(M){
                                 daily:{}, ntot:null, mix:null, qty:null, fcast:null };
       C.daily = M.dailyOf(key);
       /* 손으로 계산해 둔 마감 전망은 그 뒤 날짜가 들어오면 맞지 않으므로 뺍니다 */
-      if (C.fcast && a.last > C.fcast.n) C.fcast = null;
+      if (C.fcast && a.last > C.fcast.n) { C.hlift = C.fcast.lift; C.fcast = null; }   /* 명절 효과 추정치는 남겨 둠 */
     }
     var end = a.closed ? key + " 마감" : key + "-" + BRKSales.util.pad(a.last);
     if (end > latest) latest = end;
@@ -2250,97 +2250,171 @@ function slackPayload(M, by){
     var q = MDATA[y + "-" + P(j)] || {};
     months.push({ m: j + "월", cur: q.has ? num(q.sv) : 0, prev: q.prev || 0 });
   }
-  /* 최근 13개월 막대 — 매출 페이지와 같은 모양으로 그린다 */
-  var bars = [];
-  for (var b = 12; b >= 0; b--) {
-    var t = (y * 12 + n - 1) - b, by_ = Math.floor(t / 12), bm = t % 12 + 1;
-    var bk = by_ + "-" + P(bm), nk = (by_ + 1) + "-" + P(bm), q2 = MDATA[bk], v = 0, wip = false;
-    if (q2 && q2.has) { v = num(q2.sv); wip = !!q2.wip; }
-    else if (MDATA[nk] && MDATA[nk].prev) v = MDATA[nk].prev;
-    if (bk === key && !a.full) { v = a.s / 1e8; wip = true; }
-    bars.push({ lab: String(by_).slice(2) + "." + P(bm), y: by_, v: v, wip: wip });
+  /* 1~12월 올해 vs 전년 + 이번 달 목표 */
+  var gm = [];
+  for (var k = 1; k <= 12; k++) {
+    var mk = y + "-" + P(k), q2 = MDATA[mk] || {}, isCur = (mk === key);
+    gm.push({ m: k, prev: q2.prev || 0, cur: isCur ? a.s/1e8 : (q2.has ? num(q2.sv) : 0),
+              wip: isCur ? !a.full : !!q2.wip,
+              yoy: (isCur && !a.full && a.pw) ? (a.s/a.pw - 1)*100 : null,
+              goal: isCur ? num(GOALS[key]) : 0 });
   }
-  var sub = "최근 13개월 월별 실매출 (억 원)" + (a.full ? "" : " · " + String(y).slice(2) + "." + P(n) + "는 " + n + "/1~" + a.last + " 누계");
-  return drawSlackChart(bars, sub).then(function (png) {
+  var sub = y + "년 월별 실매출 vs " + (y-1) + "년 (억 원)" + (a.full ? "" : " · " + n + "월은 " + n + "/1~" + a.last + " 누계");
+  var analysis = DETK[key] ? dailyAnalysis(y, n, DETK[key], num(GOALS[key])) : [];
+  var ready = (document.fonts && document.fonts.load)
+    ? Promise.all([document.fonts.load("900 32px 'Noto Sans KR'"), document.fonts.load("500 16px 'Noto Sans KR'")]).catch(function(){})
+    : Promise.resolve();
+  return ready.then(function(){
+    var png = "";
+    try { png = drawSlackChart({ year: y, months: gm, sub: sub }); } catch (e) { png = ""; }
     return { title: "BR 총 POS 매출 · " + y + "년 " + n + "월 (" + rng + ")", lines: lines, year: y, months: months,
-             chartTitle: "BR 총 POS 매출 · " + sub, png: png,
+             chartTitle: "BR 총 POS 매출 · " + sub, png: png, analysis: analysis,
              link: "https://www.brkgenius.com/sales/", by: by || "" };
   });
 }
 
-/* 슬랙용 막대그래프 PNG (매출 페이지 모양: 연도별 색 · 800억 이상 테두리 · 진행중 분홍 · 평균 점선) */
-function drawSlackChart(bars, sub){
-  var YC = {2019:"#9BB0E0",2020:"#66B8A5",2021:"#E0A048",2022:"#D96E6E",2023:"#A88BD4",2024:"#8C8C85",
-            2025:"#C9A227",2026:"#5B8FCB",2027:"#3E9C8F",2028:"#C77DA8",2029:"#7A8FB8",2030:"#B08D57"};
-  var F = "'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif";
-  var ready = (document.fonts && document.fonts.load)
-    ? Promise.all([document.fonts.load("900 30px 'Noto Sans KR'"), document.fonts.load("500 16px 'Noto Sans KR'")]).catch(function(){})
-    : Promise.resolve();
-  return ready.then(function(){
-    var W = 1400, H = 720, S = 2;
-    var cv = document.createElement("canvas"); cv.width = W*S; cv.height = H*S;
-    var g = cv.getContext("2d"); g.scale(S, S);
-    g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
-    var L = 48, R = W - 40, T = 190, B = H - 70, n = bars.length, step = (R - L) / n, bw = step * 0.74;
-    var closed = bars.filter(function(x){ return !x.wip && x.v; });
-    var avg = closed.reduce(function(s, x){ return s + x.v; }, 0) / (closed.length || 1);
-    var top = Math.max.apply(null, bars.map(function(x){ return x.v; }).concat([800])) * 1.1;
-    var Y = function(v){ return B - (B - T) * v / top; };
-    var lastY = bars[n-1].y, hero = -1, hv = -1;
-    bars.forEach(function(x, i){ if (x.y === lastY && !x.wip && x.v > hv) { hv = x.v; hero = i; } });
-
-    /* 제목 */
-    g.fillStyle = "#101C2E"; g.font = "900 30px " + F; g.textBaseline = "alphabetic";
-    g.fillText("BR 총 POS 매출", L, 62);
-    g.fillStyle = "#5C7291"; g.font = "500 17px " + F;
-    g.fillText(sub, L, 94);
-    /* 범례 */
-    var lx = L, ly = 132, item = function(draw, label){
-      draw(lx, ly - 12); g.fillStyle = "#3E526E"; g.font = "500 14px " + F;
-      g.fillText(label, lx + 22, ly); lx += 22 + g.measureText(label).width + 22;
-    };
-    var ys = []; bars.forEach(function(x){ if (ys.indexOf(x.y) < 0) ys.push(x.y); });
-    ys.forEach(function(yy){ item(function(x0, y0){ g.fillStyle = YC[yy] || "#8C8C85"; g.fillRect(x0, y0, 14, 14); }, yy + "년"); });
-    item(function(x0, y0){ g.fillStyle = "#2F6FB5"; g.fillRect(x0, y0, 14, 14); }, "올해 최고");
-    item(function(x0, y0){ g.strokeStyle = "#000"; g.lineWidth = 2; g.strokeRect(x0+1, y0+1, 12, 12); }, "800억 이상");
-    if (bars.some(function(x){ return x.wip; }))
-      item(function(x0, y0){ g.fillStyle = "#F7C9DC"; g.fillRect(x0, y0, 14, 14); g.strokeStyle = "#2F6FB5"; g.lineWidth = 1.5; g.strokeRect(x0+.75, y0+.75, 12.5, 12.5); }, "진행중");
-    item(function(x0, y0){ g.strokeStyle = "#000"; g.lineWidth = 2; g.setLineDash([5,4]); g.beginPath(); g.moveTo(x0, y0+7); g.lineTo(x0+16, y0+7); g.stroke(); g.setLineDash([]); }, "평균 " + Math.round(avg) + "억");
-
-    /* 바닥선 */
-    g.strokeStyle = "#D7E1EE"; g.lineWidth = 1; g.beginPath(); g.moveTo(L, B + .5); g.lineTo(R, B + .5); g.stroke();
-
-    /* 막대 */
-    var rr = function(x, y, w, h, r){
-      g.beginPath(); g.moveTo(x, y + h); g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
-      g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r); g.lineTo(x + w, y + h); g.closePath();
-    };
-    bars.forEach(function(x, i){
-      var cx = L + step * i + (step - bw) / 2;
-      if (x.v) {
-        var yy = Y(x.v), h = B - yy;
-        g.fillStyle = x.wip ? "#F7C9DC" : (i === hero ? "#2F6FB5" : (YC[x.y] || "#8C8C85"));
-        rr(cx, yy, bw, h, 6); g.fill();
-        if (x.wip) { g.strokeStyle = "#2F6FB5"; g.lineWidth = 2; rr(cx + 1, yy + 1, bw - 2, h - 1, 5); g.stroke(); }
-        else if (x.v >= 800) { g.strokeStyle = "#000"; g.lineWidth = 3; rr(cx + 1.5, yy + 1.5, bw - 3, h - 1.5, 5); g.stroke(); }
-        g.fillStyle = "#000"; g.font = "800 19px " + F; g.textAlign = "center";
-        g.fillText(x.wip ? x.v.toFixed(0) + "*" : Math.round(x.v).toLocaleString("ko-KR"), cx + bw / 2, yy - 10);
-      }
-      g.fillStyle = "#5C7291"; g.font = "500 15px " + F; g.textAlign = "center";
-      g.fillText(x.lab, cx + bw / 2, B + 28);
-      g.textAlign = "left";
-    });
-
-    /* 평균 점선 */
-    var ay = Math.round(Y(avg)) + .5;
-    g.strokeStyle = "#000"; g.lineWidth = 2; g.setLineDash([9, 7]);
-    g.beginPath(); g.moveTo(L, ay); g.lineTo(R, ay); g.stroke(); g.setLineDash([]);
-
-    g.fillStyle = "#8A9AB2"; g.font = "500 13px " + F; g.textAlign = "right";
-    g.fillText("brkgenius.com/sales · 평균은 이 그래프에서 마감한 달 기준", R, H - 22);
-    return cv.toDataURL("image/png");
-  }).catch(function(){ return ""; });
+/* 슬랙용 막대그래프 PNG — 1~12월 올해·전년 나란히, 막대 위 억 단위, 이번 달 목표를 뒤에 겹쳐 그림 */
+function drawSlackChart(d){
+  // d: {year, months:[{m:1..12, cur, prev, wip}], sub}
+  const F="'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", W=1600, H=780, S=2;
+  const cv=document.createElement("canvas"); cv.width=W*S; cv.height=H*S;
+  const g=cv.getContext("2d"); g.scale(S,S);
+  g.fillStyle="#fff"; g.fillRect(0,0,W,H);
+  const C_PREV="#CDD3DD", C_CUR="#5B8FCB", C_WIP="#F7C9DC", C_UP="#0F6E56", C_DN="#C2185B";
+  const L=56,R=W-40,T=200,B=H-120;
+  const ms=d.months, n=12, step=(R-L)/n, bw=step*0.34, gap=step*0.04;
+  const top=Math.max(800,...ms.map(x=>Math.max(x.cur||0,x.prev||0,x.goal||0)))*1.16;
+  const Y=v=>B-(B-T)*v/top;
+  // title
+  g.fillStyle="#101C2E"; g.font="900 32px "+F; g.fillText("BR 총 POS 매출",L,64);
+  g.fillStyle="#5C7291"; g.font="500 18px "+F; g.fillText(d.sub,L,98);
+  // legend
+  let lx=L; const ly=146;
+  const item=(fn,t)=>{fn(lx,ly-13); g.fillStyle="#3E526E"; g.font="500 15px "+F; g.fillText(t,lx+24,ly); lx+=24+g.measureText(t).width+26;};
+  item((x,y)=>{g.fillStyle=C_PREV; g.fillRect(x,y,16,16);}, (d.year-1)+"년");
+  item((x,y)=>{g.fillStyle=C_CUR; g.fillRect(x,y,16,16);}, d.year+"년");
+  if(ms.some(x=>x.wip)) item((x,y)=>{g.fillStyle=C_WIP; g.fillRect(x,y,16,16); g.strokeStyle=C_CUR; g.lineWidth=1.5; g.strokeRect(x+.75,y+.75,14.5,14.5);}, "진행 중 (누계)");
+  if(ms.some(x=>x.goal)) item((x,y)=>{g.fillStyle="rgba(232,68,122,.10)"; g.fillRect(x,y,16,16); g.strokeStyle="#E8447A"; g.lineWidth=1.5; g.setLineDash([4,3]); g.strokeRect(x+.75,y+.75,14.5,14.5); g.setLineDash([]);}, "목표");
+  // gridlines
+  g.strokeStyle="#EEF2F7"; g.lineWidth=1;
+  for(let v=200; v<top; v+=200){ const yy=Math.round(Y(v))+.5; g.beginPath(); g.moveTo(L,yy); g.lineTo(R,yy); g.stroke();
+    g.fillStyle="#A9B6C8"; g.font="500 12px "+F; g.textAlign="right"; g.fillText(v,L-8,yy+4); g.textAlign="left"; }
+  g.strokeStyle="#C9D3E0"; g.beginPath(); g.moveTo(L,B+.5); g.lineTo(R,B+.5); g.stroke();
+  const rr=(x,y,w,h,r)=>{g.beginPath(); g.moveTo(x,y+h); g.lineTo(x,y+r); g.quadraticCurveTo(x,y,x+r,y); g.lineTo(x+w-r,y); g.quadraticCurveTo(x+w,y,x+w,y+r); g.lineTo(x+w,y+h); g.closePath();};
+  ms.forEach((x,i)=>{
+    const cx=L+step*i+step/2, px=cx-gap/2-bw, qx=cx+gap/2;
+    if(x.prev){ const yy=Y(x.prev); g.fillStyle=C_PREV; rr(px,yy,bw,B-yy,5); g.fill();
+      g.fillStyle="#7C8BA1"; g.font="700 15px "+F; g.textAlign="center"; g.fillText(Math.round(x.prev),px+bw/2,yy-8); }
+    if(x.goal){ const gy=Y(x.goal), gx=qx, gw=bw;
+      g.fillStyle="rgba(232,68,122,.08)"; rr(gx,gy,gw,B-gy,6); g.fill();
+      g.strokeStyle="#E8447A"; g.lineWidth=2; g.setLineDash([6,4]); rr(gx+1,gy+1,gw-2,B-gy-1,5); g.stroke(); g.setLineDash([]);
+      const pct=x.cur? x.cur/x.goal*100 : 0;
+      g.textAlign="center";
+      g.fillStyle="#E8447A"; g.font="700 14px "+F; g.fillText("목표 "+Math.round(x.goal)+"억",qx+bw/2,gy-10);
+      if(x.cur){ const t="달성 "+pct.toFixed(1)+"%"; g.font="800 14px "+F; const tw=g.measureText(t).width+18;
+        g.fillStyle=pct>=100?"#0F6E56":"#E8447A"; rr(qx+bw/2-tw/2,gy-58,tw,26,13); g.fill();
+        g.fillStyle="#fff"; g.fillText(t,qx+bw/2,gy-40); }
+      g.textAlign="left"; }
+    if(x.cur){ const yy=Y(x.cur); g.fillStyle=x.wip?C_WIP:C_CUR; rr(qx,yy,bw,B-yy,5); g.fill();
+      if(x.wip){ g.strokeStyle=C_CUR; g.lineWidth=2; rr(qx+1,yy+1,bw-2,B-yy-1,4); g.stroke(); }
+      g.font="800 17px "+F; g.textAlign="center"; const lt=Math.round(x.cur)+(x.wip?"*":"");
+      if(x.goal){ const tw=Math.min(g.measureText(lt).width+6,bw-5); g.fillStyle="#FDF0F4"; g.fillRect(qx+bw/2-tw/2,yy-27,tw,22); }
+      g.fillStyle="#000"; g.fillText(lt,qx+bw/2,yy-9); }
+    g.fillStyle="#3E526E"; g.font="700 16px "+F; g.textAlign="center"; g.fillText(x.m+"월",cx,B+28);
+    if(x.cur&&(x.prev||x.yoy!=null)){ const r=x.yoy!=null?x.yoy:(x.cur/x.prev-1)*100, t=(r>=0?"▲ ":"▼ ")+Math.abs(r).toFixed(1)+"%"+(x.wip?" 동요일":"");
+      g.font="700 14px "+F; const tw=g.measureText(t).width+16;
+      g.fillStyle=r>=0?"#E7F2EE":"#FDE7EE"; rr(cx-tw/2,B+42,tw,24,12); g.fill();
+      g.fillStyle=r>=0?C_UP:C_DN; g.fillText(t,cx,B+59); }
+    g.textAlign="left";
+  });
+  g.fillStyle="#8A9AB2"; g.font="500 13px "+F; g.textAlign="right";
+  g.fillText("brkgenius.com/sales · 막대 위 숫자는 억 원 · 아래는 전년 대비"+(ms.some(x=>x.wip)?" (진행 중인 달은 전년 같은 요일끼리 비교)":""),R,H-18);
+  return cv.toDataURL("image/png");
 }
+
+/* 데일리 분석 2~3줄 — 최근 7일 흐름 · 오프라인 단기 행사와 겹쳐 보기 · 목표까지 남은 속도 */
+function dailyAnalysis(y, n, C, goal){
+  var daily = C.daily || {}, days = Object.keys(daily).map(Number).sort(function(a,b){ return a-b; });
+  if (days.length < 3) return [];
+  var last = days[days.length-1], DIM = new Date(y, n, 0).getDate();
+  var e1 = function(v){ return (v/1e8).toFixed(1); }, sg = function(v){ return (v>=0?"+":"") + v.toFixed(1) + "%"; };
+  var sum = function(a,b,k){ var t=0; for (var d=a; d<=b; d++) if (daily[d]) t += daily[d][k] || 0; return t; };
+  var yo = function(a,b){ var s=sum(a,b,"s"), w=sum(a,b,"pw"); return w ? (s/w-1)*100 : null; };
+  var a7 = Math.max(1, last-6), nd = last-a7+1, y7 = yo(a7,last), yM = yo(1,last), avg7 = sum(a7,last,"s")/nd;
+  var out = [];
+  /* 1. 흐름 */
+  if (y7 !== null) {
+    var trend = (a7 > 1 && yM !== null && Math.abs(y7-yM) >= 0.5) ? (y7 > yM ? " · 상승세" : " · 둔화") : "";
+    out.push("흐름: 최근 " + nd + "일 전년 동요일 대비 " + sg(y7) + (a7 > 1 && yM !== null ? " (이번 달 " + sg(yM) + ")" : "") + trend);
+  }
+  /* 2. 행사 — 가장 최근에 시작한 오프라인 단기 행사 1개.
+        근거: 행사일 매출 ÷ 바로 전주 같은 요일 매출 (작년과는 행사가 달라 전년비는 쓰지 않음)
+        판정: +10% 이상 = 영향 있어 보임 / -5% 이하 = 오히려 낮음 / 그 사이 = 뚜렷한 영향 없음
+        같은 날 다른 행사·신제품 출시·명절이 겹치면 함께 적어 단정하지 않게 함 */
+  var WDn = ["일","월","화","수","목","금","토"];
+  var offs = (C.promos || []).filter(function(p){ return p.ch === "오프라인" && (p.e - p.s) < 10 && p.s <= last && p.e >= a7; })
+                             .sort(function(x,z){ return z.s - x.s; });
+  if (offs.length) {
+    var p = offs[0], s1 = 0, s0 = 0, got = 0;
+    for (var d1 = Math.max(p.s,1); d1 <= Math.min(p.e,last); d1++) {
+      if (daily[d1] && daily[d1-7]) { s1 += daily[d1].s; s0 += daily[d1-7].s; got++; }
+    }
+    if (got && s0) {
+      var up = (s1/s0 - 1)*100;
+      var verdict = up >= 10 ? "행사 영향으로 보임" : (up <= -5 ? "오히려 낮음" : "아직 뚜렷한 영향 없음");
+      var from = Math.max(p.s,1), to = Math.min(p.e,last);
+      var clash = [];
+      offs.slice(1).forEach(function(o){ if (o.s <= to && o.e >= from) clash.push("다른 행사"); });
+      (C.new || []).forEach(function(x){ if (x.day && x.day >= from && x.day <= to) clash.push("신제품 출시"); });
+      (C.events || []).forEach(function(x){ if (x.d >= from && x.d <= to) clash.push(x.t); });
+      clash = clash.filter(function(v,i){ return clash.indexOf(v) === i; });
+      /* 행사 이름 대신 혜택 내용을 씀 (캘린더 설명 중 할인·증정이 적힌 부분) */
+      var what = String(p.d || "").split("·").map(function(x){ return x.trim(); })
+                   .filter(function(x){ return /%|OFF|\+1|증정|무료|할인/i.test(x); })[0] || p.t;
+      out.push("행사: " + what + " (" + n + "/" + p.s + " 시작), 지난주 같은 요일보다 " + sg(up) + "로 " + verdict);
+    }
+  } else {
+    out.push("행사: 최근 " + nd + "일 오프라인 단기 행사 없음");
+  }
+  /* 남은 날 일별 예측
+     = 최근 2주 같은 요일 매출 평균 (아직 없는 날은 앞서 예측한 값을 이어 씀)
+     + 명절 효과: 과거 명절 달 배수로 뽑은 추정치(매출 페이지 전망의 '추석 효과')를 연휴 날짜에 나눠 더함 */
+  var fc = {}, hol = (C.events || []).filter(function(x){ return x.d > last && /추석|설/.test(x.t); });
+  var lift = hol.length ? ((C.fcast && C.fcast.lift) || C.hlift || 0) * 1e8 / hol.length : 0;
+  var val = function(d){ return daily[d] ? daily[d].s : fc[d]; };
+  for (var d4 = last+1; d4 <= DIM; d4++) {
+    var r1 = val(d4-7), r2 = val(d4-14), refs = [r1, r2].filter(function(v){ return v; });
+    var base0 = refs.length ? refs.reduce(function(x,y){ return x+y; }, 0) / refs.length : avg7;
+    fc[d4] = base0 + (hol.some(function(x){ return x.d === d4; }) ? lift : 0);
+  }
+  var restSum = 0; for (var d5 in fc) restSum += fc[d5];
+  var monthEnd = sum(1,last,"s") + restSum;
+  /* 3. 목표 */
+  if (goal && last < DIM) {
+    var need = (goal*1e8 - sum(1,last,"s")) / (DIM-last);
+    out.push("목표: 남은 " + (DIM-last) + "일 하루 " + e1(need) + "억 필요 · 월말 예상 " + Math.round(monthEnd/1e8) +
+             "억 (목표의 " + Math.round(monthEnd/1e8/goal*100) + "%)");
+  } else if (goal) {
+    out.push("목표: " + goal + "억 대비 " + (sum(1,last,"s")/1e8/goal*100).toFixed(1) + "% 달성");
+  }
+  /* 4. 남은 기간 중 매출이 가장 클 3일 (명절이 있으면 대개 여기에 걸림) */
+  if (DIM - last >= 3) {
+    var bestW = null;
+    for (var w = last+1; w + 2 <= DIM; w++) {
+      var ws = fc[w] + fc[w+1] + fc[w+2];
+      if (!bestW || ws > bestW.s) bestW = { d:w, s:ws };
+    }
+    var lab = hol.filter(function(x){ return x.d >= bestW.d && x.d <= bestW.d+2; }).length ? hol[0].t.replace(/ 연휴$/,"") + " 연휴 " : "";
+    var parts = [];
+    for (var d6 = bestW.d; d6 <= bestW.d+2; d6++)
+      parts.push(n + "/" + d6 + "(" + WDn[new Date(y, n-1, d6).getDay()] + ") " + Math.round(fc[d6]/1e8) + "억");
+    var wsum = Math.round(bestW.s/1e8), line = "(변수) 최대 매출 예상 구간: " + lab + n + "/" + bestW.d + "~" + (bestW.d+2) +
+               " 최대 +" + wsum + "억 가능";
+    out.push(line);
+  }
+  return out;
+}
+
 if (window.BRKSales) BRKSales.mountUploader(document.getElementById("salesUp"), {
   onApplied: function(M){ applySheetSales(M); },
   slackPayload: slackPayload

@@ -475,6 +475,8 @@ function slackPost(p) {
              (p.lines || []).map(function (l) { return "• " + l; }).join("\n") +
              "\n<" + (p.link || "https://www.brkgenius.com/sales/") + "|자세히 보기 · 총 POS 매출 페이지> (비밀번호 필요)" +
              (p.by ? "  ·  올린 사람 " + p.by : "");
+  var anaText = (p.analysis && p.analysis.length)
+    ? "*데일리 분석*\n" + p.analysis.map(function (l) { return /^\(변수\)/.test(l) ? "\u2003\u2003\u2003" + l : "• " + l;   /* (변수) 줄은 윗줄 '남은' 위치에 맞춰 들여씀 */ }).join("\n") : "";
   var blob = null;
   /* 페이지가 그려 보낸 그래프(매출 페이지와 같은 모양)가 있으면 그걸 쓰고, 없으면 여기서 그린다 */
   if (p.png) {
@@ -494,7 +496,11 @@ function slackPost(p) {
         var j3 = slackApi("files.completeUploadExternal", c.token, {
           files: JSON.stringify([{ id: j1.file_id, title: p.chartTitle || "월별 실매출" }]),
           channel_id: c.channel, initial_comment: text });
-        if (j3.ok) return { ok: true, image: true };
+        if (j3.ok) {
+          /* 그래프 바로 아래에 데일리 분석을 이어서 올린다 */
+          if (anaText) slackApi("chat.postMessage", c.token, { channel: c.channel, text: anaText });
+          return { ok: true, image: true };
+        }
         if (j3.error !== "missing_scope") return { ok: false, error: slackErr(j3.error) };
       }
     } else if (j1.error !== "missing_scope") {
@@ -502,7 +508,7 @@ function slackPost(p) {
     }
   }
   /* 그래프를 못 만들었거나 파일 권한이 없으면 글만 보냄 */
-  var j = slackApi("chat.postMessage", c.token, { channel: c.channel, text: text });
+  var j = slackApi("chat.postMessage", c.token, { channel: c.channel, text: text + (anaText ? "\n\n" + anaText : "") });
   if (!j.ok) return { ok: false, error: slackErr(j.error) };
   return { ok: true, image: false, note: blob ? "파일 올리기 권한(files:write)이 없어 글만 올렸습니다." : "그래프를 만들지 못해 글만 올렸습니다." };
 }
