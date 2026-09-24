@@ -741,7 +741,7 @@
     date:  /일자|날짜|영업일|^date$|기준일|매출일|년월일|^일$|^일별$/i,
     month: /^(년월|월|월별|기간|month|연월)$/i,
     cat:   /제품군|카테고리|품목군|대분류|중분류|^구분$|^분류$|category|상품군/i,
-    bad:   /비중|구성|%|률|율|比|대비|증감|객단가|단가|수량|목표|누계|누적|평균|순번|^no\.?$|매장수|점포수|순위|신장|차이|성장|계획|예상|전망|기여|index/i,
+    bad:   /비중|구성|%|률|율|比|대비|증감|객단가|단가|수량|목표|누계|누적|평균|순번|^no|매장수|점포수|순위|신장|차이|성장|계획|예상|전망|기여|index|조직|코드|번호|점포/i,
     prev:  /전년|작년|전기|^ly|py$|^py|동요일/i,
     cust:  /고객|객수|영수증|구매건수|결제건수/,
     total: /합계|총계|총매출|전체|실매출|순매출|^pos|pos매출|^매출액?(\(.*\))?$|^금액(\(.*\))?$|^실적$|토탈|total|^계$|^sales$/i
@@ -828,10 +828,20 @@
 
     /* 제목 줄 : 첫 자료 줄 위로 최대 3줄을 합쳐 칸 이름을 만든다 */
     var hTop = Math.max(0, best.first - 3), labels = [];
+    /* 묶음 제목(예: 조회기간 / 전년 동 요일)은 오른쪽 빈칸으로 이어 준다 (마지막 제목 줄은 제외) */
+    var carry = {};
+    for (var hr0 = hTop; hr0 < best.first - 1; hr0++) {
+      var cur = null;
+      for (var c0 = 0; c0 < maxC; c0++) {
+        var t0 = txt(cell(hr0, c0));
+        if (t0) cur = t0;
+        else if (cur && c0 > best.c) (carry[hr0] = carry[hr0] || {})[c0] = cur;
+      }
+    }
     for (var cc = 0; cc < maxC; cc++) {
       var parts = [];
       for (var hr = hTop; hr < best.first; hr++) {
-        var t = txt(cell(hr, cc));
+        var t = txt(cell(hr, cc)) || (carry[hr] && carry[hr][cc]) || "";
         if (t && !toDay(t, yh) && parts.indexOf(t) < 0 && t.length < 40 && !/단위|^\(.*\)$|^20\d{2}년\s*\d{1,2}월$/.test(t)) parts.push(t);
       }
       labels.push(parts.join(" "));
@@ -857,6 +867,21 @@
     var has = function (kk) { return colK.some(function (k) { return k && k.k === kk; }); };
     var colsOf = function (kk) { var a = []; colK.forEach(function (k, i) { if (k && k.k === kk) a.push(i); }); return a; };
 
+    /* 매출 칸이 여럿이면 '실매출'이 들어간 칸, 없으면 값이 가장 큰 칸을 쓴다 */
+    (function () {
+      var cs = colsOf("s"); if (cs.length < 2) return;
+      var tot = function (i) { var t = 0; for (var r = best.first; r < rows.length; r++) { var v = toNum(cell(r, i)); if (v) t += Math.abs(v); } return t; };
+      var pick = cs.filter(function (i) { return /실매출/.test(labels[i]); })[0];
+      if (pick === undefined) pick = cs.slice().sort(function (a, b) { return tot(b) - tot(a); })[0];
+      cs.forEach(function (i) { if (i !== pick) colK[i] = null; });
+    })();
+    /* 전년 칸이 여럿이면(전년 동일 / 전년 동요일) 동요일 쪽을 쓴다 */
+    ["pw", "pwc"].forEach(function (kk) {
+      var cs = colsOf(kk); if (cs.length < 2) return;
+      var pick = cs.filter(function (i) { return /동요일/.test(labels[i].replace(/\s/g, "")); })[0];
+      if (pick === undefined) return;
+      cs.forEach(function (i) { if (i !== pick) colK[i] = null; });
+    });
     /* 같은 종류 칸이 여럿이면 첫 칸만 쓴다 (금년·전년이 둘 다 '매출'로만 적힌 경우 두 번째를 전년으로) */
     var sCols = colsOf("s"), cCols = colsOf("c");
     if (sCols.length >= 2 && !has("pw")) { colK[sCols[1]] = { k: "pw" }; }
@@ -981,11 +1006,28 @@
           }).filter(Boolean);
         });
       })).then(function (lists) {
-        var R = { days: {}, mon: {}, sheets: [], notes: [], unitGuess: 1, unitFound: null };
-        var all = [].concat.apply([], lists);
-        all.forEach(function (sh) {
+        var R = { days: {}, mon: {}, sheets: [], skipped: [], notes: [], unitGuess: 1, unitFound: null };
+        var all = [].concat.apply([], lists).filter(function (sh) {
+          return Object.keys(sh.days).length || Object.keys(sh.mon).length;
+        });
+        /* 어떤 탭을 쓸지 고르기
+           ① 이름에 RAW·BACK 이 들어간 탭(제품별 원자료)은 빼고
+           ② 날짜가 세로로 내려가는 일별 표가 있으면 가로 요약표는 빼고
+           ③ 가장 최근 날짜가 든 탭과 겹치지 않는 옛날 탭(작년 일매출 등)은 뺀다 */
+        var keep = all.filter(function (sh) { return !/RAW|BACK/i.test(sh.sheet); });
+        if (!keep.length) keep = all;
+        if (keep.some(function (sh) { return sh.mode === "일별"; }))
+          keep = keep.filter(function (sh) { return sh.mode !== "일별(가로)"; });
+        var maxOf = function (sh) { return Object.keys(sh.days).concat(Object.keys(sh.mon)).sort().pop() || ""; };
+        var minOf = function (sh) { return Object.keys(sh.days).concat(Object.keys(sh.mon)).sort()[0] || ""; };
+        var latest = keep.map(maxOf).sort().pop() || "";
+        var latestMonth = latest.slice(0, 7);
+        var newest = keep.filter(function (sh) { return maxOf(sh) === latest; })[0];
+        var floor = newest ? minOf(newest).slice(0, 7) : "";
+        keep = keep.filter(function (sh) { return maxOf(sh).slice(0, 7) >= floor; });
+        all.forEach(function (sh) { if (keep.indexOf(sh) < 0) R.skipped.push(sh.sheet); });
+        keep.forEach(function (sh) {
           var nd = Object.keys(sh.days).length, nm = Object.keys(sh.mon).length;
-          if (!nd && !nm) return;
           if (sh.unit) R.unitFound = sh.unit;
           R.sheets.push({ file: sh.file, sheet: sh.sheet, mode: sh.mode, days: nd, months: nm, map: sh.map });
           Object.keys(sh.days).forEach(function (k) { R.days[k] = sh.days[k]; });
@@ -1123,6 +1165,7 @@
     ".brks .up{color:#0F6E56;font-weight:700}.brks .dn{color:#C2185B;font-weight:700}" +
     ".brks .map{font-size:12px;color:#6E5E55;line-height:1.75;margin:10px 0 0;padding-left:0;list-style:none}" +
     ".brks .map li b{color:#000}" +
+    ".brks .mapd{margin-top:10px;font-size:12px;color:#6E5E55}.brks .mapd summary{cursor:pointer}" +
     ".brks .warn{font-size:12.5px;color:#9A5B00;background:#FFF6E0;border-radius:10px;padding:9px 13px;margin-top:10px;line-height:1.7}" +
     ".brks .act{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid #F1E6DE}" +
     ".brks label.u{font-size:12.5px;color:#6E5E55;display:flex;align-items:center;gap:6px}" +
@@ -1292,14 +1335,18 @@
         "<h4>읽은 내용 확인 <span style='font-weight:500;font-size:12px;color:#8A7A70'>— 이미 들어 있는 날과 합친, 올린 뒤의 달 합계입니다</span></h4>" +
         "<div class='tw'><table><thead><tr><th>달</th><th>들어온 날짜</th><th style='text-align:right'>매출</th><th style='text-align:right'>고객수</th><th style='text-align:right'>전년 동요일 대비</th><th>바뀌는 점</th></tr></thead><tbody>" +
         rows.join("") + "</tbody></table></div>" +
-        "<ul class='map'>" + R.sheets.map(function (s) {
-          return "<li><b>" + esc(s.file) + " › " + esc(s.sheet) + "</b> (" + s.mode + ", " + (s.days ? s.days + "일" : s.months + "달") + ") — " + esc(s.map.join(" · ") || "칸 이름 없음") + "</li>";
-        }).join("") + (Object.keys(catSet).length ? "<li><b>제품군</b> — " + esc(Object.keys(catSet).join(", ")) + "</li>" : "") + "</ul>" +
+        "<details class='mapd'><summary>자세히</summary>" +
+        "<ul class='map'><li><b>읽은 탭</b>: " + esc(R.sheets.map(function (s) { return s.sheet; }).join(", ")) +
+          (R.skipped.length ? " · <b>뺀 탭</b>: " + esc(R.skipped.join(", ")) : "") + "</li>" + R.sheets.map(function (s) {
+          return "<li><b>" + esc(s.sheet) + "</b> (" + s.mode + ", " + (s.days ? s.days + "일" : s.months + "달") + "): " + esc(s.map.join(" · ") || "칸 이름 없음") + "</li>";
+        }).join("") + "</ul></details>" +
         (warn.length ? "<div class='warn'>" + warn.map(esc).join("<br>") + "</div>" : "") +
         "<div class='act'>" +
-          "<label class='u'>금액 단위 <select id='brksUnit'>" + units.map(function (u) {
-            return "<option value='" + u[0] + "'" + (u[0] === unit ? " selected" : "") + ">" + u[1] + (u[0] === R.unitGuess && !R.unitFound ? " (짐작)" : "") + "</option>";
-          }).join("") + "</select></label>" +
+          /* 금액 단위 칸은 단위를 엑셀에서 못 찾고 '원'이 아닌 것으로 짐작했을 때만 보여 준다 */
+          (!R.unitFound && R.unitGuess !== 1 ?
+          "<label class='u'>금액 단위 확인 <select id='brksUnit'>" + units.map(function (u) {
+            return "<option value='" + u[0] + "'" + (u[0] === unit ? " selected" : "") + ">" + u[1] + (u[0] === R.unitGuess ? " (짐작)" : "") + "</option>";
+          }).join("") + "</select></label>" : "<input type='hidden' id='brksUnit' value='" + unit + "'>") +
           "<span class='sp'></span>" +
           "<input type='text' id='brksBy' placeholder='올린 사람' aria-label='올린 사람 이름' autocomplete='name'>" +
           "<input type='password' id='brksKey' placeholder='올리기 비밀번호' aria-label='올리기 비밀번호' autocomplete='off'>" +
@@ -1309,7 +1356,7 @@
         "</div>";
       pv.hidden = false;
       try { var nm = localStorage.getItem("brks_by"); if (nm) $("brksBy").value = nm; } catch (e) {}
-      $("brksUnit").onchange = preview;
+      if ($("brksUnit").tagName === "SELECT") $("brksUnit").onchange = preview;
       $("brksCancel").onclick = function () { parsed = null; pv.hidden = true; say(""); };
       $("brksKey").onkeydown = function (e) { if (e.key === "Enter") $("brksGo").click(); };
       $("brksGo").onclick = go;

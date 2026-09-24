@@ -468,6 +468,20 @@ function slackChart(p) {
   return chart.getAs("image/png").setName("BR_매출_" + Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd_HHmm") + ".png");
 }
 
+/* 파일 올리기 (새 방식 3단계). channel 을 비우면 채널에 올리지 않고 파일만 만들어 둠 */
+function uploadFile(c, blob, title, channel, comment) {
+  var bytes = blob.getBytes();
+  var j1 = slackApi("files.getUploadURLExternal", c.token, { filename: blob.getName(), length: String(bytes.length) });
+  if (!j1.ok) return { ok: false, error: j1.error };
+  var up = UrlFetchApp.fetch(j1.upload_url, { method: "post", payload: blob, muteHttpExceptions: true });
+  if (up.getResponseCode() !== 200) return { ok: false, error: "upload_failed" };
+  var form = { files: JSON.stringify([{ id: j1.file_id, title: title }]) };
+  if (channel) { form.channel_id = channel; if (comment) form.initial_comment = comment; }
+  var j3 = slackApi("files.completeUploadExternal", c.token, form);
+  if (!j3.ok) return { ok: false, error: j3.error };
+  return { ok: true, id: j1.file_id };
+}
+
 function slackPost(p) {
   var c = slackConf();
   if (!c.token || !c.channel) return { ok: false, error: "슬랙이 아직 연결되지 않았습니다. «슬랙 연결 설정»에서 토큰과 채널 ID를 넣어 주세요." };
@@ -488,23 +502,29 @@ function slackPost(p) {
   if (!blob) { try { blob = slackChart(p); } catch (e) { blob = null; } }
 
   if (blob) {
-    var bytes = blob.getBytes();
-    var j1 = slackApi("files.getUploadURLExternal", c.token, { filename: blob.getName(), length: String(bytes.length) });
-    if (j1.ok) {
-      var up = UrlFetchApp.fetch(j1.upload_url, { method: "post", payload: blob, muteHttpExceptions: true });
-      if (up.getResponseCode() === 200) {
-        var j3 = slackApi("files.completeUploadExternal", c.token, {
-          files: JSON.stringify([{ id: j1.file_id, title: p.chartTitle || "월별 실매출" }]),
-          channel_id: c.channel, initial_comment: text });
-        if (j3.ok) {
-          /* 그래프 바로 아래에 데일리 분석을 이어서 올린다 */
-          if (anaText) slackApi("chat.postMessage", c.token, { channel: c.channel, text: anaText });
-          return { ok: true, image: true };
-        }
-        if (j3.error !== "missing_scope") return { ok: false, error: slackErr(j3.error) };
+    /* 순서를 지키려고 한 메시지로 보냄: 요약 글 → 그래프 이미지 → 데일리 분석
+       ① 파일을 채널에 올리지 않고 먼저 슬랙에 올려 둔 뒤
+       ② 그 파일을 이미지 칸으로 넣은 메시지 하나를 보냄 (파일 처리 시간이 있어 몇 번 다시 시도) */
+    var up1 = uploadFile(c, blob, p.chartTitle || "월별 실매출", "", "");
+    if (up1.ok) {
+      var blocks = [{ type: "section", text: { type: "mrkdwn", text: text } },
+                    { type: "image", slack_file: { id: up1.id }, alt_text: p.chartTitle || "월별 실매출" }];
+      if (anaText) blocks.push({ type: "section", text: { type: "mrkdwn", text: anaText } });
+      var jm = null;
+      for (var t = 0; t < 6; t++) {
+        jm = slackApi("chat.postMessage", c.token, { channel: c.channel, text: p.title || "BR 총 POS 매출", blocks: JSON.stringify(blocks) });
+        if (jm.ok) return { ok: true, image: true };
+        Utilities.sleep(2000);
       }
-    } else if (j1.error !== "missing_scope") {
-      return { ok: false, error: slackErr(j1.error) };
+      /* 이미지 칸이 끝내 안 되면: 파일을 채널에 올리고 잠시 뒤 분석을 이어서 올림 */
+      var up2 = uploadFile(c, blob, p.chartTitle || "월별 실매출", c.channel, text);
+      if (up2.ok) {
+        if (anaText) { Utilities.sleep(5000); slackApi("chat.postMessage", c.token, { channel: c.channel, text: anaText }); }
+        return { ok: true, image: true };
+      }
+      if (up2.error !== "missing_scope") return { ok: false, error: slackErr(up2.error) };
+    } else if (up1.error !== "missing_scope") {
+      return { ok: false, error: slackErr(up1.error) };
     }
   }
   /* 그래프를 못 만들었거나 파일 권한이 없으면 글만 보냄 */
