@@ -2156,11 +2156,11 @@ var TRUST_ADMIN_SESSION = false;
       "<h3>매출 엑셀 올리기</h3>" +
       "<p class='lead2'>BR 일매출 엑셀을 넣으면 이 페이지와 <a href='/sales/'>총 POS 매출</a> 페이지의 매출·고객수·그래프가 함께 바뀝니다. 같은 날짜를 다시 올리면 새 값으로 바뀝니다.</p>" +
       "<div class='now' id='brksNow'>지금 들어 있는 매출을 확인하는 중…</div>" +
-      "<label class='drop' id='brksDrop' tabindex='0' role='button' aria-label='엑셀 파일 고르기'>" +
+      "<div class='drop' id='brksDrop' tabindex='0' role='button' aria-label='엑셀 파일 고르기'>" +
         "<b>엑셀 파일을 여기에 끌어다 놓거나 눌러서 고르세요</b>" +
         "<span>.xlsx · .xls · .csv · 여러 개를 한 번에 넣어도 됩니다</span>" +
-        "<input type='file' id='brksFile' accept='.xlsx,.xls,.xlsm,.csv,.tsv,.txt' multiple hidden>" +
-      "</label>" +
+      "</div>" +
+      "<input type='file' id='brksFile' accept='.xlsx,.xls,.xlsm,.csv,.tsv,.txt' multiple style='display:none'>" +
       "<div class='row'><button type='button' class='lnk' id='brksTpl'>양식 파일 받기</button>" +
         "<span style='font-size:12px;color:#8A7A70'>MKT 일매출 엑셀을 그대로 넣어도 제목 줄을 보고 칸을 찾습니다.</span></div>" +
       "<div class='msg' id='brksMsg' role='status' aria-live='polite'></div>" +
@@ -2180,6 +2180,8 @@ var TRUST_ADMIN_SESSION = false;
         if (M.sheetOk) html += "<span>엑셀로 올린 날 <b>" + M.sheetRows + "</b>건" + (M.lastUpload ? " · 마지막 " + fmtTime(M.lastUpload) + (M.lastBy ? " " + esc(M.lastBy) : "") : "") + "</span>";
         else html += "<span class='bad'>구글시트에 연결하지 못했습니다 (" + esc(M.sheetErr || "") + ") — Apps Script 새 버전 배포가 필요할 수 있습니다</span>";
         $("brksNow").innerHTML = html;
+      }).catch(function (e) {
+        $("brksNow").innerHTML = "<span class='bad'>지금 들어 있는 매출을 읽지 못했습니다 (" + esc(e && e.message || e) + "). 엑셀 올리기는 그대로 됩니다.</span>";
       });
     }
     showNow();
@@ -2297,7 +2299,7 @@ var TRUST_ADMIN_SESSION = false;
       });
     }
 
-    drop.addEventListener("click", function (e) { if (e.target !== file) file.click(); e.preventDefault(); });
+    drop.addEventListener("click", function () { file.click(); });
     drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } });
     file.addEventListener("change", function () { pick(file.files); file.value = ""; });
     ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("on"); }); });
