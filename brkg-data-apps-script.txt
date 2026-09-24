@@ -2,6 +2,13 @@
  *  IP 업무(후보·상품·로열티 정산·자료)와 뮤직쇼 사진을 한 시트에 모아 둡니다.
  *  한 건이 한 줄로 들어가므로 자료가 늘어도 칸 용량 제한에 걸리지 않습니다.
  *
+ *  ── 2026.09 매출 엑셀 올리기 추가 ─────────────────────────────
+ *  연간 마케팅 플랜 페이지 맨 아래 «매출 엑셀 올리기» 칸이 이 스크립트의
+ *  sales 탭에 일매출을 적습니다. 매출 페이지·플랜 페이지는 여기서 읽어 갑니다.
+ *  이 파일을 다시 붙여넣고 [배포 관리] > 연필 > '새 버전' 으로 배포하면
+ *  sales 탭은 처음 올릴 때 스스로 생깁니다.
+ *  올리기 비밀번호는 아래 SALES_KEY 입니다. 바꾸려면 따옴표 안만 고치세요.
+ *
  *  ── 이미 쓰고 계시다면 (칸을 새로 붙인 판) ──────────────────────
  *  이 파일 내용을 다시 붙여넣고 [배포] > [배포 관리] 에서 기존 배포를
  *  «수정» 해 새 버전으로 올리면 됩니다. 주소는 그대로입니다.
@@ -57,6 +64,11 @@ var SHEET_ID = "";
 
 var PHOTO_FOLDER = "BRK 뮤직쇼 사진";
 
+/*  매출 올리기 비밀번호. 매출 엑셀을 시트에 쓸 때만 묻습니다. (읽기는 비밀번호 없이 됩니다)
+ *  GitHub 저장소가 공개라 여기에는 진짜 번호를 적지 않습니다.
+ *  Apps Script 화면에 붙여넣은 뒤, 따옴표 안에 팀만 아는 번호를 넣고 배포하세요. */
+var SALES_KEY = "여기에_팀만_아는_번호";
+
 /*  칸 이름을 새로 넣을 때는 반드시 줄 맨 끝에 붙입니다.
  *  가운데 끼워 넣으면 이미 쌓여 있는 줄의 칸이 한 칸씩 밀려 내용이 어긋납니다. */
 var TABLES = {
@@ -79,8 +91,16 @@ var TABLES = {
           "grp"],    /* grp = 제품군. cake/ic/dessert/drink/goods/etc. 비어 있으면 제품명으로 짐작한다 */
   music: ["id","date","title","place","memo","photos","updated","by"],
   ipmaster: ["id","grp","ip","kind","slot","agent","period","mg","roy","prod","dur","poc","excl","stage","memo","updated"],
-  meta:     ["id","by","at","n","updated"]
+  meta:     ["id","by","at","n","updated"],
+  /* sales = 매출. 한 줄이 하루(id 가 d2026-09-01) 또는 한 달 마감 합계(id 가 m2026-10).
+     id 앞에 d·m 을 붙이는 것은 시트가 날짜 글자를 멋대로 날짜 칸으로 바꾸지 못하게 하려는 것입니다.
+       s   = 매출(원)          c   = 고객수
+       pw  = 전년 동요일 매출  pwc = 전년 동요일 고객수
+       cats= 제품군별 매출 {"아이스크림":…}                                   */
+  sales:    ["id","kind","s","c","pw","pwc","cats","updated","by"]
 };
+/* 'all' 로 한꺼번에 읽을 때 빼는 표 (IP 페이지가 매출까지 받아 느려지지 않게) */
+var NOT_IN_ALL = { sales: true };
 
 function sheetFor(table) {
   var cols = TABLES[table];
@@ -242,8 +262,10 @@ function doGet(e) {
       out = { ok: true, table: p.table, rows: readAll(p.table) };
     } else if (p.action === "all") {
       var all = {};
-      for (var t in TABLES) all[t] = readAll(t);
+      for (var t in TABLES) if (!NOT_IN_ALL[t]) all[t] = readAll(t);
       out = { ok: true, data: all };
+    } else if (p.action === "sales") {
+      out = { ok: true, rows: readAll("sales") };
     } else if (p.action === "ping") {
       out = { ok: true, tables: Object.keys(TABLES) };
     } else if (!p.action) {
@@ -254,7 +276,7 @@ function doGet(e) {
               시트: (SHEET_ID ? SHEET_ID : "이 스크립트가 붙어 있는 시트"),
               표별_건수: cnt };
     } else {
-      out = { ok: false, error: "action 을 알 수 없습니다 (list / all / ping)" };
+      out = { ok: false, error: "action 을 알 수 없습니다 (list / all / sales / ping)" };
     }
   } catch (err) {
     out = { ok: false, error: String(err) };
@@ -335,7 +357,13 @@ function doPost(e) {
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
     try {
-      if (b.type === "save") {
+      /* 매출 표는 비밀번호가 맞을 때만 쓴다 */
+      if (b.table === "sales" && b.type !== "sales") {
+        out = { ok: false, error: "매출은 올리기 칸에서만 바꿀 수 있습니다" };
+      } else if (b.type === "sales") {
+        if (String(b.key || "") !== SALES_KEY) out = { ok: false, error: "올리기 비밀번호가 맞지 않습니다" };
+        else out = { ok: true, ids: upsertMany("sales", b.recs || []) };
+      } else if (b.type === "save") {
         out = { ok: true, id: upsert(b.table, b.rec) };
       } else if (b.type === "saveMany") {
         out = { ok: true, ids: upsertMany(b.table, b.recs || []) };

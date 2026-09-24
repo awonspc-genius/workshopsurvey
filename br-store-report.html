@@ -633,7 +633,7 @@ function initGate(){
 }
 function tryUnlock(){
   var v=document.getElementById('gate-pw').value.trim();
-  if(v===PASSCODE){ ssSet(SESSION_KEY,'1'); ssSet('br_all_ok','1'); unlock(); }
+  if(v===PASSCODE){ ssSet(SESSION_KEY,'1'); unlock(); }   /* 3131 은 이 페이지만 연다. 팀 공통 열쇠(br_all_ok)는 주지 않는다 */
   else{ document.getElementById('gate-err').textContent='코드가 맞지 않아요. 다시 입력해 주세요.'; document.getElementById('gate-pw').value=''; document.getElementById('gate-pw').focus(); }
 }
 

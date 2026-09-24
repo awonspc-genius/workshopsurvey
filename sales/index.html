@@ -547,7 +547,7 @@
     <div style="overflow-x:auto"><table id="dCatTbl"></table></div>
   </div>
 
-  <details id="dData">
+  <details id="dData" hidden style="display:none">  <!-- 공개 페이지라 매출 넣기 칸은 숨김. 매출은 연간 마케팅 플랜에서만 올립니다 -->
     <summary>데이터 넣기 · 형식 보기</summary>
     <div class="in">
       <p class="hint">
@@ -826,10 +826,30 @@
   load();
   seedIn();                       /* 페이지에 심어 둔 제품군별 일매출 */
   /* 나중에 data/daily.csv 를 올려 두면 그쪽 내용도 합친다 */
-  fetch("/data/daily.csv").then(function(r){ if(!r.ok) throw 0; return r.text(); })
+  var csvReady = fetch("/data/daily.csv").then(function(r){ if(!r.ok) throw 0; return r.text(); })
     .then(function(t){ merge(parse(t)); pickMonth(); if(!$("dailyView").hidden) render(); })
     .catch(function(){});
   pickMonth();
+
+  /* 매출 엑셀로 올린 날짜는 그 날 줄을 통째로 바꿔 끼운다 (제품군 이름이 달라도 두 번 더해지지 않게) */
+  window.BRKDaily = {
+    ready: csvReady,
+    replaceDays: function(list){
+      if(!list || !list.length) return;
+      var drop = {}; list.forEach(function(x){ drop[x.d] = 1; });
+      DB.sales = DB.sales.filter(function(x){ return !drop[x.d]; });
+      DB.meta = DB.meta || {};
+      list.forEach(function(x){
+        var cats = x.cats, any = false;
+        if(cats) for(var k in cats){ if(+cats[k]){ DB.sales.push({d:x.d, cat:k, v:+cats[k]}); any = true; } }
+        if(!any) DB.sales.push({d:x.d, cat:"전체", v:x.s});
+        DB.meta[x.d] = {c:x.c || 0, p:x.pw || 0, pc:x.pwc || 0};
+      });
+      DB.sales.sort(function(a,b){ return a.d<b.d?-1:1; });
+      save(); pickMonth();
+      if(!$("dailyView").hidden) render();
+    }
+  };
 })();
 </script>
 
@@ -1103,7 +1123,7 @@
   <footer id="fsrc" hidden>출처: POS매출 일별 데이터(2019.01.01 ~ 2026.09.20) 월별 집계 · 캠페인 이미지/네임/FOM 출하율: BR FOM & IP 캘린더 2019–2025 및 2026 월별 MKT 캘린더 (2026년 출하율 미공개 구간은 – 표기) · 92개월 평균 745억 원 · 800억 이상 달성 32개월 · 증감률은 전년 동월 대비(YoY) · 2019년은 비교 기준월 없음<br>굿즈: 종수는 88케이스 F1–F5 라벨링 우선, 미라벨 월은 FOM&IP 캘린더(2019–2025) 굿즈 표기 기준(*) · 캘린더 공란 5개월(19.09/20.03/25.03/25.09/25.10)은 "없음*" 처리 · 굿즈 이미지·품목명 출처: BR FOM&IP 캘린더 2019–2025, 2026은 보도자료·BR 공홈 · 근거: 굿즈 1–2종 재방문 +0.44%p / 4종+ −0.29%p / 굿즈 부재 조합 전 케이스 음의 lift<br>굿즈 히트 등급: <b>MEGA HIT = 판매 개시 3일 이내 소진</b>, <b>HIT = 7일 이내 소진</b> · 등급·수량·출하가 출처: 「19–25년 굿즈 프로모션 진행 件」(채마팀) · 타임라인 뱃지는 굿즈 프로모션 자료의 진행월 기준이며, 셀의 굿즈 품목명은 FOM&IP 캘린더 기준이라 일부 월에서 표기 품목과 히트 품목이 다를 수 있음 · 2026.07 매출 881.6억(전년 동월 862.0억 대비 +2.3%), 2026년 1–7월 누계 5,236억(전년 동기 4,992억 대비 +4.9%) · 1–8월 누계 6,122억(전년 동기 5,819억 대비 +5.2%) · 26.07 FOM·굿즈 출처: 배스킨라빈스 보도자료(2026.06.30, 07.08, 07.16) 및 공식 홈페이지<br><b>* 2026.08 마감</b> · 실매출 886.0억(전년 동일자 827.5억 대비 +7.1%, 전년 동요일 814.6억 대비 +8.8%), 고객수 5,692,533명(전년비 -2.2%), 객단가 15,565원(전년비 +9.5%), 일평균 점포당 방문객 106명(전년 108명). 「제품군별 일매출 현황(MKT)」 26.08.31 마감분 기준이다. 1–8월 누계는 6,122억으로 전년 동기 5,819억 대비 +5.2%다. 8월 FOM 「산딸기가 끌리는 연유」(새 모델 박지훈)는 22,301텁으로 목표 2만 텁을 111.5% 소진하고 전년비 +37%, LTO 「비스코프 에스프레소 크런치」는 8,195텁·소진율 37.8%·전년비 -50%다. FOM 2종 합계는 30,496텁(목표 41,700텁 대비 73.1%). 원피스 IMC 상품은 키링 세트 21,957개(5.0만개 중 43.9%), 고무고무 열매 파인트 18,617개(3.0만개 중 62.1%)다. 8월 굿즈는 박지훈 랜덤 키링(8/21~, 쿼터 이상 구매 시 4,900원)과 7월 사전예약분 원피스 해적단 타프(22,900원)이며 이미지는 미입력 상태다.<br><b>* 2026.09 진행중</b> · 9/1~9/21 누계 실매출 495.4억(전년 동일자 466.4억 대비 +6.2%, 전년 동요일 464.0억 대비 +6.8%), 고객수 3,656,980명(전년 동일자 3,373,600명 대비 +8.4%), 객단가 13,548원(전년 동일자 13,826원 대비 -2.0%), 점포수 1,733점. 동일자 전년비가 9/20 기준 +9.1%에서 +6.2%로 내려온 것은 작년 9/21이 일요일(29.2억)이고 올해 9/21이 월요일(18.5억)이기 때문이다. 요일을 맞춘 전년비는 +6.1%에서 +6.8%로 올라갔다. 최고 매출일은 9/5(토) 37.6억이고 9/19(토) 35.7억, 9/12(토) 35.7억이 뒤를 잇는다. 평일 강세가 이어진다 — 동요일 기준 9/21(월) +26.7%, 9/8(화) +24.7%, 9/7(월) +17.2%, 9/18(금) +16.8%, 9/11(금) +16.0%다. 제품군은 디저트가 +47.0%로 가장 크게 늘었고(마카롱 수량 +118.8%, 샌드 +55.3%, 모찌 +50.9%), 콘컵이 매출 +15.9%·수량 +9.0%로 8월의 마이너스에서 돌아선 상태를 유지한다. 블록팩 수량 +26.5%, 프리팩 매출 +19.9%로 대용량 수요도 이어진다. 레디팩 수량은 9/21 하루 점당 7.2개(전년 동요일 1.0개)가 팔리며 누계 +6%대에서 +19.9%로 뛰었다. 반면 케이크는 매출 -1.1%·수량 -7.9%, 패밀리 수량 -17.7%, 스틱바 -27.3%로 계속 빠진다. 음료는 전체 +7.4%지만 커피 +13.9%·기타음료 +66.8%가 끌어올린 것이고 블라스트 -5.1%, 쉐이크 -6.9%는 여전히 마이너스다. <b style="color:#C0483C">9/16 파인트 행사일 효과는 누계에 그대로 남아 있다</b> — 그날 파인트 수량이 105,766개(전일 21,591개)까지 뛰면서 9월 누계 파인트 수량 +9.5%와 고객 전년비 +8.4%, 객단가 -2.0%를 모두 밀어올렸다. 이 하루를 빼면 파인트 수량은 전년 대비 마이너스다. 추세로 읽으면 안 된다. <b>제품군·수량 전년비의 비교 기준</b> — 9/16분 갱신까지는 전년 동일자였으나, 9/20분 파일부터 「제품군별 일매출 현황(MKT)」 RAW가 <b>전년 동요일</b>로 작성되어 제품군·수량 전년비는 모두 동요일(이번 파일은 25.09.02~09.22) 기준이다. 상단 실매출 전년비만 동일자·동요일을 함께 표기했다. 9/16분 이전 표기값과 직접 비교하면 안 된다. 구성비는 4개 대분류(IC·케이크·디저트·음료) 합계를 분모로 한다. 9월 FOM 「도쿄바나나 크렘브륄레」는 18,138텁으로 목표 2.2만텁의 82.4%를 소진했고 전년 FOM 「위대한 비쵸비」 20,876텁 대비 -13.1%다. 9/11 출시한 LTO 「카라멜 퐁당 몬치치」는 4,728텁·목표 8,000텁 대비 소진율 59.1%이며, 출시 초 이틀(9/11 1,106텁·9/12 1,070텁) 이후 하루 300텁 안팎이다. 전년 9월에는 LTO 실적이 없어 전년비는 산출하지 않는다. 월 전망은 전년 진척률(전년 9월 1~21일이 월 전체의 71.6%) 환산 692억에 추석 효과 +59억을 더해 중립 752억으로 본다. 목표 816억 대비 -64억, 현재 달성률 60.7%다. 추석이 9/25로 월말에 가까워 연휴 후반 수요가 10월로 넘어갈 수 있다. 마감월이 아니므로 92개월 평균 745억 계산에는 넣지 않았다. 팀 기준에 따라 26.09부터 출하율은 표기하지 않는다.</footer>
 </div>
 <script>
-const AVG = 744.7;
+var AVG = 744.7;   /* 매출 엑셀을 올리면 아래 스크립트가 다시 계산합니다 */
 const avgLine = {
   id:'avgLine',
   afterDatasetsDraw(chart) {
@@ -1493,6 +1513,256 @@ var TRUST_ADMIN_SESSION = false;
     var go = e.target.closest('[data-go]');
     if (go) openProduct(go.dataset.go);
   });
+})();
+</script>
+<script src="/assets/brk-sales.js"></script>
+<script>
+/* =====================================================================
+   매출 엑셀로 올린 값 칠하기
+   연간 마케팅 플랜 페이지 맨 아래 «매출 엑셀 올리기»로 넣은 값(구글시트 sales 탭)을 읽어
+   막대 그래프 · 월 칸 · 월 상세 · 연도 합계 · 일별 보기를 새 숫자로 바꿉니다.
+   시트에 없는 달은 이 파일에 적혀 있는 값을 그대로 씁니다.
+   ===================================================================== */
+(function(){
+  if (!window.BRKSales || !window.salesChart || location.protocol === "file:") return;
+  var U = BRKSales.util;
+  var YC = {2019:"#9BB0E0",2020:"#66B8A5",2021:"#E0A048",2022:"#D96E6E",2023:"#A88BD4",2024:"#8C8C85",
+            2025:"#C9A227",2026:"#5B8FCB",2027:"#3E9C8F",2028:"#C77DA8",2029:"#7A8FB8",2030:"#B08D57"};
+  var YBG = {2027:"#EAF5F3",2028:"#F8EEF4",2029:"#EEF1F8",2030:"#F6F1E8"};
+  var ch = salesChart, ds = ch.data.datasets[0], L = ch.data.labels;
+  var CW = 86, GAP = 6;
+
+  /* 새 연도 칸 색 */
+  (function(){
+    var css = "";
+    Object.keys(YBG).forEach(function(y){
+      css += ".cell.y" + y + "{background:" + YBG[y] + "}.cell.y" + y + " .mh{color:" + YC[y] + ";filter:brightness(0.7)}";
+    });
+    css += ".cell .noimg{flex:none;width:100%;height:95px;border-radius:6px;background:rgba(47,111,181,.07);display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#8A9AB2}";
+    css += ".fcast-stale{font-size:12.5px;color:#5C7291;background:#F5F9FD;border-radius:10px;padding:10px 14px;margin:10px 0 0;line-height:1.7}";
+    var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+  })();
+
+  function cellOf(lab){
+    var hit = null;
+    document.querySelectorAll(".strip .cell .mh").forEach(function(mh){ if (mh.textContent.trim() === lab) hit = mh.parentNode; });
+    return hit;
+  }
+  /* 처음부터 '진행중'이던 달 */
+  var WIP = {};
+  document.querySelectorAll(".strip .cell.wip").forEach(function(c){
+    var lab = c.querySelector(".mh").textContent.trim();
+    var sp = c.querySelectorAll(".bd .d");
+    WIP[lab] = sp[1] ? sp[1].textContent.trim() : "진행중";
+  });
+
+  var yearOf = function(lab){ return 2000 + (+lab.slice(0,2)); };
+  var labOf  = function(key){ return key.slice(2,4) + "." + key.slice(5,7); };
+  var keyOf  = function(lab){ return "20" + lab.slice(0,2) + "-" + lab.slice(3,5); };
+  var pctTxt = function(v){ return (v>=0?"+":"") + v.toFixed(1) + "%"; };
+  var cls    = function(v){ return v > 0.05 ? "up" : (v < -0.05 ? "dn" : "flat"); };
+
+  function prevVal(lab){
+    var j = L.indexOf((+lab.slice(0,2) - 1) + lab.slice(2));
+    return j < 0 || WIP[L[j]] ? null : ds.data[j];
+  }
+  /* 같은 날짜 전년 합계 (시트에 작년 일매출도 들어 있을 때만) */
+  function sameDatePrev(M, key, last){
+    var py = (+key.slice(0,4) - 1) + key.slice(4), s = 0;
+    for (var d = 1; d <= last; d++){ var v = M.days[py + "-" + U.pad(d)]; if (!v) return null; s += v.s; }
+    return s;
+  }
+
+  function recolor(){
+    var bg = [], bc = [], bw = [], maxAll = -1, iAll = -1, lastY = yearOf(L[L.length-1]), maxY = -1, iY = -1;
+    ds.data.forEach(function(v, i){
+      if (WIP[L[i]]) return;
+      if (v > maxAll) { maxAll = v; iAll = i; }
+      if (yearOf(L[i]) === lastY && v > maxY) { maxY = v; iY = i; }
+    });
+    ds.data.forEach(function(v, i){
+      var w = WIP[L[i]];
+      bg.push(w ? "#F7C9DC" : ((i === iAll || i === iY) ? "#2F6FB5" : (YC[yearOf(L[i])] || "#8C8C85")));
+      bc.push(w ? "#2F6FB5" : (v >= 800 ? "#000000" : "rgba(0,0,0,0)"));
+      bw.push(w ? 1.5 : (v >= 800 ? 2 : 0));
+      var c = cellOf(L[i]);
+      if (c) {
+        c.classList.toggle("hero", !w && (i === iAll || i === iY));
+        c.classList.toggle("over", !w && v >= 800 && !(i === iAll || i === iY));
+        c.classList.toggle("wip", !!w);
+      }
+    });
+    ds.backgroundColor = bg; ds.borderColor = bc; ds.borderWidth = bw;
+  }
+
+  function resize(){
+    var n = L.length, W = n*CW + (n-1)*GAP;
+    [".inner", ".cwrap", ".strip"].forEach(function(q){ var el = document.querySelector(q); if (el) el.style.width = W + "px"; });
+    var sp = document.querySelector(".strip"); if (sp) sp.style.gridTemplateColumns = "repeat(" + n + ", " + CW + "px)";
+    if (ch.width !== W) ch.resize(W, 250);
+  }
+
+  function addCell(lab){
+    var sp = document.querySelector(".strip"); if (!sp) return null;
+    var c = document.createElement("div");
+    c.className = "cell y" + yearOf(lab);
+    c.innerHTML = "<div class='mh'>" + lab + "</div><div class='fn' title='이 달 캠페인 정보는 아직 넣지 않았습니다'>—</div>" +
+      "<div class='noimg'>캠페인 정보 전</div><div class='sv'></div><div class='bd'><span class='d flat'></span><span class='d flat'></span></div>" +
+      "<div class='gd gna'>굿즈 —</div><div class='gph blank'></div><div class='gi'></div><div class='hits'></div>";
+    sp.appendChild(c);
+    return c;
+  }
+
+  function paintCell(lab, v, yoy, rng){
+    var c = cellOf(lab) || addCell(lab);
+    if (!c) return;
+    var w = WIP[lab];
+    var sv = c.querySelector(".sv");
+    if (sv) sv.innerHTML = (w ? v.toFixed(1) : Math.round(v)) + "<span>억</span>";
+    var sp = c.querySelectorAll(".bd .d");
+    if (sp[0]) {
+      sp[0].className = "d " + (yoy === null ? "flat" : cls(yoy));
+      sp[0].textContent = yoy === null ? "전년 –" : "전년 " + (yoy >= 0 ? "▲" : "▼") + Math.abs(yoy).toFixed(0) + "%";
+    }
+    if (sp[1] && (w || /\d+\/1~/.test(sp[1].textContent) || !sp[1].textContent)) {
+      sp[1].className = "d flat";
+      sp[1].textContent = w ? rng : (yearOf(lab) >= 2026 ? "출하 –" : "");
+    }
+    var hits = c.querySelector(".hits");
+    if (hits) {
+      var b = hits.querySelector(".hb.wip");
+      if (w && !b) hits.insertAdjacentHTML("afterbegin", "<span class='hb wip'>집계중</span>");
+      if (!w && b) b.remove();
+    }
+  }
+
+  function paintPanel(M, key, lab, a, v){
+    var c = cellOf(lab), btn = c && c.querySelector(".dbtn");
+    var p = btn ? document.getElementById("mp" + btn.dataset.m) : null;
+    if (!p) return;
+    var prev = prevVal(lab), sd = a.full ? null : sameDatePrev(M, key, a.last);
+    var set = function(label, html, k){
+      p.querySelectorAll(".mhead .mk").forEach(function(mk){
+        var s = mk.querySelector("span"), b = mk.querySelector("b");
+        if (!s || !b || !label.test(s.textContent.trim())) return;
+        b.innerHTML = html;
+        if (k !== undefined) b.className = k;
+      });
+    };
+    set(/^실매출$/, v.toFixed(1) + "<i>억</i>");
+    var y1 = a.full ? (prev ? (v/prev - 1)*100 : null) : (sd ? (a.s/sd - 1)*100 : null);
+    set(/^전년 동일$/, y1 === null ? "—" : pctTxt(y1), y1 === null ? "mut" : cls(y1));
+    var y2 = a.pw ? (a.s/a.pw - 1)*100 : null;
+    set(/^전년 동요일$/, y2 === null ? "—" : pctTxt(y2), "mut");
+    if (a.c) set(/^고객수$/, U.comma(a.c));
+    var y3 = a.pwc && a.c ? (a.c/a.pwc - 1)*100 : null;
+    if (y3 !== null || !a.full) set(/^고객 전년비$/, y3 === null ? "—" : pctTxt(y3), y3 === null ? "mut" : cls(y3));
+    p.querySelectorAll(".mhead .mk span").forEach(function(s){
+      var g = /목표\s*([\d.]+)억/.exec(s.textContent);
+      if (g) s.previousElementSibling.innerHTML = v.toFixed(1) + "<i>억 (" + (v/+g[1]*100).toFixed(1) + "%)</i>";
+    });
+    var t = p.querySelector(".mtitle i.wip");
+    if (t) { if (WIP[lab]) t.textContent = "집계중 · " + WIP[lab]; else t.remove(); }
+    /* 손으로 계산해 둔 마감 전망은 날짜가 더 들어오면 맞지 않으므로 접습니다 */
+    var fc = p.querySelector(".fcast");
+    if (fc) {
+      var f = /(\d+)\/1~(\d+)/.exec((fc.querySelector(".fsub") || {}).textContent || "");
+      if (f && +f[2] !== a.last) {
+        fc.hidden = true;
+        if (!p.querySelector(".fcast-stale")) fc.insertAdjacentHTML("afterend",
+          "<p class='fcast-stale'>" + f[1] + "/1~" + f[2] + " 기준으로 계산했던 마감 전망은 새 매출(" +
+          (a.full ? "월 마감" : f[1] + "/1~" + a.last) + ")과 맞지 않아 접어 두었습니다.</p>");
+      }
+    }
+  }
+
+  function paintKpis(minYear){
+    var box = document.querySelector(".kpis"); if (!box) return;
+    var years = {};
+    L.forEach(function(l, i){
+      var y = yearOf(l); if (y < minYear) return;
+      var o = years[y] || (years[y] = {s:0, n:0, last:0, done:[]});
+      if (WIP[l]) return;
+      o.s += ds.data[i]; o.n++; o.last = +l.slice(3,5); o.done.push(+l.slice(3,5));
+    });
+    box.querySelectorAll(".kpi").forEach(function(k){
+      var l = k.querySelector(".l"); if (l && yearOf(l.textContent.trim().slice(2,4)) >= minYear) k.remove();
+    });
+    Object.keys(years).sort().forEach(function(y){
+      var o = years[y]; if (!o.n) return;
+      var html;
+      if (o.n === 12) html = "<div class='l'>" + y + "</div><div class='v'>" + U.comma(o.s) + "<small>억</small></div>";
+      else {
+        var ps = 0, ok = true;
+        o.done.forEach(function(m){ var j = L.indexOf(((+y - 1) % 100) + "." + U.pad(m)); if (j < 0) ok = false; else ps += ds.data[j]; });
+        html = "<div class='l'>" + y + " 1–" + o.last + "월</div><div class='v'>" + U.comma(o.s) + "<small>억</small>" +
+               (ok && ps ? "<em class='yy'>전년비 " + pctTxt((o.s/ps - 1)*100) + "</em>" : "") + "</div>";
+      }
+      var d = document.createElement("div"); d.className = "kpi"; d.innerHTML = html; box.appendChild(d);
+    });
+  }
+
+  function paintTexts(){
+    var closed = L.filter(function(l){ return !WIP[l]; }).length;
+    var wl = Object.keys(WIP).sort();
+    var wtxt = wl.map(function(l){ return l + " 진행중(" + WIP[l] + ")"; }).join(" · ");
+    var first = keyOf(L[0]).replace("-", "."), last = keyOf(L[L.length-1]).replace("-", ".");
+    document.querySelectorAll("h2 > span").forEach(function(s){
+      if (/개월 마감/.test(s.textContent))
+        s.textContent = closed + "개월 마감" + (wtxt ? " + " + wtxt : "") + " · " + first + "–" + last;
+    });
+    document.querySelectorAll("#glegend > span").forEach(function(s){
+      if (/개월 평균/.test(s.textContent)) s.lastChild.textContent = closed + "개월 평균 " + Math.round(AVG) + "억";
+      else if (/진행중\(/.test(s.textContent)) s.lastChild.textContent = wtxt || "진행중 없음";
+    });
+  }
+
+  function apply(M){
+    var keys = M.sheetKeys().filter(function(k){ return keyOf(L[0]) <= k; });
+    var minYear = 9999;
+    keys.forEach(function(key){
+      var a = M.month(key);
+      if (!a || !a.s) return;
+      var lab = labOf(key), v = +(a.s/1e8).toFixed(1), i = L.indexOf(lab);
+      if (i < 0) {                       /* 새 달 : 맨 뒤에 붙인다 (사이 빈 달도 채움) */
+        var lk = keyOf(L[L.length-1]);
+        while (lk < key) {
+          var y = +lk.slice(0,4), m = +lk.slice(5,7) + 1; if (m > 12) { m = 1; y++; }
+          lk = y + "-" + U.pad(m);
+          L.push(labOf(lk)); ds.data.push(lk === key ? v : 0);
+          if (lk !== key) { WIP[labOf(lk)] = "자료 없음"; addCell(labOf(lk)); }
+        }
+        i = L.indexOf(lab);
+      }
+      ds.data[i] = v;
+      if (a.full) delete WIP[lab]; else WIP[lab] = (+key.slice(5,7)) + "/1~" + a.last;
+      var prev = prevVal(lab);
+      var yoy = a.full ? (prev ? (v/prev - 1)*100 : null) : (a.pw ? (a.s/a.pw - 1)*100 : null);
+      paintCell(lab, v, yoy, WIP[lab]);
+      paintPanel(M, key, lab, a, v);
+      minYear = Math.min(minYear, +key.slice(0,4));
+    });
+    if (minYear < 9999) {
+      var full = ds.data.filter(function(v, i){ return !WIP[L[i]]; });
+      AVG = full.reduce(function(a, b){ return a + b; }, 0) / (full.length || 1);
+      recolor(); resize(); paintKpis(minYear); paintTexts();
+      ch.options.plugins.datalabels.formatter = function(v, c){ return WIP[L[c.dataIndex]] ? v.toFixed(0) + "*" : v.toFixed(0); };
+      ch.options.plugins.tooltip.callbacks.label = function(c){
+        var l = L[c.dataIndex], y = c.parsed.y;
+        return WIP[l] ? y.toLocaleString() + "억 원 (" + l + " 진행중 · " + WIP[l] + " 누계)"
+                      : y.toLocaleString() + "억 원 (평균 대비 " + (y - AVG >= 0 ? "+" : "") + (y - AVG).toFixed(0) + "억)";
+      };
+      ch.update();
+      var sc = document.querySelector(".scroller"); if (sc) sc.scrollLeft = sc.scrollWidth;
+    }
+    /* 일별 보기 */
+    var list = Object.keys(M.days).filter(function(d){ return M.days[d].src === "sheet"; }).sort().map(function(d){
+      var x = M.days[d]; return {d:d, s:x.s, c:x.c, pw:x.pw, pwc:x.pwc, cats:x.cats};
+    });
+    if (list.length && window.BRKDaily) BRKDaily.ready.then(function(){ BRKDaily.replaceDays(list); });
+  }
+
+  BRKSales.load().then(apply).catch(function(){ /* 못 읽으면 이 파일 값 그대로 */ });
 })();
 </script>
 </body>
