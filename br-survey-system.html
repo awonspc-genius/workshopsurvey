@@ -611,7 +611,7 @@ async function finishSurvey(){
 }
 
 /* ============================ ADMIN ============================ */
-var unlocked=false, ADMIN_CODE="3131"; /* demo gate only — replace with real auth in production */
+var unlocked=false, ADMIN_CODE=""; /* 관리자는 /br-survey-admin.html (잠금 화면) 에서만 */
 var viewMode="bars"; /* "bars" | "donuts" | "table" */
 var lastSaved=null;  /* set on each submit so the thank-you screen can confirm accumulation */
 var PAL=["#2B4CC4","#C2974A","#E0B87E","#3A4E9E","#2FA98E","#8FA6E0","#C9B49A","#1E3795","#6E769B","#D9A24E","#A8B7E8","#7E6A4E"];
@@ -1154,7 +1154,7 @@ app.addEventListener('click', async function(e){
   /* admin */
   else if(act==="unlock"){
     var v=(document.getElementById('codeInput')||{}).value||"";
-    if(v===ADMIN_CODE){ unlocked=true; render(); } else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); }
+    if((location.href="/br-survey-admin.html",false)){ unlocked=true; render(); } else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); }
   }
   else if(act==="goSurvey"){ route="survey"; render(); }
   else if(act==="logout"){ unlocked=false; adminCache={ responses:[], starts:0 }; goHome(); }
@@ -1181,7 +1181,7 @@ app.addEventListener('input', function(e){
   else if(act==="other") state.answers[id+"_other"]=el.value;
 });
 app.addEventListener('keydown', function(e){
-  if(e.key==="Enter" && e.target && e.target.id==="codeInput"){ var v=e.target.value||""; if(v===ADMIN_CODE){unlocked=true; render();} else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); } }
+  if(e.key==="Enter" && e.target && e.target.id==="codeInput"){ var v=e.target.value||""; if((location.href="/br-survey-admin.html",false)){unlocked=true; render();} else { document.getElementById('app').innerHTML=viewGate("Incorrect passcode. Try again."); var c=document.getElementById('codeInput'); if(c)c.focus(); } }
 });
 /* Admin / nav links live outside #app, so bind them directly (no URL hash) */
 function setChrome(){ var r=document.getElementById('navRight'); if(r) r.textContent=(lang==='en'?'한국어':'EN'); var hb=document.getElementById('hubBtn'); if(hb) hb.innerHTML='<span class="harr">←</span> '+tr('Survey Hub'); }
