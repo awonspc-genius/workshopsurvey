@@ -635,6 +635,7 @@
     ".brks .lead2{font-size:13px;color:#6E5E55;line-height:1.7;margin:0 0 14px}" +
     ".brks .now{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:#6E5E55;padding:10px 14px;background:#FBF6F2;border-radius:10px;margin-bottom:14px}" +
     ".brks .now b{color:#000;font-weight:800}" +
+    ".brks .now[hidden],.brks [hidden]{display:none!important}" +
     ".brks .now .bad{color:#C0483C;font-weight:700}" +
     ".brks .drop{display:block;border:2px dashed #E3C9BB;border-radius:14px;padding:28px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}" +
     ".brks .drop:hover,.brks .drop:focus-visible,.brks .drop.on{border-color:#E8447A;background:#FFF5F8;outline:none}" +
