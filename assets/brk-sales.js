@@ -719,6 +719,9 @@
       "<button type='button' id='brksTpl' hidden></button>" +
       "<div class='msg' id='brksMsg' role='status' aria-live='polite'></div>" +
       "<div class='pv' id='brksPv' hidden></div>" +
+      "<div class='pv pre' id='brksPre'><div class='act'><span class='sp'></span>" +
+        "<input type='text' id='brksBy0' placeholder='올린 사람' aria-label='올린 사람 이름' autocomplete='name'><input type='password' id='brksKey0' placeholder='올리기 비밀번호' aria-label='올리기 비밀번호' autocomplete='off'>" +
+        "<button type='button' class='ghost' id='brksCancel0'>취소</button><button type='button' class='go' id='brksGo0'>사이트에 반영하기</button></div></div>" +
       (opt.slackPayload && opt.admin ?
       "<details class='slkd'><summary>슬랙 알림 <span id='brksSlkState'>확인 중…</span></summary>" +
       "<div class='slk'>" +
@@ -846,10 +849,12 @@
           "<button type='button' class='ghost' id='brksCancel'>취소</button>" +
           "<button type='button' class='go' id='brksGo'>사이트에 반영하기</button>" +
         "</div>";
-      pv.hidden = false;
+      pv.hidden = false; var pre0 = $("brksPre"); if (pre0) pre0.hidden = true;
       try { var nm = localStorage.getItem("brks_by"); if (nm) $("brksBy").value = nm; } catch (e) {}
+      if ($("brksBy0") && $("brksBy0").value) $("brksBy").value = $("brksBy0").value;
+      if ($("brksKey0") && $("brksKey0").value) $("brksKey").value = $("brksKey0").value;
       if ($("brksUnit").tagName === "SELECT") $("brksUnit").onchange = preview;
-      $("brksCancel").onclick = function () { parsed = null; pv.hidden = true; say(""); };
+      $("brksCancel").onclick = function () { parsed = null; pv.hidden = true; var p2 = $("brksPre"); if (p2) p2.hidden = false; say(""); };
       $("brksKey").onkeydown = function (e) { if (e.key === "Enter") $("brksGo").click(); };
       $("brksGo").onclick = go;
     }
@@ -897,6 +902,9 @@
 
     drop.addEventListener("click", function () { file.click(); });
     drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } });
+    if ($("brksGo0")) $("brksGo0").onclick = function () { say("먼저 엑셀 파일을 올려 주세요. 읽은 내용을 확인한 뒤 반영할 수 있어요.", "warn"); drop.classList.add("on"); setTimeout(function () { drop.classList.remove("on"); }, 900); };
+    if ($("brksCancel0")) $("brksCancel0").onclick = function () { $("brksBy0").value = ""; $("brksKey0").value = ""; say(""); };
+    try { var nm0 = localStorage.getItem("brks_by"); if (nm0 && $("brksBy0")) $("brksBy0").value = nm0; } catch (e) {}
     file.addEventListener("change", function () { pick(file.files); file.value = ""; });
     ["dragenter", "dragover"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("on"); }); });
     ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("on"); }); });
