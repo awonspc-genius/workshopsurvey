@@ -929,7 +929,7 @@ var LS_PROFILE="brkg_feed_profile", LS_MONTH="brkg_feed_";
    feed-apps-script.txt 를 시트에 붙여넣고 웹 앱으로 배포한 뒤,
    나온 https://script.google.com/macros/s/....../exec 주소를
    아래 따옴표 안에 넣어 주세요. 비워 두면 이 브라우저에만 저장됩니다. */
-var BUILD = "2026-09-26 v8 (빠른 사진)";   /* 이 화면이 몇 번째 판인지 확인용 */
+var BUILD = "2026-09-28 v9 (달 전환 덮어쓰기 수정)";   /* 이 화면이 몇 번째 판인지 확인용 */
 var SYNC_URL = "https://script.google.com/macros/s/AKfycby839KinLDHNzqDivc3fcjbwHNI5SeOggRMwSkoQ3CYWI4AeF2lV2Xx4ttlKwb4Fy8slQ/exec";
 
 try{ var savedUrl=localStorage.getItem("brkg_feed_sync"); if(savedUrl) SYNC_URL=savedUrl; }catch(e){}
@@ -1057,9 +1057,11 @@ function pushProfile(now){
 function pullMonth(force){
   if(!syncOn) return Promise.resolve();
   if(dirty&&!force) return Promise.resolve();
-  return api({action:"feed_get", month:month}).then(function(r){
+  var asked=month;
+  return api({action:"feed_get", month:asked}).then(function(r){
+    if(asked!==month) return;          /* 받는 사이 다른 달로 옮겼으면 버린다 — 안 그러면 지난 달 내용이 이 달을 덮어쓴다 */
     if(!r||!r.ok) return;
-    if(!r.json){ pushMonth(true); return; }
+    if(!r.json){ if(posts.length) pushMonth(true); return; }
     if(!force && r.updatedAt && r.updatedAt===lastPulled) return;
     var same=(JSON.stringify({slots:slots,posts:posts})===r.json);
     lastPulled=r.updatedAt||"";
