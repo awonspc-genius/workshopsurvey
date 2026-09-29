@@ -1,7 +1,7 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>피드 플래너 · BRK Genius</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" media="print" onload="this.media=\'all\'">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0}
 body{background:radial-gradient(900px 600px at 85% -10%,#DCE6FF 0,rgba(246,248,253,0) 70%),radial-gradient(700px 500px at 0% 110%,#EFE6FF 0,rgba(246,248,253,0) 70%),#F6F8FD;color:#101A33;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;display:grid;place-items:center;padding:24px}
@@ -37,7 +37,7 @@ var scopes=Object.keys(G.wraps),saved=[];
 scopes.forEach(function(s){var v=null;try{v=sessionStorage.getItem('gk_'+s);}catch(e){}if(v)saved.push(function(){return open(s,u8(v));});});
 function showForm(){document.getElementById('f').hidden=false;document.getElementById('p').focus();}
 function start(){if(!window.crypto||!crypto.subtle){showForm();return;}try{tryAll(saved,0).catch(showForm);}catch(e){showForm();}}
-if(document.readyState==='complete')start();else addEventListener('load',start);
+start();   /* 글꼴 등 다른 파일을 기다리지 않고 바로 푼다 */
 document.getElementById('f').addEventListener('submit',function(e){e.preventDefault();
   var pw=document.getElementById('p').value.trim(),m=document.getElementById('m'),b=document.getElementById('b');
   function fail(msg){m.textContent=msg;b.disabled=false;b.textContent='들어가기';var p=document.getElementById('p');p.value='';p.focus();}
